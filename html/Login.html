@@ -1,0 +1,66 @@
+<div  class="container-fluid" ng-controller="LoginController">
+   <div class="row">
+       <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 loginPanel">
+           
+           
+           <div class="row pull-right">
+              <div class="col-xs-12 " style=" top:75px; position: relative; z-index:10">
+                
+                 <button type="button" class="btn btn-default btn-circle btn-xl">MQR</button>
+                  
+              </div>
+           </div>
+           <!-- título -->
+           <div class="row">
+              <div class="col-xs-12 tituloLogin">
+                  Iniciar Sesión
+              </div>
+           </div>
+           
+           <br><br><br><br><br>
+           <form  name="login">
+           <!-- Nombre de usuario -->
+                <div class="row">
+                    <div class="col-sm-offset-2 col-sm-8 col-xs-offset-1 col-xs-10">
+                         <div class="entrada2">
+                            <input type="text" required class="entrada form-control" name="usuario" ng-model="usuarioLogin.nombreUsuario"/>
+                            <label>Nombre de Usuario</label>
+                        </div>
+                    </div>
+                </div>
+                <br><br><br><br>
+                <!-- Contraseña -->
+                <div class="row">
+                    <div class="col-sm-offset-2 col-sm-8 col-xs-offset-1 col-xs-10">
+                        <div class="entrada2">
+                            <input  type="password" required class="entrada form-control" name="password" ng-model="usuarioLogin.password"/>
+                            <label>Contraseña</label>
+                        </div>
+                    </div>
+                </div>
+
+                <br><br>
+                <div class="row">
+                    <div class="col-sm-offset-2 col-sm-8 col-xs-offset-1 col-xs-10">
+                        <b class="textoError">
+                            {{mensajeError}}
+                        </b>
+                    </div>
+                </div>
+                <br><br>
+
+                <!-- Botón para iniciar sesión -->
+                <div  class="row">
+                    <div class="col-sm-offset-2 col-sm-8 col-xs-offset-1 col-xs-10">
+                        <button class="btn btn-lg btn-block botonLogin" ng-click="IniciarSesion(login.usuario.$invalid, login.password.$invalid)"> 
+                            Iniciar Sesión 
+                            <span class="fa fa-arrow-right"></span>
+                        </button>
+                    </div>
+                </div>
+           </form>
+          
+           
+       </div>
+    </div>
+</div>

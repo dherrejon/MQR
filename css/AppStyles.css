@@ -1,0 +1,86 @@
+.appPanel
+{
+    background: white;
+    min-height: 100vh;
+    margin-top: -117px;
+}
+
+.textoBienvenido
+{
+    color: rgb(41,69,77);
+    font-size: 24pt;
+}
+
+.textoPregunta
+{
+    color: rgba(78,122,137,1);
+    font-size: 12pt;
+}
+
+
+/*------------aplicacion--------------*/
+
+.btnCircleApp
+{
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 15px;
+}
+
+
+.btnCircleApp.botnIcono
+{
+    width: 120px;
+    height: 120px;
+    padding: 10px 16px;
+    font-size: 40px;
+    line-height: 1.33;
+    border-radius: 60px;
+    border: 3px solid rgb(41,69,77);
+    background: white;
+    color: rgb(41,69,77);
+}
+
+.btnCircleApp.botnIcono:hover, .btnCircleApp.botnIcono:focus
+{
+    width: 120px;
+    height: 120px;
+    padding: 10px 16px;
+    font-size: 50px;
+    line-height: 1.33;
+    border-radius: 60px;
+    border: 3px solid rgb(41,69,77);
+    background: rgb(41,69,77);
+    color: white;
+    z-index: 4;
+    
+    -webkit-transition: all 1s ease-in-out;
+    -moz-transition: all 1s ease-in-out;
+    -o-transition: all 1s ease-in-out;
+    transition: all 1s ease-in-out;
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -ms--transform: rotate(360deg);
+    transform: rotate(360deg);
+    
+    outline:0px;
+}
+
+.tituloApp
+{
+    color: rgb(41,69,77);
+    font-size: 12pt;
+}
+
+@media (max-width: 767px)
+{    
+    .textoBienvenido
+{
+    color: rgb(41,69,77);
+    font-size: 20pt;
+}
+}
