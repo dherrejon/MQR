@@ -106,14 +106,25 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     /*---------------- Ir a pagina Principal ------------------*/
     $rootScope.IrPaginaPrincipal = function()
     {
-        for(var k=0; k<aplicaciones.length; k++)
+        if($scope.usuario !== undefined || $scope.usuario !== null)
         {
-            if($scope.usuario.Aplicacion == aplicaciones[k].texto)
+            if($scope.usuario.Aplicacion.length === 0)
             {
-                $location.path(aplicaciones[k].paginaPrincipal);
-                break;
+                $location.path('/Aplicacion');
+            }
+            else
+            {
+               for(var k=0; k<aplicaciones.length; k++)
+                {
+                    if($scope.usuario.Aplicacion == aplicaciones[k].texto)
+                    {
+                        $location.path(aplicaciones[k].paginaPrincipal);
+                        break;
+                    }
+                } 
             }
         }
+        
     };
     
    /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
@@ -125,13 +136,13 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         if(!$scope.usuario.SesionIniciada)
         {
              $location.path('/Login');
+            return;
         }
         else
         {
             if(!($scope.usuario.Aplicacion  === null ||  $scope.usuario.Aplicacion  === undefined))
             {
                 $scope.CambiarBarraNavegacion();
-                $scope.IrPaginaPrincipal();
             }
         }
     }
@@ -151,7 +162,6 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             if(!($scope.usuario.Aplicacion  === null ||  $scope.usuario.Aplicacion  === undefined))
             {
                 $scope.CambiarBarraNavegacion();
-                $scope.IrPaginaPrincipal();
             }
         }
     });
@@ -165,7 +175,7 @@ var EncabezadoSabiduria =
                     { texto:"Adminitrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [
-                                                {texto:"usuario", referencia:"#Usuario", funcion:""},
+                                                {texto:"Usuario", referencia:"#Usuario", funcion:""},
                                                 {texto:"Fuente", referencia:"#Fuente", funcion:""},
                                                 {texto:"Autor", referencia:"#Autor", funcion:""},
                                                 {texto:"Etiqueta", referencia:"#Etiqueta", funcion:""},

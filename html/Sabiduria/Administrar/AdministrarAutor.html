@@ -1,0 +1,68 @@
+<div ng-controller="AdministrarAutorController as admAutor">
+   
+    <div class="container-fluid">
+       
+        <div class="row">
+            <div class="{{claseApp}}">
+            
+                <div class="row" style="margin-top:123px">
+                   <div class="tab" role="tabpanel" style="margin-top:-7px">
+                       
+                        <!-- pestañas -->
+                        <ul ng-if="anchoPantalla > 400" class="nav nav-tabs" role="tablist">
+                            <li   ng-repeat="tab in tabs" class="{{tab.clase}}"><a  href="" aria-controls="{{tab.area}}" role="tab" data-toggle="tab" ng-click="SeleccionarTab(tab, $index)">{{tab.titulo}}</a></li>
+                        </ul>
+                        
+
+                        <ul ng-if="anchoPantalla < 401" class="nav nav">
+                            <li  class="tabSm dropdown">
+
+                                <button  class="dropdown-toggle  btn dropDownTab" data-toggle="dropdown" >
+                                    <span>{{titulo}}</span>
+                                    <span class="caret"></span>
+                                </button>
+
+                                <ul class="dropdown-menu elemetosDropdownListModal">
+                                    <li ng-repeat="tab in tabs"  class="dropdownOpcionModal">
+                                        <a  href="" class="dropdownOpcionModal" aria-controls="{{tab.area}}" ng-click="SeleccionarTab(tab, $index)">
+                                            <span>{{tab.titulo}}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+
+                            </li>
+                        </ul>
+
+                        
+                        <!-- Contenido -->
+                        <div class="">
+                            <!-- Autor -->
+                            <div role="tabpanel" class="tab-pane in active" id="Autor" ng-if="permiso && titulo=='Autor'" >
+                              <br>  
+                                <div ng-include=" 'html/Sabiduria/Administrar/Autor/Autor.html' ">
+
+                                </div>
+                            </div>
+
+                        
+                            <!-- Prefijo -->
+                            <div role="tabpanel" class="tab-pane" id="Prefijo"  ng-if="permiso && titulo=='Prefijo'">
+                              <br>  
+                                <div ng-include=" 'html/Sabiduria/Administrar/Autor/Prefijo.html' ">
+
+                                </div>
+                            </div>
+
+                        </div>
+                        
+                    </div>
+                </div>
+                <br>
+              
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+    

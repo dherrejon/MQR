@@ -3,6 +3,17 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
     $scope.mensajeError = "";
     $scope.usuarioLogin = {nombreUsuario:"", password:""};
     
+    $scope.usuario = datosUsuario.getUsuario();
+    /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
+    $scope.$on('cambioUsuario',function()
+    {
+        $scope.usuario =  datosUsuario.getUsuario();    
+        if($scope.usuario.SesionIniciada)
+        {
+            $rootScope.IrPaginaPrincipal();
+        }
+    });
+    
     $scope.IniciarSesion = function(usuarioInvalido, passwordInvalido)
     {
         if(!$scope.ValidarDatos(usuarioInvalido, passwordInvalido))
@@ -63,37 +74,13 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
         return true;
     };
     
-    /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
-    $scope.usuarioLogeado =  datosUsuario.getUsuario(); 
-    
-    //verifica que haya un usuario logeado
-    if($scope.usuarioLogeado !== null)
+    if($scope.usuario !== null)
     {
-        if($scope.usuarioLogeado.SesionIniciada)
+        if($scope.usuario.SesionIniciada)
         {
-            $rootScope.IrPaginaPrincipal();
-        }
-        else
-        {
-            $location.path('/Login');
+            $scope.IrPaginaPrincipal();
         }
     }
-    
-    //destecta cuando los datos del usuario cambian
-    $scope.$on('cambioUsuario',function()
-    {
-        $scope.usuarioLogeado =  datosUsuario.getUsuario();
-    
-        if(!$scope.usuarioLogeado.SesionIniciada)
-        {
-            $location.path('/Login');
-            return;
-        }
-        else
-        {
-            $location.path('/Aplicacion');
-        }
-    });
 
 });
 

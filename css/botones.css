@@ -1,0 +1,189 @@
+.botonAgregar
+{
+    border: none;
+    background: none;
+    color: #262626;
+    font-size: 16pt;
+}
+
+.botonAgregar:hover, .botonAgregar:active, .botonAgregar:focus
+{
+    outline: none !important;
+    box-shadow: none;
+}
+
+/*-----------Modales-------------------*/
+.botonFinModal
+{
+    border: 2px solid rgb(41,69,77); 
+    color:  rgb(41,69,77); 
+    background: #F1F1F1;
+    font-size: 18px;
+}
+
+.botonFinModal:hover
+{
+    border: 2px solid rgb(41,69,77); 
+    color: #F1F1F1;
+    background: rgb(41,69,77); 
+}
+
+.cerrarModal, .cerrarModal:focus, .cerrarModal:active
+{
+    color: rgba(78,122,137,1); 
+    opacity: 1.0;
+    font-size: 24px;
+}
+
+.cerrarModal:hover
+{
+    color: rgb(41,69,77);
+    opacity: 1.0;
+}
+
+/*----------------- Tabla -------------------------------*/
+.botonTablaOrdenar
+{
+    background: none;
+    text-align: left;
+    width: 100%;
+}
+
+.botonTablaNormal
+{
+    background: none;
+    text-align: center;
+    width: 100%;
+    outline: none !important;
+    box-shadow: none;
+}
+
+.botonTablaOrdenar:hover, .botonTablaOrdenar:active, .botonTablaOrdenar:focus
+{
+    color:  #D9D9D9 !important;
+    outline: none !important;
+    box-shadow: none;
+}
+
+.botonTablaNormal:hover, .botonTablaNormal:active, .botonTablaNormal:focus
+{
+    cursor: default;
+    color:  #D9D9D9 !important;
+    outline: none !important;
+    box-shadow: none;
+}
+
+.botonTablaOperacion, .botonTablaOperacion:focus
+{
+    color: #262626;
+}
+
+.botonTablaOperacion:hover
+{
+    color: rgba(78,122,137,1);
+}
+
+/*-------- check box Activo---------*/
+
+.checkBoxActivo
+{
+    color: #262626;
+    border: 2px solid #262626;
+    width: 100%;
+    display: block;
+    background: #F1F1F1;
+}
+
+.checkBoxActivo:disabled
+{
+    opacity: 1.0;
+    background: #F1F1F1;
+}
+
+.badgebox
+{
+    opacity: 0;
+}
+
+.badgebox + .badge
+{
+    text-indent: -999999px;
+	width: 27px;
+    background: #262626;
+    color: #F1F1F1;
+}
+
+.badgebox:focus + .badge
+{
+    box-shadow: inset 0px 0px 5px;
+}
+
+.badgebox:checked + .badge
+{
+	text-indent: 0;
+}
+
+
+/*--------clase para CheckBox----------*/
+
+.radio,
+.checkbox 
+{
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: -8px;  
+}
+
+.checkbox label:after
+{
+    content: '';
+}
+
+.checkbox .cr
+{
+    position: relative;
+
+    border: 2px solid #262626;
+    border-radius: 0px;
+    width: 25px;
+    height: 25px;
+    float: left;
+    margin-right: .5em;
+}
+
+.radio .cr 
+{
+    border-radius: 50%;
+}
+
+.checkbox .cr .cr-icon
+{
+    position: absolute;
+    font-size: 10pt;
+    line-height: 0;
+    top: 50%;
+    left: 20%;
+}
+
+.checkbox label input[type="checkbox"]
+{
+    display: none;
+}
+
+.checkbox label input[type="checkbox"] + .cr > .cr-icon
+{
+    transform: scale(3) rotateZ(-20deg);
+    opacity: 0;
+    transition: all .3s ease-in;
+}
+
+.checkbox label input[type="checkbox"]:checked + .cr > .cr-icon
+{
+    transform: scale(1) rotateZ(0deg);
+    opacity: 1;
+}
+
+.checkbox label input[type="checkbox"]:disabled + .cr
+{
+    opacity: .5;
+}

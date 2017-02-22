@@ -28,8 +28,19 @@
 }
 
 /* Clase para las entradas de texto en el login */
-
 .entrada
+{
+    background-color: transparent;
+    color: #262626;
+    border-width: 0px 0px 3px 0px; 
+    border-style: solid;
+    border-color: #262626;
+    border-radius: 0px;
+    outline: none !important;
+    box-shadow: none;
+}
+
+.entradaLogin
 {
     background-color: transparent;
     color: rgb(41,69,77);
@@ -41,7 +52,7 @@
     box-shadow: none;
 }
 
-.entrada:focus, .entradaError:focus
+.entradaLogin:focus, .entradaLogin:focus, .entrada:focus, .entrada:focus
 {
     color: rgb(41,69,77);
     border-style: solid;
@@ -53,10 +64,10 @@
 .entradaError
 {
     background-color: transparent;
-    color: rgba(78,122,137,1);
+    color: rgb(41,69,77);
     border-width: 0px 0px 3px 0px; 
     border-style: solid;
-    border-color: rgba(78,122,137,1);
+    border-color: #970000;
     border-radius: 0px;
     outline: none !important;
     box-shadow: none;
@@ -85,7 +96,7 @@
 {
     font-weight:400;
     font-size:18px;
-    color: rgb(41,69,77);
+    color: #262626;
     width:100%;
     box-shadow:none;
     -webkit-transition:none;
@@ -108,6 +119,12 @@
     color: rgba(78,122,137,1) !important;
     font-weight:400;
     font-weight: bold;
+}
+
+/*-----------Error-----------------*/
+.textoError
+{
+    color: #970000 !important;
 }
 
 /*------------icono--------------*/

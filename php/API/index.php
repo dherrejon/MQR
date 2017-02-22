@@ -5,6 +5,11 @@
 
     require 'General/Sesion.php';
 
+    require 'Sabiduria/Administrar/Etiqueta.php';
+    require 'Sabiduria/Administrar/Fuente.php';
+    require 'Sabiduria/Administrar/Prefijo.php';
+    require 'Sabiduria/Administrar/Autor.php';
+
     /*-----Seguridad-----*/
     require 'PHP-JWT/Authentication/JWT.php';
     require 'PHP-JWT/Exceptions/SignatureInvalidException.php';
@@ -166,6 +171,22 @@
     $app->get('/GetEstadoSesion', $seguridad, $ChecarSesion, 'GetEstadoSesion');
     $app->get('/CerrarSesion', $seguridad, 'CerrarSesion');
     $app->put('/SetAplicacion', $seguridad, 'SetAplicacion');
+
+    /*----------------------- Etiqueta ------------------------------------------*/
+    $app->get('/GetEtiqueta', $seguridad, $ChecarSesion, 'GetEtiqueta');
+    $app->post('/AgregarEtiqueta', $seguridad, $ChecarSesion, 'AgregarEtiqueta');
+    $app->put('/EditarEtiqueta', $seguridad, $ChecarSesion, 'EditarEtiqueta');
+    $app->post('/ActivarDesactivarEtiqueta', $seguridad, $ChecarSesion, 'ActivarDesactivarEtiqueta');
+
+    /*----------------------- Prefijo ------------------------------------------*/
+    $app->get('/GetAutor', $seguridad, $ChecarSesion, 'GetAutor');
+    $app->post('/AgregarAutor', $seguridad, $ChecarSesion, 'AgregarAutor');
+    $app->put('/EditarAutor', $seguridad, $ChecarSesion, 'EditarAutor');
+
+    /*----------------------- Prefijo ------------------------------------------*/
+    $app->get('/GetPrefijo', $seguridad, $ChecarSesion, 'GetPrefijo');
+    $app->post('/AgregarPrefijo', $seguridad, $ChecarSesion, 'AgregarPrefijo');
+    $app->put('/EditarPrefijo', $seguridad, $ChecarSesion, 'EditarPrefijo');
 
 
     $app->run(); 

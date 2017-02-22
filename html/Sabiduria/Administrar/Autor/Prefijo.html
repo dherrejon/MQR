@@ -1,0 +1,125 @@
+<div ng-controller="PrefijoController as prefijo">
+   
+   <!-- buscar -->
+   <div class="col-xs-6">
+       <div class="entrada2">
+            <input type="text" required class="entrada form-control" name="buscar" ng-model="bucarPrefijo"/>
+            <label>Buscar</label>
+        </div>
+   </div>
+   
+   <!-- agregar -->
+   <div class="col-xs-6">
+       <button class="btn  botonAgregar pull-right" ng-click="AbrirPrefijo('Agregar', null)"><span class="fa fa-plus"></span> Nuevo</button>
+   </div>
+    <br><br><br>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="TituloTabla">
+              <tr>
+                <th><button class="btn btn-block botonTablaOrdenar" ng-click="CambiarOrdenarPrefijo('Nombre')"><b>Prefijo </b><b ng-if="ordenarPrefijo === 'Nombre'" class="fa fa-arrow-up"></b>  <b ng-if="ordenarPrefijo === '-Nombre'" class="fa fa-arrow-down"></b></button></th>
+                <th><button class="btn botonTablaNormal"><b>Editar</b></button></th>
+              </tr>
+            </thead>
+            <tbody ng-repeat="prefijo in prefijo | orderBy:ordenarPrefijo | filter:bucarPrefijo">
+              <tr>
+                  <td style="font-size:14pt">
+                      <b>{{prefijo.Abreviacion}} </b>
+                      {{prefijo.Nombre}} 
+                  </td>
+
+                <td class="text-center">
+                    <a  class="botonTablaOperacion" href="" data-toggle="modal" data-target="#" ng-click="AbrirPrefijo('Editar', prefijo)">
+                        <span class="fa fa-pencil fa-2x" ></span>
+                    </a>
+                </td>
+
+              </tr>
+            </tbody>
+        </table>
+    </div>
+
+    
+    <!-- -----------------------Modales -------------------------- -->
+	<div class="modal fade" id="modalPrefijo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
+        <br>    <br>   <br>
+        <div class="modal-dialog modalPrincipal">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ng-click="CerrarPrefijoModal()"><span aria-hidden="true">&times;</span></button>
+                    <span ng-if="operacion == 'Agregar'" class="tituloModal">Agregar Prefijo</span>
+                    <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Prefijo</span>
+                </div>
+            </div>
+            <br><br><br>
+            
+            <form name="prefijoForma">
+                <div class="row">
+                    <div class="col-sm-6">
+                       <div class="entrada2">
+                            <input type="text" required class="{{clasePrefijo.abreviacion}} form-control" name="abreviacion" ng-model="nuevoPrefijo.Abreviacion" ng-maxlength="15"/>
+                            <label>Abreviación</label>
+                        </div>
+                   </div>
+                   
+                   <br class="hidden-sm hidden-md hidden-lg"><br class="hidden-sm hidden-md hidden-lg">
+                   <div class="col-sm-6">
+                        <div class="entrada2">
+                            <input type="text" required class="{{clasePrefijo.nombre}} form-control" name="nombre" ng-model="nuevoPrefijo.Nombre" ng-maxlength="120"/>
+                            <label>Prefijo</label>
+                        </div>
+                   </div>   
+                     
+                         
+                </div>
+                <br>
+                <!-------- mensaje de error ---->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div ng-repeat="error in mensajeError">
+                            <span class="textoError">{{error}}</span>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <!---- botones de operacion -->
+                <div class="row">
+                    <div class="col-xs-6">
+                        <button class="btn botonFinModal btn-block" data-dismiss="modal" aria-label="Close" ng-click="CerrarPrefijoModal()">CANCELAR</button>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <button focus class="btn botonFinModal btn-block" ng-click="TerminarPrefijo(prefijoForma.nombre.$invalid, prefijoForma.abreviacion.$invalid)">TERMINAR</button>
+                    </div>
+                </div>
+            <br>
+            </form> 
+            
+        </div>
+    </div>
+    
+    <div class="modal fade" id="mensajePrefijo">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal text-center">
+           
+            
+            
+            <div class="row">
+                <div class="col-xs-12">
+                    <span style="font-size:14pt">{{mensaje}}</span>
+                </div>
+            </div>
+            <br><br>
+            <div class="row">
+                <div class="col-xs-12">
+                    <button class="btn  botonFinModal" data-dismiss="modal" aria-label="Close">Aceptar</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+
+    

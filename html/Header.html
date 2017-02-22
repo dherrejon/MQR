@@ -7,28 +7,20 @@
                 <div class="row encabezadoUsuario"  id="tiutloPagina" ng-show="usuario.SesionIniciada">            <!--  -->
                     <!-- Título -->
                     <div class="col-md-7 col-sm-6 col-xs-6 encabezadoTitulo">
-                        <h2 class =" hidden-xs hidden-sm">Sabiduría</h2>
-                        <h3 class ="hidden-md hidden-lg">Sabiduría</h3>
+                        <h2 class =" hidden-xs hidden-sm claseTitulo">{{barraNavegacion.titulo}}</h2>
+                        <h3 class ="hidden-md hidden-lg claseTitulo">{{barraNavegacion.titulo}}</h3>
                        
                     </div>
 
-                    <div class=" col-md-5 col-sm-6 col-xs-6" style="margin-top: 23px;">
+                    <div class=" col-md-5 col-sm-6 col-xs-6 text-center" style="margin-top: 23px;">
 
-                        <span class="textoPerfil">Bienvenido {{usuario.NombreUsuario}}</span> 
+                        <span style="font-size:16pt">{{usuario.NombreUsuario}}</span> 
                     </div>
                 </div>
 
                 <div class="row barraNavegacion" id="barraNavegacion" ng-show="usuario.SesionIniciada"> <!-- ng-show="usuario.SesionIniciada"  -->
 
                     <div class="col-xs-12">
-
-                        <!-- logo -->
-                        <div class="col-sm-3 col-xs-8">
-                            <a href="#Aplicacion" class="claseTitulo">
-                                <span >{{barraNavegacion.titulo}}</span
-                            ></a>
-                        </div>
-
                         <nav ng-class="barraNavArriba">
                             <!-- Barra de navegación móvil -->
                             <div class="navbar-header" ng-show="usuario.SesionIniciada"> <!-- ng-show="usuario.SesionIniciada" -->

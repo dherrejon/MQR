@@ -26,9 +26,10 @@ function IniciarSesion($http, usuario, $q, CONFIG, md5)
 
       }).success(function(data)
         {
-            if(data.length > 0)
+            if(data[0].Estatus == "Iniciado")
             {
-                usuario = SetUsuario(data);
+                usuario = SetUsuario(data[1].Usuario);
+                usuario.Aplicacion = "";
                 q.resolve(usuario);
             }
             else if(data[0].Estatus == "SesionInicada")
@@ -119,7 +120,7 @@ function SetUsuario(data)
     usuario.UsuarioId = data[0].UsuarioId;
     usuario.NombreUsuario = data[0].NombreUsuario;
     usuario.Password = "";
-    usuario.Activo = CambiarBoolAInt(data[0].Activo);
+    usuario.Activo = CambiarIntABool(data[0].Activo);
     usuario.Nombre = data[0].Nombre;
     usuario.Apellidos = data[0].Apellidos;
     usuario.SesionIniciada = true;
@@ -152,7 +153,7 @@ function SetAplicacion(aplicacion, $http, CONFIG)
      });
 }
 
-function CambiarBoolAInt(valor)
+function CambiarIntABool(valor)
 {
     if(valor == "1")
     {
@@ -161,5 +162,17 @@ function CambiarBoolAInt(valor)
     else
     {
         return false;
+    }
+}
+
+function CambiarBoolAInt(valor)
+{
+    if(valor)
+    {
+        return "1";
+    }
+    else
+    {
+        return "0";
     }
 }

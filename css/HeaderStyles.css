@@ -21,13 +21,14 @@
     background: #29454D;
     color: white;
     text-align: center;
+    min-height: 60px;
 }
 
 .claseTitulo
 {
     font-size: 24pt;
     font-family: cursive;
-    color: black !important;
+    color: white !important;
 }
 
 a:link   

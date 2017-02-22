@@ -35,7 +35,8 @@ function Login()
 
                 $rspH = $app->response();
                 $rspH['X-Api-Key'] = generateToken(false);
-                echo json_encode($response);
+                
+                echo '[ { "Estatus": "Iniciado"}, {"Usuario":'.json_encode($response).'} ]'; 
             }
             else
             {

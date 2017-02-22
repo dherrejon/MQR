@@ -76,9 +76,22 @@ app.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpPro
         templateUrl: 'html/Aplicacion.html'
     }).
     //Sabiduría
-    when('/Informacion',{
-        templateUrl: 'html/Sabiduria/Informacion.html'
-    }).
+        when('/Informacion',{
+            templateUrl: 'html/Sabiduria/Informacion.html'
+        }).
+        //administrar
+        when('/Etiqueta',{
+            templateUrl: 'html/Sabiduria/Administrar/AdministrarEtiqueta.html'
+        }).
+        when('/Fuente',{
+            templateUrl: 'html/Sabiduria/Administrar/AdministrarFuente.html'
+        }).
+        when('/Autor',{
+            templateUrl: 'html/Sabiduria/Administrar/AdministrarAutor.html'
+        }).
+        when('/Usuario',{
+            templateUrl: 'html/Sabiduria/Administrar/Accesorio.html'
+        }).
     otherwise({
         templateUrl: 'html/Login.html'
     });
@@ -87,6 +100,8 @@ app.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpPro
 app.run(function($rootScope, $location, $window, $http, CONFIG, $q, datosUsuario)
 {   
     $rootScope.claseApp = "col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 appPanel";
+    
+    $rootScope.erNombrePersonal = /^(([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ]){2,250}\s?)+$/;   //expresion regular para los apellido y el nombre de una persona
     
     $rootScope.ChecarSesion = function(token)           //verifica el esatdo de la sesión
     {  
@@ -129,6 +144,14 @@ app.run(function($rootScope, $location, $window, $http, CONFIG, $q, datosUsuario
     };
 
     $rootScope.GetEstadoSesion();                     //Cada ves que se inicializa la aplicación verifica los datos del ususario
+    
+    /*-----tamaño de la pantalla -----------*/
+    $rootScope.anchoPantalla = $( window ).width();
+    $( window ).resize(function() 
+    {
+        $rootScope.anchoPantalla = $( window ).width();
+        $rootScope.$apply();       
+    });
 });
 
 //identificas cuando los datos del usuario cambian
