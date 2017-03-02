@@ -121,6 +121,20 @@
     font-weight: bold;
 }
 
+/*---------- Texto Detalles ------------*/
+.subrayado
+{
+    border-width: 0px 0px 2px 0px;
+    border-style:  solid;
+    border-color: #262626;
+}
+
+.textoModal
+{
+    font-size: 14pt;
+    color:#262626;
+}
+
 /*-----------Error-----------------*/
 .textoError
 {

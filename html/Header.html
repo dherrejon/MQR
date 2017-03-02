@@ -115,6 +115,92 @@
         </div>
     </div>
     
+    <!----------------------- Modales ----------------------------------->
+    <div class="modal fade" id="CambiarPasswordModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
+        <br>    <br>   <br>
+        <div class="modal-dialog modalPrincipal">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ng-click="CerrarCambiarPasswordForma()"><span aria-hidden="true">&times;</span></button>
+                    <span class="tituloModal">Cambiar Contraseña</span>
+                </div>
+            </div>
+            <br><br><br>
+            
+            <form name="passwordForma">
+                <div class="row">
+                    <div class="col-sm-6">
+                       <div class="entrada2">
+                            <input type="password" required ng-pattern="erPassword" class="{{clasePassword.nuevo}} form-control" name="nuevo" ng-model="nuevoPassword.nuevo" ng-maxlength="150"/>
+                            <label>Nueva Contraseña</label>
+                        </div>
+                     </div>
+                     
+                     <br class="hidden-sm hidden-md hidden-lg"><br class="hidden-sm hidden-md hidden-lg">
+                     <div class="col-sm-6">
+                       <div class="entrada2">
+                            <input type="password" required class="{{clasePassword.repetir}} form-control" name="repetir" ng-model="nuevoPassword.repetir" ng-maxlength="150"/>
+                            <label>Repetir Contraseña</label>
+                        </div>
+                   </div>          
+                </div>
+                <br><br>
+                <div class="row">
+                    <div class="col-sm-6">
+                       <div class="entrada2">
+                            <input type="password" required class="{{clasePassword.actual}} form-control" name="actual" ng-model="nuevoPassword.actual" ng-maxlength="150"/>
+                            <label>Contraseña Actual</label>
+                        </div>
+                     </div>          
+                </div>
+                <br>
+                <!-------- mensaje de error ---->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div ng-repeat="error in mensajeError">
+                            <span class="textoError">{{error}}</span>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <!---- botones de operacion -->
+                <div class="row">
+                    <div class="col-xs-6">
+                        <button class="btn botonFinModal btn-block" data-dismiss="modal" aria-label="Close" ng-click="CerrarCambiarPasswordForma()">CANCELAR</button>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <button focus class="btn botonFinModal btn-block" ng-click="GuardarPassword(passwordForma.nuevo.$invalid)">TERMINAR</button>
+                    </div>
+                </div>
+            <br>
+            </form> 
+            
+        </div>
+    </div>
+    
+    <div class="modal fade" id="mensajeEncabezado">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal text-center">
+           
+            
+            
+            <div class="row">
+                <div class="col-xs-12">
+                    <span style="font-size:14pt">{{mensaje}}</span>
+                </div>
+            </div>
+            <br><br>
+            <div class="row">
+                <div class="col-xs-12">
+                    <button class="btn  botonFinModal" data-dismiss="modal" aria-label="Close">Aceptar</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
 </div>
 
     

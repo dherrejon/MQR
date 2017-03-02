@@ -4,11 +4,15 @@
     require 'configuration.php';
 
     require 'General/Sesion.php';
+    require 'General/Usuario.php';
 
     require 'Sabiduria/Administrar/Etiqueta.php';
     require 'Sabiduria/Administrar/Fuente.php';
+    require 'Sabiduria/Administrar/TipoFuente.php';
     require 'Sabiduria/Administrar/Prefijo.php';
     require 'Sabiduria/Administrar/Autor.php';
+    require 'Sabiduria/Administrar/Tema.php';
+    require 'Sabiduria/Administrar/TipoInformacion.php';
 
     /*-----Seguridad-----*/
     require 'PHP-JWT/Authentication/JWT.php';
@@ -172,6 +176,15 @@
     $app->get('/CerrarSesion', $seguridad, 'CerrarSesion');
     $app->put('/SetAplicacion', $seguridad, 'SetAplicacion');
 
+    /*----------------------Usuario ----------------------*/
+    $app->get('/GetUsuarios', $seguridad, $ChecarSesion, 'GetUsuarios');
+    $app->post('/ActivarDesactivarUsuario', $seguridad, $ChecarSesion, 'ActivarDesactivarUsuario');
+    
+    $app->get('/GetPermiso', $seguridad, $ChecarSesion, 'GetPermiso');
+    
+    $app->get('/GetPermisoUsuario/:id', $seguridad, $ChecarSesion, 'GetPermisoUsuario');
+    $app->put('/CambiarPasswordPorUsuario', $seguridad, $ChecarSesion, 'CambiarPasswordPorUsuario');
+
     /*----------------------- Etiqueta ------------------------------------------*/
     $app->get('/GetEtiqueta', $seguridad, $ChecarSesion, 'GetEtiqueta');
     $app->post('/AgregarEtiqueta', $seguridad, $ChecarSesion, 'AgregarEtiqueta');
@@ -187,6 +200,29 @@
     $app->get('/GetPrefijo', $seguridad, $ChecarSesion, 'GetPrefijo');
     $app->post('/AgregarPrefijo', $seguridad, $ChecarSesion, 'AgregarPrefijo');
     $app->put('/EditarPrefijo', $seguridad, $ChecarSesion, 'EditarPrefijo');
+
+    /*-----------------------  TipoFuente ------------------------------------------*/
+    $app->get('/GetTipoFuente', $seguridad, $ChecarSesion, 'GetTipoFuente');
+    $app->post('/AgregarTipoFuente', $seguridad, $ChecarSesion, 'AgregarTipoFuente');
+    $app->put('/EditarTipoFuente', $seguridad, $ChecarSesion, 'EditarTipoFuente');
+
+    /*-----------------------  Fuente ------------------------------------------*/
+    $app->get('/GetFuente', $seguridad, $ChecarSesion, 'GetFuente');
+    $app->post('/AgregarFuente', $seguridad, $ChecarSesion, 'AgregarFuente');
+    $app->put('/EditarFuente', $seguridad, $ChecarSesion, 'EditarFuente');
+
+    $app->get('/GetFuenteAutor/:id', $seguridad, $ChecarSesion, 'GetFuenteAutor');
+    $app->get('/GetFuenteEtiqueta/:id', $seguridad, $ChecarSesion, 'GetFuenteEtiqueta');
+
+    /*-----------------------  Tema ------------------------------------------*/
+    $app->get('/GetTema', $seguridad, $ChecarSesion, 'GetTema');
+    $app->post('/AgregarTema', $seguridad, $ChecarSesion, 'AgregarTema');
+    $app->put('/EditarTema', $seguridad, $ChecarSesion, 'EditarTema');
+
+    /*-----------------------  Tipo Informacion ------------------------------------------*/
+    $app->get('/GetTipoInformacion', $seguridad, $ChecarSesion, 'GetTipoInformacion');
+    $app->post('/AgregarTipoInformacion', $seguridad, $ChecarSesion, 'AgregarTipoInformacion');
+    $app->put('/EditarTipoInformacion', $seguridad, $ChecarSesion, 'EditarTipoInformacion');
 
 
     $app->run(); 

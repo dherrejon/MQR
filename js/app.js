@@ -1,4 +1,4 @@
-var app = angular.module('MQR',['ngRoute','angular-md5']);
+var app = angular.module('MQR',['ngRoute','angular-md5', 'angular-loading-bar']);
 
 app.constant('CONFIG',{
         APIURL: "php/API/index.php",
@@ -89,8 +89,11 @@ app.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpPro
         when('/Autor',{
             templateUrl: 'html/Sabiduria/Administrar/AdministrarAutor.html'
         }).
+        when('/ConfigurarInformacion',{
+            templateUrl: 'html/Sabiduria/Administrar/AdministrarInformacion.html'
+        }).
         when('/Usuario',{
-            templateUrl: 'html/Sabiduria/Administrar/Accesorio.html'
+            templateUrl: 'html/Sabiduria/Administrar/Usuario.html'
         }).
     otherwise({
         templateUrl: 'html/Login.html'
@@ -102,6 +105,7 @@ app.run(function($rootScope, $location, $window, $http, CONFIG, $q, datosUsuario
     $rootScope.claseApp = "col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 appPanel";
     
     $rootScope.erNombrePersonal = /^(([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ]){2,250}\s?)+$/;   //expresion regular para los apellido y el nombre de una persona
+    $rootScope.erPassword = /^(\w){6}(\w)*$/;   //expresion regular para la contraseña
     
     $rootScope.ChecarSesion = function(token)           //verifica el esatdo de la sesión
     {  
@@ -176,4 +180,18 @@ app.factory('datosUsuario',function($rootScope)
   };
     
   return service;
+});
+
+/*--------Trabajar con multiples modales---------*/
+$(document).on('show.bs.modal', '.modal', function () 
+{
+    var zIndex = Math.max.apply(null, Array.prototype.map.call(document.querySelectorAll('*'), function(el) 
+    {
+        return +el.style.zIndex;
+    })) + 100;
+    
+    $(document).on('hidden.bs.modal', '.modal', function () 
+    {
+        $('.modal:visible').length && $(document.body).addClass('modal-open');
+    });
 });

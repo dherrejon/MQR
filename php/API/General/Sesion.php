@@ -9,7 +9,7 @@ function Login()
     $request = \Slim\Slim::getInstance()->request();
     $datosUsuario = json_decode($request->getBody());
 
-    $sql = "SELECT NombreUsuario, Nombre, Apellidos, UsuarioId, Clave FROM UsuarioVista WHERE NombreUsuario = '".$datosUsuario->nombreUsuario."' AND Password = '".$datosUsuario->password."' AND Activo = 1";
+    $sql = "SELECT NombreUsuario, Nombre, Apellidos, UsuarioId, Clave, Correo FROM UsuarioVista WHERE NombreUsuario = '".$datosUsuario->nombreUsuario."' AND Password = '".$datosUsuario->password."' AND Activo = 1";
     
     try 
     {

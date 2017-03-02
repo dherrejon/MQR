@@ -6,6 +6,7 @@ class Usuario   //clase usuario
         this.Nombre = "";
         this.Apellidos = "";
         this.NombreUsuario = "";
+        this.Correo = "";
         this.Password = "";
         this.Permiso = [];
     }
@@ -123,6 +124,7 @@ function SetUsuario(data)
     usuario.Activo = CambiarIntABool(data[0].Activo);
     usuario.Nombre = data[0].Nombre;
     usuario.Apellidos = data[0].Apellidos;
+    usuario.Correo = data[0].Correo;
     usuario.SesionIniciada = true;
     
     for(var k=0; k<data.length; k++)
@@ -151,6 +153,26 @@ function SetAplicacion(aplicacion, $http, CONFIG)
 
 
      });
+}
+
+//-----------Cambiar Contraseña-------------------------
+function CambiarPasswordPorUsuario($http, CONFIG, $q, usuario)
+{
+    var q = $q.defer();
+
+    $http({      
+          method: 'PUT',
+          url: CONFIG.APIURL + '/CambiarPasswordPorUsuario',
+          data: usuario
+
+      }).success(function(data)
+        {
+            q.resolve(data[0].Estatus);   
+        }).error(function(data, status){
+            q.resolve(status);
+
+     }); 
+    return q.promise;
 }
 
 function CambiarIntABool(valor)

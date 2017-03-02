@@ -1,63 +1,58 @@
-/*------Medio Contacto---------*/
-
-/*class Etiqueta
+class Fuente
 {
     constructor()
     {
-        this.EtiquetaId = "";
+        this.FuenteId = "";
         this.Nombre = "";
-        this.Activo = true;
+        this.TipoFuente = new TipoFuente();
     }
 }
 
-//obtiene los tipos de módulos
-function GetEtiqueta($http, $q, CONFIG)     
+function GetFuente($http, $q, CONFIG)     
 {
     var q = $q.defer();
 
     $http({      
           method: 'GET',
-          url: CONFIG.APIURL + '/GetEtiqueta',
+          url: CONFIG.APIURL + '/GetFuente',
 
       }).success(function(data)
         {
-            var etiqueta = []; 
+            var fuente = []; 
             for(var k=0; k<data.length; k++)
             {
-                etiqueta[k] = new Etiqueta();
-                etiqueta[k] = SetEtiqueta(data[k]);
+                fuente[k] = new Fuente();
+                fuente[k] = SetFuente(data[k]);
             }
     
-            q.resolve(etiqueta);  
+            q.resolve(fuente);  
         }).error(function(data, status){
             q.resolve(status);
      }); 
     return q.promise;
 }
 
-//copia los datos de un material
-function SetEtiqueta(data)
+function SetFuente(data)
 {
-    var etiqueta = new Etiqueta();
+    var fuente = new Fuente();
     
-    etiqueta.EtiquetaId = data.EtiquetaId;
-    etiqueta.Nombre = data.Nombre;
-    etiqueta.Activo = CambiarIntABool(data.Activo);
+    fuente.FuenteId = data.FuenteId;
+    fuente.Nombre = data.Nombre;
     
-    return etiqueta;
+    fuente.TipoFuente.TipoFuenteId = data.TipoFuenteId;
+    fuente.TipoFuente.Nombre = data.NombreTipoFuente;
+    
+    return fuente;
 }
 
-//agregaga un maqueo
-function AgregarEtiqueta($http, CONFIG, $q, etiqueta)
+function AgregarFuente($http, CONFIG, $q, fuente)
 {
     var q = $q.defer();
     
-    etiqueta.Activo = CambiarBoolAInt(etiqueta.Activo);
-    
     $http({      
           method: 'POST',
-          url: CONFIG.APIURL + '/AgregarEtiqueta',
-          data: etiqueta
+          url: CONFIG.APIURL + '/AgregarFuente',
+          data: fuente
 
       }).success(function(data)
         {
@@ -70,16 +65,14 @@ function AgregarEtiqueta($http, CONFIG, $q, etiqueta)
 }
 
 //edita un consumible
-function EditarEtiqueta($http, CONFIG, $q, etiqueta)
+function EditarFuente($http, CONFIG, $q, fuente)
 {
     var q = $q.defer();
-    
-    etiqueta.Activo = CambiarBoolAInt(etiqueta.Activo);
 
     $http({      
           method: 'PUT',
-          url: CONFIG.APIURL + '/EditarEtiqueta',
-          data: etiqueta
+          url: CONFIG.APIURL + '/EditarFuente',
+          data: fuente
 
       }).success(function(data)
         {
@@ -91,25 +84,38 @@ function EditarEtiqueta($http, CONFIG, $q, etiqueta)
     return q.promise;
 }
 
-function ActivarDesactivarEtiqueta($http, $q, CONFIG, etiqueta) 
+/*------------ datos de la fuente----------------*/
+function GetFuenteAutor($http, $q, CONFIG, id)     
 {
     var q = $q.defer();
     
     $http({      
-          method: 'POST',
-          url: CONFIG.APIURL + '/ActivarDesactivarEtiqueta',
-          data: etiqueta
-
+          method: 'GET',
+          url: CONFIG.APIURL + '/GetFuenteAutor/'+id,
       }).success(function(data)
         {
-            q.resolve(data); 
-        }).error(function(data, Estatus){
-            q.resolve(Estatus);
-
+            q.resolve(data);  
+        }).error(function(data, status){
+            q.resolve(status);
      }); 
-    
     return q.promise;
-}*/
+}
+
+function GetFuenteEtiqueta($http, $q, CONFIG, id)     
+{
+    var q = $q.defer();
+    
+    $http({      
+          method: 'GET',
+          url: CONFIG.APIURL + '/GetFuenteEtiqueta/'+id,
+      }).success(function(data)
+        {
+            q.resolve(data);  
+        }).error(function(data, status){
+            q.resolve(status);
+     }); 
+    return q.promise;
+}
 
 
   

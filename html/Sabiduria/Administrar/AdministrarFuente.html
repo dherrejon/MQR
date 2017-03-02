@@ -12,6 +12,7 @@
                         <ul ng-if="anchoPantalla > 400" class="nav nav-tabs" role="tablist">
                             <li   ng-repeat="tab in tabs" class="{{tab.clase}}"><a  href="" aria-controls="{{tab.area}}" role="tab" data-toggle="tab" ng-click="SeleccionarTab(tab, $index)">{{tab.titulo}}</a></li>
                         </ul>
+                        
 
                         <ul ng-if="anchoPantalla < 401" class="nav nav">
                             <li  class="tabSm dropdown">
@@ -35,10 +36,19 @@
                         
                         <!-- Contenido -->
                         <div class="">
-                            <!-- Etiqueta -->
-                            <div role="tabpanel" class="tab-pane in active" id="Etiqueta" ng-if="permiso">
+                            <!-- Autor -->
+                            <div role="tabpanel" class="tab-pane in active" id="Fuente" ng-if="permiso && titulo=='Fuente'" >
                               <br>  
-                                <div ng-include=" 'html/Sabiduria/Administrar/Etiqueta/Etiqueta.html' ">
+                                <div ng-include=" 'html/Sabiduria/Administrar/Fuente/Fuente.html' ">
+
+                                </div>
+                            </div>
+
+                        
+                            <!-- Prefijo -->
+                            <div role="tabpanel" class="tab-pane" id="TipoFuente"  ng-if="permiso && titulo=='Tipo Fuente'">
+                              <br>  
+                                <div ng-include=" 'html/Sabiduria/Administrar/Fuente/TipoFuente.html' ">
 
                                 </div>
                             </div>

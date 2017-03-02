@@ -1,0 +1,429 @@
+<div ng-controller="UsuarioController as usuario">
+ 
+     <div class="container-fluid">
+        <div class="row" ng-if="permiso" >
+            <div class="{{claseApp}}">
+            
+                <div class="row" style="margin-top:123px">
+                    
+                    <div class="col-xs-12">
+                        <span class="tituloPagina">Usuario</span>
+                    </div>
+                    <br><br><br>
+                    
+                    
+                   <!-- Buscar -->
+                   <div class="col-xs-6">
+                       <div class="entrada2">
+                            <input type="text" required class="entrada form-control" name="buscar" ng-model="buscarUsuario"/>
+                            <label>Buscar</label>
+                        </div>
+                   </div>
+
+                   <!-- agregar -->
+                   <div class="col-xs-6">
+                       <button class="btn  botonAgregar pull-right" ng-click="AbrirUsuario('Agregar', null)"><span class="fa fa-plus"></span> Nuevo</button>
+                   </div>
+
+                   <br><br><br>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="TituloTabla">
+                              <tr>
+                                <th><button class="btn btn-block botonTablaOrdenar" ng-click="CambiarOrdenarUsuario('Apellidos')"><b>Usuario </b><b ng-if="ordenarUsuario === 'Apellidos'" class="fa fa-arrow-up"></b>  <b ng-if="ordenarUsuario === '-Apellidos'" class="fa fa-arrow-down"></b></button></th>
+                                <th><button class="btn botonTablaNormal"><b>Detalle</b></button></th>
+                                <th><button class="btn botonTablaNormal"><b>Editar</b></button></th>
+                                <th><button class="btn botonTablaNormal"><b>Activo</b></button></th>
+                              </tr>
+                            </thead>
+                            <tbody ng-repeat="usuario in usuario | orderBy:ordenarUsuario | filter:buscarUsuario">
+                              <tr>
+                                <td >
+                                  <span style="font-size:14pt">{{usuario.Apellidos}} {{usuario.Nombre}}</span><br>
+                                  <span class="subtituloTabla">{{usuario.NombreUsuario}}</span>
+                                </td>
+
+                                <td class="text-center">
+                                    <a  class="botonTablaOperacion" href="" data-toggle="modal" data-target="#DetalleUsuario" ng-click="DetalleUsuario(usuario)">
+                                        <span class="fa fa-eye fa-2x"></span>
+                                    </a>
+                                </td>
+
+                                <td class="text-center">
+                                    <a  class="botonTablaOperacion" href="" data-toggle="modal" data-target="#" ng-click="AbrirUsuario('Editar', fuente)">
+                                        <span class="fa fa-pencil fa-2x" ></span>
+                                    </a>
+                                </td>
+                                
+                                <td class="text-center">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input  ng-model="usuario.Activo" type="checkbox" value="" ng-click="ActivarDesactivarUsuario(usuario)">
+                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+
+                              </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- -----------------------Modales -------------------------- -->
+                    <div class="modal fade" id="modalFuente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
+                        <br>    <br>   <br>
+                        <div class="modal-dialog modalPrincipal">
+
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ng-click="CerrarModalFuente()"><span aria-hidden="true">&times;</span></button>
+                                    <span ng-if="operacion == 'Agregar'" class="tituloModal">Agregar Fuente</span>
+                                    <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Fuente</span>
+                                </div>
+                            </div>
+                            <br><br><br>
+
+                            <form name="fuenteForma">
+                                <div class="row">
+
+                                    <div class="col-sm-6 etiquetaDropdownList">
+                                         <label>Tipo de Fuente</label>
+                                         <div class="dropdown">
+
+                                            <button class="dropdown-toggle  {{claseFuente.tipoFuente}}" data-toggle="dropdown">
+                                                <span>{{nuevaFuente.TipoFuente.Nombre}}</span>
+                                                <span class="caret"></span>
+                                            </button>
+
+                                            <ul class="dropdown-menu elemetosDropdownListModal">
+                                                <li ng-repeat="tipo in tipoFuente | orderBy:'Nombre'">
+                                                    <a  href="" class="dropdownOpcionModal" ng-click="CambiarTipoFuente(tipo)">
+                                                        <span>{{tipo.Nombre}}</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+
+                                        </div>
+                                    </div>           
+                                </div>
+                                <br>
+
+                                <div class="row"> 
+                                    <div class="col-sm-12">
+                                       <div class="entrada2">
+                                            <input type="text" required class="{{claseFuente.nombre}} form-control" name="nombre" ng-model="nuevaFuente.Nombre" ng-maxlength="250"/>
+                                           <label>Nombre</label>
+                                        </div>
+                                   </div>              
+                                </div>
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <button class="btn btn-block {{claseFuente.autor}}" ng-click="MostrarOpcionFuente('autor')">Autores <span class="caret"></span></button>
+
+                                        <div ng-show="mostrarOpcionFuente == 'autor'" style="background: white">
+                                           <div class="col-xs-12" style="margin-top: 10px"></div>
+                                            <div class="col-xs-12">
+                                                <input type="text"  placeholder="Buscar Autor" class="entrada form-control" name="buscarAutorOperacion" ng-model="buscarAutorOperacion">
+                                            </div>
+                                            <div class="col-xs-12" style="margin-top: 10px"></div>
+                                            <div class="panel  panelFiltro" style="border-radius: 0px;">
+                                                <div class="row " >
+                                                    <div class="col-xs-12">
+
+                                                        <table  class="table table-responsive">
+                                                           <tbody ng-repeat="autor in autor | filter:buscarAutorOperacion | orderBy:'Apellidos'" ng-show="autor.show">
+                                                               <tr >
+                                                                   <td>
+                                                                       <div style="font-size:12pt" class="text-center">
+                                                                        <a  class="botonTablaOperacion" href="" ng-click="AgregarAutor(autor)">
+                                                                            <span class="fa fa-plus" ></span>
+                                                                        </a>
+                                                                       </div>
+                                                                    </td>
+                                                                    <td> 
+                                                                        <div >
+                                                                            {{autor.Prefijo.Abreviacion}} {{autor.Apellidos}} {{autor.Nombre}}
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <br class="hidden-sm hidden-lg hidden-md">
+
+                                    <div class="col-sm-6">
+                                        <button class="btn btn-block {{claseFuente.etiqueta}}" ng-click="MostrarOpcionFuente('etiqueta')">Etiquetas <span class="caret"></span></button>
+
+                                        <div ng-show="mostrarOpcionFuente == 'etiqueta'" style="background: white">
+                                           <div class="col-xs-12" style="margin-top: 10px"></div>
+                                            <div class="col-xs-12">
+                                                <input type="text"  placeholder="Buscar Autor" class="entrada form-control" name="buscarEtiquetaOperacion" ng-model="buscarEtiquetaOperacion">
+                                            </div>
+                                            <div class="col-xs-12" style="margin-top: 10px"></div>
+                                            <div class="panel  panelFiltro" style="border-radius: 0px;">
+                                                <div class="row " >
+                                                    <div class="col-xs-12">
+
+                                                        <table  class="table table-responsive">
+                                                           <tbody ng-repeat="etiqueta in etiqueta | filter:buscarEtiquetaOperacion | orderBy:'Nombre'" ng-show="etiqueta.show && etiqueta.Activo">
+                                                               <tr >
+                                                                   <td>
+                                                                       <div style="font-size:12pt" class="text-center">
+                                                                        <a  class="botonTablaOperacion" href="" ng-click="AgregarEtiqueta(etiqueta)">
+                                                                            <span class="fa fa-plus" ></span>
+                                                                        </a>
+                                                                       </div>
+                                                                    </td>
+                                                                    <td> 
+                                                                        <div >
+                                                                            {{etiqueta.Nombre}}
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row" ng-if="nuevaFuente.Autor.length > 0">
+                                    <div class="col-xs-12 subtituloModal">
+                                        <button class="btn btn-block"  ng-class="GetClaseSeccionAgregado('Autor')" ng-click="MostrarAgregado('Autor')">Autores Agregadas</button>
+                                    </div>
+                                    <br> <br>
+                                    <div class="col-xs-12" ng-show="datosAgregados=='Autor'">
+                                        <div class="piezaPorComponenteTabla">
+                                            <table class="table table-hover">
+                                                <thead class="TituloTabla">
+                                                  <tr>
+                                                    <th><button class="btn botonTablaOrdenar"><b>Nombre</b></button></th>
+                                                    <th><button class="btn botonTablaNormal"><b>Quitar</b></button></th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody ng-repeat="autor in nuevaFuente.Autor | orderBy:'Apellidos'">
+                                                  <tr>                                        
+                                                     <td>{{autor.Abreviacion}} {{autor.Apellidos}} {{autor.Nombre}}</td>
+
+                                                    <td class="text-center">
+                                                        <a class="botonTablaOperacion" href="" data-toggle="modal" data-target="#" ng-click="QuitarAutor(autor)">
+                                                            <span class="fa fa-times" style="font-size:14pt"></span>
+                                                        </a>
+                                                    </td>
+
+                                                  </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row" ng-if="nuevaFuente.Etiqueta.length > 0">
+                                    <div class="col-xs-12 subtituloModal">
+                                        <button class="btn btn-block"  ng-class="GetClaseSeccionAgregado('Etiqueta')" ng-click="MostrarAgregado('Etiqueta')">Etiquetas Agregadas</button>
+                                    </div>
+                                    <br> <br>
+                                    <div class="col-xs-12" ng-show="datosAgregados=='Etiqueta'">
+                                        <div class="piezaPorComponenteTabla">
+                                            <table class="table table-hover">
+                                                <thead class="TituloTabla">
+                                                  <tr>
+                                                    <th><button class="btn botonTablaOrdenar"><b>Nombre</b></button></th>
+                                                    <th><button class="btn botonTablaNormal"><b>Quitar</b></button></th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody ng-repeat="etiqueta in nuevaFuente.Etiqueta | orderBy:'Nombre'">
+                                                  <tr>                                        
+                                                     <td>{{etiqueta.Nombre}}</td>
+
+                                                    <td class="text-center">
+                                                        <a class="botonTablaOperacion" href="" data-toggle="modal" data-target="#" ng-click="QuitarEtiqueta(etiqueta)">
+                                                            <span class="fa fa-times" style="font-size:14pt"></span>
+                                                        </a>
+                                                    </td>
+
+                                                  </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+
+                                <!-------- mensaje de error ---->
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div ng-repeat="error in mensajeError">
+                                            <span class="textoError">{{error}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <!---- botones de operacion -->
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <button class="btn botonFinModal btn-block" data-dismiss="modal" aria-label="Close" ng-click="CerrarModalFuente()">CANCELAR</button>
+                                    </div>
+
+                                    <div class="col-xs-6">
+                                        <button focus class="btn botonFinModal btn-block" ng-click="TerminarFuente(fuenteForma.nombre.$invalid)">TERMINAR</button>
+                                    </div>
+                                </div>
+                            <br>
+                            </form> 
+
+                        </div>
+                    </div>
+                    <!---------- Detalles ---------------->
+                    <div class="modal fade" id="DetalleUsuario">
+                        <br>    <br>   <br>
+                        <div class="modal-dialog modal-md modalPrincipal">
+
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">&times;</span></button>
+                                    <span class="tituloModal">Detalles del Usuario</span>
+                                </div>
+                            </div>
+                            <br><br>
+
+                            <div class="row">
+                               <!-- Nombre -->
+                                <div class="col-sm-6">
+                                    <div class="subrayado">
+                                        <label>Nombre </label><br>
+                                        <span class="textoModal">{{usuarioActualizar.Nombre}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                               <!-- Nombre -->
+                                <div class="col-sm-12">
+                                    <div class="subrayado">
+                                        <label>Apellidos </label><br>
+                                        <span class="textoModal">{{usuarioActualizar.Apellidos}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                               <!-- Nombre usuario -->
+                                <div class="col-sm-6">
+                                    <div class="subrayado">
+                                        <label>Nombre de Usuario </label><br>
+                                        <span class="textoModal">{{usuarioActualizar.NombreUsuario}}</span>
+                                    </div>
+                                </div>
+                                <br class="hidden-sm hidden-md hidden-lg">
+                                <!-- correo -->
+                                <div class="col-sm-6">
+                                    <div class="subrayado">
+                                        <label>Correo Electrónico </label><br>
+                                        <span class="textoModal">{{usuarioActualizar.Correo}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <br>
+                            <!-- Permisos -->
+                            <div class="row" ng-if="usuarioActualizar.Permiso.length > 0">
+                                <div class="col-xs-12">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <button class="btn btn-block"  ng-class="GetClaseDetallesSeccion('Permiso')" ng-click="MostrarDetalle('Permiso')">Autores</button>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    
+                                    <div class="row">
+                                        <div class="col-xs-12"  ng-show="detalle == 'Permiso'">
+                                            <div class="tablaDetalle">
+                                                <table class="table table-hover">
+                                                    <thead class="TituloTabla">
+                                                      <tr>
+                                                        <th><button class="btn botonTablaOrdenar"><b>Aplicación</b></button></th>
+                                                        <th><button class="btn botonTablaNormal"><b>Nombre</b></button></th>
+                                                        <th><button class="btn botonTablaNormal"><b>Permiso</b></button></th>
+                                                      </tr>
+                                                    </thead>
+                                                    <tbody ng-repeat="permiso in permiso | orderBy:'NombreAplicacion'">
+                                                      <tr>                                        
+                                                        <td>{{permiso.NombreAplicacion}}</td>
+                                                        <td>{{permiso.Nombre}}</td>
+
+                                                        <td ng-if="permiso.Usuario" class="text-center"><span class="fa fa-check-square-o fa-2x"></span></td>
+                                                        <td ng-if="!permiso.Usuario" class="text-center"><span class="fa fa-square-o fa-2x"></span></td>
+                                                      </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <br>
+
+                        </div>
+                    </div>
+                    
+                    <div class="modal fade" id="modalActivarDesactivarUsuario">
+                        <br>    <br>   <br>
+                        <div class="modal-dialog modal-sm modalPrincipal text-center">
+
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <span style="font-size:14pt">{{mensajeAdvertencia}}</span>
+                                </div>
+                            </div>
+                            <br><br>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="CancelarCambiarActivoUsuario()">No</button>
+                                </div>
+                                <div class="col-xs-6">
+                                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarActualizarUsuario()">Si</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="mensajeUsuario">
+                        <br>    <br>   <br>
+                        <div class="modal-dialog modal-sm modalPrincipal text-center">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <span style="font-size:14pt">{{mensaje}}</span>
+                                </div>
+                            </div>
+                            <br><br>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <button class="btn  botonFinModal" data-dismiss="modal" aria-label="Close">Aceptar</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+     </div>
+</div>
+
+    

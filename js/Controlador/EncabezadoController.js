@@ -1,5 +1,8 @@
-app.controller("EncabezadoControlador", function($scope, $window, $http, $rootScope, $q, CONFIG, datosUsuario, $location)
+app.controller("EncabezadoControlador", function($scope, $window, $http, $rootScope, $q, CONFIG, datosUsuario, $location, md5)
 {   
+    $scope.nuevoPassword = {nuevo:"", repetir:"", actual:""};
+    $scope.clasePassword = {nuevo:"entrada", repetir:"entrada", actual:"entrada"};
+    
     /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
     $scope.$on('cambioAplicaion',function()
     {
@@ -29,10 +32,16 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     $scope.MouseClickElemento = function(opcion, funcion)
     {
         $('#'+ opcion.texto ).removeClass('open');
+        $scope.CerrarBarraNavegacion();
         
         if(funcion == "CerrarSesion")
         {
             $rootScope.CerrarSesion();
+        }
+        
+        else if(funcion == "CambiarPassword")
+        {
+            $scope.CambiarPassword();
         }
     };
     
@@ -101,6 +110,96 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
                 $scope.barraNavegacion.opcion[1].show = true;
             }
         }
+    };
+    
+    /*------------------------------Cambiar Contraseña--------------------------------------------*/
+    $scope.CambiarPassword = function()
+    {
+        $('#CambiarPasswordModal').modal('toggle');
+    };
+    
+    $scope.GuardarPassword = function(passwordInvalido)
+    {
+        if(!$scope.ValidarPassword(passwordInvalido))
+        {
+            return;
+        }
+        
+        var datosUsuario = [];
+        datosUsuario[0] = $scope.usuario.UsuarioId;
+        datosUsuario[1] = md5.createHash( $scope.nuevoPassword.actual );
+        datosUsuario[2] = md5.createHash( $scope.nuevoPassword.nuevo );
+        
+        CambiarPasswordPorUsuario($http, CONFIG, $q, datosUsuario).then(function(data)
+        {
+            if(data == "Exitoso")
+            {
+                $scope.mensaje = "La contraseña se ha actualizado correctamente.";
+                $scope.CerrarCambiarPasswordForma();
+                $('#mensajeEncabezado').modal('toggle');
+                $('#CambiarPasswordModal').modal('toggle');
+            }
+            else if(data == "ErrorPassword")
+            {
+                $scope.mensajeError[$scope.mensajeError.length] = "*Tu contraseña actual es incorrecta.";
+            }
+            else
+            {
+                alert("Ha ocurrido un error. Intente más tarde.");
+            }
+        }).catch(function(error)
+        {
+            alert("Ha ocurrido un error. Intente más tarde." +error);
+            return;
+        });
+    };
+    
+    $scope.ValidarPassword = function(passwordInvalido)
+    {
+        $scope.mensajeError = [];
+        if(passwordInvalido)
+        {
+            $scope.mensajeError[$scope.mensajeError.length] = "*La contraseña solo puede tener letras y números. Mínimo debe tener 6 carácteres.";
+            $scope.clasePassword.nuevo = "entradaError"; 
+            return false;
+        }
+        else
+        {
+            $scope.clasePassword.nuevo = "entrada";        
+        }
+        if($scope.nuevoPassword.nuevo != $scope.nuevoPassword.repetir)
+        {
+            $scope.mensajeError[$scope.mensajeError.length] = "*Las contraseñas no coinciden.";
+            $scope.clasePassword.repetir = "entradaError"; 
+        }
+        else
+        {
+            $scope.clasePassword.repetir = "entrada";        
+        }
+        if($scope.nuevoPassword.actual === "" || $scope.nuevoPassword.actual === undefined || $scope.nuevoPassword.actual === null)
+        {
+            $scope.mensajeError[$scope.mensajeError.length] = "*Escribe tu contraseña actual.";
+            $scope.clasePassword.actual = "entradaError"; 
+        }
+        else
+        {
+            $scope.clasePassword.actual = "entrada";        
+        }
+        if($scope.mensajeError.length > 0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    };
+    
+    $scope.CerrarCambiarPasswordForma = function()
+    {
+        $scope.nuevoPassword = {nuevo:"", repetir:"", actual:""};
+        $scope.clasePassword = {nuevo:"entrada", repetir:"entrada", actual:"entrada"};
+        $scope.mensajeError = [];
     };
     
     /*---------------- Ir a pagina Principal ------------------*/
@@ -186,6 +285,7 @@ var EncabezadoSabiduria =
                                             [
                                                 {texto:"Mis Aplicaciones", referencia:"#Aplicacion", funcion:""},
                                                 {texto:"Cerrar Sesión", referencia:"", funcion:"CerrarSesion"},
+                                                {texto:"Cambiar Contraseña", referencia:"", funcion:"CambiarPassword"},
                                             ]}
               ]                      
 } ;

@@ -1,6 +1,6 @@
 app.controller("AdministrarFuenteController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
 {   
-    $scope.titulo = "Etiqueta";
+    $scope.titulo = "Fuente";
     
     $scope.permiso = false;
     
@@ -18,19 +18,25 @@ app.controller("AdministrarFuenteController", function($scope, $window, $http, $
     
     $scope.tabs = tabFuente;
     
+    
     //Cambia el contenido de la pestaña
     $scope.SeleccionarTab = function(tab, index)    
     {
         $scope.titulo = tab.titulo;
         
-        switch (index)
+        /*switch (index)
         {
             case 0:  
-                $('#Etiqueta').show();
+                $('#Autor').show();
+                $('#Prefijo').hide();
+                break;
+            case 1:  
+                $('#Prefijo').show();
+                $('#Autor').hide();
                 break;
             default:
                 break;
-        }        
+        } */       
     };
     
     /*----------------------- Usuario logeado --------------------------*/
@@ -76,12 +82,12 @@ app.controller("AdministrarFuenteController", function($scope, $window, $http, $
             $scope.InicializarControlador();
         }
     });
-   
+    
     
 });
 
 
 var tabFuente = [
                     {titulo:"Fuente", referencia: "#Fuente", clase:"active", area:"fuente"},
-                    {titulo:"Tipo de Fuente", referencia: "#TipoFunete", clase:"", area:"tipoFuente"}
+                    {titulo:"Tipo Fuente", referencia: "#TipoFuente", clase:"", area:"tipoFuente"}
                 ];

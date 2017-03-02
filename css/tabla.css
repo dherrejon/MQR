@@ -4,6 +4,18 @@
     background: rgb(41,69,77); 
 }
 
+.subtituloTabla
+{
+    font-size: 10pt;
+    color: #7F7F7F;
+}
+
+.tablaDetalle
+{
+    max-height: 205px;
+    overflow: scroll;
+}
+
 /*--------- modales --------------------*/
 .modalPrincipal
 {
@@ -40,7 +52,9 @@
     display: block;
     width: 100%;
     text-align: left;
-    border-radius: none;
+    border-radius: 0px 0px 0px 0px;
+    outline: none !important;
+    box-shadow: none !important;
 } 
 
 .dropdownListModalError
@@ -55,7 +69,7 @@
     display: block;
     width: 100%;
     text-align: left;
-    border-radius: none;
+    border-radius: 0px 0px 0px 0px
 }
 
 .dropdownListModal:hover, .dropdownListModalError:hover
