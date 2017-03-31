@@ -1,4 +1,4 @@
-app.controller("TemaController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
+app.controller("TemaController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, TEMA)
 {   
     $scope.tema = [];
     
@@ -69,7 +69,7 @@ app.controller("TemaController", function($scope, $window, $http, $rootScope, md
         }
         else
         {
-            if($scope.operacion == "Agregar")
+            if($scope.operacion == "Agregar" || $scope.operacion == "AgregarExterior")
             {
                 $scope.AgregarTema();
             }
@@ -88,7 +88,16 @@ app.controller("TemaController", function($scope, $window, $http, $rootScope, md
             {
                 $('#modalTema').modal('toggle');
                 $scope.mensaje = "El tema se ha agregado.";
-                $scope.GetTema();
+                
+                if($scope.operacion == "Agregar")
+                {
+                    $scope.GetTema();
+                }
+                else
+                {
+                    $scope.nuevoTema.TemaId = data[1].Id; 
+                    TEMA.TerminarTema($scope.nuevoTema);
+                }
             }
             else
             {
@@ -112,6 +121,7 @@ app.controller("TemaController", function($scope, $window, $http, $rootScope, md
             {
                 $('#modalTema').modal('toggle');
                 $scope.mensaje = "El tema se ha editado.";
+                
                 $scope.GetTema();
             }
             else
@@ -161,4 +171,39 @@ app.controller("TemaController", function($scope, $window, $http, $rootScope, md
     //----------------------Inicializar---------------------------------
     $scope.GetTema();
     
+    //------------------------ Exterior ---------------------------
+    $scope.$on('AgregarTema',function()
+    {
+        $scope.operacion = "AgregarExterior";
+
+        $scope.nuevoTema = new Tema();
+    
+        $('#modalTema').modal('toggle');
+    });
+    
+});
+
+app.factory('TEMA',function($rootScope)
+{
+  var service = {};
+  service.tema = null;
+    
+  service.AgregarTema = function()
+  {
+      this.tema = null;
+      $rootScope.$broadcast('AgregarTema');
+  };
+    
+  service.TerminarTema = function(tema)
+  {
+      this.tema = tema;
+      $rootScope.$broadcast('TerminarTema');
+  };
+    
+  service.GetTema = function()
+  {
+      return this.tema;
+  };
+
+  return service;
 });

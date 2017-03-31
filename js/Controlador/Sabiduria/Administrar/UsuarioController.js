@@ -17,14 +17,16 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
     
     $scope.ordenarUsuario = "Apellidos";
     $scope.buscarUsuario = "";
+    $scope.buscarAplicacion = "";
     
     $scope.nuevoUsuario = null;
     $scope.usuarioActualizar = null;
     
     $scope.mensajeError = [];
-    //$scope.claseUsuario = {tipoFuente:"dropdownListModal", nombre:"entrada", autor:"dropdownListModal", etiqueta:"dropdownListModal"};
+    $scope.claseUsuario = {nombre:"entrada", apellidos:"entrada", nombreUsuario:"entrada", correo:"entrada", permiso:"dropdownListModal"};
         
     $scope.detalle = "";
+    $scope.mostrarOpcionUsuario = "";
     
     $scope.GetUsuarios = function()              
     {
@@ -127,316 +129,192 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
     };
     
     /*-----------------Abrir Panel Agregar-Editar termino-------------------*/
-    $scope.AbrirFuente = function(operacion, fuente)
+    $scope.AbrirUsuario = function(operacion, usuario)
     {
         $scope.operacion = operacion;
         $scope.mostrarOpcionFuente = "";
         
         if(operacion == "Agregar")
         {
-            $scope.nuevaFuente = new Fuente();
-            $scope.nuevaFuente.Autor = [];
-            $scope.nuevaFuente.Etiqueta = [];
-            $scope.ValidarAutor($scope.nuevaFuente.Autor);
-            $scope.ValidarEtiqueta($scope.nuevaFuente.Etiqueta);
+            $scope.nuevoUsuario = new Fuente();
+            $scope.nuevoUsuario.Permiso = [];
+            $scope.SetPermisoUsuario($scope.nuevoUsuario);
         }
         else if(operacion == "Editar")
         {
-            $scope.nuevaFuente = $scope.SetFuente(fuente);
-            $scope.ValidarAutor($scope.nuevaFuente.Autor);
-            $scope.ValidarEtiqueta($scope.nuevaFuente.Etiqueta);
+            $scope.nuevoUsuario = $scope.SetUsuario(usuario);
         }
     
-        $('#modalFuente').modal('toggle');
+        $('#modalUsuario').modal('toggle');
     };
     
-    $scope.ValidarAutor = function(autor)
+    $scope.SetUsuario = function(data)
     {
-        for(var k=0; k<$scope.autor.length; k++)
-        {
-            $scope.autor[k].show = true;
-            for(var i=0; i<autor.length; i++)
-            {
-                if(autor[i].AutorId == $scope.autor[k].AutorId)
-                {
-                    $scope.autor[k].show = false;
-                    break;
-                }
-            }
-        }
+        var usuario = new Usuario();
+        
+        usuario.UsuarioId = data.UsuarioId;
+        usuario.Nombre = data.Nombre;
+        usuario.Apellidos = data.Apellidos;
+        usuario.NombreUsuario = data.NombreUsuario;
+        usuario.Correo = data.Correo;
+        
+        $scope.SetPermisoUsuario(data);
+    
+        return usuario;
     };
     
-    $scope.ValidarEtiqueta = function(etiqueta)
-    {
-        for(var k=0; k<$scope.etiqueta.length; k++)
-        {
-            $scope.etiqueta[k].show = true;
-            for(var i=0; i<etiqueta.length; i++)
-            {
-                if(etiqueta[i].EtiquetaId == $scope.etiqueta[k].EtiquetaId)
-                {
-                    $scope.etiqueta[k].show = false;
-                    break;
-                }
-            }
-        }
-    };
     
-    $scope.CambiarTipoFuente = function(tipo)
+    $scope.MostrarOpcionUsuario =function(opcion)
     {
-        $scope.nuevaFuente.TipoFuente = tipo;
-    };
-    
-    $scope.SetFuente = function(data)
-    {
-        var fuente = new Fuente();
-        
-        fuente.FuenteId = data.FuenteId;
-        fuente.Nombre = data.Nombre;
-        
-        fuente.TipoFuente.TipoFuenteId = data.TipoFuente.TipoFuenteId;
-        fuente.TipoFuente.Nombre = data.TipoFuente.Nombre;
-        
-        fuente.Autor = [];
-        fuente.Etiqueta = [];
-        
-        
-        for(var k=0; k<data.Autor.length; k++)
+        if(opcion == $scope.mostrarOpcionUsuario )
         {
-            fuente.Autor[k] = new Autor();
-            fuente.Autor[k].AutorId = data.Autor[k].AutorId;
-            fuente.Autor[k].Nombre = data.Autor[k].Nombre;
-            fuente.Autor[k].Apellidos = data.Autor[k].Apellidos;
-            fuente.Autor[k].Abreviacion = data.Autor[k].Abreviacion;
-        }
-        
-        for(var k=0; k<data.Etiqueta.length; k++)
-        {
-            fuente.Etiqueta[k] = new Etiqueta();
-            fuente.Etiqueta[k].EtiquetaId = data.Etiqueta[k].EtiquetaId;
-            fuente.Etiqueta[k].Nombre = data.Etiqueta[k].Nombre;
-        }
-        
-        return fuente;
-    };
-    
-    $scope.MostrarOpcionFuente =function(opcion)
-    {
-        if(opcion == $scope.mostrarOpcionFuente )
-        {
-            $scope.mostrarOpcionFuente = "";
+            $scope.mostrarOpcionUsuario = "";
         }
         else
         {
-            $scope.mostrarOpcionFuente = opcion;
-            
-            if(opcion == "autor")
-            {
-                $scope.datosAgregados = "Autor";
-            }
-            else if(opcion == "etiqueta")
-            {
-                $scope.datosAgregados = "Etiqueta";
-            }
+            $scope.mostrarOpcionUsuario = opcion;
         }
         
     };
     
-    $scope.CerrarModalFuente = function()
+    $scope.CerrarModalUsuario = function()
     {
         $scope.mensajeError = [];
-         $scope.claseFuente = {tipoFuente:"dropdownListModal", nombre:"entrada", autor:"dropdownListModal", etiqueta:"dropdownListModal"};
-    };
-    
-    
-    $scope.AgregarAutor = function(autor)
-    {
-        $scope.nuevaFuente.Autor.push(autor);
-        $scope.nuevaFuente.Autor[$scope.nuevaFuente.Autor.length-1].Abreviacion = autor.Prefijo.Abreviacion;
-        autor.show = false;
-    };
-    
-    $scope.AgregarEtiqueta = function(etiqueta)
-    {
-        $scope.nuevaFuente.Etiqueta.push(etiqueta);
-        etiqueta.show = false;
-    };
-    
-    $scope.QuitarAutor = function(autor)
-    {
-        for(var k=0; k<$scope.nuevaFuente.Autor.length; k++)
-        {
-            if($scope.nuevaFuente.Autor[k].AutorId == autor.AutorId)
-            {
-                $scope.nuevaFuente.Autor.splice(k,1);
-                break;
-            }
-        }
-        
-        for(var k=0; k<$scope.autor.length; k++)
-        {
-            if($scope.autor[k].AutorId == autor.AutorId)
-            {
-                $scope.autor[k].show = true;
-                break;
-            }
-        }
-    };
-    
-    $scope.QuitarEtiqueta = function(etiqueta)
-    {
-        for(var k=0; k<$scope.nuevaFuente.Etiqueta.length; k++)
-        {
-            if($scope.nuevaFuente.Etiqueta[k].EtiquetaId == etiqueta.EtiquetaId)
-            {
-                $scope.nuevaFuente.Etiqueta.splice(k,1);
-                break;
-            }
-        }
-        
-        for(var k=0; k<$scope.etiqueta.length; k++)
-        {
-            if($scope.etiqueta[k].EtiquetaId == etiqueta.EtiquetaId)
-            {
-                $scope.etiqueta[k].show = true;
-                break;
-            }
-        }
-    };
-    
-    $scope.MostrarAgregado = function(dato)
-    {
-        if($scope.datosAgregados == dato)
-        {
-            $scope.datosAgregados = "";
-        }
-        else
-        {
-           $scope.datosAgregados = dato; 
-        }
-    };
-    
-    $scope.GetClaseSeccionAgregado = function(seccion)
-    {
-        if($scope.datosAgregados == seccion)
-        {
-            return "opcionAcordionSeleccionado";
-        }
-        else
-        {
-            return "opcionAcordion";
-        }
+        $scope.claseUsuario = {nombre:"entrada", apellidos:"entrada", nombreUsuario:"entrada", correo:"entrada", permiso:"dropdownListModal"};
     };
     
     /*----------------- Terminar agregar-editar etiqueta --------------------*/
-    $scope.TerminarFuente = function(nombreInvalido)
+    $scope.TerminarUsuario = function(nombreInvalido, apellidoInvalido, nombreUsuarioInvalido, correoInvalido)
     {
-        if(!$scope.ValidarDatos(nombreInvalido))
+        if(!$scope.ValidarDatos(nombreInvalido, apellidoInvalido, nombreUsuarioInvalido, correoInvalido))
         {
             return;
         }
         else
         {
+            $scope.nuevoUsuario.Permiso = $scope.permiso;
+            
             if($scope.operacion == "Agregar")
             {
-                $scope.AgregarFuente();
+                $scope.AgregarUsuario();
             }
             else if($scope.operacion == "Editar")
             {
-                $scope.EditarFuente();
+                $scope.EditarUsuario();
             }
         }
     };
     
     //agrega un tipo de unidad
-    $scope.AgregarFuente = function()    
+    $scope.AgregarUsuario = function()    
     {
-        AgregarFuente($http, CONFIG, $q, $scope.nuevaFuente).then(function(data)
+        AgregarUsuario($http, CONFIG, $q, $scope.nuevoUsuario).then(function(data)
         {
             if(data[0].Estatus == "Exitoso")
             {
-                $('#modalFuente').modal('toggle');
-                $scope.mensaje = "La fuente se ha agregado.";
-                $scope.GetFuente();
+                $('#modalUsuario').modal('toggle');
+                $scope.mensaje = "El usuario se ha agregado.";
+                $scope.GetUsuarios();
             }
             else
             {
                 $scope.mensaje = "Ha ocurrido un error. Intente más tarde.";
             }
-            $('#mensajeFuente').modal('toggle');
+            $('#mensajeUsuario').modal('toggle');
             
         }).catch(function(error)
         {
             $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
-            $('#mensajeFuente').modal('toggle');
+            $('#mensajeUsuario').modal('toggle');
         });
     };
     
     //edita el tipo de unidad seleccionado
-    $scope.EditarFuente = function()
+    $scope.EditarUsuario = function()
     {
-        EditarFuente($http, CONFIG, $q, $scope.nuevaFuente).then(function(data)
+        EditarUsuario($http, CONFIG, $q, $scope.nuevoUsuario).then(function(data)
         {
             if(data[0].Estatus == "Exitoso")
             {
-                $('#modalFuente').modal('toggle');
-                $scope.mensaje = "La fuente se ha editado.";
-                $scope.GetFuente();
+                $('#modalUsuario').modal('toggle');
+                $scope.mensaje = "El usuario se ha editado.";
+                $scope.GetUsuarios();
             }
             else
             {
                 $scope.mensaje = "Ha ocurrido un error. Intente más tarde";   
             }
-            $('#mensajeFuente').modal('toggle');
+            $('#mensajeUsuario').modal('toggle');
         }).catch(function(error)
         {
             $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
-            $('#mensajeFuente').modal('toggle');
+            $('#mensajeUsuario').modal('toggle');
         });
     };
     
-    $scope.ValidarDatos = function(nombreInvalido)
+    $scope.ValidarDatos = function(nombreInvalido, apellidoInvalido, nombreUsuarioInvalido, correoInvalido)
     {
         $scope.mensajeError = [];
         
-        if($scope.nuevaFuente.TipoFuente.Nombre.length === 0)
-        {
-            $scope.claseFuente.tipoFuente = "dropdownListModalError";
-            $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona un tipo de fuente.";
-        }
-        else
-        {
-             $scope.claseFuente.tipoFuente = "dropdownListModal";
-        }
-        
         if(nombreInvalido)
         {
-            $scope.claseFuente.nombre = "entradaError";
+            $scope.claseUsuario.nombre = "entradaError";
             $scope.mensajeError[$scope.mensajeError.length] = "*Escribe un nombre válido.";
         }
         else
         {
-             $scope.claseFuente.nombre = "entrada";
+             $scope.claseUsuario.nombre = "entrada";
         }
         
-        if($scope.nuevaFuente.Autor.length === 0)
+        if(apellidoInvalido)
         {
-            $scope.claseFuente.autor = "dropdownListModalError";
-            $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona al menos un autor.";
+            $scope.claseUsuario.apellidos = "entradaError";
+            $scope.mensajeError[$scope.mensajeError.length] = "*Escribe un apellido válido.";
         }
         else
         {
-             $scope.claseFuente.autor = "dropdownListModal";
+             $scope.claseUsuario.apellidos = "entrada";
         }
         
-        if($scope.nuevaFuente.Etiqueta.length === 0)
+        if(nombreUsuarioInvalido)
         {
-            $scope.claseFuente.etiqueta = "dropdownListModalError";
-            $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona al menos una etiqueta.";
+            $scope.claseUsuario.nombreUsuario = "entradaError";
+            $scope.mensajeError[$scope.mensajeError.length] = "*El nombre de usuario sólo acepta letras y números, debe de tener 3 carácteres como mínimo.";
         }
         else
         {
-             $scope.claseFuente.etiqueta = "dropdownListModal";
+             $scope.claseUsuario.nombreUsuario = "entrada";
+        }
+        
+        if(correoInvalido)
+        {
+            $scope.claseUsuario.correo = "entradaError";
+            $scope.mensajeError[$scope.mensajeError.length] = "*Escribe un correo válido.";
+        }
+        else
+        {
+             $scope.claseUsuario.correo = "entrada";
+        }
+        
+        var permiso = false;
+        
+        for(var k=0; k<$scope.permiso.length; k++)
+        {
+            if($scope.permiso[k].Usuario)
+            {
+                permiso = true;
+                break;
+            }
+        }
+        
+        if(!permiso)
+        {
+            $scope.claseUsuario.permiso = "dropdownListModalError";
+            $scope.mensajeError[$scope.mensajeError.length] = "*Debes de seleccionar mínimo un permiso.";
+        }
+        else
+        {
+             $scope.claseUsuario.permiso = "dropdownListModal";
         }
         
         if($scope.mensajeError.length > 0)
@@ -444,12 +322,21 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
             return false;        
         }
         
-        for(var k=0; k<$scope.fuente.length; k++)
+        //datos repetidos
+        for(var k=0; k<$scope.usuario.length; k++)
         {
-            if($scope.fuente[k].Nombre.toLowerCase() == $scope.nuevaFuente.Nombre.toLowerCase() && $scope.fuente[k].FuenteId != $scope.nuevaFuente.FuenteId)
+            if($scope.usuario[k].NombreUsuario.toLowerCase() == $scope.nuevoUsuario.NombreUsuario.toLowerCase() && $scope.usuario[k].UsuarioId != $scope.nuevoUsuario.UsuarioId)
             {
-                $scope.claseFuente.nombre = "entradaError";
-                $scope.mensajeError[$scope.mensajeError.length] = "*La fuente " + $scope.nuevaFuente.Nombre.toLowerCase() + " ya existe.";
+                $scope.claseUsuario.nombreUsuario = "entradaError";
+                $scope.mensajeError[$scope.mensajeError.length] = "*El usuario " + $scope.nuevoUsuario.NombreUsuario.toLowerCase() + " ya existe.";
+                return false;
+            }
+            
+            if($scope.usuario[k].Nombre.toLowerCase() == $scope.nuevoUsuario.Nombre.toLowerCase() && $scope.usuario[k].Apellidos.toLowerCase() == $scope.nuevoUsuario.Apellidos.toLowerCase() && $scope.usuario[k].UsuarioId != $scope.nuevoUsuario.UsuarioId)
+            {
+                $scope.claseUsuario.nombre = "entradaError";
+                $scope.claseUsuario.apellidos = "entradaError";
+                $scope.mensajeError[$scope.mensajeError.length] = "*El usuario " + $scope.nuevoUsuario.Nombre.toLowerCase() + " " + $scope.nuevoUsuario.Apellidos.toLowerCase() +" ya existe.";
                 return false;
             }
         }

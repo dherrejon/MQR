@@ -1,4 +1,4 @@
-app.controller("FuenteController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
+app.controller("FuenteController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, FUENTE)
 {   
     $scope.fuente = [];
     $scope.autor = [];
@@ -506,7 +506,7 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
         }
         else
         {
-            if($scope.operacion == "Agregar")
+            if($scope.operacion == "Agregar" || $scope.operacion == "AgregarExterior")
             {
                 $scope.AgregarFuente();
             }
@@ -526,7 +526,16 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
             {
                 $('#modalFuente').modal('toggle');
                 $scope.mensaje = "La fuente se ha agregado.";
-                $scope.GetFuente();
+                
+                if($scope.operacion == "Agregar")
+                {
+                    $scope.GetFuente();
+                }
+                else
+                {
+                    FUENTE.TerminarFuente($scope.nuevaFuente);
+                }
+                
             }
             else
             {
@@ -632,4 +641,39 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
     $scope.GetTipoFuente();
     $scope.GetEtiqueta();
     
+    //------------------------ Exterior ---------------------------
+    $scope.$on('AgregarFuente',function()
+    {
+        $scope.operacion = "AgregarExterior";
+
+        $scope.fuente = new Fuente();
+    
+        $('#modalFuente').modal('toggle');
+    });
+    
+});
+
+app.factory('FUENTE',function($rootScope)
+{
+  var service = {};
+  service.fuente = null;
+    
+  service.AgregarFuente= function()
+  {
+      this.fuente = null;
+      $rootScope.$broadcast('AgregarFuente');
+  };
+    
+  service.TerminarFuente= function(fuente)
+  {
+      this.fuente = fuente;
+      $rootScope.$broadcast('TerminarFuente');
+  };
+    
+  service.GetFuente = function()
+  {
+      return this.fuente;
+  };
+
+  return service;
 });

@@ -13,6 +13,7 @@
     require 'Sabiduria/Administrar/Autor.php';
     require 'Sabiduria/Administrar/Tema.php';
     require 'Sabiduria/Administrar/TipoInformacion.php';
+    require 'Sabiduria/Administrar/Informacion.php';
 
     /*-----Seguridad-----*/
     require 'PHP-JWT/Authentication/JWT.php';
@@ -178,12 +179,18 @@
 
     /*----------------------Usuario ----------------------*/
     $app->get('/GetUsuarios', $seguridad, $ChecarSesion, 'GetUsuarios');
+    $app->post('/AgregarUsuario', $seguridad, $ChecarSesion, 'AgregarUsuario');
+    $app->put('/EditarUsuario', $seguridad, $ChecarSesion, 'EditarUsuario');
     $app->post('/ActivarDesactivarUsuario', $seguridad, $ChecarSesion, 'ActivarDesactivarUsuario');
     
     $app->get('/GetPermiso', $seguridad, $ChecarSesion, 'GetPermiso');
     
     $app->get('/GetPermisoUsuario/:id', $seguridad, $ChecarSesion, 'GetPermisoUsuario');
     $app->put('/CambiarPasswordPorUsuario', $seguridad, $ChecarSesion, 'CambiarPasswordPorUsuario');
+
+    $app->put('/RecuperarPassword', $seguridad, $ChecarSesion, 'RecuperarPassword');
+    $app->post('/ValidarRecuperarPassword', $seguridad, $ChecarSesion, 'ValidarRecuperarPassword');
+    $app->put('/ReiniciarPassword', $seguridad, $ChecarSesion, 'ReiniciarPassword');
 
     /*----------------------- Etiqueta ------------------------------------------*/
     $app->get('/GetEtiqueta', $seguridad, $ChecarSesion, 'GetEtiqueta');
@@ -223,6 +230,12 @@
     $app->get('/GetTipoInformacion', $seguridad, $ChecarSesion, 'GetTipoInformacion');
     $app->post('/AgregarTipoInformacion', $seguridad, $ChecarSesion, 'AgregarTipoInformacion');
     $app->put('/EditarTipoInformacion', $seguridad, $ChecarSesion, 'EditarTipoInformacion');
+
+    /*-----------------------  Información ------------------------------------------*/
+    $app->get('/GetInformacion', $seguridad, $ChecarSesion, 'GetInformacion');
+    $app->post('/AgregarInformacion', $seguridad, $ChecarSesion, 'AgregarInformacion');
+    $app->post('/EditarInformacion', $seguridad, $ChecarSesion, 'EditarInformacion');
+    $app->get('/GetInformacionEtiqueta/:id', $seguridad, $ChecarSesion, 'GetInformacionEtiqueta');
 
 
     $app->run(); 

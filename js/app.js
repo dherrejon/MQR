@@ -75,6 +75,9 @@ app.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpPro
     when('/Aplicacion',{
         templateUrl: 'html/Aplicacion.html'
     }).
+    when('/RecuperarPassword/:usuarioId/:codigo',{
+        templateUrl: 'html/RecuperarPassword.html'
+    }).
     //Sabiduría
         when('/Informacion',{
             templateUrl: 'html/Sabiduria/Informacion.html'
@@ -104,8 +107,9 @@ app.run(function($rootScope, $location, $window, $http, CONFIG, $q, datosUsuario
 {   
     $rootScope.claseApp = "col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 appPanel";
     
-    $rootScope.erNombrePersonal = /^(([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ]){2,250}\s?)+$/;   //expresion regular para los apellido y el nombre de una persona
+    $rootScope.erNombrePersonal = /^(([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ]){1,250}(\.|\s)?)+$/;   //expresion regular para los apellido y el nombre de una persona
     $rootScope.erPassword = /^(\w){6}(\w)*$/;   //expresion regular para la contraseña
+    $rootScope.erNombreUsuario = /^(\w|ñ){3}(\w|ñ)*$/;   //expresion regular para el nombre de usurio
     
     $rootScope.ChecarSesion = function(token)           //verifica el esatdo de la sesión
     {  

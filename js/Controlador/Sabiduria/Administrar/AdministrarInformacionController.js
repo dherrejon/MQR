@@ -1,6 +1,6 @@
-app.controller("AdministrarInformacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
+app.controller("ConfigurarInformacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
 {   
-    $scope.titulo = "Tipo Información";
+    $scope.titulo = "Información";
     
     $scope.permiso = false;
     
@@ -88,6 +88,7 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
 
 
 var tabInformacion = [
-                    {titulo:"Tema", referencia: "#Tema", clase:"", area:"tema"},
-                    {titulo:"Tipo Información", referencia: "#TipoInformacion", clase:"active", area:"tipoInformacion"}
-                ];
+                        {titulo:"Información", referencia: "#AdministrarInformacion", clase:"active", area:"informacion"},
+                        {titulo:"Tema", referencia: "#Tema", clase:"", area:"tema"},
+                        {titulo:"Tipo Información", referencia: "#TipoInformacion", clase:"", area:"tipoInformacion"}
+                    ];

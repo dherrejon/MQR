@@ -8,6 +8,7 @@
 
 .botonAgregar:hover, .botonAgregar:active, .botonAgregar:focus
 {
+    color: rgba(78,122,137,1); 
     outline: none !important;
     box-shadow: none;
 }
@@ -220,6 +221,11 @@
     margin-left: -8px;  
 }
 
+.checkbox label
+{
+    width: 100%;
+}
+
 .checkbox label:after
 {
     content: '';
@@ -273,3 +279,8 @@
 {
     opacity: .5;
 }
+
+
+
+
+

@@ -1,0 +1,216 @@
+.lineaSeparador
+{
+    border: 1px solid rgb(41,69,77);
+}
+
+.lineaSepadorGris
+{
+    border: 0.5pt solid gray;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.verInformacion
+{
+    text-align: justify;
+    max-height: 125px;
+    overflow: hidden;
+    font-size: 12pt;
+}
+
+
+/*--------- datos ---------*/
+.tema
+{
+    font-size: 16pt;
+}
+
+.detalleInformacion
+{
+    text-align: justify;
+    font-size: 12pt;
+    font-family: Arial;
+    max-width: 100%
+}
+
+.contenidoArea, .contenidoArea:focus, .contenidoArea:active, .contenidoArea:hover
+{
+    border-radius: 0px;
+    border: solid 2px #262626;
+    max-width: 100%;
+    background: transparent;
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
+.contenidoError, .contenidoError:focus, .contenidoError:active, .contenidoError:hover
+{
+    border-radius: 0px;
+    border: solid 2px #970000;
+    max-width: 100%;
+    background: transparent;
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
+.etiquetaNormal
+{
+    color: rgba(78,122,137,1);
+}
+/*-------- dropdown de informacion ------------*/
+.dropdownInfo
+{
+    border-radius: 0px;
+    border: solid 2px #262626;
+    margin-top: 12px;
+}
+
+.dropdownInfo:before
+{
+    content: "";
+    position: absolute;
+    top: -24px;
+    right: 2px;
+    
+    border: 12px solid transparent;
+    border-bottom-color: #262626;
+}
+
+.dropdownInfo:after
+{
+    content: "";
+    position: absolute;
+    top: -18px;
+    right: 5px;
+    
+    border: 9px solid transparent;
+    border-bottom-color: white;
+}
+
+/*---------------- Imagen -----------------*/
+.imagenInformacion
+{
+    width: auto;
+    max-width: 100%;
+    max-height: 125px;
+}
+
+.imagenInformacion:hover
+{
+    cursor: pointer;
+}
+
+.imagenModuloVaciaDetalle
+{
+    height: 50px;
+    width: 100%;
+    text-align: center;
+    vertical-align: center;
+    font-size: 16px;
+    padding-top: 17px;
+    border: 2px solid #262626;
+}
+
+.imagenModuloVacia
+{
+    height: 125px;
+    width: auto;
+    text-align: center;
+    vertical-align: center;
+    font-size: 17px;
+    padding-top: 54px;
+}
+
+.marcoImagen
+{
+    border: 2px solid #262626;
+    border-radius: 0px;
+    min-height: 125px;
+}
+
+/*---------------- Archivo -----------------*/
+.botonPDF, .botonPDF:focus, .botonPDF:active, .botonPDF:disabled:hover
+{
+    margin-top: 20px;
+    border-radius: 0px;
+    border: 2px solid rgb(41,69,77);
+    background: transparent;
+    color: rgb(41,69,77);
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
+.botonPDF:hover
+{
+    background: rgb(41,69,77);
+    color: white;
+}
+
+/*Buscador de archivos*/
+.image-preview-input 
+{
+    overflow: hidden;
+	margin: 0px;    
+    color: white;
+    background-color: #262626;
+    
+    border: 1px solid #262626;
+    border-radius: 0px;
+}
+
+.image-preview-input input[type=file] 
+{
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0;
+	padding: 0;
+	font-size: 20px;
+	cursor: pointer;
+	opacity: 0;
+	filter: alpha(opacity=0);
+}
+
+.image-preview-input-title 
+{
+    margin-left:2px;
+    color:white !important;
+}
+
+.image-preview-input:hover 
+{
+    color:white !important;
+    background: rgba(78,122,137,1);
+}
+
+.cargarArchivo
+{
+    border: 2px solid #262626;
+    border-radius: 0px;
+}
+
+/*------- filtro tipo informacion -----------*/
+.botonFiltroInformacion, .botonFiltroInformacion:hover, .botonFiltroInformacion:active, .botonFiltroInformacion:focus
+{
+    border: none;
+    background: none;
+    color: lightgray;
+    font-size: 16pt;
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
+.botonFiltroInformacion.active
+{
+    border: none;
+    background: none;
+    color: #262626;
+    font-size: 16pt;
+    
+    outline: none !important;
+    box-shadow: none;
+}

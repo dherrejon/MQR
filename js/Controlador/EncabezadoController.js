@@ -234,7 +234,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     {
         if(!$scope.usuario.SesionIniciada)
         {
-             $location.path('/Login');
+             //$location.path('/Login');
             return;
         }
         else
@@ -253,7 +253,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     
         if(!$scope.usuario.SesionIniciada)
         {
-            $location.path('/Login');
+            //$location.path('/Login');
             return;
         }
         else
@@ -271,14 +271,14 @@ var EncabezadoSabiduria =
     titulo:"Sabidulría", 
     opcion: [ 
                     { texto:"Información", tipo:"link", referencia:"#Informacion", show: false},
-                    { texto:"Adminitrar", tipo:"dropdown", show: false,
+                    { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [
                                                 {texto:"Usuario", referencia:"#Usuario", funcion:""},
                                                 {texto:"Fuente", referencia:"#Fuente", funcion:""},
                                                 {texto:"Autor", referencia:"#Autor", funcion:""},
                                                 {texto:"Etiqueta", referencia:"#Etiqueta", funcion:""},
-                                                {texto:"Configurar Información", referencia:"#ConfigurarInformacion", funcion:""}
+                                                {texto:"Información", referencia:"#ConfigurarInformacion", funcion:""}
                                             ]},
                     {texto:"Usuario", tipo:"dropdown", show: true, 
                                             elemento:

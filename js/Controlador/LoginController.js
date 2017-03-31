@@ -1,6 +1,7 @@
 app.controller("LoginController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
 {   
     $scope.mensajeError = "";
+    $scope.mensajeErrorPassword = "";
     $scope.usuarioLogin = {nombreUsuario:"", password:""};
     
     $scope.usuario = datosUsuario.getUsuario();
@@ -81,6 +82,47 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
             $scope.IrPaginaPrincipal();
         }
     }
+    
+    //------------------- Recuperar contraseña ----------------------
+    $scope.RecuperarPassword = function(usuarioInvalido)
+    {
+        $scope.mensajeErrorPassword = "";
+        if(usuarioInvalido)
+        {
+            $scope.mensajeErrorPassword = "*Escribe un usuario válido.";
+            return;
+        }
+        
+        var usuario = new Object();
+        usuario.Nombre = $scope.usuarioLogin.nombreUsuario;
+        
+        RecuperarPassword($http, CONFIG, $q, usuario).then(function(data)
+        {
+            if(data == "Exitoso")
+            {
+                $scope.mensaje = "Se te ha enviado un correo para que puedas reiniciar tu contraseña.";
+                $('#recuperarPasswordModal').modal('toggle');
+                $('#mensajeLogin').modal('toggle');
+            }
+            else if(data == "ErrorUsuario")
+            {
+                $scope.mensajeErrorPassword = "*El usuario no es válido.";
+            }
+            else
+            {
+                alert("Ha ocurrido un error. Intente más tarde.");
+            }
+        }).catch(function(error)
+        {
+            alert("Ha ocurrido un error. Intente más tarde." +error);
+            return;
+        });
+    };
+    
+    $scope.CerrarRecuperarPasswordForma = function()
+    {
+        $scope.mensajeErrorPassword = "";
+    };
 
 });
 

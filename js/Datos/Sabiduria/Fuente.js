@@ -5,6 +5,8 @@ class Fuente
         this.FuenteId = "";
         this.Nombre = "";
         this.TipoFuente = new TipoFuente();
+        this.Autor = [];
+        this.Etiqueta = [];
     }
 }
 

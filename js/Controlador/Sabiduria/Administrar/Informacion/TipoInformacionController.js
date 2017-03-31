@@ -1,4 +1,4 @@
-app.controller("TipoInfomacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
+app.controller("TipoInfomacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, TIPOINFORMACION)
 {   
     $scope.tipoInformacion = [];
     
@@ -69,7 +69,7 @@ app.controller("TipoInfomacionController", function($scope, $window, $http, $roo
         }
         else
         {
-            if($scope.operacion == "Agregar")
+            if($scope.operacion == "Agregar" || $scope.operacion == "AgregarExterior")
             {
                 $scope.AgregarTipoInformacion();
             }
@@ -89,7 +89,16 @@ app.controller("TipoInfomacionController", function($scope, $window, $http, $roo
             {
                 $('#modalTipoInformacion').modal('toggle');
                 $scope.mensaje = "El tipo de información se ha agregado.";
-                $scope.GetTipoInformacion();
+                
+                if($scope.operacion == "Agregar")
+                {
+                    $scope.GetTipoInformacion();
+                }
+                else
+                {
+                    $scope.nuevoTipoInformacion.TipoInformacionId = data[1].Id;
+                    TIPOINFORMACION.TerminarTipoInformacion($scope.nuevoTipoInformacion);
+                }
             }
             else
             {
@@ -161,4 +170,39 @@ app.controller("TipoInfomacionController", function($scope, $window, $http, $roo
     //----------------------Inicializar---------------------------------
     $scope.GetTipoInformacion();
     
+    //------------------------ Exterior ---------------------------
+    $scope.$on('AgregarTipoInformacion',function()
+    {
+        $scope.operacion = "AgregarExterior";
+
+        $scope.nuevoTipoInformacion = new TipoInformacion();
+    
+        $('#modalTipoInformacion').modal('toggle');
+    });
+    
+});
+
+app.factory('TIPOINFORMACION',function($rootScope)
+{
+  var service = {};
+  service.tipoInformacion = null;
+    
+  service.AgregarTipoInformacion = function()
+  {
+      this.tipoInformacion = null;
+      $rootScope.$broadcast('AgregarTipoInformacion');
+  };
+    
+  service.TerminarTipoInformacion = function(tipoInformacion)
+  {
+      this.tipoInformacion = tipoInformacion;
+      $rootScope.$broadcast('TerminarTipoInformacion');
+  };
+    
+  service.GetTipoInformacion = function()
+  {
+      return this.tipoInformacion;
+  };
+
+  return service;
 });

@@ -37,14 +37,14 @@ function SetUsuario2(data)
     return usuario;
 }
 
-/*function AgregarFuente($http, CONFIG, $q, fuente)
+function AgregarUsuario($http, CONFIG, $q, usuario)
 {
     var q = $q.defer();
     
     $http({      
           method: 'POST',
-          url: CONFIG.APIURL + '/AgregarFuente',
-          data: fuente
+          url: CONFIG.APIURL + '/AgregarUsuario',
+          data: usuario
 
       }).success(function(data)
         {
@@ -56,15 +56,14 @@ function SetUsuario2(data)
     return q.promise;
 }
 
-//edita un consumible
-function EditarFuente($http, CONFIG, $q, fuente)
+function EditarUsuario($http, CONFIG, $q, usuario)
 {
     var q = $q.defer();
 
     $http({      
           method: 'PUT',
-          url: CONFIG.APIURL + '/EditarFuente',
-          data: fuente
+          url: CONFIG.APIURL + '/EditarUsuario',
+          data: usuario
 
       }).success(function(data)
         {
@@ -74,7 +73,7 @@ function EditarFuente($http, CONFIG, $q, fuente)
 
      }); 
     return q.promise;
-}*/
+}
 
 function ActivarDesactivarUsuario($http, $q, CONFIG, usuario) 
 {

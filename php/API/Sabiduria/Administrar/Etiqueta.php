@@ -44,9 +44,9 @@ function AgregarEtiqueta()
 
         $stmt->execute();
         
-        $db = null;
+        echo '[{"Estatus": "Exitoso"}, {"Id": "'.$db->lastInsertId().'"}]';
         
-        echo '[{"Estatus": "Exitoso"}]';
+        $db = null;
 
     } catch(PDOException $e) 
     {

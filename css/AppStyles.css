@@ -1,8 +1,10 @@
 .appPanel
 {
     background: white;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: scroll;
     margin-top: -117px;
+    overflow: scroll;
 }
 
 .textoBienvenido

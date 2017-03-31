@@ -1,4 +1,4 @@
-<div ng-controller="AdministrarInformacionController as admInformacion">
+<div ng-controller="ConfigurarInformacionController as conInformacion">
    
     <div class="container-fluid">
        
@@ -9,12 +9,12 @@
                    <div class="tab" role="tabpanel" style="margin-top:-7px">
                        
                         <!-- pestañas -->
-                        <ul ng-if="anchoPantalla > 400" class="nav nav-tabs" role="tablist">
+                        <ul ng-if="anchoPantalla > 520" class="nav nav-tabs" role="tablist">
                             <li   ng-repeat="tab in tabs" class="{{tab.clase}}"><a  href="" aria-controls="{{tab.area}}" role="tab" data-toggle="tab" ng-click="SeleccionarTab(tab, $index)">{{tab.titulo}}</a></li>
                         </ul>
                         
 
-                        <ul ng-if="anchoPantalla < 401" class="nav nav">
+                        <ul ng-if="anchoPantalla < 521" class="nav nav">
                             <li  class="tabSm dropdown">
 
                                 <button  class="dropdown-toggle  btn dropDownTab" data-toggle="dropdown" >
@@ -35,20 +35,28 @@
 
                         <!-- Contenido -->
                         <div class="">
-                            <!-- Autor -->
-                            <div role="tabpanel" class="tab-pane in active" id="Fuente" ng-if="permiso && titulo=='Tema'" >
+                           <!-- Informacion -->
+                            <div role="tabpanel" class="tab-pane in active" id="Informacion" ng-if="permiso && titulo=='Información'" >
+                              <br>  
+                                <div ng-include=" 'html/Sabiduria/Administrar/Informacion/Informacion.html' ">
+
+                                </div>
+                            </div>
+                            
+                            <!-- Tema -->
+                            <div role="tabpanel" class="tab-pane in active" id="Tema" ng-if="permiso && titulo=='Tema'" >
                               <br>  
                                 <div ng-include=" 'html/Sabiduria/Administrar/Informacion/Tema.html' ">
 
                                 </div>
                             </div>
 
-                            <!-- Prefijo -->
-                            <div role="tabpanel" class="tab-pane" id="TipoFuente"  ng-if="permiso && titulo=='Tipo Información'">
-                              <br>  
-                                <div ng-include=" 'html/Sabiduria/Administrar/Informacion/TipoInformacion.html' ">
-
-                                </div>
+                            <!-- Tipo de Información -->
+                            <div role="tabpanel" class="tab-pane" id="TipoInformacion"  ng-if="permiso && titulo=='Tipo Información'">
+                              <br>
+                               <div class="col-xs-12"> 
+                                    <div ng-include=" 'html/Sabiduria/Administrar/Informacion/TipoInformacion.html' "></div>
+                                </div> 
                             </div>
 
                         </div>

@@ -1,4 +1,4 @@
-app.controller("EtiquetaController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
+app.controller("EtiquetaController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, ETIQUETA)
 {   
     $scope.etiqueta = [];
     $scope.ordenarEtiqueta = "Nombre";
@@ -68,7 +68,7 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
         }
         else
         {
-            if($scope.operacion == "Agregar")
+            if($scope.operacion == "Agregar" || $scope.operacion=="AgregarExterior")
             {
                 $scope.AgregarEtiqueta();
             }
@@ -88,7 +88,16 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
             {
                 $('#modalEtiqueta').modal('toggle');
                 $scope.mensaje = "La etiqueta se ha agregado.";
-                $scope.GetEtiqueta();
+                
+                if($scope.operacion == "Agregar")
+                {
+                    $scope.GetEtiqueta();
+                }
+                else
+                {
+                    $scope.nuevaEtiqueta.EtiquetaId = data[1].Id;
+                    ETIQUETA.TerminarEtiqueta($scope.nuevaEtiqueta);
+                }
             }
             else
             {
@@ -217,6 +226,41 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
     
     //----------------------Inicializar---------------------------------
     $scope.GetEtiqueta();
-   
     
+    
+    /*---------------- EXTERIOR -------------------------*/
+    $scope.$on('AgregarEtiqueta',function()
+    {
+        $scope.operacion = "AgregarExterior";
+
+        $scope.nuevaEtiqueta = new Etiqueta();
+    
+        $('#modalEtiqueta').modal('toggle');
+    });
+    
+});
+
+app.factory('ETIQUETA',function($rootScope)
+{
+  var service = {};
+  service.etiqueta = null;
+    
+  service.AgregarEtiqueta = function()
+  {
+      this.etiqueta = null;
+      $rootScope.$broadcast('AgregarEtiqueta');
+  };
+    
+  service.TerminarEtiqueta = function(etiqueta)
+  {
+      this.etiqueta = etiqueta;
+      $rootScope.$broadcast('TerminarEtiqueta');
+  };
+    
+  service.GetEtiqueta = function()
+  {
+      return this.etiqueta;
+  };
+
+  return service;
 });

@@ -16,6 +16,12 @@
     overflow: scroll;
 }
 
+.tablaTituloSeleccion
+{
+    max-height: 250px;
+    overflow: scroll;    
+}
+
 /*--------- modales --------------------*/
 .modalPrincipal
 {

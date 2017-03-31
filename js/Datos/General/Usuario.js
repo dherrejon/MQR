@@ -175,6 +175,72 @@ function CambiarPasswordPorUsuario($http, CONFIG, $q, usuario)
     return q.promise;
 }
 
+function RecuperarPassword($http, CONFIG, $q, usuario)
+{
+    var q = $q.defer();
+
+    $http({      
+          method: 'PUT',
+          url: CONFIG.APIURL + '/RecuperarPassword',
+          data: usuario
+
+      }).success(function(data)
+        {
+            q.resolve(data[0].Estatus);   
+        }).error(function(data, status){
+            q.resolve(status);
+
+     }); 
+    return q.promise;
+}
+
+function ValidarRecuperarPassword($http, $q, CONFIG, solicitud)
+{
+    var q = $q.defer();
+    
+    $http({      
+          method: 'POST',
+          url: CONFIG.APIURL + '/ValidarRecuperarPassword',
+          data: solicitud
+
+      }).success(function(data)
+        {
+            q.resolve(data);   
+        }).error(function(data){
+            q.resolve(data);
+     }); 
+    
+    return q.promise;
+}
+
+function ReiniciarPassword($http, CONFIG, $q, usuario)
+{
+    var q = $q.defer();
+
+    $http({      
+          method: 'PUT',
+          url: CONFIG.APIURL + '/ReiniciarPassword',
+          data: usuario
+
+      }).success(function(data)
+        {
+            if(data[0].Estatus == "Exitoso") 
+            {
+                q.resolve("Exitoso");
+            }
+            else
+            {
+                q.resolve("Fallido");
+            }
+            
+        }).error(function(data, status){
+            q.resolve(status);
+
+     }); 
+    return q.promise;
+}
+
+//-------Funciones cambio de valor----------
 function CambiarIntABool(valor)
 {
     if(valor == "1")
