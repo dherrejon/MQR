@@ -1,39 +1,8 @@
 <div ng-controller="CancioneroController as cancionero" class="container-fluid">
-   <!-- <br><br>
-    <div class="row">
-        <div class="col-xs-12  col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-            <div class="input-group" style="z-index:1">
-                <div class="entrada2">
-                    <input type="text" required class="entrada form-control" name="buscar" ng-model="buscarCancionero"/>
-                    <label>¿Qué deseas tocar?</label>
-                </div>
 
-                <span class="input-group-btn">
-                    <button class="btn close cerrarModal"  ng-click="LimpiarBuscar(1)"><span aria-hidden="true">&times;</span></button>
-                </span>
-            </div>
-       </div>
-    </div>
-    
-    <br> -->
     <div class="row">
         <!-- canciones -->
         <div class="col-sm-3">
-           
-            <div class="row operacionApp">
-                <!-- Filtro -->
-                <!-- <div class="col-xs-6">
-                    <a ng-click="" class="btn textoApp">
-                        <span class="fa fa-filter" style="font-size:11pt"></span>
-                    </a>
-                </div> -->
-                <!-- Agregar -->
-                <div class="col-xs-12 text-center">
-                    <a class="btn textoApp" ng-click="AbrirCancion('Agregar', null)">
-                        <span class="fa fa-plus"></span> <span>Agregar</span>
-                    </a>
-                </div>
-            </div>
             
             <!-- buscar -->
             <div class="row operacionApp" style="padding-top:5px; padding-bottom:5px">
@@ -48,20 +17,10 @@
                 </div>
             </div>
             
-            <div class="row panelOpciones"  ng-show="!(anchoPantalla <= 767 && buscarCancionero.length == 0)">
+            <div class="row panelOpcionesCancionero" ng-show="!(anchoPantalla <= 767 && buscarCancionero.length == 0)">
                 <a class="btn cancionA" ng-class="ObtenerClaseCancion(cancion)" ng-repeat="cancion in cancion | filter:BuscarCancion | orderBy:'Titulo'" ng-click="VerDetalles(cancion)">
                     
-                    <span class="col-xs-12" style="max-width:90%; overflow-x:hidden">{{cancion.Titulo}}</span>
-
-                    <!-- "context menu" -->
-                    <div class="dropdown pull-rigth" >
-                        <button class="fa fa-ellipsis-v btn botonVacio" data-toggle="dropdown"></button>
-
-                        <ul class="dropdown-menu dropdown-menu-right contextMenu">
-                            <button class="col-xs-12 btn botonCM" ng-click="AbrirCancion('Editar', cancion)"> <span class="fa fa-pencil"></span> Editar</button><br>
-                            <button class="col-xs-12 btn botonCM" ng-click="BorrarCancion(cancion)"> <span class="fa fa-minus-circle "></span> Borrar</button>
-                        </ul>
-                    </div>
+                    <span class="col-xs-12" style="max-width:100%; overflow-x:hidden">{{cancion.Titulo}}</span>
                     
                     <div class="col-xs-12" style="overflow-x: hidden;">
                         <span  ng-repeat="artista in cancion.Artista | orderBy:'Nombre'">
@@ -135,7 +94,7 @@
             
             <div class="row" ng-if="detalle.Titulo.length > 0">
                 <div class="col-xs-12">
-                    <button class="btn pull-right expandirImagen" ng-click="VisualizarImagen(detalle.Cancionero, false)" data-toggle="modal" data-target="#verImagen"><span class="fa fa-arrows-alt"></span></button>
+                    <button class="btn pull-right expandirImagen" ng-click="VisualizarImagen(detalle.Cancionero)" data-toggle="modal" data-target="#verImagen"><span class="fa fa-arrows-alt"></span></button>
                 </div>
             </div>
             
@@ -149,257 +108,25 @@
     </div>
     
     <!-- -------------------------------- Modales ----------------------------------------------------------------------- -->
-    <div class="modal fade" id="modalCancionero" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
-        <br>    <br>   <br>
-        <div class="modal-dialog modalPrincipal">
-           
-            <div class="row">
-                <div class="col-xs-12">
-                    <!-- Alertas -->
-                    <div class="alertaMensaje" id="alertaExitosoCancion">
-                        <div class="alert alertaExtito">
-                            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
-                            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
-                            <strong style="display: inline-block;">{{mensaje}}</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <br>
-            <div class="row">
-                
-                <div class="col-xs-8 col-sm-10">
-                    <!--<button class="btn close cerrarModal" ng-click="CerrarCancion()"><span aria-hidden="true">&times;</span></button>-->
-                    <span ng-if="operacion == 'Agregar'" class="tituloModal">Agregar Cancionero</span>
-                    <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Cancionero</span>
-                </div>
-                
-                <div class="col-xs-4 col-sm-2">
-                    <div class="btn-group-vertical pull-right" role="group" >
-                        <a class="btn botonFinModal"  ng-click="CerrarCancion()"><span class="fa fa-times"></span></a>
-                        <a focus class="btn botonFinModal" id="terminarEtiqueta" ng-click="TerminarCancion(cancioneroForma.titulo.$invalid)"><span class="fa fa-check"></span></a>
-                    </div>
-                </div>
-                
-                
-            </div>
-            <br>
-            
-            <form name="cancioneroForma">
-                
-                <!-- Titulo -->
-                <div class="row">
-                    <div class="col-sm-12">
-                        
-                        <div class="input-group">
-                            <div class="entrada2">
-                                <input type="text" required class="entrada form-control" name="titulo" ng-model="nuevaCancion.Titulo" ng-maxlength="120"/>
-                                <label>Título</label>
-                            </div>
-                            <span class="input-group-btn">
-                                <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(3)" type="button"><span class="fa fa-times-circle"></span></a>
-                            </span>
-                        </div>
-                        
-                       
-                   </div>             
-                </div>
-                <br>
-                <div class="row">
-                     <!-- Artistas -->
-                     <div class="col-sm-12" id="temaPanel">
-                        <label class="etiquetaNormal">Interpretes</label><br>
-                         <!--lista de artistas -->
-                         <span ng-repeat="artista in nuevaCancion.Artista | orderBy:'Nombre'">
-                             <div class="btn-group" role="group" style="margin-bottom:8px">
-                              <a class="btn buscarTexto" style="font-size:10pt">{{artista.Nombre}}</a>
-                              <a class="btn limpiarTextoBoton" style="font-size:10pt" ng-click="QuitarArtista(artista)"><span class="fa fa-times-circle"></span></a>
-                            </div>
-                         </span>
-                         <!-- Buscar Artista -->
-                         <div class="input-group">
-                            <input type="text" required class="entrada form-control" name="artista" ng-model="buscarArtista" placeholder="Nombre del Interprete" ng-maxlength="300"  data-toggle="dropdown" id="nuevoArtista"/>
-                            <span class="input-group-btn">
-                                <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(2)" type="button"><span class="fa fa-times-circle"></span></a>
-                            </span>
-                        </div>
-                         
-                        
-                         
-                         <div class="dropdown-menu modalAgregarDropdown" ng-show="buscarArtista.length > 0">
-                            
-                            <table  class="table table-responsive">
-                                <tbody  style="cursor: pointer">
-                                    <tr   ng-repeat="artista in artista | orderBy:'Nombre' | filter:buscarArtista" ng-show="artista.show">
-                                      <td style="margin-left:10px; color:black" class="botonSeleccionar" ng-click="AgregarArtista(artista)">{{artista.Nombre}}</td>
-                                    </tr>
 
-                                </tbody>
-                            </table>
-                        </div>
-                      
-                    </div>
-                </div>
-                <br>
-                <div class="row">
-                    
-                    <!-- Cancionero -->
-                    <div class="col-sm-12">
-                        <label class="etiquetaNormal">Cancionero</label>
-                        <div  method="post" enctype="multipart/form-data">
-                            <div class="input-group">
-                                
-                                <input disabled type="text" class="form-control cargarArchivo image-preview-filename" ng-model="nuevaCancion.NombreArchivo">
-                                
-                                <span class="input-group-btn">
-                                    
-                                     <a class=" btn image-preview-input" ng-click="QuitarArchivo()" ng-show="nuevaCancion.NombreArchivo.length > 0">
-                                        <spna class="fa fa-times"></spna>
-                                    </a>
-                                    
-                                    <a class=" btn image-preview-input" ng-click="VisualizarImagen(nuevaCancion.Cancionero, archivoSeleccionado)"  data-toggle="modal" data-target="#verImagen" ng-show="nuevaCancion.NombreArchivo.length > 0">
-                                        <spna class="fa fa-eye"></spna>
-                                    </a>
-                                    
-                                    <div class="btn image-preview-input">
-                                        <span class="image-preview-input-title fa fa-upload"></span>
-
-                                        <input type="file" id="cargarImagen" accept="image/*" name="imagen" onchange="angular.element(this).scope().CargarArchivo(this)" data-toggle="tooltip" data-placement="bottom" title="Cargar Imagen">
-
-                                    </div>
-                                    
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <br><br>
-                <!---- botones de operacion -->
-                <div class="row">
-                    <div class="col-xs-6">
-                        <a class="btn botonFinModal btn-block" ng-click="CerrarCancion()">CANCELAR</a>
-                    </div>
-
-                    <div class="col-xs-6">
-                        <a focus class="btn botonFinModal btn-block" ng-click="TerminarCancion(cancioneroForma.titulo.$invalid)">TERMINAR</a>
-                    </div>
-                </div>
-            <br>
-            </form> 
-            
-        </div>
-    </div>
-    
-    <!-- mensaje -->
-    <div class="modal fade sombraDivModal" id="mensajeCancion">
-        <br>    <br>   <br>
-        <div class="modal-dialog modal-sm modalPrincipal">
-           
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="text-center textoError">
-                        <span class=" fa fa-times-circle-o fa-3x"></span><br>
-                        <span>¡Error!</span>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-xs-12">
-                     <div ng-repeat="error in mensajeError">
-                        <span>{{error}}</span>
-                    </div>
-                </div>
-            </div>
-            <br><br>
-         
-            <div class="row">
-                <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button> 
-            </div>
-
-        </div>
-    </div>
-    
-    <!-- Cerrar -->
-    <div class="modal fade sombraDivModal" id="cerrarCancion">
-        <br>    <br>   <br>
-        <div class="modal-dialog modal-sm modalPrincipal text-center">
-           
-            <div class="row">
-                <div class="col-xs-12">
-                    <span style="font-size:14pt">¿Estas seguro de salir sin guardar los cambios?</span>
-                </div>
-            </div>
-            <br><br>
-            <div class="row">
-                <div class="col-xs-6">
-                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
-                </div>
-                <div class="col-xs-6">
-                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarCerrarCancion()">Si</button>
-                </div>
-            </div>
-                        
-        </div>
-    </div>
-    
     <!---------- VerImagen ---------------->
     <div class="modal fade modalCancionero" id="verImagen">
         <div class=" modalImagenCancionero ">
           <div class="row">
                 <div class="col-xs-12">
-                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true" class="fa fa-sign-out"></span></button>
+                    <button class="btn close cerrarModal" style="font-size:18px" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">Salir</span></button>
                 </div>
             </div>
             
-            <div class="row" ng-if="!verImagen.origen">
+            <div class="row">
                 <div class="col-xs-12">
                     <img  class="img-responsive center-block visualizarImagenCompleta" ng-src="data:image/PNG;base64,{{verImagen.imagen}}"/>
-                </div>
-            </div>
-            
-            <div class="row" ng-show="verImagen.origen">
-                <div class="col-xs-12">
-                    <span id="PrevisualizarImagenDetalles"></span>
                 </div>
             </div>
             
             
             <br>
             
-        </div>
-    </div>
-    
-    <!-- Borrar -->
-    <div class="modal fade sombraDivModal" id="borrarCancion">
-        <br>    <br>   <br>
-        <div class="modal-dialog modalPrincipal text-center">
-           
-            <div class="row">
-                <div class="col-xs-12">
-                    <span style="font-size:14pt">{{mensajeBorrar}}</span>
-                </div>
-            </div>
-            <br><br>
-            <div class="row">
-                <div class="col-xs-6">
-                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
-                </div>
-                <div class="col-xs-6">
-                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarBorrarCancion()">Si</button>
-                </div>
-            </div>
-                        
-        </div>
-    </div>
-    
-    <!-- Alertas -->
-    <div class="alertaMensaje" id="alertaEditarExitosoCancion">
-        <div class="alert alertaExtito">
-            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
-            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
-            <strong style="display: inline-block;">{{mensaje}}</strong>
         </div>
     </div>
     

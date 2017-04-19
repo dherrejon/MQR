@@ -371,7 +371,7 @@ var EncabezadoCancionero =
                                             [
                                                 {texto:"Usuarios", referencia:"#Usuario", funcion:""},
                                                 {texto:"Artistas", referencia:"#Artista", funcion:""},
-                                                //{texto:"Canciones", referencia:"#Cancion", funcion:""},
+                                                {texto:"Canciones", referencia:"#Cancion", funcion:""},
                                             ]},
                     {texto:"Usuario", tipo:"dropdown", show: true, 
                                             elemento:

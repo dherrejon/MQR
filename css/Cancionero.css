@@ -72,8 +72,15 @@
     background: #E6E6E6;
     overflow-y: scroll;
     height: 65vh !important;
-    
 }
+
+.panelOpcionesCancionero
+{
+    background: #E6E6E6;
+    overflow-y: scroll;
+    height: 70vh !important;
+}
+
 
 .panelDetalleCancion
 {
@@ -195,7 +202,7 @@
 @media (max-width: 767px) 
 {
     
-    .panelOpciones
+    .panelOpciones, .panelOpcionesCancionero
     {
         background: #E6E6E6;
         overflow-y: scroll;
