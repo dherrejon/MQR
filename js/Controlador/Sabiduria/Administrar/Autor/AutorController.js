@@ -1,9 +1,9 @@
-app.controller("AutorController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
+app.controller("AutorController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, PREFIJO, AUTOR)
 {   
     $scope.autor = [];
     $scope.prefijo = [];
     
-    $scope.ordenarAutor = "Apellidos";
+    $scope.ordenarAutor = "Nombre";
     $scope.buscarAutor = "";
     
     $scope.nuevoAutor = null;
@@ -59,6 +59,7 @@ app.controller("AutorController", function($scope, $window, $http, $rootScope, m
         if(operacion == "Agregar")
         {
             $scope.nuevoAutor = new Autor();
+            $scope.CambiarPrefijo('Ninguno');
         }
         else if(operacion == "Editar")
         {
@@ -70,7 +71,17 @@ app.controller("AutorController", function($scope, $window, $http, $rootScope, m
     
     $scope.CambiarPrefijo = function(prefijo)
     {
-        $scope.nuevoAutor.Prefijo = prefijo;
+        if(prefijo == "Ninguno")
+        {
+            $scope.nuevoAutor.Prefijo.Nombre = "";
+             $scope.nuevoAutor.Prefijo.Abreviacion = "";
+            $scope.nuevoAutor.Prefijo.PrefijoId = "0";
+        }
+        else
+        {
+            $scope.nuevoAutor.Prefijo = prefijo;
+        }
+        
     };
     
     $scope.SetAutor = function(data)
@@ -97,6 +108,12 @@ app.controller("AutorController", function($scope, $window, $http, $rootScope, m
     
     $scope.CerrarAutorModal = function()
     {
+        $('#cerrarAutorModal').modal('toggle');
+    };
+    
+    $scope.ConfirmarCerrarAutorModal = function()
+    {
+        $('#modalAutor').modal('toggle');
         $scope.mensajeError = [];
         $scope.claseAutor = {nombre:"entrada", apellidos:"entrada", prefijo:"dropdownListModal"};
     };
@@ -107,11 +124,12 @@ app.controller("AutorController", function($scope, $window, $http, $rootScope, m
     {
         if(!$scope.ValidarDatos(nombreInvalido, apellidosInvalidos))
         {
+            $('#mensajeAutor').modal('toggle');
             return;
         }
         else
         {
-            if($scope.operacion == "Agregar")
+            if($scope.operacion == "Agregar" || $scope.operacion == "AgregarExterior")
             {
                 $scope.AgregarAutor();
             }
@@ -129,19 +147,33 @@ app.controller("AutorController", function($scope, $window, $http, $rootScope, m
         {
             if(data[0].Estatus == "Exitoso")
             {
-                $('#modalAutor').modal('toggle');
-                $scope.mensaje = "El autor se ha agregado.";
-                $scope.GetAutor();
+                if($scope.operacion == "Agregar")
+                {
+                    $scope.GetAutor();
+                }
+                else
+                {
+                    $scope.nuevoAutor.Abreviacion = $scope.nuevoAutor.Prefijo.Abreviacion;
+                    $scope.nuevoAutor.AutorId = data[1].Id;
+                    $scope.autor.push($scope.nuevoAutor);
+                    AUTOR.TerminarAutor($scope.nuevoAutor);
+                }
+                
+                $scope.mensaje = "Autor agregado.";
+                $scope.EnviarAlerta('Modal');
+                $scope.nuevoAutor = new Autor();
+                $scope.CambiarPrefijo('Ninguno');
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde.";
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde.";
+                $('#mensajeAutor').modal('toggle');
             }
-            $('#mensajeAutor').modal('toggle');
+            
             
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeAutor').modal('toggle');
         });
     };
@@ -154,17 +186,19 @@ app.controller("AutorController", function($scope, $window, $http, $rootScope, m
             if(data[0].Estatus == "Exitoso")
             {
                 $('#modalAutor').modal('toggle');
-                $scope.mensaje = "El autor se ha editado.";
+                $scope.mensaje = "Autor editado.";
                 $scope.GetAutor();
+                $scope.EnviarAlerta('Vista');
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde";   
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde";
+                $('#mensajeAutor').modal('toggle');
             }
-            $('#mensajeAutor').modal('toggle');
+            
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeAutor').modal('toggle');
         });
     };
@@ -173,7 +207,7 @@ app.controller("AutorController", function($scope, $window, $http, $rootScope, m
     {
         $scope.mensajeError = [];
         
-        if($scope.nuevoAutor.Prefijo.Abreviacion.length === 0)
+        if($scope.nuevoAutor.Prefijo.PrefijoId.length === 0)
         {
             $scope.claseAutor.prefijo = "dropdownListModalError";
             $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona un prefijo.";
@@ -208,21 +242,108 @@ app.controller("AutorController", function($scope, $window, $http, $rootScope, m
             return false;        
         }
         
-        /*for(var k=0; k<$scope.autor.length; k++)
+        for(var k=0; k<$scope.autor.length; k++)
         {
             if($scope.autor[k].Nombre.toLowerCase() == $scope.nuevoAutor.Nombre.toLowerCase() && $scope.autor[k].Apellidos.toLowerCase() == $scope.nuevoAutor.Apellidos.toLowerCase() && $scope.autor[k].AutorId != $scope.nuevoAutor.AutorId)
             {
-                $scope.claseEtiqueta.nombre = "entradaError";
-                $scope.mensajeError[$scope.mensajeError.length] = "*La etiqueta " + $scope.nuevaEtiqueta.Nombre.toLowerCase() + " ya existe.";
+                $scope.claseAutor.nombre = "entradaError";
+                $scope.claseAutor.apellidos = "entradaError";
+                $scope.mensajeError[$scope.mensajeError.length] = "*El autor " + $scope.nuevoAutor.Nombre + " " + $scope.nuevoAutor.Apellidos + " ya existe.";
                 return false;
             }
-        }*/
+        }
         
         return true;
     };
+    
+    $scope.LimpiarBuscar = function(buscar)
+    {
+        switch(buscar)
+        {
+            case 1:
+                $scope.buscarAutor = "";
+                break;
+            default: 
+                break;
+        }
+    };
+    
+    $scope.EnviarAlerta = function(alerta)
+    {
+        if(alerta == "Modal")
+        {
+            $("#alertaExitosoAutor").alert();
+
+            $("#alertaExitosoAutor").fadeIn();
+            setTimeout(function () {
+                $("#alertaExitosoAutor").fadeOut();
+            }, 2000);
+        }
+        else if('Vista')
+        {
+            $("#alertaEditarExitosoAutor").alert();
+
+            $("#alertaEditarExitosoAutor").fadeIn();
+            setTimeout(function () {
+                $("#alertaEditarExitosoAutor").fadeOut();
+            }, 2000)
+        }
+    };
+    
+    //--------------------------- Prefijo ------------------
+    $scope.AgregarPrefijo = function()
+    {
+        PREFIJO.AgregarPrefijo();
+    };
+    
+    $scope.$on('TerminarPrefijo',function()
+    {
+        var prefijo = PREFIJO.GetPrefijo();
+        $scope.CambiarPrefijo(prefijo);
+        $scope.prefijo.push(prefijo);
+        
+        $scope.mensaje = "Prefijo Agregado";
+        $scope.EnviarAlerta('Modal');
+    });
     
     //----------------------Inicializar---------------------------------
     $scope.GetAutor();
     $scope.GetPrefijo();
     
+    /*---------------- EXTERIOR -------------------------*/
+    $scope.$on('AgregarAutor',function()
+    {
+        $scope.operacion = "AgregarExterior";
+
+        $scope.nuevoAutor = new Autor();
+        $scope.CambiarPrefijo('Ninguno');
+    
+        $('#modalAutor').modal('toggle');
+    });
+    
+});
+
+app.factory('AUTOR',function($rootScope)
+{
+  var service = {};
+  service.autor = null;
+    
+  service.AgregarAutor = function()
+  {
+      this.autor = null;
+      $rootScope.$broadcast('AgregarAutor');
+  };
+    
+  service.TerminarAutor = function(autor)
+  {
+      this.autor = autor;
+      $rootScope.$broadcast('TerminarAutor');
+  };
+    
+  service.GetAutor = function()
+  {
+      return this.autor;
+  };
+
+  return service;
 });

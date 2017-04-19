@@ -5,10 +5,19 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
     
     $scope.IniciarApp = function(app)
     {
-        datosUsuario.setAplicacion(app.texto);
-        $location.path(app.paginaPrincipal);
+        if(app != "Aplicaciones")
+        { 
+            datosUsuario.setAplicacion(app.texto);
         
-        SetAplicacion(app.texto, $http, CONFIG);  
+            SetAplicacion(app.texto, $http, CONFIG);
+            $location.path(app.paginaPrincipal);
+        }
+        else
+        {
+            datosUsuario.setAplicacion("Aplicaciones");
+        
+            SetAplicacion("Aplicaciones", $http, CONFIG);
+        }
     };
     
     $scope.HabilitarAplicaciones = function()
@@ -18,6 +27,10 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
             if($scope.usuarioLogeado.Permiso[k] == "SabiduriaCon" || $scope.usuarioLogeado.Permiso[k] == "SabiduriaAdm")
             {
                 $scope.apps[0].habilitada = true;
+            }
+            if($scope.usuarioLogeado.Permiso[k] == "CancioneroCon" || $scope.usuarioLogeado.Permiso[k] == "CancioneroAdm")
+            {
+                $scope.apps[2].habilitada = true;
             }
         }
     };
@@ -34,6 +47,7 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
         }
         else
         {
+            $scope.IniciarApp("Aplicaciones");
             $scope.HabilitarAplicaciones();
         }
     }
@@ -50,12 +64,15 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
         }
         else
         {
+            $scope.IniciarApp("Aplicaciones");
             $scope.HabilitarAplicaciones();
         }
     });
-    
+        
 });
 
 var aplicaciones = [
-                        {texto:"Sabiduría", habilitada:false, paginaPrincipal:"/Informacion", icono:"fa fa-lightbulb-o"},
+                        {texto:"Conocimiento", habilitada:false, paginaPrincipal:"/Informacion", icono:"fa fa-book"},
+                        {texto:"Actividades", habilitada:false, paginaPrincipal:"/Actividades", icono:"fa fa-calendar"},
+                        {texto:"Cancionero", habilitada:false, paginaPrincipal:"/Cancionero", icono:"fa fa-music"},
                     ];

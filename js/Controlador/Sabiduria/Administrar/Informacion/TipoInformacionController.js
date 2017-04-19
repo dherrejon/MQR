@@ -52,9 +52,15 @@ app.controller("TipoInfomacionController", function($scope, $window, $http, $roo
     
         $('#modalTipoInformacion').modal('toggle');
     };
-     
+    
     $scope.CerrarTipoInformacionModal = function()
     {
+        $('#cerrarTipoInformacionModal').modal('toggle');
+    };
+     
+    $scope.ConfirmarCerrarTipoInformacionModal = function()
+    {
+        $('#modalTipoInformacion').modal('toggle');
         $scope.mensajeError = [];
         $scope.claseTipoInformacion = {nombre:"entrada"};
     };
@@ -65,6 +71,7 @@ app.controller("TipoInfomacionController", function($scope, $window, $http, $roo
     {
         if(!$scope.ValidarDatos(nombreInvalido))
         {
+            $('#mensajeTipoInformacion').modal('toggle');
             return;
         }
         else
@@ -86,29 +93,32 @@ app.controller("TipoInfomacionController", function($scope, $window, $http, $roo
         AgregarTipoInformacion($http, CONFIG, $q, $scope.nuevoTipoInformacion).then(function(data)
         {
             if(data[0].Estatus == "Exitoso")
-            {
-                $('#modalTipoInformacion').modal('toggle');
-                $scope.mensaje = "El tipo de información se ha agregado.";
-                
+            {   
                 if($scope.operacion == "Agregar")
                 {
+                    $scope.mensaje = "Tipo de información agregado.";
                     $scope.GetTipoInformacion();
+                    $scope.EnviarAlerta('Modal');
+                    $scope.nuevoTipoInformacion = new TipoInformacion();
                 }
                 else
                 {
+                    $('#modalTipoInformacion').modal('toggle');
                     $scope.nuevoTipoInformacion.TipoInformacionId = data[1].Id;
+                    $scope.tipoInformacion.push($scope.nuevoTipoInformacion);
                     TIPOINFORMACION.TerminarTipoInformacion($scope.nuevoTipoInformacion);
                 }
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde.";
+                $('#mensajeTipoInformacion').modal('toggle');
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde.";
             }
-            $('#mensajeTipoInformacion').modal('toggle');
+            
             
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeTipoInformacion').modal('toggle');
         });
     };
@@ -120,17 +130,19 @@ app.controller("TipoInfomacionController", function($scope, $window, $http, $roo
             if(data[0].Estatus == "Exitoso")
             {
                 $('#modalTipoInformacion').modal('toggle');
-                $scope.mensaje = "El tipo de información se ha editado.";
+                $scope.mensaje = "Tipo de información editado.";
                 $scope.GetTipoInformacion();
+                $scope.EnviarAlerta('Vista');
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde";   
+                $('#mensajeTipoInformacion').modal('toggle');
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde";   
             }
-            $('#mensajeTipoInformacion').modal('toggle');
+            
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeTipoInformacion').modal('toggle');
         });
     };
@@ -167,6 +179,18 @@ app.controller("TipoInfomacionController", function($scope, $window, $http, $roo
         return true;
     };
     
+    $scope.LimpiarBuscar = function(buscar)
+    {
+        switch(buscar)
+        {
+            case 1:
+                $scope.buscarTipoInformacion = "";
+                break;
+            default: 
+                break;
+        }
+    };
+    
     //----------------------Inicializar---------------------------------
     $scope.GetTipoInformacion();
     
@@ -179,6 +203,29 @@ app.controller("TipoInfomacionController", function($scope, $window, $http, $roo
     
         $('#modalTipoInformacion').modal('toggle');
     });
+    
+    //--------------------- Alertas --------------------------
+    $scope.EnviarAlerta = function(alerta)
+    {
+        if(alerta == "Modal")
+        {
+            $("#alertaExitoso").alert();
+
+            $("#alertaExitoso").fadeIn();
+            setTimeout(function () {
+                $("#alertaExitoso").fadeOut();
+            }, 2000);
+        }
+        else if('Vista')
+        {
+            $("#alertaEditarExitoso").alert();
+
+            $("#alertaEditarExitoso").fadeIn();
+            setTimeout(function () {
+                $("#alertaEditarExitoso").fadeOut();
+            }, 2000)
+        }
+    };
     
 });
 

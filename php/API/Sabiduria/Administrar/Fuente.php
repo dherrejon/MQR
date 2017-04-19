@@ -7,7 +7,7 @@ function GetFuente()
 
     $request = \Slim\Slim::getInstance()->request();
 
-    $sql = "SELECT FuenteId, Nombre, NombreTipoFuente, TipoFuenteId FROM FuenteVista";
+    $sql = "SELECT FuenteId, Nombre, NombreTipoFuente, TipoFuenteId, Frase, Posicion, Nota FROM FuenteVista";
 
     try 
     {
@@ -32,8 +32,8 @@ function AgregarFuente()
     $request = \Slim\Slim::getInstance()->request();
     $fuente = json_decode($request->getBody());
     global $app;
-    $sql = "INSERT INTO Fuente (TipoFuenteId, Nombre) 
-            VALUES( :TipoFuenteId, :Nombre)";
+    $sql = "INSERT INTO Fuente (TipoFuenteId, Nombre, Frase, Posicion, Nota) 
+            VALUES( :TipoFuenteId, :Nombre, :Frase, :Posicion, :Nota)";
 
     try 
     {
@@ -43,6 +43,9 @@ function AgregarFuente()
         
         $stmt->bindParam("TipoFuenteId", $fuente->TipoFuente->TipoFuenteId);
         $stmt->bindParam("Nombre", $fuente->Nombre);
+        $stmt->bindParam("Frase", $fuente->Frase);
+        $stmt->bindParam("Posicion", $fuente->Posicion);
+        $stmt->bindParam("Nota", $fuente->Nota);
 
         $stmt->execute();
         $fuenteId = $db->lastInsertId();
@@ -106,7 +109,7 @@ function AgregarFuente()
             $db->commit();
             $db = null; 
 
-            echo '[{"Estatus": "Exitoso"}]';
+            echo '[{"Estatus": "Exitoso"}, {"Id": "'.$fuenteId.'"}]';
         } 
         catch(PDOException $e) 
         {
@@ -122,7 +125,7 @@ function AgregarFuente()
         $db->commit();
         $db = null; 
 
-        echo '[{"Estatus": "Exitoso"}]';
+        echo '[{"Estatus": "Exitoso"}, {"Id": "'.$fuenteId.'"}]';
     }
 }
 
@@ -132,7 +135,8 @@ function EditarFuente()
     $request = \Slim\Slim::getInstance()->request();
     $fuente = json_decode($request->getBody());
    
-    $sql = "UPDATE Fuente SET Nombre='".$fuente->Nombre."', TipoFuenteId='".$fuente->TipoFuente->TipoFuenteId."' WHERE FuenteId=".$fuente->FuenteId;
+    $sql = "UPDATE Fuente SET Nombre='".$fuente->Nombre."', TipoFuenteId='".$fuente->TipoFuente->TipoFuenteId."', Frase = '".$fuente->Frase."', 
+    Posicion = '".$fuente->Posicion."', Nota = '".$fuente->Nota."' WHERE FuenteId=".$fuente->FuenteId;
     
     try 
     {
@@ -261,7 +265,7 @@ function GetFuenteAutor($id)
 
     $request = \Slim\Slim::getInstance()->request();
 
-    $sql = "SELECT a.AutorId, a.Abreviacion, a.Nombre, a.Apellidos FROM AutorVista a, FuentePorAutor fa 
+    $sql = "SELECT * FROM AutorVista a, FuentePorAutor fa 
     WHERE fa.AutorId = a.AutorId AND fa.FuenteId = ".$id;
 
     try 
@@ -282,15 +286,14 @@ function GetFuenteAutor($id)
     }
 }
 
-function GetFuenteEtiqueta($id)
+function GetFuenteEtiqueta()
 {
     global $app;
     global $session_expiration_time;
 
     $request = \Slim\Slim::getInstance()->request();
 
-    $sql = "SELECT e.Nombre, e.EtiquetaId FROM Etiqueta e, FuentePorEtiqueta fe 
-    WHERE fe.EtiquetaId = e.EtiquetaId AND fe.FuenteId = ".$id;
+    $sql = "SELECT Nombre, EtiquetaId, FuenteId FROM FuenteEtiquetaVista";
 
     try 
     {
@@ -300,6 +303,31 @@ function GetFuenteEtiqueta($id)
         $db = null;
         
         echo json_encode($response);  
+    } 
+    catch(PDOException $e) 
+    {
+        //echo($e);
+        echo '[ { "Estatus": "Fallo" } ]';
+        $app->status(409);
+        $app->stop();
+    }
+}
+
+function GetAutoresFuente()
+{
+    global $app;
+    global $session_expiration_time;
+
+    $sql = "SELECT * FROM FuenteAutorVista";
+
+    try 
+    {
+        $db = getConnection();
+        $stmt = $db->query($sql);
+        $response = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $db = null;
+        
+        echo '[ { "Estatus": "Exito"}, {"Autor":'.json_encode($response).'} ]'; 
     } 
     catch(PDOException $e) 
     {

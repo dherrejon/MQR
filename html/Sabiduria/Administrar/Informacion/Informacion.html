@@ -1,28 +1,7 @@
 <div ng-controller="AdministrarInformacionController as admInformacion">
-  
  
-   <div class="col-xs-4">
-       <span>
-            <button href="" class="btn botonFiltroInformacion {{filtroInformacion.comentario}}"  data-toggle="dropdown" ng-click="CambiarFiltroInfomacion( 'Comentario')">
-               <span style="font-size:16pt" class="fa fa-commenting-o"></span>
-           </button>
-       </span>
-       
-       <span style="margin-left:15px !important">
-           <button href="" class="btn botonFiltroInformacion {{filtroInformacion.imagen}}"  data-toggle="dropdown" ng-click="CambiarFiltroInfomacion('Imagen')">
-               <span style="font-size:16pt" class="fa fa-picture-o"></span>
-           </button>
-       </span>
-       
-       <span style="margin-left:15px !important">
-           <button href="" class="btn botonFiltroInformacion {{filtroInformacion.archivo}}"  data-toggle="dropdown" ng-click="CambiarFiltroInfomacion( 'Archivo')">
-               <span style="font-size:16pt" class="fa fa-file-text-o"></span>
-           </button>
-       </span>
-   </div>
-   
-   <!-- Filtro -->
-    <div class="col-xs-2">
+      <!-- Filtro -->
+    <div class="col-sm-2 col-xs-2">
        <div class="dropdown">
             
             <button class="btn  botonAgregar text-center"  data-toggle="dropdown">
@@ -36,7 +15,10 @@
                         <li  class="dropdown-header tituloFitro">FILTRAR</li>
                     </div>
                     <div class="col-xs-3">
-                        <li> <button class="btn botonLimpiarFiltro fa fa-ban" data-toggle="tooltip" data-placement="bottom" title="Limpiar filtro" ng-click="LimpiarFiltro()"></button></li>
+                        <li> <button class="btn botonLimpiarFiltro" data-toggle="tooltip" data-placement="bottom" title="Limpiar filtro" ng-click="LimpiarFiltro()">
+                            <span class="fa fa-square-o" ng-show = "(filtro.tema.length + filtro.fuente.length + filtro.etiqueta.length + filtro.tipo.length) == 0"></span>
+                            <span class="fa fa-check-square-o" ng-show = "(filtro.tema.length + filtro.fuente.length + filtro.etiqueta.length + filtro.tipo.length) > 0"></span>
+                        </button></li>
                     </div>
                 </div>
                 <!--<li role="separator" class="divider"></li>-->
@@ -44,21 +26,75 @@
                 <li style="width: 300px;">
 
                     <form role="filtro">
+                       
+                       <!-- Etiquetas -->
+                        <button class="btn btn-block botonMostrarFiltro" ng-click="MostrarFiltros('etiqueta')">Etiqueta</button>
+                        
+                        <div ng-show="mostrarFiltro == 'etiqueta'">
+                           <div class="col-xs-12" style="margin-top: 10px"></div>
+                            
+                            <div class="col-xs-12">
+                               <div class="input-group">
+                                    <input type="text"  placeholder="Buscar Etiqueta" class="entrada form-control" name="buscarEtiqueta" ng-model="buscarEtiqueta">
+                                    <span class="input-group-btn">
+                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(4)" type="button"><span aria-hidden="true">&times;</span></a>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-xs-12" style="margin-top: 10px"></div>
+                            <div class="panel  panelFiltro" style="border-radius: 0px;">
+                                <div class="row " >
+                                    <div class="col-xs-12">
+
+                                       <div ng-repeat="etiqueta in etiqueta | filter:buscarEtiqueta | orderBy:'Nombre'">
+
+                                            <div class="checkbox" style="margin-top:5px !important">
+                                                <label class="anchoTotal">
+                                                    <input  class="form-control" ng-model="etiqueta.Filtro" type="checkbox" ng-click="SetFiltroEtiqueta(etiqueta.EtiquetaId)">
+                                                    <span class="cr" > <i class="cr-icon fa fa-check"></i> </span>{{etiqueta.Nombre}}
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <!------ Tema ------>
                         <button class="btn btn-block botonMostrarFiltro" ng-click="MostrarFiltros('tema')">Tema</button>
                         
                         <div ng-show="mostrarFiltro == 'tema'">
                            <div class="col-xs-12" style="margin-top: 10px"></div>
+                            
                             <div class="col-xs-12">
-                                <input type="text"  placeholder="Buscar Tema" class="entrada form-control" name="buscarTema" ng-model="buscarTema">
+                               <div class="input-group">
+                                    <input type="text"  placeholder="Buscar Tema" class="entrada form-control" name="buscarTema" ng-model="buscarTema">
+                                    <span class="input-group-btn">
+                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(5)" type="button"><span aria-hidden="true">&times;</span></a>
+                                    </span>
+                                </div>
                             </div>
+                            
                             <div class="col-xs-12" style="margin-top: 10px"></div>
                             <div class="panel  panelFiltro" style="border-radius: 0px;">
                                 <div class="row " >
                                     <div class="col-xs-12">
-                                        <div ng-repeat="tema in tema | filter:buscarTema | orderBy:'Nombre'">
+                                        
+                                        <div>
                                             <div class="checkbox" style="margin-top:5px !important;">
-                                                <label>
+                                                <label class="anchoTotal">
+                                                    <input class="form-control" ng-model="tema.Filtro" type="checkbox"  ng-click="SetFiltroTema('0')">
+                                                    <span class="cr"> <i class="cr-icon fa fa-check"></i> </span>Sin Tema
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div ng-repeat="tema in tema | filter:buscarTema | filter:FiltroTema | orderBy:'Nombre'">
+                                            <div class="checkbox" style="margin-top:5px !important;">
+                                                <label class="anchoTotal">
                                                     <input class="form-control" ng-model="tema.Filtro" type="checkbox"  ng-click="SetFiltroTema(tema.TemaId)">
                                                     <span class="cr"> <i class="cr-icon fa fa-check"></i> </span>{{tema.Nombre}}
                                                 </label>
@@ -74,18 +110,34 @@
                         
                         <div ng-show="mostrarFiltro == 'fuente'">
                            <div class="col-xs-12" style="margin-top: 10px"></div>
+                            
                             <div class="col-xs-12">
-                                <input type="text"  placeholder="Buscar Fuente" class="entrada form-control" name="buscarFuente" ng-model="buscarFuente">
+                               <div class="input-group">
+                                    <input type="text"  placeholder="Buscar Fuente" class="entrada form-control" name="buscarFuente" ng-model="buscarFuente">
+                                    <span class="input-group-btn">
+                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(6)" type="button"><span aria-hidden="true">&times;</span></a>
+                                    </span>
+                                </div>
                             </div>
+                            
                             <div class="col-xs-12" style="margin-top: 10px"></div>
                             <div class="panel  panelFiltro" style="border-radius: 0px;">
                                 <div class="row " >
                                     <div class="col-xs-12">
                                         
-                                       <div ng-repeat="fuente in fuente | filter:buscarFuente | orderBy:'Nombre'" >
+                                        <div>
+                                            <div class="checkbox" style="margin-top:5px !important">
+                                                <label class="anchoTotal">
+                                                    <input ng-model="fuente.Filtro" type="checkbox" ng-click="SetFiltroFuente('0')">
+                                                    <span class="cr"> <i class="cr-icon fa fa-check"></i> </span>Sin Fuente
+                                                </label>
+                                            </div>
+                                       </div>
+                                        
+                                       <div ng-repeat="fuente in fuente | filter:buscarFuente | filter:FiltroFuente | orderBy:'Nombre'" >
 
                                             <div class="checkbox" style="margin-top:5px !important">
-                                                <label>
+                                                <label class="anchoTotal">
                                                     <input  ng-model="fuente.Filtro" type="checkbox" ng-click="SetFiltroFuente(fuente.FuenteId)">
                                                     <span class="cr"> <i class="cr-icon fa fa-check"></i> </span>{{fuente.Nombre}}
                                                 </label>
@@ -98,27 +150,34 @@
                             </div>
                         </div>
                         
-                        <!-- Etiquetas -->
-                        <button class="btn btn-block botonMostrarFiltro" ng-click="MostrarFiltros('etiqueta')">Etiqueta</button>
+                        <!-- Autor -->
+                        <button class="btn btn-block botonMostrarFiltro" ng-click="MostrarFiltros('autor')">Autores</button>
                         
-                        <div ng-show="mostrarFiltro == 'etiqueta'">
+                        <div ng-show="mostrarFiltro == 'autor'">
                            <div class="col-xs-12" style="margin-top: 10px"></div>
+                            
                             <div class="col-xs-12">
-                                <input type="text"  placeholder="Buscar Etiqueta" class="entrada form-control" name="buscarEtiqueta" ng-model="buscarEtiqueta">
+                               <div class="input-group">
+                                    <input type="text"  placeholder="Buscar Autor" class="entrada form-control" name="buscarAutor" ng-model="buscarAutor">
+                                    <span class="input-group-btn">
+                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(7)" type="button"><span aria-hidden="true">&times;</span></a>
+                                    </span>
+                                </div>
                             </div>
+                            
                             <div class="col-xs-12" style="margin-top: 10px"></div>
                             <div class="panel  panelFiltro" style="border-radius: 0px;">
                                 <div class="row " >
                                     <div class="col-xs-12">
 
-                                       <div ng-repeat="etiqueta in etiqueta | filter:buscarEtiqueta | orderBy:'Nombre'" ng-show="etiqueta.Activo">
+                                       <div ng-repeat="autor in autor | filter:buscarAutor | orderBy:'Nombre'">
 
-                                                <div class="checkbox" style="margin-top:5px !important">
-                                                    <label >
-                                                        <input  class="form-control" ng-model="etiqueta.Filtro" type="checkbox" ng-click="SetFiltroEtiqueta(etiqueta.EtiquetaId)">
-                                                        <span class="cr" > <i class="cr-icon fa fa-check"></i> </span>{{etiqueta.Nombre}}
-                                                    </label>
-                                                </div>
+                                            <div class="checkbox" style="margin-top:5px !important">
+                                                <label class="anchoTotal">
+                                                    <input  class="form-control" ng-model="autor.Filtro" type="checkbox" ng-click="SetFiltroAutor(autor.AutorId)">
+                                                    <span class="cr" > <i class="cr-icon fa fa-check"></i> </span>{{autor.Abreviacion}} {{autor.Nombre}}
+                                                </label>
+                                            </div>
 
                                         </div>
                                         
@@ -132,16 +191,23 @@
                         
                         <div ng-show="mostrarFiltro == 'tipoInformacion'">
                            <div class="col-xs-12" style="margin-top: 10px"></div>
+                            
                             <div class="col-xs-12">
-                                <input type="text"  placeholder="Buscar Tipo Informacion" class="entrada form-control" name="buscarTipoInformacion" ng-model="buscarTipoInformacion">
+                               <div class="input-group">
+                                    <input type="text"  placeholder="Buscar Tipo Informacion" class="entrada form-control" name="buscarTipoInformacion" ng-model="buscarTipoInformacion">
+                                    <span class="input-group-btn">
+                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(8)" type="button"><span aria-hidden="true">&times;</span></a>
+                                    </span>
+                                </div>
                             </div>
+                            
                             <div class="col-xs-12" style="margin-top: 10px"></div>
                             <div class="panel  panelFiltro" style="border-radius: 0px;">
                                 <div class="row " >
                                     <div class="col-xs-12">   
-                                       <div ng-repeat="tipo in tipoInformacion | filter:buscarTipoInformacion | orderBy:'Nombre'" >
+                                       <div ng-repeat="tipo in tipoInformacion | filter:buscarTipoInformacion | filter:FiltroTipoInformacion | orderBy:'Nombre'" >
                                             <div class="checkbox" style="margin-top:5px !important">
-                                                <label>
+                                                <label class="anchoTotal">
                                                     <input  ng-model="tipo.Filtro" type="checkbox" ng-click="SetFiltroTipoInformacion(tipo.TipoInformacionId)">
                                                     <span class="cr"> <i class="cr-icon fa fa-check"></i> </span>{{tipo.Nombre}}
                                                 </label>
@@ -160,10 +226,83 @@
 
         </div>
     </div>
+    
+    <!-- Ordenar -->
+    <div class="col-xs-2 col-sm-2">
+       <div class="dropdown">
+            
+            <button class="btn  botonAgregar text-center"  data-toggle="dropdown">
+               <span style="font-size:22pt" class="fa fa-sort-alpha-asc"></span>
+           </button>
+
+            <ul class="dropdown-menu dropdown-menu-left filtroPanelPrincipal">
+
+                <div  class="row ">
+                    <div class="col-xs-12"> 
+                        <li  class="dropdown-header tituloFitro">ORDENAR</li>
+                    </div>
+                </div>
+                <!--<li role="separator" class="divider"></li>-->
+
+                <li style="width: 250px;">
+
+                    <form role="filtro">
+                        <!------ Tema ------>
+                        <button class="btn btn-block botonOrdenar" ng-class="GetClaseOrdenar('Tema.Nombre')" ng-click="CambiarOrdenar('Tema.Nombre')" style="border-top: 2px solid  rgba(78,122,137,1);">
+                           <span class="fa fa-arrow-up" ng-if="ordenarInformacion == 'Tema.Nombre'"></span>
+                           <span class="fa fa-arrow-down" ng-if="ordenarInformacion == '-Tema.Nombre'"></span>
+                            Tema
+                        </button>               
+                        <div ng-show="false"></div>
+                                             
+                        <!-- Fuente -->
+                        <button class="btn btn-block botonOrdenar" ng-class="GetClaseOrdenar('Fuente.Nombre')" ng-click="CambiarOrdenar('Fuente.Nombre')">
+                           <span class="fa fa-arrow-up" ng-if="ordenarInformacion == 'Fuente.Nombre'"></span>
+                           <span class="fa fa-arrow-down" ng-if="ordenarInformacion == '-Fuente.Nombre'"></span>
+                            Fuente
+                        </button>
+                        <div ng-show="false"></div>
+                        
+                        <!-- Tipo Informacion -->
+                        <button class="btn btn-block botonOrdenar" ng-class="GetClaseOrdenar('TipoInformacion.Nombre')" ng-click="CambiarOrdenar('TipoInformacion.Nombre')">
+                           <span class="fa fa-arrow-up" ng-if="ordenarInformacion == 'TipoInformacion.Nombre'"></span>
+                           <span class="fa fa-arrow-down" ng-if="ordenarInformacion == '-TipoInformacion.Nombre'"></span>
+                            Tipo de Información
+                        </button>
+                        <div ng-show="false"></div>
+                        
+                        <br>
+
+                    </form>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+ 
+    <div class="col-sm-4 col-xs-8">
+       <span>
+            <button href="" class="btn botonFiltroInformacion {{filtroInformacion.comentario}}"  data-toggle="dropdown" ng-click="CambiarFiltroInfomacion( 'Comentario')">
+               <span style="font-size:16pt" class="fa fa-commenting-o"></span>
+           </button>
+       </span>
+
+       <span style="margin-left:10px !important">
+           <button href="" class="btn botonFiltroInformacion {{filtroInformacion.imagen}}"  data-toggle="dropdown" ng-click="CambiarFiltroInfomacion('Imagen')">
+               <span style="font-size:16pt" class="fa fa-picture-o"></span>
+           </button>
+       </span>
+
+       <span style="margin-left:10px !important">
+           <button href="" class="btn botonFiltroInformacion {{filtroInformacion.archivo}}"  data-toggle="dropdown" ng-click="CambiarFiltroInfomacion( 'Archivo')">
+               <span style="font-size:16pt" class="fa fa-file-text-o"></span>
+           </button>
+       </span>
+    </div>
    
    <!-- agregar -->
-   <div class="col-xs-6">
-       <button class="btn  botonAgregar pull-right" ng-click="AbrirInformacion('Agregar', null)"><span class="fa fa-plus"></span> Nuevo</button>
+   <div class="col-sm-4 col-xs-12">
+       <button class="btn  botonAgregar pull-right" ng-click="AbrirInformacion('Agregar', null)"><span class="fa fa-plus"></span> Agregar</button>
     </div>
    
    
@@ -172,15 +311,15 @@
 
     <!-- ------------------------ Contenido ---------------------------- -->
 
-    <div ng-repeat="info in informacion | filter:FitroInformacion">
+    <div ng-repeat="info in informacion |orderBy:[ordenarInformacion, 'Tema.Nombre', 'Fuente.Nombre'] | filter:FitroInformacion">
         <!-- Tema -->
         <div class="col-xs-12">
-            <span class="tema">{{info.Tema.Nombre}}</span>
+            <span class="tema">{{info.Tema.Nombre}} {{dsfffdsfd}}</span>
         </div>
         
         <!-- Fuente -->
         <div class="col-xs-12">
-            <b>{{info.Fuente.TipoFuente.Nombre}}: </b>{{info.Fuente.Nombre}}
+            <b>{{info.Fuente.TipoFuente.Nombre}} <span ng-if="info.Fuente.Nombre.length > 0">:</span> </b>{{info.Fuente.Nombre}}
         </div>
 
         <!-- Datos información -->
@@ -234,7 +373,7 @@
                 <!-- Autores -->
                 <span class="dropdown" style="margin-left:15px !important">
             
-                    <a href="" class=" botonTablaOperacion text-center"  data-toggle="dropdown" ng-click="GetFuenteAutor(info.Fuente)">
+                    <a href="" class=" botonTablaOperacion text-center"  data-toggle="dropdown">
                        <span style="font-size:16pt" class="fa fa-users"></span>
                    </a>
 
@@ -255,8 +394,8 @@
                                     <div class="row">
                                         <div class="col-xs-12">
                                             <ul>
-                                                <li ng-repeat="autor in info.Fuente.Autor | orderBy:'Apellidos'">
-                                                    <span>{{autor.Abreviacion}} {{autor.Apellidos}} {{autor.Nombre}}</span>
+                                                <li ng-repeat="autor in info.Fuente.Autor | orderBy:'Nombre'">
+                                                    <span>{{autor.Abreviacion}} {{autor.Nombre}}</span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -295,7 +434,7 @@
         <div class="col-xs-4" ng-if="info.OrigenInformacion.OrigenInformacionId == '2'">
            
             <div ng-if="info.Archivo.length > 0"> 
-                <img  class="img-responsive center-block imagenInformacion" ng-src="data:image/PNG;base64,{{info.Archivo}}" data-toggle="modal" data-target="#verImagen" ng-click="DetalleInformacion(info)"/>
+                <img  class="img-responsive center-block imagenInformacion" ng-src="data:image/PNG;base64,{{info.Archivo}}" data-toggle="modal" data-target="#verImagen" ng-click="VisualizarImagen(info.Archivo, 'Ver', false)"/>
             </div>
             
             <div ng-if="info.Archivo.length == 0" class="marcoImagen"> 
@@ -309,19 +448,23 @@
         
         <!-- PDF -->
         <div class="col-xs-4 botonAliniar" ng-if="info.OrigenInformacion.OrigenInformacionId == '3'">
-            <a ng-disabled="info.Archivo.length == 0" class="btn btn-block botonPDF" ng-click="VerPDF(info)">
+            <button ng-disabled="info.Archivo.length == 0" class="btn btn-block botonPDF" ng-click="VerPDF(info)">
                 <span class="fa fa-cloud-download fa-2x"></span><br>
                 <span>Descargar</span>
-            </a>
+            </button>
         </div>
         
         <div class="col-xs-8 verInformacion" ng-if="info.OrigenInformacion.OrigenInformacionId == '3'">
-            <img  ng-if="!imagenSeleccionada" class="img-responsive center-block" ng-src="data:image/PNG;base64,{{nuevoColor.Imagen}}"/>
             <p ng-bind-html="info.Contenido"></p>
         </div>
         
         <!-- Separador -->
         <div class="col-xs-12 lineaSeparador" style="margin-top:10px; margin-bottom:10px"></div>
+    </div>
+    
+    <div class="col-xs-12" ng-if="(informacion | filter:FitroInformacion ).length == 0">
+       <br>
+        <span class="textoPerfilHome"> Sin Resultados </span>
     </div>
     
     <!-- -----------------------Modales -------------------------- -->
@@ -334,7 +477,8 @@
                 <div class="col-xs-12">
                     <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">&times;</span></button>
                     <span class="tituloModal">{{detalle.Tema.Nombre}}</span><br>
-                    <b>{{detalle.Fuente.TipoFuente.Nombre}}: </b>{{detalle.Fuente.Nombre}}<br>
+                    <b>{{detalle.Fuente.TipoFuente.Nombre}} <span ng-if="detalle.Fuente.Nombre.length > 0">: </span> </b>{{detalle.Fuente.Nombre}} <br>
+                    <span ng-if="detalle.Seccion.length > 0"><b>Sección :</b> {{detalle.Seccion}}<br></span>
                     <span><b>{{detalle.TipoInformacion.Nombre}}</b></span>
                 </div>
             </div>
@@ -362,7 +506,7 @@
             <div ng-if="detalle.OrigenInformacion.OrigenInformacionId == '3'">
                 <div class="row">
                     <div class="col-xs-12">
-                        <button class="btn btn-block botonPDF" style="font-size: 16pt" ng-disabled="detalle.Archivo.length == 0">
+                        <button class="btn btn-block botonPDF" style="font-size: 16pt" ng-disabled="detalle.Archivo.length == 0" ng-click="VerPDF(detalle)">
                             <span class=" fa fa-cloud-download"></span>
                             <span>Descargar</span>
                         </button>
@@ -377,24 +521,16 @@
                 </div>
             </div>
             <br>
-            
-        </div>
-    </div>
-    
-    <div class="modal fade" id="mensajeFuente">
-        <br>    <br>   <br>
-        <div class="modal-dialog modal-sm modalPrincipal text-center">
-            <div class="row">
-                <div class="col-xs-12">
-                    <span style="font-size:14pt">{{mensaje}}</span>
+            <!-- Observaciones -->
+            <div class="row" ng-if="detalle.Observacion.length > 0">
+                <div class="col-sm-12">
+                    <label>Observaciones </label><br>
+                    <div class="textoDescripcionModal">
+                        <span>{{detalle.Observacion}}</span>
+                    </div>
                 </div>
             </div>
-            <br><br>
-            <div class="row">
-                <div class="col-xs-12">
-                    <button class="btn  botonFinModal" data-dismiss="modal" aria-label="Close">Aceptar</button>
-                </div>
-            </div>
+            <br  ng-if="detalle.Observacion.length > 0">
             
         </div>
     </div>
@@ -406,186 +542,61 @@
            
             <div class="row">
                 <div class="col-xs-12">
-                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ng-click="CerrarInformacion()"><span aria-hidden="true">&times;</span></button>
-                    <span ng-if="operacion == 'Agregar'" class="tituloModal">Agregar Información</span>
-                    <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Información</span>
+                    <!-- Alertas -->
+                    <div class="alertaMensaje" id="alertaExitosoInfo">
+                        <div class="alert alertaExtito">
+                            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+                            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+                            <strong style="display: inline-block;">{{mensaje}}</strong>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <br><br><br>
             
             <form name="informacionForma">
-                             
-                <div class="row">
                   
-                    <div class="col-sm-6 etiquetaDropdownList">
-                         <label>Tema</label>
-                         <div class="dropdown">
-
-                            <button class="dropdown-toggle  {{claseInformacion.tema}}" data-toggle="dropdown">
-                                {{nuevaInformacion.Tema.Nombre}}
-                                <span class="caret"></span>
-                            </button>
-
-                            <ul class="dropdown-menu elemetosDropdownListModal">
-                               
-                               <li >
-                                    <a href="" class="dropdownOpcionModal text-center" ng-click="AbrirAgregarTema()" >
-                                        <span >NUEVO</span>
-                                    </a>
-                                </li>
-                                
-                                <li ng-repeat="tema in tema | orderBy:'Nombre'">
-                                    <a  href="" class="dropdownOpcionModal" ng-click="CambiarTema(tema)">
-                                        <span>{{tema.Nombre}}</span>
-                                    </a>
-                                </li>
-                            </ul>
-
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="btn-group pull-right" role="group" >
+                          <a class="btn botonFinModal"  ng-click="CerrarInformacion()">CANCELAR</a>
+                            <a focus class="btn botonFinModal" ng-click="TerminarInformacion(informacionForma.contenido.$invalid)">TERMINAR</a>
                         </div>
                     </div>
-                        
-                    <br class="hidden-sm hidden-md hidden-lg">
-                    
-                    <div class="col-sm-6 etiquetaDropdownList">
-                         <label>Tipo de Información</label>
-                         <div class="dropdown">
-
-                            <button class="dropdown-toggle  {{claseInformacion.tipo}}" data-toggle="dropdown">
-                                {{nuevaInformacion.TipoInformacion.Nombre}}
-                                <span class="caret"></span>
-                            </button>
-
-                            <ul class="dropdown-menu elemetosDropdownListModal">
-                              
-                               <li >
-                                    <a href="" class="dropdownOpcionModal text-center" ng-click="AbrirAgregarTipoInformacion()" >
-                                        <span >NUEVO</span>
-                                    </a>
-                                </li>
-                                
-                                <li ng-repeat="tipo in tipoInformacion | orderBy:'Nombre'">
-                                    <a  href="" class="dropdownOpcionModal" ng-click="CambiarTipoInformacion(tipo)">
-                                        <span>{{tipo.Nombre}}</span>
-                                    </a>
-                                </li>
-                                
-                            </ul>
-
-                        </div>
-                    </div>
+                </div>
+                <br><br>
                             
+                <div class="row">
+                    <div class="col-xs-12">
+                        <!-- <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ng-click="CerrarInformacion()"><span aria-hidden="true">&times;</span></button>-->
+                        <span ng-if="operacion == 'Agregar'" class="tituloModal">Agregar Información</span>
+                        <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Información</span>
+                    </div>
+                </div>
+                <br><br><br>
+                
+                <!-- Descripción -->
+                <div class="row">
+                    <div class="col-sm-12">
+                         <div class="">
+                            <label class="etiquetaNormal">Información</label>
+                            <textarea required type="text"  class="form-control" ng-class="claseInformacion.contenido" name="contenido" ng-model="nuevaInformacion.Contenido" maxlength="4000"></textarea>
+                        </div>
+                    </div>
                 </div>
                 <br>
                 
                 <div class="row">
-                  
-                    <div class="col-sm-12 etiquetaDropdownList">
-                         <label>Fuente</label>
-                         <div class="dropdown">
-
-                            <button class="dropdown-toggle  {{claseInformacion.fuente}}" data-toggle="dropdown">
-                                {{nuevaInformacion.Fuente.Nombre}}
-                                <span class="caret"></span>
-                            </button>
-
-                            <ul class="dropdown-menu elemetosDropdownListModal">
-                                
-                                <li ng-repeat="fuente in fuente | orderBy:'Nombre'">
-                                    <a  href="" class="dropdownOpcionModal" ng-click="CambiarFuente(fuente)">
-                                        <span>{{fuente.Nombre}}</span>
-                                    </a>
-                                </li>
-                            </ul>
-
-                        </div>
-                    </div>
-                            
-                </div>
-
-                <!-- Etiquetas -->
-                <div class="row">
-                 
                     <div class="col-sm-12">
-                        <button class="btn btn-block {{claseInformacion.etiqueta}}" ng-click="MostrarEtiqueta()">Etiquetas <span class="caret"></span></button>
-                        
-                        <div ng-show="mostrarEtiqueta" style="background: white">
-                           <div class="col-xs-12" style="margin-top: 10px"></div>
-                           
-                            <div class="col-xs-6">
-                                <input type="text"  placeholder="Buscar Etiqueta" class="entrada form-control" name="buscarEtiquetaOperacion" ng-model="buscarEtiquetaOperacion">
-                            </div>
-                            
-                            <div class="col-xs-6">
-                               <button class="btn  botonAgregar pull-right" ng-click="AbrirAgregarEtiqueta()"><span class="fa fa-plus"></span> Nuevo</button>
-                           </div>
-
-                            
-                            <div class="col-xs-12" style="margin-top: 10px"></div>
-                            <div class="panel  panelFiltro" style="border-radius: 0px;">
-                                <div class="row " >
-                                    <div class="col-xs-12">
-
-                                        <table  class="table table-responsive">
-                                           <tbody ng-repeat="etiqueta in etiqueta | filter:buscarEtiquetaOperacion | orderBy:'Nombre'" ng-show="etiqueta.show && etiqueta.Activo">
-                                               <tr >
-                                                   
-                                                    <td> 
-                                                        <div >
-                                                            {{etiqueta.Nombre}}
-                                                        </div>
-                                                    </td>
-                                                    
-                                                    <td class="AgregarEtiqueta">
-                                                       <div style="font-size:12pt" class="text-center">
-                                                        <a  class="botonTablaOperacion" href="" ng-click="AgregarEtiqueta(etiqueta)">
-                                                            <span class="fa fa-plus" ></span>
-                                                        </a>
-                                                       </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-
-                                    </div>
-                                </div>
-                            </div>
+                         <div class="">
+                            <label class="etiquetaNormal">Observación</label>
+                            <textarea type="text"  class="form-control contenidoArea" name="obeservacion" ng-model="nuevaInformacion.Observacion" maxlength="1000"></textarea>
                         </div>
-                        
-                        <div class="row" ng-if="nuevaInformacion.Etiqueta.length > 0">
-                           <br ng-show="!mostrarEtiqueta">
-                            <div class="col-xs-12" >
-                  
-                                <div class="tablaDetalle">
-                                    <table class="table table-hover">
-                                        <thead class="TituloTabla">
-                                          <tr>
-                                            <th><b>Nombre</b></th>
-                                            <th class=" text-center"><b>Quitar</b></th>
-                                          </tr>
-                                        </thead>
-                                        <tbody ng-repeat="etiqueta in nuevaInformacion.Etiqueta | orderBy:'Nombre'">
-                                          <tr>                                        
-                                             <td>{{etiqueta.Nombre}}</td>
-
-                                            <td class="text-center">
-                                                <a class="botonTablaOperacion" href="" data-toggle="modal" data-target="#" ng-click="QuitarEtiqueta(etiqueta)">
-                                                    <span class="fa fa-times" style="font-size:14pt"></span>
-                                                </a>
-                                            </td>
-
-                                          </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                
-                            </div>
-                        </div>
-                        
                     </div>
                 </div>
-                <br><br>
+                <br>
                 
-                <div class="row">
+                 <!-- Origen información -->
+                <!--<div class="row">
                     <div class="col-sm-6 etiquetaDropdownList">
                          <label>Origen de la información</label>
                          <div class="dropdown">
@@ -605,50 +616,330 @@
 
                         </div>
                     </div>
-                </div>
-                
-                <div ng-show="nuevaInformacion.OrigenInformacion.OrigenInformacionId == '2' || nuevaInformacion.OrigenInformacion.OrigenInformacionId == '3' ">
-                    <div  method="post" enctype="multipart/form-data">
-                        <div class="input-group">
-                            <input disabled type="text" class="form-control cargarArchivo image-preview-filename" ng-model="nuevaInformacion.NombreArchivo"> 
-                            <span class="input-group-btn">
-                                <div class="btn image-preview-input">
-                                    <span class="image-preview-input-title fa fa-upload"></span>
-                                    <input ng-show="nuevaInformacion.OrigenInformacion.OrigenInformacionId == '2'" type="file" id="cargarImagen" accept="image/JPG" name="imagen" onchange="angular.element(this).scope().CargarArchivo(this)" data-toggle="tooltip" data-placement="bottom" title="Cargar Imagen"/>
-                                    <input ng-show="nuevaInformacion.OrigenInformacion.OrigenInformacionId == '3'" type="file" id="cargarArchivo" accept="" name="imagen" onchange="angular.element(this).scope().CargarArchivo(this)" data-toggle="tooltip" data-placement="bottom" title="Cargar Archivo"/>
-                                </div>
-                            </span>
-                        </div>
-                    </div>
-                    <br>
-                </div>
+                </div>-->
                 
                 <div class="row">
-                    <div class="col-sm-12">
-                         <div class="">
-                            <label class="etiquetaNormal">Contenido</label>
-                            <textarea required type="text"  class="form-control" ng-class="claseInformacion.contenido" name="contenido" ng-model="nuevaInformacion.Contenido" maxlength="2000"></textarea>
+                    
+                    <!-- Imagen -->
+                    <div class="col-sm-6">
+                        <label class="etiquetaNormal">Agregar Imagen</label>
+                        <div  method="post" enctype="multipart/form-data">
+                            <div class="input-group">
+                                
+                                <input disabled type="text" class="form-control cargarArchivo image-preview-filename" ng-model="nuevaInformacion.NombreArchivo" ng-show="nuevaInformacion.OrigenInformacion.OrigenInformacionId == '2'">
+                                
+                                <input disabled type="text" class="form-control cargarArchivo image-preview-filename" ng-show="nuevaInformacion.OrigenInformacion.OrigenInformacionId != '2'"> 
+                                
+                                <span class="input-group-btn">
+                                    
+                                     <a class=" btn image-preview-input" ng-click="QuitarArchivo(origenInformacion[0])" ng-show="nuevaInformacion.OrigenInformacion.OrigenInformacionId == '2'">
+                                        <spna class="fa fa-times"></spna>
+                                    </a>
+                                    
+                                    <a class=" btn image-preview-input" ng-click="VisualizarImagen(nuevaInformacion.Archivo, 'Operacion', archivoSeleccionado)" ng-show="nuevaInformacion.OrigenInformacion.OrigenInformacionId == '2'" data-toggle="modal" data-target="#verImagen">
+                                        <spna class="fa fa-eye"></spna>
+                                    </a>
+                                    
+                                    <div class="btn image-preview-input">
+                                        <span class="image-preview-input-title fa fa-upload"></span>
+
+                                        <input type="file" id="cargarImagen" accept="image/*" name="imagen" onchange="angular.element(this).scope().CargarArchivo(this)" data-toggle="tooltip" data-placement="bottom" title="Cargar Imagen" ng-click="PosibleOrigenInformacion(origenInformacion[1])"/>
+
+                                    </div>
+                                    
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <br class="hidden-lg hidden-sm hidden-md">
+                    <!-- PDF -->
+                    <div class="col-sm-6">
+                        <label class="etiquetaNormal">Agregar PDF</label>
+                        <div  method="post" enctype="multipart/form-data">
+                            
+                            <div class="input-group">
+                                
+                                <input disabled type="text" class="form-control cargarArchivo image-preview-filename" ng-model="nuevaInformacion.NombreArchivo" ng-show="nuevaInformacion.OrigenInformacion.OrigenInformacionId == '3'"> 
+                                
+                                <input disabled type="text" class="form-control cargarArchivo image-preview-filename" ng-show="nuevaInformacion.OrigenInformacion.OrigenInformacionId != '3'"> 
+                                
+                                <span class="input-group-btn">
+                                    
+                                    <a class=" btn image-preview-input" ng-click="QuitarArchivo(origenInformacion[0])" ng-show="nuevaInformacion.OrigenInformacion.OrigenInformacionId == '3'">
+                                        <spna class="fa fa-times"></spna>
+                                    </a>
+                                    
+                                    <a class=" btn image-preview-input" ng-click="PrevisualizarArchivo()" ng-show="nuevaInformacion.OrigenInformacion.OrigenInformacionId == '3'">
+                                        <spna class="fa fa-eye"></spna>
+                                    </a>
+                                    
+                                    <div class="btn image-preview-input">
+                                        <span class="image-preview-input-title fa fa-upload"></span>
+
+                                        <input type="file" id="cargarArchivo" accept="application/PDF" name="pdf" onchange="angular.element(this).scope().CargarArchivo(this)" data-toggle="tooltip" data-placement="bottom" title="Cargar Archivo" ng-click="PosibleOrigenInformacion(origenInformacion[2])"/>
+                                    </div>
+                                                                    
+                                </span>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
                 <br>
-                <!-------- mensaje de error ---->
+                
+                <!-- Etiquetas -->
                 <div class="row">
-                    <div class="col-xs-12">
-                        <div ng-repeat="error in mensajeError">
-                            <span class="textoError">{{error}}</span>
+                 
+                    <div class="col-sm-12" id="etiquetaPanel">
+                        <a class="btn btn-block {{claseInformacion.etiqueta}}" ng-click="MostrarEtiqueta()">Etiquetas <span class="caret"></span></a>
+                        
+                        <div ng-show="mostrarEtiqueta" style="background: white">
+                           <div class="col-xs-12" style="margin-top: 10px"></div>
+                           
+                            <div class="col-xs-10 col-sm-6">
+                                <div class="input-group">
+                                    <input type="text"  placeholder="Buscar Etiqueta" class="entrada form-control" name="buscarEtiquetaOperacion" ng-model="buscarEtiquetaOperacion">
+                                    <span class="input-group-btn">
+                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(2)"><span aria-hidden="true">&times;</span></a>
+                                    </span>
+                                </div>
+                               
+                            </div>
+                            
+                            <div class="col-xs-2 col-sm-6">
+                                <a class="btn  botonAgregar pull-right" ng-click="AbrirAgregarEtiqueta()"><span class="fa fa-plus"></span> <span class="hidden-xs">Agregar</span></a>
+                           </div>
+
+                            
+                            <div class="col-xs-12" style="margin-top: 10px"></div>
+                            <div class="panel  panelFiltro" style="border-radius: 0px;">
+                                <div class="row " >
+                                    <div class="col-xs-12">
+
+                                        <table  class="table table-responsive">
+                                            
+                                            <tbody  style="cursor: pointer">
+                                                <tr  ng-repeat="etiqueta in etiqueta | filter:buscarEtiquetaOperacion | orderBy:'Nombre'" ng-show="etiqueta.show && etiqueta.Activo">
+                                                  <td style="margin-left:10px" ng-click="AgregarEtiqueta(etiqueta)">{{etiqueta.Nombre}}</td>
+                                                </tr>
+                                            </tbody>
+                                            
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        
+                        <div class="row" ng-if="nuevaInformacion.Etiqueta.length > 0" >
+                           <br ng-show="!mostrarEtiqueta">
+                            <div class="col-xs-12" >
+                  
+                                <div class="tablaDetalle">
+                                    <table class="table table-hover">
+                                        <thead class="TituloTabla">
+                                          <tr>
+                                            <th><b>Etiqueta</b></th>
+                                            <th class=" text-center"><b>Quitar</b></th>
+                                          </tr>
+                                        </thead>
+                                        <tbody ng-repeat="etiqueta in nuevaInformacion.Etiqueta | orderBy:'Nombre'">
+                                          <tr>                                        
+                                             <td>{{etiqueta.Nombre}}</td>
+
+                                            <td class="text-center">
+                                                <a class="botonTablaOperacion" href="" data-toggle="modal" data-target="#" ng-click="QuitarEtiqueta(etiqueta)">
+                                                    <span id="etiquetasAgregadas" class="fa fa-times" style="font-size:14pt"></span>
+                                                </a>
+                                            </td>
+
+                                          </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
                     </div>
+                </div>
+                <br><br>
+                             
+                <div class="row">
+                    
+                     <!-- tema -->
+                     <div class="col-sm-6 etiquetaDropdownList" id="temaPanel">
+                        <label>Tema</label>
+                        <a class="btn btn-block {{claseInformacion.tema}}" ng-click="MostrarTema()">{{nuevaInformacion.Tema.Nombre}} <span class="caret"></span></a>
+                        
+                        <div ng-show="mostrarTema" class="dropdown-menu modalAgregarDropdown">
+                           <div class="col-xs-12" style="margin-top: 10px"></div>
+                           
+                            <div class="col-xs-10">
+                                <div class="input-group">
+                                    <input type="text"  placeholder="Buscar Tema" class="entrada form-control" name="buscarTemaOperacion" ng-model="buscarTemaOperacion">
+                                    <span class="input-group-btn">
+                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(3)"><span aria-hidden="true">&times;</span></a>
+                                    </span>
+                                </div>
+                               
+                            </div>
+                            
+                            <div class="col-xs-2">
+                               <a class="btn  botonAgregar pull-right" ng-click="AbrirAgregarTema()"><span class="fa fa-plus"></span> </a>
+                           </div>
+
+                            
+                            <div class="col-xs-12" style="margin-top: 10px"></div>
+                            <div class="panel  panelFiltro" style="border-radius: 0px;">
+                                <div class="row " >
+                                    <div class="col-xs-12">
+
+                                        <table  class="table table-responsive">
+                                            
+                                            <tbody  style="cursor: pointer">
+                                                
+                                                <tr>
+                                                    <td style="margin-left:10px; color:black" class="botonSeleccionar" ng-click="CambiarTema('Ninguno')"><b>Ninguno</b></td>
+                                                </tr>
+                                                
+                                                <tr  ng-repeat="tema in tema | filter:buscarTemaOperacion | orderBy:'Nombre'">
+                                                  <td style="margin-left:10px; color:black" class="botonSeleccionar" ng-click="CambiarTema(tema)">{{tema.Nombre}}</td>
+                                                </tr>
+                                            </tbody>
+                                            
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                         </div>
+                    </div>
+                    
+                     <br class="hidden-sm hidden-md hidden-lg">
+                    
+                    <!-- tipo de información -->
+                     <div class="col-sm-6 etiquetaDropdownList" id="tipoInformacionPanel">
+                        <label>Tipo de Información</label>
+                        <a class="btn btn-block {{claseInformacion.tipo}}" ng-click="MostrarTipoInformacion()">{{nuevaInformacion.TipoInformacion.Nombre}} <span class="caret"></span></a>
+                        
+                        <div ng-show="mostrarTipoInformacion" class="dropdown-menu modalAgregarDropdown">
+                           <div class="col-xs-12" style="margin-top: 10px"></div>
+                           
+                            <div class="col-xs-10">
+                                <div class="input-group">
+                                    <input type="text"  placeholder="Buscar Tipo de Información" class="entrada form-control" name="buscarTipoInformacion" ng-model="buscarTipoInformacionOperacion">
+                                    <span class="input-group-btn">
+                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(9)"><span aria-hidden="true">&times;</span></a>
+                                    </span>
+                                </div>
+                               
+                            </div>
+                            
+                            <div class="col-xs-2">
+                               <a class="btn  botonAgregar pull-right" ng-click="AbrirAgregarTipoInformacion()"><span class="fa fa-plus"></span> </a>
+                           </div>
+
+                            <div class="col-xs-12" style="margin-top: 10px"></div>
+                            <div class="panel  panelFiltro" style="border-radius: 0px;">
+                                <div class="row " >
+                                    <div class="col-xs-12">
+
+                                        <table  class="table table-responsive">
+                                            
+                                            <tbody  style="cursor: pointer">
+                                                
+                                                <tr  ng-repeat="tipo in tipoInformacion | filter:buscarTipoInformacionOperacion | orderBy:'Nombre'">
+                                                  <td style="margin-left:10px; color:black" class="botonSeleccionar" ng-click="CambiarTipoInformacion(tipo)">{{tipo.Nombre}}</td>
+                                                </tr>
+                                                
+                                            </tbody>
+                                            
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                         </div>
+                    </div>
+                            
+                </div>
+                <br>
+                
+                <div class="row">
+                    
+                    <!-- Fuente -->
+                     <div class="col-sm-12 etiquetaDropdownList" id="fuentePanel">
+                        <label>Fuente</label>
+                        <a class="btn btn-block {{claseInformacion.fuente}}" ng-click="MostrarFuente()">{{nuevaInformacion.Fuente.Nombre}} <span class="caret"></span></a>
+                        
+                        <div ng-show="mostrarFuente" class="dropdown-menu modalAgregarDropdown">
+                           <div class="col-xs-12" style="margin-top: 10px"></div>
+                           
+                            <div class="col-xs-10 col-sm-6">
+                                <div class="input-group">
+                                    <input type="text"  placeholder="Buscar Fuente" class="entrada form-control" name="buscarFuenteOperacion" ng-model="buscarFuenteOperacion">
+                                    <span class="input-group-btn">
+                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(10)"><span aria-hidden="true">&times;</span></a>
+                                    </span>
+                                </div>
+                               
+                            </div>
+                            
+                            <div class="col-xs-2 col-sm-6">
+                               <a class="btn  botonAgregar pull-right" ng-click="AbrirAgregarFuente()">
+                                   <span class="fa fa-plus"></span>
+                                   <span class="hidden-xs">Agregar</span>
+                                </a>
+                           </div>
+
+                            <div class="col-xs-12" style="margin-top: 10px"></div>
+                            <div class="panel  panelFiltro" style="border-radius: 0px;">
+                                <div class="row " >
+                                    <div class="col-xs-12">
+
+                                        <table  class="table table-responsive">
+                                            
+                                            <tbody  style="cursor: pointer">
+                                                
+                                                <tr>
+                                                    <td style="margin-left:10px; color:black" class="botonSeleccionar" ng-click="CambiarFuente('Ninguno')"><b>Ninguno</b></td>
+                                                </tr>
+                                                
+                                                <tr  ng-repeat="fuente in fuente | filter:buscarFuenteOperacion | orderBy:'Nombre'">
+                                                  <td style="margin-left:10px; color:black" class="botonSeleccionar" ng-click="CambiarFuente(fuente)">{{fuente.Nombre}}</td>
+                                                </tr>
+                                            </tbody>
+                                            
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                         </div>
+                    </div>       
+                </div>
+                <br>
+                
+                <!-- Seccion -->
+                <div class="row"> 
+                    <div class="col-sm-12">
+                       <div class="entrada2">
+                            <input type="text" required class="entrada form-control" name="seccion" ng-model="nuevaInformacion.Seccion" ng-maxlength="250"/>
+                           <label>Sección</label>
+                        </div>
+                   </div>              
                 </div>
                 <br>
                 <!---- botones de operacion -->
                 <div class="row">
                     <div class="col-xs-6">
-                        <button class="btn botonFinModal btn-block" data-dismiss="modal" aria-label="Close" ng-click="CerrarInformacion()">CANCELAR</button>
+                        <a class="btn botonFinModal btn-block" ng-click="CerrarInformacion()">CANCELAR</a>
                     </div>
 
                     <div class="col-xs-6">
-                        <button focus class="btn botonFinModal btn-block" ng-click="TerminarInformacion(informacionForma.contenido.$invalid)">TERMINAR</button>
+                        <a focus class="btn botonFinModal btn-block" ng-click="TerminarInformacion(informacionForma.contenido.$invalid)">TERMINAR</a>
                     </div>
                 </div>
             <br>
@@ -658,7 +949,7 @@
     </div>
     
     <!---------- VerImagen ---------------->
-    <div class="modal fade" id="verImagen">
+    <div class="modal fade sombraDivModal" id="verImagen">
         <br>    <br>   <br>
         <div class="modal-dialog modal-md modalPrincipal">
           
@@ -667,10 +958,16 @@
                     <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">&times;</span></button>
                 </div>
             </div>
-           
-            <div class="row">
+            
+            <div class="row" ng-if="!preImage.PreSeleccion">
                 <div class="col-xs-12">
-                    <img   class="img-responsive center-block" ng-src="data:image/PNG;base64,{{detalle.Archivo}}"/>
+                    <img   class="img-responsive center-block" ng-src="data:image/PNG;base64,{{preImage.Imagen}}"/>
+                </div>
+            </div>
+            
+            <div class="row" ng-show="preImage.PreSeleccion">
+                <div class="col-xs-12">
+                    <span id="PrevisualizarImagenDetalles"></span>
                 </div>
             </div>
             
@@ -680,32 +977,75 @@
         </div>
     </div>
     
-    
-    <div class="modal fade sombraDivModal" id="mensajeInformacion">
+    <!-- Cerrar -->
+    <div class="modal fade sombraDivModal" id="cerrarInformacionModal">
         <br>    <br>   <br>
         <div class="modal-dialog modal-sm modalPrincipal text-center">
            
             <div class="row">
                 <div class="col-xs-12">
-                    <span style="font-size:14pt">{{mensaje}}</span>
+                    <span style="font-size:14pt">¿Estas seguro de salir sin guardar los cambios?</span>
                 </div>
             </div>
             <br><br>
             <div class="row">
-                <div class="col-xs-12">
-                    <button class="btn  botonFinModal" data-dismiss="modal" aria-label="Close">Aceptar</button>
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
+                </div>
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarCerrarInformacion()">Si</button>
                 </div>
             </div>
-            
+                        
         </div>
     </div>
     
-    <!--------------- otros html -------------------->
-    <div ng-include=" 'html/Sabiduria/Administrar/Etiqueta/AgregarEtiqueta.html' "> </div>
-    <div ng-include=" 'html/Sabiduria/Administrar/Informacion/AgregarTema.html' "> </div>
-    <div ng-include=" 'html/Sabiduria/Administrar/Informacion/AgregarTipoInformacion.html' "> </div>
-    <!--<div ng-include=" 'html/Sabiduria/Administrar/Fuente/AgregarFuente.html' "> </div>-->
+    <!-- mensaje -->
+    <div class="modal fade sombraDivModal" id="mensajeInformacion">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="text-center textoError">
+                        <span class=" fa fa-times-circle-o fa-3x"></span><br>
+                        <span>¡Error!</span>
+                    </div>
+                    
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-xs-12">
+                     <div ng-repeat="error in mensajeError">
+                        <span>{{error}}</span>
+                    </div>
+                </div>
+            </div>
+            <br><br>
+         
+            <div class="row">
+                <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button> 
+            </div>
+
+        </div>
+    </div>
     
+    <!-- Alertas -->
+    <div class="alertaMensaje" id="alertaEditarExitosoInfo">
+        <div class="alert alertaExtito">
+            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+            <strong style="display: inline-block;">{{mensaje}}</strong>
+        </div>
+    </div>
+
 </div>
+
+<!--------------- otros html -------------------->
+    <div ng-include=" 'html/Sabiduria/Administrar/Fuente/AgregarFuente.html' "> </div>
+    <div ng-include=" 'html/Sabiduria/Administrar/Tema/AgregarTema.html' "> </div>
+    <div ng-include=" 'html/Sabiduria/Administrar/Informacion/AgregarTipoInformacion.html' "> </div>
+   
 
     

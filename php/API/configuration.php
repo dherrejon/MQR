@@ -1,14 +1,14 @@
 <?php	
 
     $time_zone = "America/Mexico_City";
-    $db_host = "localhost";
+    $db_host = "localhost"; /*h2mysql20*/
     $db_user = "root";
     $db_password = "";
     $db_name = "sabiduria";
 
     $key = "2017.s1St3m4MQr.M4R10Qu1J4DarZ";
     $token_expiration_time = '+1 hour';
-    $session_expiration_time = '+35 minute';
+    $session_expiration_time = '+20 hour';
 
     function getConnection() 
     {

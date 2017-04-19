@@ -1,6 +1,6 @@
 .fondoPagina
 {
-    background: rgba(78,122,137,1);
+    background: white !important; 
 }
 
 .encabezadoUsuario /*Texto en el encabezado que indica el perfil del usuario*/
@@ -81,6 +81,7 @@ a:link
     border-bottom: solid 1px white;
     margin-left: 3px;
     margin-right: 3px;
+    font-size: 12pt;
 }
 
 .dropdownOpcion:hover, .dropdownOpcion:focus, .dropdownOpcion:active  /*Hover en las opciones de las dropdown list*/

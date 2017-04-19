@@ -1,6 +1,6 @@
 app.controller("AdministrarFuenteController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
 {   
-    $scope.titulo = "Fuente";
+    $scope.titulo = "Fuentes";
     
     $scope.permiso = false;
     
@@ -45,7 +45,7 @@ app.controller("AdministrarFuenteController", function($scope, $window, $http, $
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion.length == 0)
+            if($scope.usuarioLogeado.Aplicacion != "Conocimiento")
             {
                 $rootScope.IrPaginaPrincipal();
             }
@@ -88,6 +88,6 @@ app.controller("AdministrarFuenteController", function($scope, $window, $http, $
 
 
 var tabFuente = [
-                    {titulo:"Fuente", referencia: "#Fuente", clase:"active", area:"fuente"},
-                    {titulo:"Tipo Fuente", referencia: "#TipoFuente", clase:"", area:"tipoFuente"}
+                    {titulo:"Fuentes", referencia: "#Fuente", clase:"active", area:"fuente"},
+                    {titulo:"Tipo de Fuente", referencia: "#TipoFuente", clase:"", area:"tipoFuente"}
                 ];

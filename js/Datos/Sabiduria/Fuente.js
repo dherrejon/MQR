@@ -4,6 +4,9 @@ class Fuente
     {
         this.FuenteId = "";
         this.Nombre = "";
+        this.Frase = "";
+        this.Posicion = "";
+        this.Nota = "";
         this.TipoFuente = new TipoFuente();
         this.Autor = [];
         this.Etiqueta = [];
@@ -40,6 +43,9 @@ function SetFuente(data)
     
     fuente.FuenteId = data.FuenteId;
     fuente.Nombre = data.Nombre;
+    fuente.Frase = data.Frase;
+    fuente.Posicion = data.Posicion;
+    fuente.Nota = data.Nota;
     
     fuente.TipoFuente.TipoFuenteId = data.TipoFuenteId;
     fuente.TipoFuente.Nombre = data.NombreTipoFuente;
@@ -109,10 +115,34 @@ function GetFuenteEtiqueta($http, $q, CONFIG, id)
     
     $http({      
           method: 'GET',
-          url: CONFIG.APIURL + '/GetFuenteEtiqueta/'+id,
+          url: CONFIG.APIURL + '/GetFuenteEtiqueta',
       }).success(function(data)
         {
             q.resolve(data);  
+        }).error(function(data, status){
+            q.resolve(status);
+     }); 
+    return q.promise;
+}
+
+function GetAutoresFuente($http, $q, CONFIG)     
+{
+    var q = $q.defer();
+    
+    $http({      
+          method: 'GET',
+          url: CONFIG.APIURL + '/GetAutoresFuente'
+      }).success(function(data)
+        {
+            if(data[0].Estatus == "Exito")
+            {
+                q.resolve(data[1].Autor);  
+            }
+            else
+            {
+                q.resolve([]); 
+            }
+            
         }).error(function(data, status){
             q.resolve(status);
      }); 

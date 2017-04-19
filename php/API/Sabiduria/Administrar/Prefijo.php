@@ -44,10 +44,8 @@ function AgregarPrefijo()
 
         $stmt->execute();
         
+        echo '[{"Estatus": "Exitoso"}, {"Id": "'.$db->lastInsertId().'"}]';
         $db = null;
-        
-        echo '[{"Estatus": "Exitoso"}]';
-
     } catch(PDOException $e) 
     {
         echo $e;

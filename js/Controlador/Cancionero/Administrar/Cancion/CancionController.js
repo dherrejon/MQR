@@ -1,4 +1,4 @@
-app.controller("TemaController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, TEMA)
+app.controller("CancionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, TEMA)
 {   
     $scope.tema = [];
     
@@ -9,6 +9,7 @@ app.controller("TemaController", function($scope, $window, $http, $rootScope, md
     
     $scope.mensajeError = [];
     $scope.claseTema = {nombre:"entrada"};
+    
     
     $scope.GetTema = function()              
     {
@@ -55,6 +56,12 @@ app.controller("TemaController", function($scope, $window, $http, $rootScope, md
      
     $scope.CerrarTema = function()
     {
+        $('#cerrarTemaModal').modal('toggle');
+    };
+    
+    $scope.ConfirmarCerrarTema = function()
+    {
+        $('#modalTema').modal('toggle');
         $scope.mensajeError = [];
         $scope.claseTema = {nombre:"entrada"};
     };
@@ -65,6 +72,7 @@ app.controller("TemaController", function($scope, $window, $http, $rootScope, md
     {
         if(!$scope.ValidarDatos(nombreInvalido))
         {
+            $('#mensajeTema').modal('toggle');
             return;
         }
         else
@@ -86,28 +94,30 @@ app.controller("TemaController", function($scope, $window, $http, $rootScope, md
         {
             if(data[0].Estatus == "Exitoso")
             {
-                $('#modalTema').modal('toggle');
-                $scope.mensaje = "El tema se ha agregado.";
-                
                 if($scope.operacion == "Agregar")
                 {
+                    $scope.mensaje = "Tema agregado.";
                     $scope.GetTema();
+                    $scope.EnviarAlerta('Modal');
+                    $scope.nuevoTema = new Tema();
                 }
                 else
                 {
+                    $('#modalTema').modal('toggle');
                     $scope.nuevoTema.TemaId = data[1].Id; 
+                    $scope.tema.push($scope.nuevoTema);
                     TEMA.TerminarTema($scope.nuevoTema);
                 }
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde.";
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde.";
+                $('#mensajeTema').modal('toggle');
             }
-            $('#mensajeTema').modal('toggle');
-            
+
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeTema').modal('toggle');
         });
     };
@@ -120,18 +130,19 @@ app.controller("TemaController", function($scope, $window, $http, $rootScope, md
             if(data[0].Estatus == "Exitoso")
             {
                 $('#modalTema').modal('toggle');
-                $scope.mensaje = "El tema se ha editado.";
-                
+                $scope.mensaje = "Tema editado.";
+                $scope.EnviarAlerta('Vista');
                 $scope.GetTema();
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde";   
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde";
+                $('#mensajeTema').modal('toggle');
             }
-            $('#mensajeTema').modal('toggle');
+            
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeTema').modal('toggle');
         });
     };
@@ -168,6 +179,18 @@ app.controller("TemaController", function($scope, $window, $http, $rootScope, md
         return true;
     };
     
+    $scope.LimpiarBuscar = function(buscar)
+    {
+        switch(buscar)
+        {
+            case 1:
+                $scope.buscarTema = "";
+                break;
+            default: 
+                break;
+        }
+    };
+    
     //----------------------Inicializar---------------------------------
     $scope.GetTema();
     
@@ -180,6 +203,30 @@ app.controller("TemaController", function($scope, $window, $http, $rootScope, md
     
         $('#modalTema').modal('toggle');
     });
+    
+    //------------------- Alertas ---------------------------
+    $scope.EnviarAlerta = function(alerta)
+    {
+        if(alerta == "Modal")
+        {
+            $("#alertaExitoso").alert();
+
+            $("#alertaExitoso").fadeIn();
+            setTimeout(function () {
+                $("#alertaExitoso").fadeOut();
+            }, 2000);
+        }
+        else if('Vista')
+        {
+            console.log("entra");
+            $("#alertaEditarExitoso").alert();
+
+            $("#alertaEditarExitoso").fadeIn();
+            setTimeout(function () {
+                $("#alertaEditarExitoso").fadeOut();
+            }, 2000)
+        }
+    };
     
 });
 

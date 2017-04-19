@@ -1,5 +1,5 @@
 <div ng-controller="FuenteController as fuente">
-   
+  
     <!-- -----------------------Modales -------------------------- -->
 	<div class="modal fade sombraDivModal" id="modalFuente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
         <br>    <br>   <br>
@@ -7,14 +7,62 @@
            
             <div class="row">
                 <div class="col-xs-12">
-                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ng-click="CerrarModalFuente()"><span aria-hidden="true">&times;</span></button>
-                    <span ng-if="operacion == 'Agregar' || operacion == 'AgregarExterior'" class="tituloModal">Agregar Fuente</span>
-                    <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Fuente</span>
+                    <!-- Alertas -->
+                    <div class="alertaMensaje" id="alertaExitoso">
+                        <div class="alert alertaExitosoFuente">
+                            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+                            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+                            <strong style="display: inline-block;">{{mensaje}}</strong>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <br><br><br>
             
             <form name="fuenteForma">
+               <!---- botones de operacion -->
+                <div class="row">
+                    <div class="col-xs-6">
+                        <a class="btn botonFinModal btn-block" ng-click="CerrarModalFuente()">CANCELAR</a>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <a focus class="btn botonFinModal btn-block" ng-click="TerminarFuente(fuenteForma.nombre.$invalid, fuenteForma.posicion.$invalid)">TERMINAR</a>
+                    </div>
+                </div>
+                <br>
+                
+                <div class="row">
+                    <div class="col-xs-12">
+                        <!--<button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ng-click="CerrarModalFuente()"><span aria-hidden="true">&times;</span></button>-->
+                        <span ng-if="operacion == 'Agregar' || operacion == 'AgregarExterior'" class="tituloModal">Agregar Fuente</span>
+                        <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Fuente</span>
+                    </div>
+                </div>
+                <br><br><br>
+                
+                <!-- Fuente -->
+                <div class="row"> 
+                    <div class="col-sm-12">
+                       <div class="entrada2">
+                            <input type="text" required class="{{claseFuente.nombre}} form-control" name="nombre" ng-model="nuevaFuente.Nombre" ng-maxlength="250"/>
+                           <label>Fuente</label>
+                        </div>
+                   </div>              
+                </div>
+                <br><br>
+                
+                <!-- Frase -->
+                <div class="row"> 
+                    <div class="col-sm-12">
+                       <div class="entrada2">
+                            <input type="text" required class="entrada form-control" name="frase" ng-model="nuevaFuente.Frase" ng-maxlength="250"/>
+                           <label>Frase</label>
+                        </div>
+                   </div>              
+                </div>
+                <br><br>
+                
+                 <!-- Tipo Fuente -->
                 <div class="row">
                   
                     <div class="col-sm-6 etiquetaDropdownList">
@@ -27,6 +75,12 @@
                             </button>
 
                             <ul class="dropdown-menu elemetosDropdownListModal">
+                                <li >
+                                    <a href="" class="dropdownOpcionModal text-center" ng-click="AgregarTipoFuente()" >
+                                        <span >AGREGAR</span>
+                                    </a>
+                                </li>
+                                
                                 <li ng-repeat="tipo in tipoFuente | orderBy:'Nombre'">
                                     <a  href="" class="dropdownOpcionModal" ng-click="CambiarTipoFuente(tipo)">
                                         <span>{{tipo.Nombre}}</span>
@@ -35,51 +89,53 @@
                             </ul>
 
                         </div>
-                    </div>           
-                </div>
-                <br>
-                
-                <div class="row"> 
-                    <div class="col-sm-12">
-                       <div class="entrada2">
-                            <input type="text" required class="{{claseFuente.nombre}} form-control" name="nombre" ng-model="nuevaFuente.Nombre" ng-maxlength="250"/>
-                           <label>Nombre</label>
-                        </div>
-                   </div>              
-                </div>
-                <br>
-                
-                <div class="row">
+                    </div>    
+                    
+                    <br class="hidden-sm hidden-md hidden-lg">
+                    
+                    <!-- Pocion -->
                     <div class="col-sm-6">
-                        <button class="btn btn-block {{claseFuente.autor}}" ng-click="MostrarOpcionFuente('autor')">Autores <span class="caret"></span></button>
+                        <div class="entrada2">
+                            <input type="text" ng-pattern="erNumeroEntero"  class="entrada form-control" name="posicion" ng-model="nuevaFuente.Posicion" ng-maxlength="250"/>
+                           <label>Posición</label>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                
+                <!-- autores -->
+                <div class="row" >
+                    <div class="col-sm-12" id="autorPanel">
+                        <a class="btn btn-block {{claseFuente.autor}}" ng-click="MostrarOpcionFuente('autor')">Autores <span class="caret"></span></a>
                         
-                        <div ng-show="mostrarOpcionFuente == 'autor'" style="background: white">
+                        <div  ng-show="mostrarOpcionFuente == 'autor'" style="background: white">
                            <div class="col-xs-12" style="margin-top: 10px"></div>
-                            <div class="col-xs-12">
-                                <input type="text"  placeholder="Buscar Autor" class="entrada form-control" name="buscarAutorOperacion" ng-model="buscarAutorOperacion">
+                            
+                            <div class="col-xs-6">
+                               <div class="input-group">
+                                    <input type="text"  placeholder="Buscar Autor" class="entrada form-control" name="buscarAutorOperacion" ng-model="buscarAutorOperacion">
+                                    <span class="input-group-btn">
+                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(3)" type="button"><span aria-hidden="true">&times;</span></a>
+                                    </span>
+                                </div>
                             </div>
+                            
+                            <div class="col-xs-6">
+                               <a class="btn  botonAgregar pull-right" ng-click="AbrirAgregarAutor()"><span class="fa fa-plus"></span> Agregar</a>
+                           </div>
+                            
                             <div class="col-xs-12" style="margin-top: 10px"></div>
                             <div class="panel  panelFiltro" style="border-radius: 0px;">
                                 <div class="row " >
                                     <div class="col-xs-12">
 
                                         <table  class="table table-responsive">
-                                           <tbody ng-repeat="autor in autor | filter:buscarAutorOperacion | orderBy:'Apellidos'" ng-show="autor.show">
-                                               <tr >
-                                                   <td>
-                                                       <div style="font-size:12pt" class="text-center">
-                                                        <a  class="botonTablaOperacion" href="" ng-click="AgregarAutor(autor)">
-                                                            <span class="fa fa-plus" ></span>
-                                                        </a>
-                                                       </div>
-                                                    </td>
-                                                    <td> 
-                                                        <div >
-                                                            {{autor.Prefijo.Abreviacion}} {{autor.Apellidos}} {{autor.Nombre}}
-                                                        </div>
-                                                    </td>
+                                            <tbody  style="cursor: pointer">
+                                                <tr  ng-repeat="autor in autor | filter:buscarAutorOperacion | orderBy:'Nombre'" ng-show="autor.show">
+                                                  <td style="margin-left:10px" ng-click="AgregarAutor(autor)"> {{autor.Prefijo.Abreviacion}} {{autor.Nombre}} {{autor.Apellidos}}</td>
                                                 </tr>
                                             </tbody>
+                                            
                                         </table>
 
                                     </div>
@@ -87,38 +143,70 @@
                             </div>
                         </div>
                         
+                        <div class="row" ng-if="nuevaFuente.Autor.length > 0" >
+                           <br ng-show="!mostrarEtiqueta">
+                            <div class="col-xs-12" >
+                  
+                                <div class="tablaDetalle">
+                                    <table class="table table-hover">
+                                        <thead class="TituloTabla">
+                                          <tr>
+                                            <th><b>Nombre</b></th>
+                                            <th class=" text-center"><b>Quitar</b></th>
+                                          </tr>
+                                        </thead>
+                                        <tbody ng-repeat="autor in nuevaFuente.Autor | orderBy:'Nombre'">
+                                          <tr>                                        
+                                             <td>{{autor.Abreviacion}} {{autor.Nombre}} {{autor.Apellidos}}</td>
+
+                                            <td class="text-center">
+                                                <a class="botonTablaOperacion" href="" data-toggle="modal" data-target="#" ng-click="QuitarAutor(autor)">
+                                                    <span id="autoresAgregadas" class="fa fa-times" style="font-size:14pt"></span>
+                                                </a>
+                                            </td>
+
+                                          </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
                     </div>
-                    
-                    <br class="hidden-sm hidden-lg hidden-md">
-                    
-                    <div class="col-sm-6">
-                        <button class="btn btn-block {{claseFuente.etiqueta}}" ng-click="MostrarOpcionFuente('etiqueta')">Etiquetas <span class="caret"></span></button>
+                </div>
+                <br>
+                <!-- etiquetas -->
+                <div class="row" >                
+                    <div class="col-sm-12" id="etiquetaPanel" >
+                        <a class="btn btn-block {{claseFuente.etiqueta}}" ng-click="MostrarOpcionFuente('etiqueta')">Etiquetas <span class="caret"></span></a>
                         
                         <div ng-show="mostrarOpcionFuente == 'etiqueta'" style="background: white">
                            <div class="col-xs-12" style="margin-top: 10px"></div>
-                            <div class="col-xs-12">
-                                <input type="text"  placeholder="Buscar Etiqueta" class="entrada form-control" name="buscarEtiquetaOperacion" ng-model="buscarEtiquetaOperacion">
+                            
+                            <div class="col-xs-6">
+                               <div class="input-group">
+                                    <input type="text"  placeholder="Buscar Etiqueta" class="entrada form-control" name="buscarEtiquetaOperacion" ng-model="buscarEtiquetaOperacion">
+                                    <span class="input-group-btn">
+                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(2)" type="button"><span aria-hidden="true">&times;</span></a>
+                                    </span>
+                                </div>
                             </div>
+                            
+                            <div class="col-xs-6">
+                               <a class="btn  botonAgregar pull-right" ng-click="AbrirAgregarEtiqueta()"><span class="fa fa-plus"></span> Agregar</a>
+                           </div>
+                            
                             <div class="col-xs-12" style="margin-top: 10px"></div>
                             <div class="panel  panelFiltro" style="border-radius: 0px;">
                                 <div class="row " >
                                     <div class="col-xs-12">
 
                                         <table  class="table table-responsive">
-                                           <tbody ng-repeat="etiqueta in etiqueta | filter:buscarEtiquetaOperacion | orderBy:'Nombre'" ng-show="etiqueta.show && etiqueta.Activo">
-                                               <tr >
-                                                   <td>
-                                                       <div style="font-size:12pt" class="text-center">
-                                                        <a  class="botonTablaOperacion" href="" ng-click="AgregarEtiqueta(etiqueta)">
-                                                            <span class="fa fa-plus" ></span>
-                                                        </a>
-                                                       </div>
-                                                    </td>
-                                                    <td> 
-                                                        <div >
-                                                            {{etiqueta.Nombre}}
-                                                        </div>
-                                                    </td>
+                                            
+                                            <tbody  style="cursor: pointer">
+                                                <tr  ng-repeat="etiqueta in etiqueta | filter:buscarEtiquetaOperacion | orderBy:'Nombre'" ng-show="etiqueta.show && etiqueta.Activo">
+                                                  <td style="margin-left:10px" ng-click="AgregarEtiqueta(etiqueta)">{{etiqueta.Nombre}}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -128,93 +216,59 @@
                             </div>
                         </div>
                         
-                    </div>
-                </div>
-                <br>
-                <div class="row" ng-if="nuevaFuente.Autor.length > 0">
-                    <div class="col-xs-12 subtituloModal">
-                        <button class="btn btn-block"  ng-class="GetClaseSeccionAgregado('Autor')" ng-click="MostrarAgregado('Autor')">Autores Agregadas</button>
-                    </div>
-                    <br> <br>
-                    <div class="col-xs-12" ng-show="datosAgregados=='Autor'">
-                        <div class="piezaPorComponenteTabla">
-                           <div class="tablaDetalle">
-                                <table class="table table-hover">
-                                    <thead class="TituloTabla">
-                                      <tr>
-                                        <th><button class="btn botonTablaOrdenar"><b>Nombre</b></button></th>
-                                        <th><button class="btn botonTablaNormal"><b>Quitar</b></button></th>
-                                      </tr>
-                                    </thead>
-                                    <tbody ng-repeat="autor in nuevaFuente.Autor | orderBy:'Apellidos'">
-                                      <tr>                                        
-                                         <td>{{autor.Abreviacion}} {{autor.Apellidos}} {{autor.Nombre}}</td>
+                        <div class="row" ng-if="nuevaFuente.Etiqueta.length > 0" >
+                           <br ng-show="!mostrarEtiqueta">
+                            <div class="col-xs-12" >
+                  
+                                <div class="tablaDetalle">
+                                    <table class="table table-hover">
+                                        <thead class="TituloTabla">
+                                          <tr>
+                                            <th><b>Nombre</b></th>
+                                            <th class=" text-center"><b>Quitar</b></th>
+                                          </tr>
+                                        </thead>
+                                        <tbody ng-repeat="etiqueta in nuevaFuente.Etiqueta | orderBy:'Nombre'">
+                                          <tr>                                        
+                                             <td>{{etiqueta.Nombre}}</td>
 
-                                        <td class="text-center">
-                                            <a class="botonTablaOperacion" href="" data-toggle="modal" data-target="#" ng-click="QuitarAutor(autor)">
-                                                <span class="fa fa-times" style="font-size:14pt"></span>
-                                            </a>
-                                        </td>
+                                            <td class="text-center">
+                                                <a class="botonTablaOperacion" href="" data-toggle="modal" data-target="#" ng-click="QuitarEtiqueta(etiqueta)">
+                                                    <span id="etiquetasAgregadas" class="fa fa-times" style="font-size:14pt"></span>
+                                                </a>
+                                            </td>
 
-                                      </tr>
-                                    </tbody>
-                                </table>
+                                          </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
                             </div>
                         </div>
-                    </div>
-                </div>
-                <br>
-                <div class="row" ng-if="nuevaFuente.Etiqueta.length > 0">
-                    <div class="col-xs-12 subtituloModal">
-                        <button class="btn btn-block"  ng-class="GetClaseSeccionAgregado('Etiqueta')" ng-click="MostrarAgregado('Etiqueta')">Etiquetas Agregadas</button>
-                    </div>
-                    <br> <br>
-                    <div class="col-xs-12" ng-show="datosAgregados=='Etiqueta'">
-                        <div class="piezaPorComponenteTabla">
-                            <div class="tablaDetalle">
-                                <table class="table table-hover">
-                                    <thead class="TituloTabla">
-                                      <tr>
-                                        <th><button class="btn botonTablaOrdenar"><b>Nombre</b></button></th>
-                                        <th><button class="btn botonTablaNormal"><b>Quitar</b></button></th>
-                                      </tr>
-                                    </thead>
-                                    <tbody ng-repeat="etiqueta in nuevaFuente.Etiqueta | orderBy:'Nombre'">
-                                      <tr>                                        
-                                         <td>{{etiqueta.Nombre}}</td>
-
-                                        <td class="text-center">
-                                            <a class="botonTablaOperacion" href="" data-toggle="modal" data-target="#" ng-click="QuitarEtiqueta(etiqueta)">
-                                                <span class="fa fa-times" style="font-size:14pt"></span>
-                                            </a>
-                                        </td>
-
-                                      </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
                 <br>
                 
-                <!-------- mensaje de error ---->
+                <!-- Notas -->
                 <div class="row">
-                    <div class="col-xs-12">
-                        <div ng-repeat="error in mensajeError">
-                            <span class="textoError">{{error}}</span>
+                    <div class="col-sm-12">
+                         <div class="">
+                            <label class="etiquetaNormal">Notas</label>
+                            <textarea required type="text"  class="form-control contenidoArea" name="contenido" ng-model="nuevaFuente.Nota" maxlength="1000"></textarea>
                         </div>
                     </div>
                 </div>
-                <br>
+                <br><br>
+                
                 <!---- botones de operacion -->
                 <div class="row">
                     <div class="col-xs-6">
-                        <button class="btn botonFinModal btn-block" data-dismiss="modal" aria-label="Close" ng-click="CerrarModalFuente()">CANCELAR</button>
+                        <a class="btn botonFinModal btn-block" ng-click="CerrarModalFuente()">CANCELAR</a>
                     </div>
 
                     <div class="col-xs-6">
-                        <button focus class="btn botonFinModal btn-block" ng-click="TerminarFuente(fuenteForma.nombre.$invalid)">TERMINAR</button>
+                        <a focus class="btn botonFinModal btn-block" ng-click="TerminarFuente(fuenteForma.nombre.$invalid, fuenteForma.posicion.$invalid)">TERMINAR</a>
                     </div>
                 </div>
             <br>
@@ -222,26 +276,165 @@
             
         </div>
     </div>
-
-    
-    <div class="modal fade sombraDivModal" id="mensajeFuente">
+    <!---------- Detalles ---------------->
+    <div class="modal fade" id="DetalleFuente">
         <br>    <br>   <br>
-        <div class="modal-dialog modal-sm modalPrincipal text-center">
+        <div class="modal-dialog modal-md modalPrincipal">
+           
             <div class="row">
                 <div class="col-xs-12">
-                    <span style="font-size:14pt">{{mensaje}}</span>
+                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">&times;</span></button>
+                    <span class="tituloModal">Detalles de la Fuente</span>
                 </div>
             </div>
             <br><br>
+            
             <div class="row">
-                <div class="col-xs-12">
-                    <button class="btn  botonFinModal" data-dismiss="modal" aria-label="Close">Aceptar</button>
+               <!-- Tipo Fuente -->
+                <div class="col-sm-6">
+                    <div class="subrayado">
+                        <label>Tipo de Fuente </label><br>
+                        <span class="textoModal">{{detalleFuente.TipoFuente.Nombre}}</span>
+                    </div>
                 </div>
             </div>
+            <br>
+            <div class="row">
+               <!-- Nombre -->
+                <div class="col-sm-12">
+                    <div class="subrayado">
+                        <label>Nombre </label><br>
+                        <span class="textoModal">{{detalleFuente.Nombre}}</span>
+                    </div>
+                </div>
+            </div>
+            <br>
+            
+            <div class="row">
+               <!-- Frase -->
+                <div class="col-sm-12">
+                    <div class="subrayado">
+                        <label>Frase </label><br>
+                        <span class="textoModal">{{detalleFuente.Frase}}</span>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <!-- Autores -->
+            <div class="row" ng-if="detalleFuente.Autor.length > 0">
+                <div class="col-xs-12">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <button class="btn btn-block"  ng-class="GetClaseDetallesSeccion('Autor')" ng-click="MostrarDetalle('Autor')">Autores</button>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="table-responsive TablaModal" ng-show="detalle == 'Autor'">
+                        <ul>
+                            <div class="row">
+                                <li ng-repeat="autor in detalleFuente.Autor | orderBy:'Nombre'" >
+                                    <span>{{autor.Abreviacion}} {{autor.Nombre}} {{autor.Apellidos}}</span>
+                                </li>
+                            </div>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+            <!-- Etiqueta -->
+            <div class="row" ng-if="detalleFuente.Autor.length > 0">
+                <div class="col-xs-12">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <button class="btn btn-block"  ng-class="GetClaseDetallesSeccion('Etiqueta')" ng-click="MostrarDetalle('Etiqueta')">Etiquetas</button>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="table-responsive TablaModal" ng-show="detalle == 'Etiqueta'">
+                        <ul>
+                            <div class="row">
+                                <li ng-repeat="etiqueta in detalleFuente.Etiqueta | orderBy:'Nombre'" class="col-xs-6 col-sm-4">
+                                    <span>{{etiqueta.Nombre}}</span>
+                                </li>
+                            </div>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+            <br>
             
         </div>
     </div>
     
+    <!-- Cerrar -->
+    <div class="modal fade sombraDivModal" id="cerrarFuenteModal">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal text-center">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <span style="font-size:14pt">¿Estas seguro de salir sin guardar los cambios?</span>
+                </div>
+            </div>
+            <br><br>
+            <div class="row">
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
+                </div>
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarCerrarModalFuente()">Si</button>
+                </div>
+            </div>
+                        
+        </div>
+    </div>
+    
+    <!-- mensaje -->
+    <div class="modal fade sombraDivModal" id="mensajeFuente">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="text-center textoError">
+                        <span class=" fa fa-times-circle-o fa-3x"></span><br>
+                        <span>¡Error!</span>
+                    </div>
+                    
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-xs-12">
+                     <div ng-repeat="error in mensajeError">
+                        <span>{{error}}</span>
+                    </div>
+                </div>
+            </div>
+            <br><br>
+         
+            <div class="row">
+                <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button> 
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- Alertas -->
+    <div class="alertaMensaje" id="alertaEditarExitosoFuente">
+        <div class="alert alertaExtito">
+            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+            <strong style="display: inline-block;">{{mensaje}}</strong>
+        </div>
+    </div>
+    
 </div>
+
+<!--------------- otros html -------------------->
+<div ng-include=" 'html/Sabiduria/Administrar/Etiqueta/AgregarEtiqueta.html' "> </div>
+<div ng-include=" 'html/Sabiduria/Administrar/Fuente/AgregarTipoFuente.html' "> </div>
+<div ng-include=" 'html/Sabiduria/Administrar/Autor/AgregarAutor.html' "> </div>
 
     

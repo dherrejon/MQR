@@ -18,9 +18,18 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     {
         switch($scope.usuario.Aplicacion)
         {
-            case "Sabiduría": 
+            case "Conocimiento": 
                 $scope.barraNavegacion = EncabezadoSabiduria;
                 $scope.HabilitarOpcionesBarraNavegacionSabiduria();
+                break;
+                
+            case "Cancionero": 
+                $scope.barraNavegacion = EncabezadoCancionero;
+                $scope.HabilitarOpcionesBarraNavegacionCancionero();
+                break;
+                
+            case "Aplicaciones": 
+                $scope.barraNavegacion = EncabezadoAplicaciones;
                 break;
             default:
                 $scope.barraNavegacion = [];
@@ -98,7 +107,8 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     //Habilitar Opciones de la barra de navegacion
     $scope.HabilitarOpcionesBarraNavegacionSabiduria = function()
     {
-        //console.log($scope.barraNavegacion);
+        $scope.LimpiarBarraNavegacionInformacion();
+
         for(var k=0; k<$scope.usuario.Permiso.length; k++)
         {
             if($scope.usuario.Permiso[k] == "SabiduriaCon")
@@ -112,6 +122,35 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         }
     };
     
+    $scope.HabilitarOpcionesBarraNavegacionCancionero = function()
+    {
+        $scope.LimpiarBarraNavegacionCancionero();
+
+        for(var k=0; k<$scope.usuario.Permiso.length; k++)
+        {
+            if($scope.usuario.Permiso[k] == "CancioneroCon")
+            {
+                $scope.barraNavegacion.opcion[0].show = true;
+            }
+            if($scope.usuario.Permiso[k] == "CancioneroAdm")
+            {
+                $scope.barraNavegacion.opcion[1].show = true;
+            }
+        }
+    };
+    
+    $scope.LimpiarBarraNavegacionInformacion = function()
+    {
+        $scope.barraNavegacion.opcion[0].show = false;
+        $scope.barraNavegacion.opcion[1].show = false;
+    };
+    
+    $scope.LimpiarBarraNavegacionCancionero = function()
+    {
+        $scope.barraNavegacion.opcion[0].show = false;
+        $scope.barraNavegacion.opcion[1].show = false;
+    };
+    
     /*------------------------------Cambiar Contraseña--------------------------------------------*/
     $scope.CambiarPassword = function()
     {
@@ -122,6 +161,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     {
         if(!$scope.ValidarPassword(passwordInvalido))
         {
+            $('#mensajeEncabezado').modal('toggle');
             return;
         }
         
@@ -135,21 +175,25 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             if(data == "Exitoso")
             {
                 $scope.mensaje = "La contraseña se ha actualizado correctamente.";
-                $scope.CerrarCambiarPasswordForma();
-                $('#mensajeEncabezado').modal('toggle');
+                $scope.LimpiarInterfaz();
+                //$('#mensajeEncabezado').modal('toggle');
+                $scope.EnviarAlerta('Modal');
                 $('#CambiarPasswordModal').modal('toggle');
             }
             else if(data == "ErrorPassword")
             {
                 $scope.mensajeError[$scope.mensajeError.length] = "*Tu contraseña actual es incorrecta.";
+                $('#mensajeEncabezado').modal('toggle');
             }
             else
             {
-                alert("Ha ocurrido un error. Intente más tarde.");
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde.";
+                $('#mensajeEncabezado').modal('toggle');
             }
         }).catch(function(error)
         {
-            alert("Ha ocurrido un error. Intente más tarde." +error);
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde." + error
+            $('#mensajeEncabezado').modal('toggle');
             return;
         });
     };
@@ -197,9 +241,34 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     
     $scope.CerrarCambiarPasswordForma = function()
     {
+        $('#cerrarCambiarPassword').modal('toggle');
+    };
+    
+    $scope.ConfirmarCerrarCambiarPasswordForma = function()
+    {
+        $('#CambiarPasswordModal').modal('toggle');
+        $scope.LimpiarInterfaz();
+        
+    };
+    
+    $scope.LimpiarInterfaz = function()
+    {
         $scope.nuevoPassword = {nuevo:"", repetir:"", actual:""};
         $scope.clasePassword = {nuevo:"entrada", repetir:"entrada", actual:"entrada"};
         $scope.mensajeError = [];
+    };
+    
+    $scope.EnviarAlerta = function(alerta)
+    {
+        if(alerta == "Modal")
+        {
+            $("#alertaExitoso").alert();
+
+            $("#alertaExitoso").fadeIn();
+            setTimeout(function () {
+                $("#alertaExitoso").fadeOut();
+            }, 2000);
+        }
     };
     
     /*---------------- Ir a pagina Principal ------------------*/
@@ -207,7 +276,8 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     {
         if($scope.usuario !== undefined || $scope.usuario !== null)
         {
-            if($scope.usuario.Aplicacion.length === 0)
+            //console.log($scope.usuario);
+            if($scope.usuario.Aplicacion.length === 0 || $scope.usuario.Aplicacion == "Aplicaciones")
             {
                 $location.path('/Aplicacion');
             }
@@ -268,22 +338,58 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
 
 var EncabezadoSabiduria =
 { 
-    titulo:"Sabidulría", 
+    titulo:"Conocimiento", 
     opcion: [ 
                     { texto:"Información", tipo:"link", referencia:"#Informacion", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [
-                                                {texto:"Usuario", referencia:"#Usuario", funcion:""},
-                                                {texto:"Fuente", referencia:"#Fuente", funcion:""},
-                                                {texto:"Autor", referencia:"#Autor", funcion:""},
-                                                {texto:"Etiqueta", referencia:"#Etiqueta", funcion:""},
-                                                {texto:"Información", referencia:"#ConfigurarInformacion", funcion:""}
+                                                {texto:"Usuarios", referencia:"#Usuario", funcion:""},
+                                                {texto:"Fuentes", referencia:"#Fuente", funcion:""},
+                                                {texto:"Autores", referencia:"#Autor", funcion:""},
+                                                {texto:"Etiquetas", referencia:"#Etiqueta", funcion:""},
+                                                {texto:"Información", referencia:"#ConfigurarInformacion", funcion:""},
+                                                {texto:"Temas", referencia:"#Tema", funcion:""}
                                             ]},
                     {texto:"Usuario", tipo:"dropdown", show: true, 
                                             elemento:
                                             [
                                                 {texto:"Mis Aplicaciones", referencia:"#Aplicacion", funcion:""},
+                                                {texto:"Cerrar Sesión", referencia:"", funcion:"CerrarSesion"},
+                                                {texto:"Cambiar Contraseña", referencia:"", funcion:"CambiarPassword"},
+                                            ]}
+              ]                      
+};
+
+var EncabezadoCancionero =
+{ 
+    titulo:"Cancionero", 
+    opcion: [ 
+                    { texto:"Cancionero", tipo:"link", referencia:"#Informacion", show: false},
+                    { texto:"Administrar", tipo:"dropdown", show: false,
+                                            elemento:
+                                            [
+                                                {texto:"Usuarios", referencia:"#Usuario", funcion:""},
+                                                {texto:"Artistas", referencia:"#Artista", funcion:""},
+                                                //{texto:"Canciones", referencia:"#Cancion", funcion:""},
+                                            ]},
+                    {texto:"Usuario", tipo:"dropdown", show: true, 
+                                            elemento:
+                                            [
+                                                {texto:"Mis Aplicaciones", referencia:"#Aplicacion", funcion:""},
+                                                {texto:"Cerrar Sesión", referencia:"", funcion:"CerrarSesion"},
+                                                {texto:"Cambiar Contraseña", referencia:"", funcion:"CambiarPassword"},
+                                            ]}
+              ]                       
+} ;
+
+var EncabezadoAplicaciones =
+{ 
+    titulo:"MQRSYS", 
+    opcion: [ 
+                    {texto:"Usuario", tipo:"dropdown", show: true, 
+                                            elemento:
+                                            [
                                                 {texto:"Cerrar Sesión", referencia:"", funcion:"CerrarSesion"},
                                                 {texto:"Cambiar Contraseña", referencia:"", funcion:"CambiarPassword"},
                                             ]}

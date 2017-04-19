@@ -8,11 +8,17 @@ class Informacion
         this.OrigenInformacion = new OrigenInformacion();
         this.TipoInformacion = new TipoInformacion();
         this.Contenido = "";
+        this.Seccion = "";
+        this.Observacion = "";
         this.Archivo = "";
         this.Etiqueta = [];
         
         this.NombreArchivo = [];
         this.ExtensionArchivo = [];
+        
+        //-------- Origen Informacion 
+        this.OrigenInformacion.OrigenInformacionId = "1";
+        this.OrigenInformacion.Nombre = "Texto";
     }
 }
 
@@ -48,6 +54,11 @@ function SetInformacion(data)
     var informacion = new Informacion();
     
     informacion.InformacionId = data.InformacionId;
+    
+    informacion.Observacion = data.Observacion;
+    informacion.Seccion = data.Seccion;
+
+    
     informacion.Archivo = data.Archivo;
     
     informacion.NombreArchivo = data.NombreArchivo;
@@ -84,6 +95,8 @@ function AgregarInformacion($http, CONFIG, $q, informacion)
 {
     var q = $q.defer();
     
+    ChecarNulos(informacion, "Agregar");
+    
     var fd = new FormData();
     
     if(informacion.OrigenInformacion.OrigenInformacionId == "2" || informacion.OrigenInformacion.OrigenInformacionId == "3" && informacion.ArchivoSeleccionado)
@@ -111,7 +124,7 @@ function AgregarInformacion($http, CONFIG, $q, informacion)
             }
             else
             {
-                q.resolve("Fallo");
+                q.resolve(data);
             }
             
             
@@ -126,9 +139,11 @@ function EditarInformacion($http, CONFIG, $q, informacion)
 {
     var q = $q.defer();
     
+    ChecarNulos(informacion, "Editar");
+    
     var fd = new FormData();
     
-    if(informacion.OrigenInformacion.OrigenInformacionId == "2" || informacion.OrigenInformacion.OrigenInformacionId == "3" && informacion.ArchivoSeleccionado)
+    if((informacion.OrigenInformacion.OrigenInformacionId == "2" || informacion.OrigenInformacion.OrigenInformacionId == "3") && informacion.ArchivoSeleccionado)
     {
         var file = informacion.Archivo;
         fd.append('file', file);
@@ -153,7 +168,7 @@ function EditarInformacion($http, CONFIG, $q, informacion)
             }
             else
             {
-                q.resolve("Fallo");
+                q.resolve(data);
             }  
         }).error(function(data, status){
             q.resolve(status);
@@ -162,6 +177,42 @@ function EditarInformacion($http, CONFIG, $q, informacion)
     return q.promise;
 }
 
+
+function ChecarNulos(data, operacion)
+{
+    if(operacion == "Agregar")
+    {
+        if(data.Tema.TemaId.length == 0)
+        {
+            data.Tema.TemaId = null;
+        }
+        if(data.Fuente.FuenteId.length == 0)
+        {
+            data.Fuente.FuenteId = null;
+        }
+    }
+    else if(operacion == "Editar")
+    {
+        if(data.Tema.TemaId == null)
+        {
+            data.Tema.TemaId = "null";
+        }
+        else if(data.Tema.TemaId.length == 0 || data.Tema.TemaId == "0")
+        {
+            data.Tema.TemaId = "null";
+        }
+        
+        if(data.Fuente.FuenteId == null)
+        {
+            data.Fuente.FuenteId = "null";
+        }
+        else if(data.Fuente.FuenteId.length == 0 || data.Fuente.FuenteId == "0")
+        {
+            data.Fuente.FuenteId = "null";
+        }
+    }
+        
+};
 
 //------------------ Origen Informacion --------------------
 class OrigenInformacion
@@ -179,7 +230,7 @@ function GetOrigenInformacion()
     
     origen[0] = new OrigenInformacion();
     origen[0].OrigenInformacionId = "1";
-    origen[0].Nombre = "Comentario";
+    origen[0].Nombre = "Texto";
     
     origen[1] = new OrigenInformacion();
     origen[1].OrigenInformacionId = "2";
@@ -217,6 +268,30 @@ function GetInformacionEtiqueta($http, $q, CONFIG, id)
     return q.promise;
 }
 
+
+function GetEtiquetasInformacion($http, $q, CONFIG)     
+{
+    var q = $q.defer();
+    
+    $http({      
+          method: 'GET',
+          url: CONFIG.APIURL + '/GetEtiquetasInformacion'
+      }).success(function(data)
+        {
+            if(data[0].Estatus == "Exito")
+            {
+                q.resolve(data[1].Etiqueta);  
+            }
+            else
+            {
+                q.resolve([]); 
+            }
+            
+        }).error(function(data, status){
+            q.resolve(status);
+     }); 
+    return q.promise;
+}
 
 
 

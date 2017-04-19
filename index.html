@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <!-- angular-->
-        <script type="text/javascript" src="libs/angular/angular.min.js"></script>
+        <script type="text/javascript" src="libs/angular/angular.js"></script>
         <script type="text/javascript" src="libs/angular/angular-route.min.js"></script>
         <script type="text/javascript" src="libs/angular/angular-md5.js"></script>
         <script type="text/javascript" src="libs/angular-loading-bar/loading-bar.js"></script>
@@ -31,14 +31,16 @@
         <script src="js/Controlador/EncabezadoController.js"></script>
         <script src="js/Controlador/RecuperarPasswordControlador.js"></script>
         <script src="js/Controlador/AplicacionController.js"></script>
-        <script src="js/Controlador/Sabiduria/InformacionController.js"></script>
         
-            <!-- Sabiduría -->
+        
+        <!-- Sabiduría -->
+        <script src="js/Controlador/Sabiduria/InformacionController.js"></script>
             <!-- Administrar -->
             <script src="js/Controlador/Sabiduria/Administrar/AdministrarEtiquetaController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/AdministrarFuenteController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/AdministrarAutorController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/AdministrarInformacionController.js"></script>
+            <script src="js/Controlador/Sabiduria/Administrar/AdministrarTemaController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/UsuarioController.js"></script>
             
             <script src="js/Controlador/Sabiduria/Administrar/Etiqueta/EtiquetaController.js"></script>
@@ -47,12 +49,23 @@
             <script src="js/Controlador/Sabiduria/Administrar/Fuente/FuenteController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/Fuente/TipoFuenteController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/Informacion/InformacionController.js"></script>
-            <script src="js/Controlador/Sabiduria/Administrar/Informacion/TemaController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/Informacion/TipoInformacionController.js"></script>
+            <script src="js/Controlador/Sabiduria/Administrar/Tema/TemaController.js"></script>
+        
+        <!-- Cancionero -->
+         <script src="js/Controlador/Cancionero/CancioneroController.js"></script>
+            <!-- Administrar -->
+            <script src="js/Controlador/Cancionero/Administrar/AdministrarArtistaController.js"></script>
+            <script src="js/Controlador/Cancionero/Administrar/AdministrarCancionController.js"></script>
+        
+            <script src="js/Controlador/Cancionero/Administrar/Artista/ArtistaController.js"></script>
+            <script src="js/Controlador/Cancionero/Administrar/Cancion/CancionController.js"></script>
+            
         
         <!-- Datos -->
         <script src="js/Datos/General/Usuario.js"></script>
         
+        <!-- Sabiduria -->
         <script src="js/Datos/Sabiduria/Etiqueta.js"></script>
         <script src="js/Datos/Sabiduria/Fuente.js"></script>
         <script src="js/Datos/Sabiduria/TipoFuente.js"></script>
@@ -62,7 +75,10 @@
         <script src="js/Datos/Sabiduria/Tema.js"></script>
         <script src="js/Datos/Sabiduria/Usuario.js"></script>
         <script src="js/Datos/Sabiduria/Informacion.js"></script>
-
+        
+        <!-- Cancionero -->
+        <script src="js/Datos/Cancionero/Artista.js"></script>
+        <script src="js/Datos/Cancionero/Cancion.js"></script>
         
         <!--css-->
         <link rel="stylesheet" href="css/HeaderStyles.css">
@@ -73,6 +89,7 @@
         <link rel="stylesheet" href="css/tabla.css">
         <link rel="stylesheet" href="css/textoStyles.css">
         <link rel="stylesheet" href="css/InformacionStyles.css">
+        <link rel="stylesheet" href="css/Cancionero.css">
         
         <!--awesome font-->
         <link rel="stylesheet" href="css/font-awesome.min.css">

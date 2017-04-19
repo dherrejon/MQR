@@ -1,20 +1,35 @@
 <div ng-controller="EncabezadoControlador as encabezado">
    
     <div class="container-fluid">
+        
         <div class="row">
-            <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" style="z-index:2">
+            <div class="col-xs-12">
+                <!-- Alertas -->
+                <div class="alertaMensaje" id="alertaExitoso">
+                    <div class="alert alertaExtito">
+                        <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+                        <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+                        <strong style="display: inline-block;">{{mensaje}}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-xs-12" style="z-index:2">
             
                 <div class="row encabezadoUsuario"  id="tiutloPagina" ng-show="usuario.SesionIniciada">            <!--  -->
                     <!-- Título -->
                     <div class="col-md-7 col-sm-6 col-xs-6 encabezadoTitulo">
                         <h2 class =" hidden-xs hidden-sm claseTitulo">{{barraNavegacion.titulo}}</h2>
-                        <h3 class ="hidden-md hidden-lg claseTitulo">{{barraNavegacion.titulo}}</h3>
+                        <h3 class ="hidden-md hidden-lg claseTitulo" style="font-size:16pt !important">{{barraNavegacion.titulo}}</h3>
                        
                     </div>
 
                     <div class=" col-md-5 col-sm-6 col-xs-6 text-center" style="margin-top: 23px;">
 
-                        <span style="font-size:16pt">{{usuario.NombreUsuario}}</span> 
+                        <span style="font-size:16pt" class="hidden-xs">{{usuario.Nombre}}</span>
+                        <span style="font-size:12pt" class="hidden-sm hidden-md hidden-lg">{{usuario.Nombre}}</span> 
                     </div>
                 </div>
 
@@ -122,7 +137,7 @@
            
             <div class="row">
                 <div class="col-xs-12">
-                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ng-click="CerrarCambiarPasswordForma()"><span aria-hidden="true">&times;</span></button>
+                    <a class="btn close cerrarModal" ng-click="CerrarCambiarPasswordForma()"><span aria-hidden="true">&times;</span></a>
                     <span class="tituloModal">Cambiar Contraseña</span>
                 </div>
             </div>
@@ -156,22 +171,22 @@
                 </div>
                 <br>
                 <!-------- mensaje de error ---->
-                <div class="row">
+                <!--<div class="row">
                     <div class="col-xs-12">
                         <div ng-repeat="error in mensajeError">
                             <span class="textoError">{{error}}</span>
                         </div>
                     </div>
-                </div>
+                </div>-->
                 <br>
                 <!---- botones de operacion -->
                 <div class="row">
                     <div class="col-xs-6">
-                        <button class="btn botonFinModal btn-block" data-dismiss="modal" aria-label="Close" ng-click="CerrarCambiarPasswordForma()">CANCELAR</button>
+                        <a class="btn botonFinModal btn-block" ng-click="CerrarCambiarPasswordForma()">CANCELAR</a>
                     </div>
 
                     <div class="col-xs-6">
-                        <button focus class="btn botonFinModal btn-block" ng-click="GuardarPassword(passwordForma.nuevo.$invalid)">TERMINAR</button>
+                        <a focus class="btn botonFinModal btn-block" ng-click="GuardarPassword(passwordForma.nuevo.$invalid)">TERMINAR</a>
                     </div>
                 </div>
             <br>
@@ -180,24 +195,57 @@
         </div>
     </div>
     
-    <div class="modal fade" id="mensajeEncabezado">
+    <!-- cerrar -->
+    <div class="modal fade sombraDivModal" id="cerrarCambiarPassword">
         <br>    <br>   <br>
         <div class="modal-dialog modal-sm modalPrincipal text-center">
            
-            
-            
             <div class="row">
                 <div class="col-xs-12">
-                    <span style="font-size:14pt">{{mensaje}}</span>
+                    <span style="font-size:14pt">¿Estas seguro de salir sin guardar los cambios?</span>
                 </div>
             </div>
             <br><br>
             <div class="row">
-                <div class="col-xs-12">
-                    <button class="btn  botonFinModal" data-dismiss="modal" aria-label="Close">Aceptar</button>
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
+                </div>
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarCerrarCambiarPasswordForma()">Si</button>
                 </div>
             </div>
-            
+                        
+        </div>
+    </div>
+    
+    <!-- mensaje -->
+    <div class="modal fade sombraDivModal" id="mensajeEncabezado">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="text-center textoError">
+                        <span class=" fa fa-times-circle-o fa-3x"></span><br>
+                        <span>¡Error!</span>
+                    </div>
+
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-xs-12">
+                     <div ng-repeat="error in mensajeError">
+                        <span>{{error}}</span>
+                    </div>
+                </div>
+            </div>
+            <br><br>
+
+            <div class="row">
+                <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button> 
+            </div>
+
         </div>
     </div>
     

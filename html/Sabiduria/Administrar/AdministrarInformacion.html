@@ -42,21 +42,11 @@
 
                                 </div>
                             </div>
-                            
-                            <!-- Tema -->
-                            <div role="tabpanel" class="tab-pane in active" id="Tema" ng-if="permiso && titulo=='Tema'" >
-                              <br>  
-                                <div ng-include=" 'html/Sabiduria/Administrar/Informacion/Tema.html' ">
-
-                                </div>
-                            </div>
 
                             <!-- Tipo de Información -->
-                            <div role="tabpanel" class="tab-pane" id="TipoInformacion"  ng-if="permiso && titulo=='Tipo Información'">
+                            <div role="tabpanel" class="tab-pane" id="TipoInformacion"  ng-if="permiso && titulo=='Tipo de Información'">
                               <br>
-                               <div class="col-xs-12"> 
-                                    <div ng-include=" 'html/Sabiduria/Administrar/Informacion/TipoInformacion.html' "></div>
-                                </div> 
+                                <div ng-include=" 'html/Sabiduria/Administrar/Informacion/TipoInformacion.html' "></div>
                             </div>
 
                         </div>

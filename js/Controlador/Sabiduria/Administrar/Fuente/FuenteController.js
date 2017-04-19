@@ -1,4 +1,4 @@
-app.controller("FuenteController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, FUENTE)
+app.controller("FuenteController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, FUENTE, ETIQUETA, TIPOFUENTE, AUTOR)
 {   
     $scope.fuente = [];
     $scope.autor = [];
@@ -30,33 +30,33 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
         {
             $scope.fuente = data;
             
-            for(var k=0; k<data.length; k++)
-            {
-                $scope.GetFuenteAutor($scope.fuente[k]);
-                $scope.GetFuenteEtiqueta($scope.fuente[k]);
-            }
+
+            $scope.GetFuenteEtiqueta();
+            $scope.GetAutoresFuente();
         }).catch(function(error)
         {
             alert(error);
         });
     };
     
-    $scope.GetFuenteAutor = function(fuente)              
+    $scope.GetAutoresFuente = function()              
     {
-        GetFuenteAutor($http, $q, CONFIG, fuente.FuenteId).then(function(data)
+        GetAutoresFuente($http, $q, CONFIG).then(function(data)
         {
-            fuente.Autor = data;
+            $scope.autorFuente = data;
+            $scope.SetAutoresFuentes();
         }).catch(function(error)
         {
             alert(error);
         });
     };
     
-    $scope.GetFuenteEtiqueta = function(fuente)              
+    $scope.GetFuenteEtiqueta = function()              
     {
-        GetFuenteEtiqueta($http, $q, CONFIG, fuente.FuenteId).then(function(data)
+        GetFuenteEtiqueta($http, $q, CONFIG).then(function(data)
         {
-            fuente.Etiqueta = data;
+            $scope.etiquetaFuente = data;
+            $scope.SetEtiquetaFuente();
         
         }).catch(function(error)
         {
@@ -99,6 +99,36 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
         });
     };
     
+    //-----------------Ordenar Catálogos --------------------------------
+    $scope.SetEtiquetaFuente = function()
+    {
+        var sqlBase = "Select EtiquetaId, Nombre From ? WHERE FuenteId = '";
+        var sql = "";
+        
+        for(var k=0; k<$scope.fuente.length; k++)
+        {
+            sql = sqlBase;
+            sql +=  $scope.fuente[k].FuenteId + "'";
+           
+            $scope.fuente[k].Etiqueta = alasql(sql,[$scope.etiquetaFuente]);
+        } 
+    };
+    
+    $scope.SetAutoresFuentes = function()
+    {
+        var sqlBase = "Select Abreviacion, Nombre, AutorId From ? WHERE FuenteId = '";
+        var sql = "";
+        for(var k=0; k<$scope.fuente.length; k++)
+        {
+            sql = sqlBase;
+            sql +=  $scope.fuente[k].FuenteId + "'";
+            
+            $scope.fuente[k].Autor = new Autor();
+            $scope.fuente[k].Autor = alasql(sql,[$scope.autorFuente]);
+        }
+
+    };
+    
     /*------ Ordenar ------------*/
     //cambia el campo por el cual
     $scope.CambiarOrdenarFuente= function(campoOrdenar)
@@ -118,23 +148,29 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
     {
         var cumple = false;
         
-        if($scope.filtro.autor.length == 0)
+        if($scope.filtro.autor.length > 0)
         {
-            cumple = true;
-        }
-        else
-        {
-            for(var k=0; k<$scope.filtro.autor.length; k++)
+            for(var i=0; i<$scope.filtro.autor.length; i++)
             {
-                for(var i=0; i<fuente.Autor.length; i++)
+                cumple = false;
+                for(var j=0; j<fuente.Autor.length; j++)
                 {
-                    if(fuente.Autor[i].AutorId == $scope.filtro.autor[k])
+                    if($scope.filtro.autor[i] == fuente.Autor[j].AutorId)
                     {
                         cumple = true;
                         break;
                     }
                 }
+                
+                if(!cumple)
+                {
+                    return false;
+                }
             }
+        }
+        else
+        {
+            cumple = true;
         }
         
         if(!cumple)
@@ -144,23 +180,29 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
         
         cumple = false;
         
-        if($scope.filtro.etiqueta.length == 0)
+       if($scope.filtro.etiqueta.length > 0)
         {
-            cumple = true;
-        }
-        else
-        {
-            for(var k=0; k<$scope.filtro.etiqueta.length; k++)
+            for(var i=0; i<$scope.filtro.etiqueta.length; i++)
             {
-                for(var i=0; i<fuente.Etiqueta.length; i++)
+                cumple = false;
+                for(var j=0; j<fuente.Etiqueta.length; j++)
                 {
-                    if(fuente.Etiqueta[i].EtiquetaId == $scope.filtro.etiqueta[k])
+                    if($scope.filtro.etiqueta[i] == fuente.Etiqueta[j].EtiquetaId)
                     {
                         cumple = true;
                         break;
                     }
                 }
+                
+                if(!cumple)
+                {
+                    return false;
+                }
             }
+        }
+        else
+        {
+            cumple = true;
         }
         
         if(!cumple)
@@ -303,11 +345,7 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
         
         if(operacion == "Agregar")
         {
-            $scope.nuevaFuente = new Fuente();
-            $scope.nuevaFuente.Autor = [];
-            $scope.nuevaFuente.Etiqueta = [];
-            $scope.ValidarAutor($scope.nuevaFuente.Autor);
-            $scope.ValidarEtiqueta($scope.nuevaFuente.Etiqueta);
+            $scope.InicializarFuenteNuevo();
         }
         else if(operacion == "Editar")
         {
@@ -333,6 +371,15 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
                 }
             }
         }
+    };
+    
+    $scope.InicializarFuenteNuevo = function()
+    {
+        $scope.nuevaFuente = new Fuente();
+        $scope.nuevaFuente.Autor = [];
+        $scope.nuevaFuente.Etiqueta = [];
+        $scope.ValidarAutor($scope.nuevaFuente.Autor);
+        $scope.ValidarEtiqueta($scope.nuevaFuente.Etiqueta);
     };
     
     $scope.ValidarEtiqueta = function(etiqueta)
@@ -362,6 +409,9 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
         
         fuente.FuenteId = data.FuenteId;
         fuente.Nombre = data.Nombre;
+        fuente.Frase = data.Frase;
+        fuente.Nota = data.Nota;
+        fuente.Posicion = data.Posicion;
         
         fuente.TipoFuente.TipoFuenteId = data.TipoFuente.TipoFuenteId;
         fuente.TipoFuente.Nombre = data.TipoFuente.Nombre;
@@ -413,10 +463,44 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
     
     $scope.CerrarModalFuente = function()
     {
-        $scope.mensajeError = [];
-         $scope.claseFuente = {tipoFuente:"dropdownListModal", nombre:"entrada", autor:"dropdownListModal", etiqueta:"dropdownListModal"};
+        $('#cerrarFuenteModal').modal('toggle');
     };
     
+    $scope.ConfirmarCerrarModalFuente = function()
+    {
+        $('#modalFuente').modal('toggle');
+        $scope.LimpiarInterfaz();
+        $scope.mensajeError = [];
+        $scope.claseFuente = {tipoFuente:"dropdownListModal", nombre:"entrada", autor:"dropdownListModal", etiqueta:"dropdownListModal"};
+    };
+    
+    $scope.LimpiarInterfaz = function()
+    {
+        $scope.buscarAutorOperacion = "";
+        $scope.buscarEtiquetaOperacion = "";
+        $scope.mostrarOpcionFuente = "";
+    };
+    
+    document.getElementById('modalFuente').onclick = function(e) 
+    {
+        if($scope.mostrarOpcionFuente == "autor")
+        {
+            if(!(e.target.id == "autorPanel" || e.target.id == "autoresAgregadas"  || $(e.target).parents("#autorPanel").size()))
+            { 
+                $scope.mostrarOpcionFuente = "";
+                $scope.$apply();
+            }
+        }
+        
+        if($scope.mostrarOpcionFuente == "etiqueta")
+        {
+            if( !(e.target.id == "etiquetaPanel" || e.target.id == "etiquetasAgregadas"  || $(e.target).parents("#etiquetaPanel").size())) 
+            { 
+                $scope.mostrarOpcionFuente = "";
+                $scope.$apply();
+            }
+        }
+    };
     
     $scope.AgregarAutor = function(autor)
     {
@@ -427,6 +511,8 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
     
     $scope.AgregarEtiqueta = function(etiqueta)
     {
+        $scope.buscarEtiquetaOperacion = "";
+        
         $scope.nuevaFuente.Etiqueta.push(etiqueta);
         etiqueta.show = false;
     };
@@ -498,10 +584,11 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
     };
     
     /*----------------- Terminar agregar-editar etiqueta --------------------*/
-    $scope.TerminarFuente = function(nombreInvalido)
+    $scope.TerminarFuente = function(nombreInvalido, posicionInvalido)
     {
-        if(!$scope.ValidarDatos(nombreInvalido))
+        if(!$scope.ValidarDatos(nombreInvalido, posicionInvalido))
         {
+            $('#mensajeFuente').modal('toggle');
             return;
         }
         else
@@ -524,28 +611,34 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
         {
             if(data[0].Estatus == "Exitoso")
             {
-                $('#modalFuente').modal('toggle');
-                $scope.mensaje = "La fuente se ha agregado.";
+                $scope.LimpiarInterfaz();
                 
                 if($scope.operacion == "Agregar")
                 {
                     $scope.GetFuente();
+                    $scope.EnviarAlerta('Modal');
+                    $scope.mensaje = "La fuente se ha agregado.";
+                    $scope.InicializarFuenteNuevo();
                 }
                 else
                 {
+                    $('#modalFuente').modal('toggle');
+                    $scope.nuevaFuente.FuenteId = data[1].Id;
+                    $scope.fuente.push($scope.nuevaFuente);
+                    
                     FUENTE.TerminarFuente($scope.nuevaFuente);
                 }
-                
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde.";
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde.";
+                $('#mensajeFuente').modal('toggle');
             }
-            $('#mensajeFuente').modal('toggle');
+            
             
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeFuente').modal('toggle');
         });
     };
@@ -560,24 +653,26 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
                 $('#modalFuente').modal('toggle');
                 $scope.mensaje = "La fuente se ha editado.";
                 $scope.GetFuente();
+                $scope.LimpiarInterfaz();
+                $scope.EnviarAlerta('Vista');
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde";   
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde";  
+                $('#mensajeFuente').modal('toggle');
             }
-            $('#mensajeFuente').modal('toggle');
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length]= "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeFuente').modal('toggle');
         });
     };
     
-    $scope.ValidarDatos = function(nombreInvalido)
+    $scope.ValidarDatos = function(nombreInvalido, posicionInvalido)
     {
         $scope.mensajeError = [];
         
-        if($scope.nuevaFuente.TipoFuente.Nombre.length === 0)
+        if($scope.nuevaFuente.TipoFuente.TipoFuenteId.length === 0)
         {
             $scope.claseFuente.tipoFuente = "dropdownListModalError";
             $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona un tipo de fuente.";
@@ -597,7 +692,12 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
              $scope.claseFuente.nombre = "entrada";
         }
         
-        if($scope.nuevaFuente.Autor.length === 0)
+        if(posicionInvalido)
+        {
+            $scope.mensajeError[$scope.mensajeError.length] = "*Escribe una posición válida.";
+        }
+
+        /*if($scope.nuevaFuente.Autor.length === 0)
         {
             $scope.claseFuente.autor = "dropdownListModalError";
             $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona al menos un autor.";
@@ -605,7 +705,7 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
         else
         {
              $scope.claseFuente.autor = "dropdownListModal";
-        }
+        }*/
         
         if($scope.nuevaFuente.Etiqueta.length === 0)
         {
@@ -635,21 +735,127 @@ app.controller("FuenteController", function($scope, $window, $http, $rootScope, 
         return true;
     };
     
+    //-----------------------Limpiar-------------------------
+    $scope.LimpiarBuscar = function(buscar)
+    {
+        switch(buscar)
+        {
+            case 1:
+                $scope.buscarFuente = "";
+                break;
+            case 2:
+                $scope.buscarEtiquetaOperacion = "";
+                break;
+            case 3:
+                $scope.buscarAutorOperacion = "";
+                break;
+            case 4:
+                $scope.buscarAutor = "";
+                break;
+            case 5:
+                $scope.buscarTipoFuente = "";
+                break;
+            case 6:
+                $scope.buscarEtiqueta = "";
+                break;
+            default: 
+                break;
+        }
+    };
+    
     //----------------------Inicializar---------------------------------
     $scope.GetFuente();
     $scope.GetAutor();
     $scope.GetTipoFuente();
     $scope.GetEtiqueta();
     
+    
+    //------------------------------------ Agregar Exterior ------------------------------
+    //------------ Etiqueta
+    $scope.AbrirAgregarEtiqueta = function()
+    {
+        ETIQUETA.AgregarEtiqueta();
+    };
+    
+    $scope.$on('TerminarEtiqueta',function()
+    {
+        var etiqueta = SetEtiqueta(ETIQUETA.GetEtiqueta());
+        etiqueta.show = false;
+        $scope.nuevaFuente.Etiqueta.push(etiqueta);
+        $scope.etiqueta.push(etiqueta);
+        
+        $scope.buscarEtiquetaOperacion = "";
+    });
+    
+    $scope.$on('TerminarEtiquetaInformacion',function()
+    {
+        var etiqueta = ETIQUETA.GetEtiqueta();
+        etiqueta.show = true;
+        $scope.etiqueta.push(etiqueta);
+    });
+    
+    //------------ Autor
+    $scope.AbrirAgregarAutor = function()
+    {
+        AUTOR.AgregarAutor();
+    };
+    
+    $scope.$on('TerminarAutor',function()
+    {
+        var autor = AUTOR.GetAutor();
+        $scope.nuevaFuente.Autor.push(autor);
+        $scope.autor.push(autor);
+        $scope.autor[$scope.autor.length-1].show = false;
+    });
+    
+    //----------- Tipo fuente
+    $scope.AgregarTipoFuente = function()
+    {
+        TIPOFUENTE.AgregarTipoFuente();
+    };
+    
+    $scope.$on('TerminarTipoFuente',function()
+    {
+        var tipo = TIPOFUENTE.GetTipoFuente();
+        $scope.CambiarTipoFuente(tipo);
+        $scope.tipoFuente.push(tipo);
+        
+        $scope.mensaje = "Tipo Fuente Agregado";
+        $scope.EnviarAlerta('Modal');
+    });
+    
     //------------------------ Exterior ---------------------------
     $scope.$on('AgregarFuente',function()
     {
         $scope.operacion = "AgregarExterior";
 
-        $scope.fuente = new Fuente();
+        $scope.InicializarFuenteNuevo();
     
         $('#modalFuente').modal('toggle');
     });
+    
+    //--------------------- Alertas --------------------------
+    $scope.EnviarAlerta = function(alerta)
+    {
+        if(alerta == "Modal")
+        {
+            $("#alertaExitosoFuente").alert();
+
+            $("#alertaExitosoFuente").fadeIn();
+            setTimeout(function () {
+                $("#alertaExitosoFuente").fadeOut();
+            }, 2000);
+        }
+        else if('Vista')
+        {
+            $("#alertaEditarExitosoFuente").alert();
+
+            $("#alertaEditarExitosoFuente").fadeIn();
+            setTimeout(function () {
+                $("#alertaEditarExitosoFuente").fadeOut();
+            }, 2000)
+        }
+    };
     
 });
 

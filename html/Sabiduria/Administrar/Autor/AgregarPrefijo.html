@@ -1,0 +1,107 @@
+<div ng-controller="PrefijoController as prefijo">
+    <!-- -----------------------Modales -------------------------- -->
+	<div class="modal fade sombraDivModal" id="modalPrefijo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
+        <br>    <br>   <br>
+        <div class="modal-dialog modalPrincipal">
+
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <button class="btn close cerrarModal" ng-click="CerrarPrefijoModal()"><span aria-hidden="true">&times;</span></button>
+                    <span ng-if="operacion == 'Agregar' || operacion == 'AgregarExterior'" class="tituloModal">Agregar Prefijo</span>
+                    <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Prefijo</span>
+                </div>
+            </div>
+            <br><br><br>
+            
+            <form name="prefijoForma">
+                <div class="row">
+                    <div class="col-sm-6">
+                       <div class="entrada2">
+                            <input type="text" required class="{{clasePrefijo.abreviacion}} form-control" name="abreviacion" ng-model="nuevoPrefijo.Abreviacion" ng-maxlength="15"/>
+                            <label>Abreviación</label>
+                        </div>
+                   </div>
+                   
+                   <br class="hidden-sm hidden-md hidden-lg"><br class="hidden-sm hidden-md hidden-lg">
+                   <div class="col-sm-6">
+                        <div class="entrada2">
+                            <input type="text" required class="{{clasePrefijo.nombre}} form-control" name="nombre" ng-model="nuevoPrefijo.Nombre" ng-maxlength="120"/>
+                            <label>Prefijo</label>
+                        </div>
+                   </div>   
+                     
+                         
+                </div>
+                <br>
+                <!---- botones de operacion -->
+                <div class="row">
+                    <div class="col-xs-6">
+                        <a class="btn botonFinModal btn-block" ng-click="CerrarPrefijoModal()">CANCELAR</a>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <a focus class="btn botonFinModal btn-block" ng-click="TerminarPrefijo(prefijoForma.nombre.$invalid, prefijoForma.abreviacion.$invalid)">TERMINAR</a>
+                    </div>
+                </div>
+            <br>
+            </form> 
+            
+        </div>
+    </div>
+    
+    <div class="modal fade sombraDivModal" id="mensajePrefijo">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="text-center textoError">
+                        <span class=" fa fa-times-circle-o fa-3x"></span><br>
+                        <span>¡Error!</span>
+                    </div>
+                    
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-xs-12">
+                     <div ng-repeat="error in mensajeError">
+                        <span>{{error}}</span>
+                    </div>
+                </div>
+            </div>
+            <br><br>
+         
+            <div class="row">
+                <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button> 
+            </div>
+
+        </div>
+    </div>
+    
+    <div class="modal fade sombraDivModal" id="cerrarPrefijoModal">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal text-center">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <span style="font-size:14pt">¿Estas seguro de salir sin guardar los cambios?</span>
+                </div>
+            </div>
+            <br><br>
+            <div class="row">
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
+                </div>
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarCerrarPrefijoModal()">Si</button>
+                </div>
+            </div>
+                        
+        </div>
+    </div>
+    
+</div>
+
+    

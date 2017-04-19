@@ -2,7 +2,7 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
 {   
     $scope.mensajeError = "";
     $scope.mensajeErrorPassword = "";
-    $scope.usuarioLogin = {nombreUsuario:"", password:""};
+    $scope.usuarioLogin = {correo:"", password:""};
     
     $scope.usuario = datosUsuario.getUsuario();
     /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
@@ -19,6 +19,7 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
     {
         if(!$scope.ValidarDatos(usuarioInvalido, passwordInvalido))
         {
+            $('#mensajeLoginError').modal('toggle');
             return;
         }
         else
@@ -27,7 +28,7 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
             {
                 if(data == "SesionInicada")     //Verifica que la sesión no este iniciada
                 {
-                    $scope.usuarioLogin = {nombreUsuario:"", password:""};
+                    $scope.usuarioLogin = {correo:"", password:""};
                     $scope.mensajeError = "Hay una sesión conectada, cierra la sesión para que puedas iniciar sesión.";
                     return;
                 }
@@ -43,17 +44,20 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
                 {
                     $scope.usuarioLogin.password = "";
                     $scope.mensajeError = "*Verifica que tu usuario y contraseña sean correctas";
+                    $('#mensajeLoginError').modal('toggle');
                 }
                 else
                 {
-                     $scope.usuarioLogin = {nombreUsuario:"", password:""};
+                     $scope.usuarioLogin = {correo:"", password:""};
                      $scope.mensajeError = "*Error de conexión. Intenta más tarde.";
+                     $('#mensajeLoginError').modal('toggle');
                 }
 
 
             }).catch(function(error){
-                $scope.usuarioLogin = {nombreUsuario:"", password:""};
-                alert(error);
+                $scope.usuarioLogin = {correo:"", password:""};
+                 $scope.mensajeError = error;
+                $('#mensajeLoginError').modal('toggle');
             });
         }
     };
@@ -94,7 +98,7 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
         }
         
         var usuario = new Object();
-        usuario.Nombre = $scope.usuarioLogin.nombreUsuario;
+        usuario.Correo = $scope.usuarioLogin.correo;
         
         RecuperarPassword($http, CONFIG, $q, usuario).then(function(data)
         {
@@ -106,23 +110,57 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
             }
             else if(data == "ErrorUsuario")
             {
-                $scope.mensajeErrorPassword = "*El usuario no es válido.";
+                $('#mensajeLoginError').modal('toggle');
+                $scope.mensajeError = "*El usuario no es válido.";
             }
             else
             {
-                alert("Ha ocurrido un error. Intente más tarde.");
+                $('#mensajeLoginError').modal('toggle');
+                $scope.mensajeError = "Ha ocurrido un error. Intente más tarde.";
             }
         }).catch(function(error)
         {
-            alert("Ha ocurrido un error. Intente más tarde." +error);
+            $('#mensajeLoginError').modal('toggle');
+            $scope.mensajeError = "Ha ocurrido un error. Intente más tarde." +error;
             return;
         });
     };
     
     $scope.CerrarRecuperarPasswordForma = function()
     {
-        $scope.mensajeErrorPassword = "";
+        $scope.mensajeError = "";
     };
+    
+    $scope.LimpiarBuscar = function(buscar)
+    {
+        switch(buscar)
+        {
+            case 1:
+                $scope.usuarioLogin.correo = "";
+                break;
+            case 2:
+                $scope.usuarioLogin.password = "";
+                break;
+            default: 
+                break;
+        }
+        
+    };
+    
+    
+    //Presionar enter para login
+    $('#loginPanel').keydown(function(e)
+    {
+        switch(e.which) {
+            case 13:
+                document.getElementById("botonLogin").click();
+              break;
+
+            default:
+                return;
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
 
 });
 

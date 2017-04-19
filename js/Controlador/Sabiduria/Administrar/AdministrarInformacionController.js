@@ -45,7 +45,7 @@ app.controller("ConfigurarInformacionController", function($scope, $window, $htt
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion.length == 0)
+            if($scope.usuarioLogeado.Aplicacion != "Conocimiento")
             {
                 $rootScope.IrPaginaPrincipal();
             }
@@ -89,6 +89,5 @@ app.controller("ConfigurarInformacionController", function($scope, $window, $htt
 
 var tabInformacion = [
                         {titulo:"Información", referencia: "#AdministrarInformacion", clase:"active", area:"informacion"},
-                        {titulo:"Tema", referencia: "#Tema", clase:"", area:"tema"},
-                        {titulo:"Tipo Información", referencia: "#TipoInformacion", clase:"", area:"tipoInformacion"}
+                        {titulo:"Tipo de Información", referencia: "#TipoInformacion", clase:"", area:"tipoInformacion"}
                     ];

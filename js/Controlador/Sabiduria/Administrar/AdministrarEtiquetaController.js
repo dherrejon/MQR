@@ -1,6 +1,6 @@
 app.controller("AdministrarEtiquetaController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
 {   
-    $scope.titulo = "Etiqueta";
+    $scope.titulo = "Etiquetas";
     
     $scope.permiso = false;
     
@@ -39,7 +39,7 @@ app.controller("AdministrarEtiquetaController", function($scope, $window, $http,
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion.length == 0)
+            if($scope.usuarioLogeado.Aplicacion != "Conocimiento")
             {
                 $rootScope.IrPaginaPrincipal();
             }
@@ -82,5 +82,5 @@ app.controller("AdministrarEtiquetaController", function($scope, $window, $http,
 
 
 var tabEtiqueta = [
-                    {titulo:"Etiqueta", referencia: "#Etiqueta", clase:"active", area:"etiqueta"}
+                    {titulo:"Etiquetas", referencia: "#Etiqueta", clase:"active", area:"etiqueta"}
                 ];

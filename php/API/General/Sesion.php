@@ -9,7 +9,7 @@ function Login()
     $request = \Slim\Slim::getInstance()->request();
     $datosUsuario = json_decode($request->getBody());
 
-    $sql = "SELECT NombreUsuario, Nombre, Apellidos, UsuarioId, Clave, Correo FROM UsuarioVista WHERE NombreUsuario = '".$datosUsuario->nombreUsuario."' AND Password = '".$datosUsuario->password."' AND Activo = 1";
+    $sql = "SELECT NombreUsuario, Nombre, Apellidos, UsuarioId, Clave, Correo FROM UsuarioVista WHERE Correo = '".$datosUsuario->correo."' AND Password = '".$datosUsuario->clave."' AND Activo = 1";
     
     try 
     {
@@ -97,7 +97,8 @@ function SetAplicacion()
     $aplicacion = json_decode($request->getBody());
     
     $_SESSION['Aplicacion'] = $aplicacion[0];
-    //echo $perfil[0];
+
+    //echo $_SESSION['Aplicacion'];
 }
 
 ?>

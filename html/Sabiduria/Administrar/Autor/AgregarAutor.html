@@ -1,0 +1,165 @@
+<div ng-controller="AutorController as autor">    
+    <!-- -----------------------Modales -------------------------- -->
+	<div class="modal fade sombraDivModal" id="modalAutor" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
+        <br>    <br>   <br>
+        <div class="modal-dialog modalPrincipal">
+            
+            <div class="row">
+                <div class="col-xs-12">
+                    <!-- Alertas -->
+                    <div class="alertaMensaje" id="alertaExitosoAutor">
+                        <div class="alert alertaExtito">
+                            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+                            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+                            <strong style="display: inline-block;">{{mensaje}}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <button class="btn close cerrarModal"  ng-click="CerrarAutorModal()"><span aria-hidden="true">&times;</span></button>
+                    <span ng-if="operacion == 'Agregar' || operacion == 'Agregar'" class="tituloModal">Agregar Autor</span>
+                    <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Autor</span>
+                </div>
+            </div>
+            <br><br><br>
+            
+            <form name="autorForma">
+                <div class="row">
+                  
+                    <div class="col-sm-6 etiquetaDropdownList">
+                         <label>Prefijo</label>
+                         <div class="dropdown">
+
+                            <button class="dropdown-toggle  {{claseAutor.prefijo}}" data-toggle="dropdown">
+                                <b>{{nuevoAutor.Prefijo.Abreviacion}}</b>
+                                <span class="caret"></span>
+                            </button>
+
+                            <ul class="dropdown-menu elemetosDropdownListModal">
+                                <li>
+                                    <a href="" class="dropdownOpcionModal text-center" ng-click="AgregarPrefijo()">
+                                        <span>AGREGAR</span>
+                                    </a>
+                                </li>
+                                
+                                <li>
+                                    <a href="" class="dropdownOpcionModal" ng-click="CambiarPrefijo('Ninguno')">
+                                        <span>Ninguno</span>
+                                    </a>
+                                </li>
+                                
+                                <li ng-repeat="prefijo in prefijo | orderBy:'Nombre'" ng-show="prefijo.PrefijoId != '0'">
+                                    <a  href="" class="dropdownOpcionModal" ng-click="CambiarPrefijo(prefijo)">
+                                        <span>{{prefijo.Abreviacion}}</span>
+                                    </a>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+                        
+                    <br class="hidden-sm hidden-md hidden-lg">
+                   
+                    <div class="col-sm-6">
+                       <div class="entrada2">
+                            <input ng-pattern="erNombrePersonal" type="text" required class="{{claseAutor.nombre}} form-control" name="nombre" ng-model="nuevoAutor.Nombre" ng-maxlength="250"/>
+                            <label>Nombre</label>
+                        </div>
+                   </div>             
+                </div>
+                <br><br class="hidden-sm hidden-md hidden-lg">
+                <div class="row"> 
+                    <div class="col-sm-12">
+                       <div class="entrada2">
+                            <input ng-pattern="erNombrePersonal" type="text" required class="{{claseAutor.apellidos}} form-control" name="apellidos" ng-model="nuevoAutor.Apellidos" ng-maxlength="255"/>
+                            <label>Apellidos</label>
+                        </div>
+                   </div>             
+                </div>
+                <br><br>
+                <!---- botones de operacion -->
+                <div class="row">
+                    <div class="col-xs-6">
+                        <a class="btn botonFinModal btn-block" ng-click="CerrarAutorModal()">CANCELAR</a>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <a focus class="btn botonFinModal btn-block" ng-click="TerminarAutor(autorForma.nombre.$invalid, autorForma.apellidos.$invalid)">TERMINAR</a>
+                    </div>
+                </div>
+                <br>
+            </form> 
+            
+        </div>
+    </div>
+    
+    <div class="modal fade sombraDivModal" id="cerrarAutorModal">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal text-center">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <span style="font-size:14pt">¿Estas seguro de salir sin guardar los cambios?</span>
+                </div>
+            </div>
+            <br><br>
+            <div class="row">
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
+                </div>
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarCerrarAutorModal()">Si</button>
+                </div>
+            </div>
+                        
+        </div>
+    </div>
+    
+    <div class="modal fade sombraDivModal" id="mensajeAutor">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="text-center textoError">
+                        <span class=" fa fa-times-circle-o fa-3x"></span><br>
+                        <span>¡Error!</span>
+                    </div>
+                    
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-xs-12">
+                     <div ng-repeat="error in mensajeError">
+                        <span>{{error}}</span>
+                    </div>
+                </div>
+            </div>
+            <br><br>
+         
+            <div class="row">
+                <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button> 
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- Alertas -->
+    <div class="alertaMensaje" id="alertaEditarExitoso">
+        <div class="alert alertaExtitoAutor">
+            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+            <strong style="display: inline-block;">{{mensaje}}</strong>
+        </div>
+    </div>
+    
+</div>
+
+<!--------------- otros html -------------------->
+<div ng-include=" 'html/Sabiduria/Administrar/Autor/AgregarPrefijo.html' "> </div>
+
+    

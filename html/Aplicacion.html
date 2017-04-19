@@ -2,14 +2,12 @@
    
     <div class="container-fluid">
         <div class="row">
-            <div class="{{claseApp}}" style="{{}}">
+            <div class="col-xs-12" >
             
-                <div class="row" style="margin-top:123px">
+                <div class="row">
                     <div class="col-xs-12">
-                       <br><br><br>
-                       <div class="hidden-xs">
-                           <br><br><br>
-                       </div>
+                       <br><br>
+                       
                         
                         <div class="row">
                           <div class="col-xs-4" >
@@ -17,15 +15,15 @@
                           </div>
                           
                           <div class="col-xs-8">
-                                <span class="textoBienvenido"> Bienvenido {{usuarioLogeado.Nombre}}</span><br>
-                                <span class="textoPregunta">¿Qué sistema deseas usar?</span>
+                                <span class="textoBienvenido"> Bienvenido</span><br>
+                                <span class="textoPregunta">¿Con qué sistema deseas trabajar?</span>
                             </div>
                        </div>
 
                         <div style="margin-top:60px"></div>
 
                         <div class="row">
-                            <div class="col-xs-6 col-sm-4 text-center" ng-repeat="app in apps">
+                            <div class="col-xs-6 col-sm-3 text-center" ng-repeat="app in apps | orderBy:'texto'">
                                 <button ng-disabled="!app.habilitada" style="margin-top:20px" type="button" class="btn btn-default btnCircleApp botnIcono" ng-click="IniciarApp(app)">
                                     <span class="{{app.icono}}"></span>
                                 </button>

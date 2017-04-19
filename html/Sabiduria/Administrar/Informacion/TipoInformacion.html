@@ -1,15 +1,20 @@
 <div ng-controller="TipoInfomacionController as tipoInformacion">
    <!-- buscar -->
    <div class="col-xs-6">
-       <div class="entrada2">
-            <input type="text" required class="entrada form-control" name="buscar" ng-model="buscarTipoInformacion"/>
-            <label>Buscar</label>
+        <div class="input-group" style="z-index:1">
+             <div class="entrada2">
+                <input type="text" required class="entrada form-control" name="buscar" ng-model="buscarTipoInformacion"/>
+                <label>Buscar</label>
+            </div>
+            <span class="input-group-btn">
+                <button class="btn close cerrarModal"  ng-click="LimpiarBuscar(1)"><span aria-hidden="true">&times;</span></button>
+            </span>
         </div>
    </div>
    
    <!-- agregar -->
    <div class="col-xs-6">
-       <button class="btn  botonAgregar pull-right" ng-click="AbrirTipoInformacion('Agregar', null)"><span class="fa fa-plus"></span> Nuevo</button>
+       <button class="btn  botonAgregar pull-right" ng-click="AbrirTipoInformacion('Agregar', null)"><span class="fa fa-plus"></span> Agregar</button>
    </div>
    
    <br><br><br>
@@ -45,9 +50,22 @@
            
             <div class="row">
                 <div class="col-xs-12">
-                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ng-click="CerrarTipoInformacionModal()"><span aria-hidden="true">&times;</span></button>
-                    <span ng-if="operacion == 'Agregar'" class="tituloModal">Agregar Tipo Fuente</span>
-                    <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Tipo Fuente</span>
+                    <!-- Alertas -->
+                    <div class="alertaMensaje" id="alertaExitoso">
+                        <div class="alert alertaExtito">
+                            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+                            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+                            <strong style="display: inline-block;">{{mensaje}}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-12">
+                    <button class="btn close cerrarModal" ng-click="CerrarTipoInformacionModal()"><span aria-hidden="true">&times;</span></button>
+                    <span ng-if="operacion == 'Agregar'" class="tituloModal">Agregar Tipo de Información</span>
+                    <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Tipo de Información</span>
                 </div>
             </div>
             <br><br><br>
@@ -57,28 +75,20 @@
                     <div class="col-sm-12">
                        <div class="entrada2">
                             <input type="text" required class="{{claseTipoInformacion.nombre}} form-control" name="nombre" ng-model="nuevoTipoInformacion.Nombre" ng-maxlength="120"/>
-                            <label>Nombre</label>
+                            <label>Tipo de Información</label>
                         </div>
                    </div>             
                 </div>
                 <br>
-                <!-------- mensaje de error ---->
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div ng-repeat="error in mensajeError">
-                            <span class="textoError">{{error}}</span>
-                        </div>
-                    </div>
-                </div>
                 <br>
                 <!---- botones de operacion -->
                 <div class="row">
                     <div class="col-xs-6">
-                        <button class="btn botonFinModal btn-block" data-dismiss="modal" aria-label="Close" ng-click="CerrarTipoInformacionModal()">CANCELAR</button>
+                        <a class="btn botonFinModal btn-block" ng-click="CerrarTipoInformacionModal()">CANCELAR</a>
                     </div>
 
                     <div class="col-xs-6">
-                        <button focus class="btn botonFinModal btn-block" ng-click="TerminarTipoInformacion(tipoInformacionForma.nombre.$invalid)">TERMINAR</button>
+                        <a focus class="btn botonFinModal btn-block" ng-click="TerminarTipoInformacion(tipoInformacionForma.nombre.$invalid)">TERMINAR</a>
                     </div>
                 </div>
             <br>
@@ -87,25 +97,64 @@
         </div>
     </div>
     
+    <div class="modal fade sombraDivModal" id="mensajeTipoInformacion">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="text-center textoError">
+                        <span class=" fa fa-times-circle-o fa-3x"></span><br>
+                        <span>¡Error!</span>
+                    </div>
+                    
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-xs-12">
+                     <div ng-repeat="error in mensajeError">
+                        <span>{{error}}</span>
+                    </div>
+                </div>
+            </div>
+            <br><br>
+         
+            <div class="row">
+                <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button> 
+            </div>
+
+        </div>
+    </div>
     
-    <div class="modal fade" id="mensajeTipoInformacion">
+    <div class="modal fade sombraDivModal" id="cerrarTipoInformacionModal">
         <br>    <br>   <br>
         <div class="modal-dialog modal-sm modalPrincipal text-center">
            
-            
-            
             <div class="row">
                 <div class="col-xs-12">
-                    <span style="font-size:14pt">{{mensaje}}</span>
+                    <span style="font-size:14pt">¿Estas seguro de salir sin guardar los cambios?</span>
                 </div>
             </div>
             <br><br>
             <div class="row">
-                <div class="col-xs-12">
-                    <button class="btn  botonFinModal" data-dismiss="modal" aria-label="Close">Aceptar</button>
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
+                </div>
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarCerrarTipoInformacionModal()">Si</button>
                 </div>
             </div>
-            
+                        
+        </div>
+    </div>
+    
+    <!-- Alertas -->
+    <div class="alertaMensaje" id="alertaEditarExitoso">
+        <div class="alert alertaExtito">
+            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+            <strong style="display: inline-block;">{{mensaje}}</strong>
         </div>
     </div>
     

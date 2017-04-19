@@ -42,21 +42,26 @@ function AgregarInformacion()
     
     if($informacion->OrigenInformacion->OrigenInformacionId == "2" || $informacion->OrigenInformacion->OrigenInformacionId == "3" && $informacion->ArchivoSeleccionado)
     {
-        $name = $_FILES['file']['name'];
-        $ext = pathinfo($name, PATHINFO_EXTENSION);
-        
-        $archivo = addslashes(file_get_contents($_FILES['file']['tmp_name']));
-        
-        $sql = "INSERT INTO Informacion (TemaId, TipoInformacionId, FuenteId, OrigenInformacionId, Contenido, Archivo, NombreArchivo, ExtensionArchivo) 
-                        VALUES(:TemaId, :TipoInformacionId, :FuenteId, :OrigenInformacionId, :Contenido, '".$archivo."', '".$informacion->NombreArchivo."', '".$ext."')";
-        
-        
-        
+        if($_FILES['file']['error'] == 0)
+        {
+            $name = $_FILES['file']['name'];
+            $ext = pathinfo($name, PATHINFO_EXTENSION);
+
+            $archivo = addslashes(file_get_contents($_FILES['file']['tmp_name']));
+
+            $sql = "INSERT INTO Informacion (TemaId, TipoInformacionId, FuenteId, OrigenInformacionId, Contenido, Archivo, NombreArchivo, ExtensionArchivo, Seccion, Observacion) 
+                            VALUES(:TemaId, :TipoInformacionId, :FuenteId, :OrigenInformacionId, :Contenido, '".$archivo."', '".$informacion->NombreArchivo."', '".$ext."', :Seccion, :Observacion)";
+        }
+        else
+        {
+            echo '[ { "Estatus": "Fallo" } ]';
+            $app->stop();
+        }
     }
     else
     {
-        $sql = "INSERT INTO Informacion (TemaId, TipoInformacionId, FuenteId, OrigenInformacionId, Contenido) 
-                        VALUES(:TemaId, :TipoInformacionId, :FuenteId, :OrigenInformacionId, :Contenido)";
+        $sql = "INSERT INTO Informacion (TemaId, TipoInformacionId, FuenteId, OrigenInformacionId, Contenido, Seccion, Observacion) 
+                        VALUES(:TemaId, :TipoInformacionId, :FuenteId, :OrigenInformacionId, :Contenido, :Seccion, :Observacion)";
     }
     
     $informacionId;
@@ -71,6 +76,8 @@ function AgregarInformacion()
         $stmt->bindParam("FuenteId", $informacion->Fuente->FuenteId);
         $stmt->bindParam("OrigenInformacionId", $informacion->OrigenInformacion->OrigenInformacionId);
         $stmt->bindParam("Contenido", $informacion->Contenido);
+        $stmt->bindParam("Seccion", $informacion->Seccion);
+        $stmt->bindParam("Observacion", $informacion->Observacion);
 
         $stmt->execute();
         
@@ -132,22 +139,31 @@ function EditarInformacion()
 
     $informacion = json_decode($_POST['informacion']);
     
-    if($informacion->OrigenInformacion->OrigenInformacionId == "2" || $informacion->OrigenInformacion->OrigenInformacionId == "3" && $informacion->ArchivoSeleccionado)
+    if(($informacion->OrigenInformacion->OrigenInformacionId == "2" || $informacion->OrigenInformacion->OrigenInformacionId == "3") && $informacion->ArchivoSeleccionado)
     {
-        $name = $_FILES['file']['name'];
-        $ext = pathinfo($name, PATHINFO_EXTENSION);
-        
-        $archivo = addslashes(file_get_contents($_FILES['file']['tmp_name']));
-        
-        $sql = "UPDATE Informacion SET TemaId='".$informacion->Tema->TemaId."', TipoInformacionId='".$informacion->TipoInformacion->TipoInformacionId."',
-        FuenteId='".$informacion->Fuente->FuenteId."', OrigenInformacionId='".$informacion->OrigenInformacion->OrigenInformacionId."', Contenido = '".$informacion->Contenido."',
-        Archivo = '".$archivo."', NombreArchivo = '".$name."', ExtensionArchivo = '".$ext."'
-        WHERE InformacionId=".$informacion->InformacionId;
+        if($_FILES['file']['error'] == 0)
+        {
+            $name = $_FILES['file']['name'];
+
+            $ext = pathinfo($name, PATHINFO_EXTENSION);
+
+            $archivo = addslashes(file_get_contents($_FILES['file']['tmp_name']));
+
+            $sql = "UPDATE Informacion SET TemaId=".$informacion->Tema->TemaId.", TipoInformacionId='".$informacion->TipoInformacion->TipoInformacionId."',
+            FuenteId=".$informacion->Fuente->FuenteId.", OrigenInformacionId='".$informacion->OrigenInformacion->OrigenInformacionId."', Contenido = '".$informacion->Contenido."',
+            Archivo = '".$archivo."', NombreArchivo = '".$name."', ExtensionArchivo = '".$ext."', Seccion = '".$informacion->Seccion."', Observacion = '".$informacion->Observacion."'
+            WHERE InformacionId=".$informacion->InformacionId;
+        }
+        else
+        {
+            echo '[ { "Estatus": "Fallo" } ]';
+            $app->stop();
+        }
     }
     else
     {
-        $sql = "UPDATE Informacion SET TemaId='".$informacion->Tema->TemaId."', TipoInformacionId='".$informacion->TipoInformacion->TipoInformacionId."',
-        FuenteId='".$informacion->Fuente->FuenteId."', OrigenInformacionId='".$informacion->OrigenInformacion->OrigenInformacionId."', Contenido = '".$informacion->Contenido."'
+        $sql = "UPDATE Informacion SET TemaId=".$informacion->Tema->TemaId.", TipoInformacionId='".$informacion->TipoInformacion->TipoInformacionId."',
+        FuenteId=".$informacion->Fuente->FuenteId.", OrigenInformacionId='".$informacion->OrigenInformacion->OrigenInformacionId."', Contenido = '".$informacion->Contenido."', Seccion = '".$informacion->Seccion."', Observacion = '".$informacion->Observacion."'
         WHERE InformacionId=".$informacion->InformacionId;
     }
     
@@ -162,7 +178,7 @@ function EditarInformacion()
     catch(PDOException $e) 
     {    
         echo '[{"Estatus": "Fallido"}]';
-        echo $sql;
+        echo $e;
         $db->rollBack();
         $app->status(409);
         $app->stop();
@@ -254,5 +270,32 @@ function GetInformacionEtiqueta($id)
         $app->stop();
     }
 }
+
+function GetEtiquetasInformacion()
+{
+    global $app;
+    global $session_expiration_time;
+
+
+    $sql = "SELECT e.Nombre, ie.EtiquetaId, ie.InformacionId FROM EtiquetaPorInformacion ie INNER JOIN Etiqueta e ON e.EtiquetaId = ie.EtiquetaId";
+
+    try 
+    {
+        $db = getConnection();
+        $stmt = $db->query($sql);
+        $response = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $db = null;
+        
+        echo '[ { "Estatus": "Exito"}, {"Etiqueta":'.json_encode($response).'} ]';
+    } 
+    catch(PDOException $e) 
+    {
+        echo($e);
+        echo '[ { "Estatus": "Fallo" } ]';
+        $app->status(409);
+        $app->stop();
+    }
+}
+
    
 ?>

@@ -40,7 +40,7 @@
     box-shadow: none;
 }
 
-.entradaLogin
+.entradaLogin, .entradaLogin:focus
 {
     background-color: transparent;
     color: rgb(41,69,77);
@@ -52,7 +52,7 @@
     box-shadow: none;
 }
 
-.entradaLogin:focus, .entradaLogin:focus, .entrada:focus, .entrada:focus
+.entrada:focus, .entradaError:focus
 {
     color: rgb(41,69,77);
     border-style: solid;
@@ -152,6 +152,7 @@
   font-size: 12px;
   line-height: 1.428571429;
   border-radius: 15px;
+    cursor: default;
 }
 
 .btn-circle.btn-lg 
@@ -214,4 +215,12 @@
     border: solid 3px rgb(36,36,36);
     border-radius: 3px;
     padding: 20px;
+}
+
+.usuarioTimes
+{
+    border-width: 0px;
+    border-bottom: solid 3px rgb(41,69,77);
+    border-radius: 0px;
+    margin-top: -5px;
 }

@@ -9,6 +9,7 @@ class Usuario   //clase usuario
         this.Correo = "";
         this.Password = "";
         this.Permiso = [];
+        this.Aplicacion = "";
     }
 }
 
@@ -18,7 +19,7 @@ function IniciarSesion($http, usuario, $q, CONFIG, md5)
 {
     var q = $q.defer();
     
-    usuario.password = md5.createHash( usuario.password );
+    usuario.clave = md5.createHash( usuario.password );
 
     $http({      
           method: 'POST',

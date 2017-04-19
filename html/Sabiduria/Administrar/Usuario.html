@@ -1,28 +1,33 @@
-<div ng-controller="UsuarioController as usuario">
+<div ng-controller="UsuarioController as usuarioControlador">
  
      <div class="container-fluid">
-        <div class="row" ng-if="permiso" >
+        <div class="row" ng-show="permiso" >
             <div class="{{claseApp}}">
             
                 <div class="row" style="margin-top:123px">
                     
                     <div class="col-xs-12">
-                        <span class="tituloPagina">Usuario</span>
+                        <span class="tituloPagina">Usuarios</span>
                     </div>
                     <br><br><br>
                     
                     
                    <!-- Buscar -->
                    <div class="col-xs-6">
-                       <div class="entrada2">
-                            <input type="text" required class="entrada form-control" name="buscar" ng-model="buscarUsuario"/>
+                     <div class="input-group" style="z-index:1">
+                        <div class="entrada2">
+                            <input type="text" required class="entrada form-control"  ng-model="buscarUsuario"/>
                             <label>Buscar</label>
                         </div>
+                        <span class="input-group-btn">
+                            <button class="btn close cerrarModal"  ng-click="LimpiarBuscar(1)"><span aria-hidden="true">&times;</span></button>
+                        </span>
+                    </div>
                    </div>
 
                    <!-- agregar -->
                    <div class="col-xs-6">
-                       <button class="btn  botonAgregar pull-right" ng-click="AbrirUsuario('Agregar', null)"><span class="fa fa-plus"></span> Nuevo</button>
+                       <button class="btn  botonAgregar pull-right" ng-click="AbrirUsuario('Agregar', null)"><span class="fa fa-plus"></span> Agregar</button>
                    </div>
 
                    <br><br><br>
@@ -30,17 +35,26 @@
                         <table class="table table-hover">
                             <thead class="TituloTabla">
                               <tr>
-                                <th><button class="btn btn-block botonTablaOrdenar" ng-click="CambiarOrdenarUsuario('Apellidos')"><b>Usuario </b><b ng-if="ordenarUsuario === 'Apellidos'" class="fa fa-arrow-up"></b>  <b ng-if="ordenarUsuario === '-Apellidos'" class="fa fa-arrow-down"></b></button></th>
+                                <th><button class="btn btn-block botonTablaOrdenar" ng-click="CambiarOrdenarUsuario('Nombre')"><b>Usuario </b><b ng-if="ordenarUsuario === 'Nombre'" class="fa fa-arrow-up"></b>  <b ng-if="ordenarUsuario === '-Nombre'" class="fa fa-arrow-down"></b></button></th>
+                                <th><button class="btn botonTablaNormal"><b>Activo</b></button></th>
                                 <th><button class="btn botonTablaNormal"><b>Detalle</b></button></th>
                                 <th><button class="btn botonTablaNormal"><b>Editar</b></button></th>
-                                <th><button class="btn botonTablaNormal"><b>Activo</b></button></th>
                               </tr>
                             </thead>
                             <tbody ng-repeat="usuario in usuario | orderBy:ordenarUsuario | filter:buscarUsuario">
                               <tr>
                                 <td >
-                                  <span style="font-size:14pt">{{usuario.Apellidos}} {{usuario.Nombre}}</span><br>
+                                  <span style="font-size:14pt">{{usuario.Nombre}} {{usuario.Apellidos}} </span><br>
                                   <span class="subtituloTabla">{{usuario.NombreUsuario}}</span>
+                                </td>
+                                  
+                                <td class="text-center">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input  ng-model="usuario.Activo" type="checkbox" value="" ng-click="ActivarDesactivarUsuario(usuario)">
+                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                        </label>
+                                    </div>
                                 </td>
 
                                 <td class="text-center">
@@ -55,15 +69,6 @@
                                     </a>
                                 </td>
                                 
-                                <td class="text-center">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input  ng-model="usuario.Activo" type="checkbox" value="" ng-click="ActivarDesactivarUsuario(usuario)">
-                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>
-                                        </label>
-                                    </div>
-                                </td>
-
                               </tr>
                             </tbody>
                         </table>
@@ -73,10 +78,23 @@
                     <div class="modal fade" id="modalUsuario" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
                         <br>    <br>   <br>
                         <div class="modal-dialog modalPrincipal">
-
+                            
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ng-click="CerrarModalUsuario()"><span aria-hidden="true">&times;</span></button>
+                                    <!-- Alertas -->
+                                    <div class="alertaMensaje" id="alertaExitoso">
+                                        <div class="alert alertaExtito">
+                                            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+                                            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+                                            <strong style="display: inline-block;">{{mensaje}}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <button class="btn close cerrarModal" ng-click="CerrarModalUsuario()"><span aria-hidden="true">&times;</span></button>
                                     <span ng-if="operacion == 'Agregar'" class="tituloModal">Agregar Usuario</span>
                                     <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Usuario</span>
                                 </div>
@@ -109,7 +127,7 @@
                                     <div class="col-sm-6">
                                        <div class="entrada2">
                                             <input type="text" required ng-patten="erNombreUsuario" class="{{claseUsuario.nombreUsuario}} form-control" name="nombreUsuario" ng-model="nuevoUsuario.NombreUsuario" ng-maxlength="120"/>
-                                           <label>Nombre de Usuario</label>
+                                           <label>¿Cómo le gusta que le digan?</label>
                                         </div>
                                    </div>
                                    <br class="hidden-sm  hidden-lg hidden-md"><br class="hidden-sm  hidden-lg hidden-md"> 
@@ -123,14 +141,20 @@
                                 <br>
 
                                 <div class="row">
-                                    <div class="col-sm-12">
+                                    <div class="col-sm-12" id="usuarioPermisos">
                                        
                                         <button class="btn btn-block {{claseUsuario.permiso}}" ng-click="MostrarOpcionUsuario('permiso')">Permisos <span class="caret"></span></button>
 
                                         <div ng-show="mostrarOpcionUsuario == 'permiso'" style="background: white">
                                            <div class="col-xs-12" style="margin-top: 10px"></div>
                                             <div class="col-xs-12 col-sm-6">
-                                                <input type="text"  placeholder="Buscar Aplicación" class="entrada form-control" name="buscarAplicacionPermiso" ng-model="buscarAplicacion">
+                                               <div class="input-group">
+                                                    <input type="text"  placeholder="Buscar Aplicación" class="entrada form-control" name="buscarAplicacion" ng-model="buscarAplicacion">
+                                                    <span class="input-group-btn">
+                                                        <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(2)"><span aria-hidden="true">&times;</span></a>
+                                                    </span>
+                                                </div>
+                                                
                                             </div>
                                             <div class="col-xs-12" style="margin-top: 10px"></div>
                                             <div class="panel  tablaTituloSeleccion" style="border-radius: 0px; margin-bottom:0px">
@@ -169,24 +193,15 @@
                                     </div>
                                 </div>
                                 <br>
-
-                                <!-------- mensaje de error ---->
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                        <div ng-repeat="error in mensajeError">
-                                            <span class="textoError">{{error}}</span>
-                                        </div>
-                                    </div>
-                                </div>
                                 <br>
                                 <!---- botones de operacion -->
                                 <div class="row">
                                     <div class="col-xs-6">
-                                        <button class="btn botonFinModal btn-block" data-dismiss="modal" aria-label="Close" ng-click="CerrarModalUsuario()">CANCELAR</button>
+                                        <a class="btn botonFinModal btn-block" ng-click="CerrarModalUsuario()">CANCELAR</a>
                                     </div>
 
                                     <div class="col-xs-6">
-                                        <button focus class="btn botonFinModal btn-block" ng-click="TerminarUsuario(usuarioForma.nombre.$invalid, usuarioForma.apellidos.$invalid, usuarioForma.nombreUsuario.$invalid, usuarioForma.correo.$invalid)">TERMINAR</button>
+                                        <a focus class="btn botonFinModal btn-block" ng-click="TerminarUsuario(usuarioForma.nombre.$invalid, usuarioForma.apellidos.$invalid, usuarioForma.nombreUsuario.$invalid, usuarioForma.correo.$invalid)">TERMINAR</a>
                                     </div>
                                 </div>
                             <br>
@@ -309,25 +324,71 @@
 
                         </div>
                     </div>
-
-                    <div class="modal fade" id="mensajeUsuario">
+                    
+                    <div class="modal fade sombraDivModal" id="mensajeUsuario">
                         <br>    <br>   <br>
-                        <div class="modal-dialog modal-sm modalPrincipal text-center">
+                        <div class="modal-dialog modal-sm modalPrincipal">
+
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <span style="font-size:14pt">{{mensaje}}</span>
+                                    <div class="text-center textoError">
+                                        <span class=" fa fa-times-circle-o fa-3x"></span><br>
+                                        <span>¡Error!</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                     <div ng-repeat="error in mensajeError">
+                                        <span>{{error}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <br><br>
+
+                            <div class="row">
+                                <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button> 
+                            </div>
+
+                        </div>
+                    </div>
+    
+                    <div class="modal fade sombraDivModal" id="cerrarUsuarioModal">
+                        <br>    <br>   <br>
+                        <div class="modal-dialog modal-sm modalPrincipal text-center">
+
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <span style="font-size:14pt">¿Estas seguro de salir sin guardar los cambios?</span>
                                 </div>
                             </div>
                             <br><br>
                             <div class="row">
-                                <div class="col-xs-12">
-                                    <button class="btn  botonFinModal" data-dismiss="modal" aria-label="Close">Aceptar</button>
+                                <div class="col-xs-6">
+                                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
+                                </div>
+                                <div class="col-xs-6">
+                                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarCerrarModalUsuario()">Si</button>
                                 </div>
                             </div>
 
                         </div>
                     </div>
+
+                    
                 </div>
+                
+                <!-- Alertas -->
+                <div class="alertaMensaje" id="alertaEditarExitoso">
+                    <div class="alert alertaExtito">
+                        <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+                        <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+                        <strong style="display: inline-block;">{{mensaje}}</strong>
+                    </div>
+                </div>
+                
             </div>
          </div>
      </div>

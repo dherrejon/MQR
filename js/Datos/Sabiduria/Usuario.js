@@ -127,7 +127,7 @@ function GetPermisoUsuario($http, $q, CONFIG, id)
     
     $http({      
           method: 'GET',
-          url: CONFIG.APIURL + '/GetPermisoUsuario/'+id,
+          url: CONFIG.APIURL + '/GetPermisoUsuario',
       }).success(function(data)
         {
             q.resolve(data);  

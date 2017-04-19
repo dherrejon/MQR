@@ -1,5 +1,4 @@
 /*------Autor---------*/
-
 class Autor
 {
     constructor()
@@ -10,7 +9,6 @@ class Autor
         this.Prefijo = new Prefijo();
     }
 }
-
 
 function GetAutor($http, $q, CONFIG)     
 {
@@ -36,7 +34,6 @@ function GetAutor($http, $q, CONFIG)
     return q.promise;
 }
 
-
 function SetAutor(data)
 {
     var autor = new Autor();
@@ -50,7 +47,6 @@ function SetAutor(data)
     
     return autor;
 }
-
 
 function AgregarAutor($http, CONFIG, $q, autor)
 {

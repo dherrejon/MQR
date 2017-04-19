@@ -95,9 +95,24 @@ app.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpPro
         when('/ConfigurarInformacion',{
             templateUrl: 'html/Sabiduria/Administrar/AdministrarInformacion.html'
         }).
+        when('/Tema',{
+            templateUrl: 'html/Sabiduria/Administrar/AdministrarTema.html'
+        }).
         when('/Usuario',{
             templateUrl: 'html/Sabiduria/Administrar/Usuario.html'
         }).
+    
+    //Cancionero
+        when('/Cancionero',{
+            templateUrl: 'html/Cancionero/Cancionero.html'
+        }).
+        when('/Artista',{
+            templateUrl: 'html/Cancionero/Administrar/AdministrarArtista.html'
+        }).
+        when('/Cancion',{
+            templateUrl: 'html/Cancionero/Administrar/AdministrarCancion.html'
+        }).
+    
     otherwise({
         templateUrl: 'html/Login.html'
     });
@@ -107,9 +122,12 @@ app.run(function($rootScope, $location, $window, $http, CONFIG, $q, datosUsuario
 {   
     $rootScope.claseApp = "col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 appPanel";
     
-    $rootScope.erNombrePersonal = /^(([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ]){1,250}(\.|\s)?)+$/;   //expresion regular para los apellido y el nombre de una persona
+$rootScope.erNombrePersonal = /^([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ])+((\s|\.\s)([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ])+)*\.?\s?$/;   //expresion regular para los apellido y el nombre de una persona
+    $rootScope.erEtiqueta = /^(([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ]){1,250})$/;   //expresion regular para los apellido y el nombre de una etiqueta
     $rootScope.erPassword = /^(\w){6}(\w)*$/;   //expresion regular para la contraseña
     $rootScope.erNombreUsuario = /^(\w|ñ){3}(\w|ñ)*$/;   //expresion regular para el nombre de usurio
+    $rootScope.erNumeroEntero = /^([0-9]){0,5}$/;   //número entero
+    
     
     $rootScope.ChecarSesion = function(token)           //verifica el esatdo de la sesión
     {  
@@ -176,6 +194,10 @@ app.factory('datosUsuario',function($rootScope)
   service.getUsuario = function()
   {
       return this.usuario;
+  };
+  service.getUsuarioId = function()
+  {
+      return this.usuario.UsuarioId;
   };
   service.setAplicacion = function(aplicacion)
   {

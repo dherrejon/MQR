@@ -112,7 +112,7 @@ function AgregarUsuario()
     $subject_message = "Bienvenido al Sistema MQR.";
     $body_message = "Ya puedes acceder al Sistema MQR (http://mqrsys.com/). Tu usuario y " .utf8_decode("contraseña"). " son los siguientes:";
     $body_message .= "\n\n";
-    $body_message .="Usario: ". $usuario->NombreUsuario;
+    $body_message .="Usario: ". $usuario->Correo;
     $body_message .= "\n  ".utf8_decode("contraseña").": ". $password;
     $body_message .= "\n\n";
     $body_message .= "Te recomendamos entrar al sistema y cambiar tu ".utf8_decode("contraseña"). " inmediatamente." ;
@@ -235,15 +235,14 @@ function ActivarDesactivarUsuario()
     }
 }
 
-function GetPermisoUsuario($id)
+function GetPermisoUsuario()
 {
     global $app;
     global $session_expiration_time;
 
     $request = \Slim\Slim::getInstance()->request();
 
-    $sql = "SELECT p.PermisoId FROM Permiso p, PermisoPorUsuario pu 
-    WHERE pu.PermisoId = p.PermisoId AND pu.UsuarioId = ".$id;
+    $sql = "SELECT p.PermisoId, p.UsuarioId FROM PermisoPorUsuario p";
 
     try 
     {
@@ -277,7 +276,7 @@ function RecuperarPassword()
     $contacto;
     $solicitud;
     $codigo;
-    $sql = "SELECT UsuarioId, Correo FROM Usuario WHERE NombreUsuario= '".$usuario->Nombre."' AND Activo = 1";
+    $sql = "SELECT UsuarioId, Correo FROM Usuario WHERE Correo= '".$usuario->Correo."' AND Activo = 1";
     
     try 
     {

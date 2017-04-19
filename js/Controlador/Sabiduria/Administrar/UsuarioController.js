@@ -15,7 +15,7 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
     $scope.usuario = [];
     $scope.permiso = [];
     
-    $scope.ordenarUsuario = "Apellidos";
+    $scope.ordenarUsuario = "Nombre";
     $scope.buscarUsuario = "";
     $scope.buscarAplicacion = "";
     
@@ -33,22 +33,20 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
         GetUsuarios($http, $q, CONFIG).then(function(data)
         {
             $scope.usuario = data;
-            
-            for(var k=0; k<data.length; k++)
-            {
-                $scope.GetPermisoUsuario($scope.usuario[k]);
-            }
+
+            $scope.GetPermisoUsuario();
         }).catch(function(error)
         {
             alert(error);
         });
     };
     
-    $scope.GetPermisoUsuario = function(usuario)              
+    $scope.GetPermisoUsuario = function()              
     {
-        GetPermisoUsuario($http, $q, CONFIG, usuario.UsuarioId).then(function(data)
+        GetPermisoUsuario($http, $q, CONFIG).then(function(data)
         {
-            usuario.Permiso = data;
+            $scope.permisoUsuario = data;
+            $scope.SetPermisoUsuarioSQL();
         }).catch(function(error)
         {
             alert(error);
@@ -64,6 +62,20 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
         {
             alert(error);
         });
+    };
+    
+     $scope.SetPermisoUsuarioSQL = function()
+    {
+        var sqlBase = "Select PermisoId From ? WHERE UsuarioId = '";
+        var sql = "";
+        
+        for(var k=0; k<$scope.usuario.length; k++)
+        {
+            sql = sqlBase;
+            sql +=  $scope.usuario[k].UsuarioId + "'";
+           
+            $scope.usuario[k].Permiso = alasql(sql,[$scope.permisoUsuario]);
+        } 
     };
     
     
@@ -136,9 +148,7 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
         
         if(operacion == "Agregar")
         {
-            $scope.nuevoUsuario = new Fuente();
-            $scope.nuevoUsuario.Permiso = [];
-            $scope.SetPermisoUsuario($scope.nuevoUsuario);
+            $scope.InicializarUsuarioNuevo();
         }
         else if(operacion == "Editar")
         {
@@ -146,6 +156,13 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
         }
     
         $('#modalUsuario').modal('toggle');
+    };
+    
+    $scope.InicializarUsuarioNuevo = function()
+    {
+        $scope.nuevoUsuario = new Usuario();
+        $scope.nuevoUsuario.Permiso = [];
+        $scope.SetPermisoUsuario($scope.nuevoUsuario);
     };
     
     $scope.SetUsuario = function(data)
@@ -179,8 +196,22 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
     
     $scope.CerrarModalUsuario = function()
     {
+        $('#cerrarUsuarioModal').modal('toggle');
+    };
+    
+    $scope.ConfirmarCerrarModalUsuario = function()
+    {
+        $('#modalUsuario').modal('toggle');
+        $scope.LimpiarInterfaz();
         $scope.mensajeError = [];
         $scope.claseUsuario = {nombre:"entrada", apellidos:"entrada", nombreUsuario:"entrada", correo:"entrada", permiso:"dropdownListModal"};
+    };
+    
+    
+    $scope.LimpiarInterfaz = function()
+    {
+        $scope.buscarAplicacion = "";
+        $scope.mostrarOpcionUsuario = "";
     };
     
     /*----------------- Terminar agregar-editar etiqueta --------------------*/
@@ -188,6 +219,7 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
     {
         if(!$scope.ValidarDatos(nombreInvalido, apellidoInvalido, nombreUsuarioInvalido, correoInvalido))
         {
+             $('#mensajeUsuario').modal('toggle');
             return;
         }
         else
@@ -212,19 +244,22 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
         {
             if(data[0].Estatus == "Exitoso")
             {
-                $('#modalUsuario').modal('toggle');
-                $scope.mensaje = "El usuario se ha agregado.";
+                //$('#modalUsuario').modal('toggle');
+                $scope.mensaje = "Usuario agregado.";
                 $scope.GetUsuarios();
+                $scope.LimpiarInterfaz();
+                $scope.EnviarAlerta('Modal');
+                $scope.InicializarUsuarioNuevo();
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde.";
+                $('#mensajeUsuario').modal('toggle');
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde.";
             }
-            $('#mensajeUsuario').modal('toggle');
             
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeUsuario').modal('toggle');
         });
     };
@@ -237,17 +272,20 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
             if(data[0].Estatus == "Exitoso")
             {
                 $('#modalUsuario').modal('toggle');
-                $scope.mensaje = "El usuario se ha editado.";
+                $scope.mensaje = "Usuario editado.";
                 $scope.GetUsuarios();
+                $scope.LimpiarInterfaz();
+                $scope.EnviarAlerta('vista');
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde";   
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde"; 
+                $('#mensajeUsuario').modal('toggle');
             }
-            $('#mensajeUsuario').modal('toggle');
+           
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeUsuario').modal('toggle');
         });
     };
@@ -379,14 +417,16 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
         {
             if(data[0].Estatus == "Exito")
             {
-                $scope.mensaje = "El usuario se ha actualizado.";
+                $scope.mensaje = "Usuario actualizado.";
+                $scope.EnviarAlerta('Vista');
             }
             else
             {
                 $scope.usuarioActualizar.Activo = !$scope.usuarioActualizar.Activo;
                 $scope.mensaje = "Ha ocurrido un error. Intente más tarde.";
+                 $('#mensajeUsuario').modal('toggle');
             }
-            $('#mensajeUsuario').modal('toggle');
+           
         }).catch(function(error)
         {
             $scope.usuarioActualizar.Activo = !$scope.usuarioActualizar.Activo;
@@ -399,6 +439,35 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
     $scope.CancelarCambiarActivoUsuario = function()           
     {
         $scope.usuarioActualizar.Activo = !$scope.usuarioActualizar.Activo;
+    };
+    
+    document.getElementById('modalUsuario').onclick = function(e) 
+    {
+        if($scope.mostrarOpcionUsuario == "permiso")
+        {
+            if(!(e.target.id == "usuarioPermisos" || $(e.target).parents("#usuarioPermisos").size()))
+            { 
+                $scope.mostrarOpcionUsuario = "";
+                $scope.$apply();
+            }
+        }
+
+    };
+    
+    //-----------------  Limpiar ----------------------
+    $scope.LimpiarBuscar = function(buscar)
+    {
+        switch(buscar)
+        {
+            case 1:
+                $scope.buscarUsuario = "";
+                break;
+            case 2:
+                $scope.buscarAplicacion = "";
+                break;
+            default: 
+                break;
+        }
     };
     
     //----------------------Inicializar---------------------------------
@@ -414,7 +483,7 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion.length == 0)
+            if($scope.usuarioLogeado.Aplicacion.length == 0 || $scope.usuarioLogeado.Aplicacion == "Aplicaciones")
             {
                 $rootScope.IrPaginaPrincipal();
             }
@@ -455,5 +524,29 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
             $scope.InicializarControlador();
         }
     });
+    
+     //--------------------- Alertas --------------------------
+    $scope.EnviarAlerta = function(alerta)
+    {
+        if(alerta == "Modal")
+        {
+            $("#alertaExitoso").alert();
+
+            $("#alertaExitoso").fadeIn();
+            setTimeout(function () {
+                $("#alertaExitoso").fadeOut();
+            }, 2000);
+        }
+        else if('Vista')
+        {
+            $("#alertaEditarExitoso").alert();
+
+            $("#alertaEditarExitoso").fadeIn();
+            setTimeout(function () {
+                $("#alertaEditarExitoso").fadeOut();
+            }, 2000)
+        }
+    };
+    
     
 });

@@ -45,11 +45,11 @@ function AgregarAutor()
 
         $stmt->execute();
         
+        echo '[{"Estatus": "Exitoso"}, {"Id": "'.$db->lastInsertId().'"}]';
         $db = null;
-        
-        echo '[{"Estatus": "Exitoso"}]';
 
-    } catch(PDOException $e) 
+    } 
+    catch(PDOException $e) 
     {
         echo $e;
         echo '[{"Estatus": "Fallido"}]';

@@ -15,6 +15,9 @@
     require 'Sabiduria/Administrar/TipoInformacion.php';
     require 'Sabiduria/Administrar/Informacion.php';
 
+    require 'Cancionero/Artista.php';
+    require 'Cancionero/Cancion.php';
+
     /*-----Seguridad-----*/
     require 'PHP-JWT/Authentication/JWT.php';
     require 'PHP-JWT/Exceptions/SignatureInvalidException.php';
@@ -185,7 +188,7 @@
     
     $app->get('/GetPermiso', $seguridad, $ChecarSesion, 'GetPermiso');
     
-    $app->get('/GetPermisoUsuario/:id', $seguridad, $ChecarSesion, 'GetPermisoUsuario');
+    $app->get('/GetPermisoUsuario', $seguridad, $ChecarSesion, 'GetPermisoUsuario');
     $app->put('/CambiarPasswordPorUsuario', $seguridad, $ChecarSesion, 'CambiarPasswordPorUsuario');
 
     $app->put('/RecuperarPassword', $seguridad, $ChecarSesion, 'RecuperarPassword');
@@ -219,7 +222,7 @@
     $app->put('/EditarFuente', $seguridad, $ChecarSesion, 'EditarFuente');
 
     $app->get('/GetFuenteAutor/:id', $seguridad, $ChecarSesion, 'GetFuenteAutor');
-    $app->get('/GetFuenteEtiqueta/:id', $seguridad, $ChecarSesion, 'GetFuenteEtiqueta');
+    $app->get('/GetFuenteEtiqueta', $seguridad, $ChecarSesion, 'GetFuenteEtiqueta');
 
     /*-----------------------  Tema ------------------------------------------*/
     $app->get('/GetTema', $seguridad, $ChecarSesion, 'GetTema');
@@ -236,7 +239,26 @@
     $app->post('/AgregarInformacion', $seguridad, $ChecarSesion, 'AgregarInformacion');
     $app->post('/EditarInformacion', $seguridad, $ChecarSesion, 'EditarInformacion');
     $app->get('/GetInformacionEtiqueta/:id', $seguridad, $ChecarSesion, 'GetInformacionEtiqueta');
+    
+    $app->get('/GetEtiquetasInformacion', $seguridad, $ChecarSesion, 'GetEtiquetasInformacion');
+    $app->get('/GetAutoresFuente', $seguridad, $ChecarSesion, 'GetAutoresFuente');
+    
+    //---------------------------------------------------------------------------------------------------------------Cancionero
+    
+    /*-----------------------  Artista ------------------------------------------*/
+    $app->get('/GetArtista/:id', $seguridad, $ChecarSesion, 'GetArtista');
+    $app->post('/AgregarArtista', $seguridad, $ChecarSesion, 'AgregarArtista');
+    $app->put('/EditarArtista', $seguridad, $ChecarSesion, 'EditarArtista');
+    $app->delete('/BorrarArtista', $seguridad, $ChecarSesion, 'BorrarArtista');
 
+    /*-----------------------  Artista ------------------------------------------*/
+    $app->get('/GetCancion/:id', $seguridad, $ChecarSesion, 'GetCancion');
+    $app->post('/AgregarCancion', $seguridad, $ChecarSesion, 'AgregarCancion');
+    $app->post('/EditarCancion', $seguridad, $ChecarSesion, 'EditarCancion');
+    $app->delete('/BorrarCancion', $seguridad, $ChecarSesion, 'BorrarCancion');
+    
+    $app->get('/GetArtistaPorCancion/:id', $seguridad, $ChecarSesion, 'GetArtistaPorCancion');
+    $app->get('/GetCancionero/:id', $seguridad, $ChecarSesion, 'GetCancionero');
 
     $app->run(); 
 

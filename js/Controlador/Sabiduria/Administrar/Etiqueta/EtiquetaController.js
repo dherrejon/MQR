@@ -54,16 +54,40 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
     
     $scope.CerrarEtiquetaModal = function()
     {
+        $('#cerrarEtiquetaModal').modal('toggle');
+    };
+    
+    $scope.ConfirmarCerrarEtiquetaModal = function()
+    {
+        $('#modalEtiqueta').modal('toggle');
         $scope.mensajeError = [];
         $scope.claseEtiqueta = {nombre:"entrada"};
     };
     
+    $scope.LimpiarEtiqueta = function()
+    {
+        $scope.nuevaEtiqueta.Nombre = "";
+    };
+    
+    $('#modalEtiqueta').keydown(function(e)
+    {
+        switch(e.which) {
+            case 13:
+                document.getElementById("terminarEtiqueta").click();
+              break;
+
+            default:
+                return;
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
     
     /*----------------- Terminar agregar-editar etiqueta --------------------*/
     $scope.TerminarEtiqueta = function(nombreInvalido)
     {
         if(!$scope.ValidarDatos(nombreInvalido))
         {
+            $('#mensajeEtiqueta').modal('toggle');
             return;
         }
         else
@@ -78,7 +102,7 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
             }
         }
     };
-    
+        
     //agrega un tipo de unidad
     $scope.AgregarEtiqueta = function()    
     {
@@ -86,8 +110,7 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
         {
             if(data[0].Estatus == "Exitoso")
             {
-                $('#modalEtiqueta').modal('toggle');
-                $scope.mensaje = "La etiqueta se ha agregado.";
+                //$('#modalEtiqueta').modal('toggle');
                 
                 if($scope.operacion == "Agregar")
                 {
@@ -96,18 +119,23 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
                 else
                 {
                     $scope.nuevaEtiqueta.EtiquetaId = data[1].Id;
+                    $scope.etiqueta.push($scope.nuevaEtiqueta);
                     ETIQUETA.TerminarEtiqueta($scope.nuevaEtiqueta);
                 }
+                
+                $scope.mensaje = "Etiqueta Agregada.";
+                $scope.nuevaEtiqueta = new Etiqueta();
+                $scope.EnviarAlerta('Exito');
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde.";
+                 $scope.mensajeError[$scope.mensajeError.length]  = "Ha ocurrido un error. Intente más tarde.";
+                $('#mensajeEtiqueta').modal('toggle');
             }
-            $('#mensajeEtiqueta').modal('toggle');
             
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length]  = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeEtiqueta').modal('toggle');
         });
     };
@@ -120,17 +148,19 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
             if(data[0].Estatus == "Exitoso")
             {
                 $('#modalEtiqueta').modal('toggle');
-                $scope.mensaje = "La etiqueta se ha editado.";
                 $scope.GetEtiqueta();
+                $scope.mensaje = "Etiqueta editada";
+                $scope.EnviarAlerta('ExitosoEditar');
             }
             else
             {
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde";   
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde";
+                $('#mensajeEtiqueta').modal('toggle');
             }
-            $('#mensajeEtiqueta').modal('toggle');
+           
         }).catch(function(error)
         {
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+             $scope.mensajeError[$scope.mensajeError.length]  = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeEtiqueta').modal('toggle');
         });
     };
@@ -160,6 +190,7 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
             {
                 $scope.claseEtiqueta.nombre = "entradaError";
                 $scope.mensajeError[$scope.mensajeError.length] = "*La etiqueta " + $scope.nuevaEtiqueta.Nombre.toLowerCase() + " ya existe.";
+                $scope.nuevaEtiqueta.Nombre = "";
                 return false;
             }
         }
@@ -203,19 +234,43 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
             if(data[0].Estatus == "Exito")
             {
                 $scope.mensaje = "La etiqueta se ha actualizado.";
+                $scope.EnviarAlerta('ExitosoEditar');
             }
             else
             {
                 $scope.etiquetaActualizar.Activo = !$scope.etiquetaActualizar.Activo;
-                $scope.mensaje = "Ha ocurrido un error. Intente más tarde.";
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde.";
+                $('#mensajeEtiqueta').modal('toggle');
             }
-            $('#mensajeEtiqueta').modal('toggle');
+            
         }).catch(function(error)
         {
             $scope.etiquetaActualizar.Activo = !$scope.etiquetaActualizar.Activo;
-            $scope.mensaje = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
             $('#mensajeEtiqueta').modal('toggle');
         });
+    };
+    
+    $scope.EnviarAlerta = function(alerta)
+    {
+        if(alerta == "Exito")
+        {
+            $("#alertaExitosoEtiqueta").alert();
+
+            $("#alertaExitosoEtiqueta").fadeIn();
+            setTimeout(function () {
+                $("#alertaExitosoEtiqueta").fadeOut();
+            }, 2000);
+        }
+        else if('ExitosoEditar')
+        {
+            $("#alertaEditarExitosoEtiqueta").alert();
+
+            $("#alertaEditarExitosoEtiqueta").fadeIn();
+            setTimeout(function () {
+                $("#alertaEditarExitosoEtiqueta").fadeOut();
+            }, 2000)
+        }
     };
         
     /*Se cancelo el cambiar el estado de activo del elemento*/
@@ -224,9 +279,21 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
         $scope.etiquetaActualizar.Activo = !$scope.etiquetaActualizar.Activo;
     };
     
+    //----------------- Limpiar -----------------------
+    $scope.LimpiarBuscar = function(buscar)
+    {
+        switch(buscar)
+        {
+            case 1:
+                $scope.buscarEtiqueta = "";
+                break;
+            default: 
+                break;
+        }
+    };
+    
     //----------------------Inicializar---------------------------------
     $scope.GetEtiqueta();
-    
     
     /*---------------- EXTERIOR -------------------------*/
     $scope.$on('AgregarEtiqueta',function()
@@ -245,16 +312,26 @@ app.factory('ETIQUETA',function($rootScope)
   var service = {};
   service.etiqueta = null;
     
-  service.AgregarEtiqueta = function()
+  service.AgregarEtiqueta = function(origen)
   {
       this.etiqueta = null;
-      $rootScope.$broadcast('AgregarEtiqueta');
+      this.origen = origen;
+      $rootScope.$broadcast('AgregarEtiqueta'); 
   };
     
   service.TerminarEtiqueta = function(etiqueta)
   {
       this.etiqueta = etiqueta;
-      $rootScope.$broadcast('TerminarEtiqueta');
+      
+      if(this.origen)
+      {
+          $rootScope.$broadcast('TerminarEtiquetaInformacion');
+      }
+      else
+      {
+          $rootScope.$broadcast('TerminarEtiqueta');
+      }
+      
   };
     
   service.GetEtiqueta = function()

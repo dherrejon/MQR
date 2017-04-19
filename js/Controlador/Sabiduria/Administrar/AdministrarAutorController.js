@@ -1,6 +1,6 @@
 app.controller("AdministrarAutorController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
 {   
-    $scope.titulo = "Autor";
+    $scope.titulo = "Autores";
     
     $scope.permiso = false;
     
@@ -45,7 +45,7 @@ app.controller("AdministrarAutorController", function($scope, $window, $http, $r
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion.length == 0)
+            if($scope.usuarioLogeado.Aplicacion != "Conocimiento")
             {
                 $rootScope.IrPaginaPrincipal();
             }
@@ -88,6 +88,6 @@ app.controller("AdministrarAutorController", function($scope, $window, $http, $r
 
 
 var tabAutor = [
-                    {titulo:"Autor", referencia: "#Autor", clase:"active", area:"autor"},
-                    {titulo:"Prefijo", referencia: "#Prefijo", clase:"", area:"prefijo"}
+                    {titulo:"Autores", referencia: "#Autor", clase:"active", area:"autor"},
+                    {titulo:"Prefijos", referencia: "#Prefijo", clase:"", area:"prefijo"}
                 ];
