@@ -1,6 +1,5 @@
 app.controller("AplicacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
 {   
-    $scope.apps = aplicaciones;
     $scope.claseMargen = "margin-top:55px";
     
     $scope.IniciarApp = function(app)
@@ -26,11 +25,11 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
         {
             if($scope.usuarioLogeado.Permiso[k] == "SabiduriaCon" || $scope.usuarioLogeado.Permiso[k] == "SabiduriaAdm")
             {
-                $scope.apps[0].habilitada = true;
+                $rootScope.apps[0].habilitada = true;
             }
             if($scope.usuarioLogeado.Permiso[k] == "CancioneroCon" || $scope.usuarioLogeado.Permiso[k] == "CancioneroAdm")
             {
-                $scope.apps[2].habilitada = true;
+                $rootScope.apps[2].habilitada = true;
             }
         }
     };
@@ -73,6 +72,6 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
 
 var aplicaciones = [
                         {texto:"Conocimiento", habilitada:false, paginaPrincipal:"/Informacion", icono:"fa fa-book"},
-                        {texto:"Actividades", habilitada:false, paginaPrincipal:"/Actividades", icono:"fa fa-calendar"},
+                        {texto:"Actividades", habilitada:false, paginaPrincipal:"/Actividades",   icono:"fa fa-calendar"},
                         {texto:"Cancionero", habilitada:false, paginaPrincipal:"/Cancionero", icono:"fa fa-music"},
                     ];

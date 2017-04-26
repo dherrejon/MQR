@@ -1,4 +1,4 @@
-<div ng-controller="EncabezadoControlador as encabezado">
+<div ng-controller="EncabezadoControlador as encabezado" ng-show="usuario.SesionIniciada">
    
     <div class="container-fluid">
         
@@ -16,116 +16,202 @@
         </div>
         
         <div class="row">
-            <div class="col-xs-12" style="z-index:2">
-            
-                <div class="row encabezadoUsuario"  id="tiutloPagina" ng-show="usuario.SesionIniciada">            <!--  -->
-                    <!-- Título -->
-                    <div class="col-md-7 col-sm-6 col-xs-6 encabezadoTitulo">
-                        <h2 class =" hidden-xs hidden-sm claseTitulo">{{barraNavegacion.titulo}}</h2>
-                        <h3 class ="hidden-md hidden-lg claseTitulo" style="font-size:16pt !important">{{barraNavegacion.titulo}}</h3>
-                       
-                    </div>
+            <div class="col-xs-12" style="z-index:9">
 
-                    <div class=" col-md-5 col-sm-6 col-xs-6 text-center" style="margin-top: 23px;">
+                <nav class="encabezadoUsuario navbar  navbar-fixed-top">
+                    <div class="container">
 
-                        <span style="font-size:16pt" class="hidden-xs">{{usuario.Nombre}}</span>
-                        <span style="font-size:12pt" class="hidden-sm hidden-md hidden-lg">{{usuario.Nombre}}</span> 
-                    </div>
-                </div>
+                        <!-- Brand and toggle get grouped for better mobile display -->
+                        <div class="navbar-header">
 
-                <div class="row barraNavegacion" id="barraNavegacion" ng-show="usuario.SesionIniciada"> <!-- ng-show="usuario.SesionIniciada"  -->
+                            <button id="buttonCollapse" type="button" class="barraNavegacionBoton navbar-toggle" data-toggle="collapse" data-target="#navbarCollapse">
+                              <span class="barraNavegacionHamburguesa icon-bar"></span>
+                              <span class="barraNavegacionHamburguesa icon-bar"></span>
+                              <span class="barraNavegacionHamburguesa icon-bar"></span>
+                            </button>
 
-                    <div class="col-xs-12">
-                        <nav ng-class="barraNavArriba">
-                            <!-- Barra de navegación móvil -->
-                            <div class="navbar-header" ng-show="usuario.SesionIniciada"> <!-- ng-show="usuario.SesionIniciada" -->
+                            <span class="encabezadoTitulo">
+                                <span>{{barraNavegacion.titulo}}</span>
+                            </span>
 
-                                <button id="buttonCollapse" type="button" class="barraNavegacionBoton navbar-toggle" data-toggle="collapse" data-target="#navbarCollapse" >
-                                  <span class="barraNavegacionHamburguesa icon-bar"></span>
-                                  <span class="barraNavegacionHamburguesa icon-bar"></span>
-                                  <span class="barraNavegacionHamburguesa icon-bar"></span>
-                                </button>
+                        </div>
+
+
+
+                         <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div  class="collapse navbar-collapse" id="navbarCollapse">
                                 
-                            </div>
-
-                            <!-- Barra de navegación sm md lg -->
-                            <div class="collapse navbar-collapse" id="navbarCollapse">
-
-                                <ul class="nav navbar-nav navbar-right  hidden-xs">
+                            <ul class="nav navbar-nav  hidden-xs">
                                    
-                                   <li ng-if="opcion.show && opcion.tipo=='link' && opcion.show" ng-repeat="opcion in barraNavegacion.opcion">
-                                        <!-- menú principal -->
-                                        <a class="claseSeccion" href="{{opcion.referencia}}">
-                                            <span>{{opcion.texto}}</span>
+                               <li ng-if="opcion.show && opcion.tipo=='link' && opcion.show" ng-repeat="opcion in barraNavegacion.opcion">
+                                    <!-- menú principal -->
+                                    <a href="{{opcion.referencia}}">
+                                        <span>{{opcion.texto}}</span>
 
-                                        </a>
-                                    </li>
-                                    
-                                    <li ng-if="opcion.show && opcion.tipo=='dropdown' && opcion.show" ng-repeat="opcion in barraNavegacion.opcion"  class="dropdown " ng-mouseenter="MouseEnterarElemento($index);" ng-mouseleave="MouseSalirElemento($index);" id="{{opcion.texto}}">
-                                        <!-- menú principal -->
-                                        <a class="claseSeccion" ng-click="MouseClickOpcion(opcion)">
-                                            <span>{{opcion.texto}}</span>
+                                    </a>
+                                </li>
 
-                                        </a>
+                                <li ng-if="opcion.show && opcion.tipo=='dropdown' && opcion.show" ng-repeat="opcion in barraNavegacion.opcion"  class="dropdown " ng-mouseenter="MouseEnterarElemento($index);" ng-mouseleave="MouseSalirElemento($index);" id="{{opcion.texto}}">
+                                    <!-- menú principal -->
+                                    <a class="claseSeccion" ng-click="MouseClickOpcion(opcion)">
+                                        <span>{{opcion.texto}}</span>
 
-                                        <!-- módulos desplegados en dropdown list -->
-                                        <ul class="dropdown-menu barraNavegacionDropdown">
+                                    </a>
 
-                                            <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0">
-                                                <a  href="{{elemento.referencia}}" class="dropdownOpcion" ng-click="MouseClickElemento(opcion, null);">
-                                                    <span>{{elemento.texto}}</span>
-                                                </a>
-                                            </li>
-                                            
-                                            <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length > 0">
-                                                <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento(opcion, elemento.funcion);">
-                                                    <span>{{elemento.texto}}</span>
-                                                </a>
-                                            </li>
+                                    <!-- módulos desplegados en dropdown list -->
+                                    <ul class="dropdown-menu barraNavegacionDropdown">
 
-                                        </ul>
+                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0">
+                                            <a  href="{{elemento.referencia}}" class="dropdownOpcion" ng-click="MouseClickElemento(opcion.texto, null);">
+                                                <span>{{elemento.texto}}</span>
+                                            </a>
+                                        </li>
 
-                                    </li>
-                                </ul>
+                                        <!--<li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length > 0">
+                                            <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento(opcion, elemento.funcion);">
+                                                <span>{{elemento.texto}}</span>
+                                            </a>
+                                        </li>-->
 
-                                <!-- barra de navegación en móviles (xs)-->
-                                <ul class="nav navbar-nav hidden-sm hidden-lg hidden-md">
-                                   
-                                   <li ng-repeat="opcion in barraNavegacion.opcion"  ng-if="opcion.show && opcion.tipo=='link'">
-                                        <a  class="text-center" href="{{opcion.referencia}}" ng-click="CerrarBarraNavegacion()">
-                                            <span>{{opcion.texto}}</span>
-                                       </a>
-                                    </li>
-                                    
-                                    <li ng-repeat="opcion in barraNavegacion.opcion" class="dropdown" ng-if="opcion.show && opcion.tipo=='dropdown'">
+                                    </ul>
 
-                                        <a class="dropdown-toggle  text-center" data-toggle="dropdown">
-                                            <span>{{opcion.texto}}</span>
-                                            <span class="caret"></span>
-                                        </a>
+                                </li>
+                            
+                            </ul>
+                            
+                            <ul class="nav navbar-nav navbar-right  hidden-xs">
+                               
+                               <!-- app -->
+                                <li class="dropdown " ng-mouseenter="MouseEnterarElementoPredeterminado('app');" ng-mouseleave="MouseSalirElementoPredeterminado('app');" id="app" ng-show="usuario.Aplicacion != 'Aplicaciones'">
+                                    <a class="claseSeccion" ng-click="MouseClickOpcion('app', 'pre')">
+                                        <span>App</span>
+                                        <span class="fa fa-caret-down"></span>
+                                    </a>
 
-                                        <ul class="dropdown-menu barraNavegacionDropdown">
-                                            <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0">
-                                                <a href="{{elemento.referencia}}" class="dropdownOpcion text-center" ng-click="CerrarBarraNavegacion()">
-                                                    <span>{{elemento.texto}}</span>
-                                                </a>
-                                            </li>
-                                            
-                                            <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length > 0">
-                                                <a  href="" class="dropdownOpcion text-center" ng-click="MouseClickElemento(opcion, elemento.funcion);">
-                                                    <span>{{elemento.texto}}</span>
-                                                </a>
-                                            </li>
-                                        </ul>
+
+                                    <ul class="dropdown-menu barraNavegacionDropdown">
+
+                                        <li ng-repeat="app in apps | orderBy:'texto'" ng-show="app.habilitada" >
+                                            <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)">
+                                                <span ng-class="app.icono"></span>
+                                                <span>{{app.texto}}</span>
+                                            </a>
+                                        </li>
+
+                                    </ul>
+
+                                </li>
+                                
+                                <!-- usuario -->
+                                <li   class="dropdown " ng-mouseenter="MouseEnterarElementoPredeterminado('usuario');" ng-mouseleave="MouseSalirElementoPredeterminado('usuario');" id="usuario">
+                                    <a class="claseSeccion" ng-click="MouseClickOpcion('usuario', 'pre')">
+                                        <span class="fa fa-user"></span>
+                                        <span> {{usuario.NombreUsuario}}</span>
+                                    </a>
+
+
+                                    <ul class="dropdown-menu barraNavegacionDropdown">
+
+                                        <li>
+                                            <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CambiarPassword');">
+                                                <span>Cambiar Contraseña</span>
+                                            </a>
+                                        </li>
                                         
+                                        <li>
+                                            <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CerrarSesion');">
+                                                <span>Cerrar Sesión</span>
+                                            </a>
+                                        </li>
 
-                                    </li>
-                                </ul>
+                                    </ul>
 
-                            </div>
-                        </nav>
+                                </li>
+                            </ul>
+                            
+                            <!-- barra de navegación en móviles (xs)-->
+                            <ul class="nav navbar-nav hidden-sm hidden-lg hidden-md">
+
+                               <li ng-repeat="opcion in barraNavegacion.opcion"  ng-if="opcion.show && opcion.tipo=='link'">
+                                    <a  class="text-center" href="{{opcion.referencia}}" ng-click="CerrarBarraNavegacion()">
+                                        <span>{{opcion.texto}}</span>
+                                   </a>
+                                </li>
+
+                                <li ng-repeat="opcion in barraNavegacion.opcion" class="dropdown" ng-if="opcion.show && opcion.tipo=='dropdown'">
+
+                                    <a class="dropdown-toggle  text-center" data-toggle="dropdown">
+                                        <span>{{opcion.texto}}</span>
+                                        <span class="caret"></span>
+                                    </a>
+
+                                    <ul class="dropdown-menu barraNavegacionDropdown">
+                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0">
+                                            <a href="{{elemento.referencia}}" class="dropdownOpcion text-center" ng-click="CerrarBarraNavegacion()">
+                                                <span>{{elemento.texto}}</span>
+                                            </a>
+                                        </li>
+
+                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length > 0">
+                                            <a  href="" class="dropdownOpcion text-center" ng-click="MouseClickElemento(opcion, elemento.funcion);">
+                                                <span>{{elemento.texto}}</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                
+                                <!-- app -->
+                                <li ng-show="usuario.Aplicacion != 'Aplicaciones'">
+
+                                    <a class="dropdown-toggle  text-center" data-toggle="dropdown">
+                                        <span>App</span>
+                                        <span class="caret"></span>
+                                    </a>
+
+                                    <ul class="dropdown-menu barraNavegacionDropdown">
+                                       
+                                       <li ng-repeat="app in apps | orderBy:'texto'" ng-show="app.habilitada" >
+                                            <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)">
+                                                <span ng-class="app.icono"></span>
+                                                <span>{{app.texto}}</span>
+                                            </a>
+                                        </li>                                        
+
+                                    </ul>
+                                </li>
+                                
+                                <!-- Usuario -->
+                                <li>
+
+                                    <a class="dropdown-toggle  text-center" data-toggle="dropdown">
+                                        <span class="fa fa-user"></span>
+                                        <span> {{usuario.NombreUsuario}}</span>
+                                    </a>
+
+                                    <ul class="dropdown-menu barraNavegacionDropdown">
+
+                                        <li>
+                                            <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CambiarPassword');">
+                                                <span>Cambiar Contraseña</span>
+                                            </a>
+                                        </li>
+                                        
+                                        <li>
+                                            <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CerrarSesion');">
+                                                <span>Cerrar Sesión</span>
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+                                
+                            </ul>
+                            
+                        </div>
+
                     </div>
-                </div>   
+                </nav>
+                 
             </div>
         </div>
     </div>

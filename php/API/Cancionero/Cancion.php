@@ -28,6 +28,34 @@ function GetCancion($id)
     }
 }
 
+function GetCancionTodas()
+{
+    global $app;
+    global $session_expiration_time;
+
+    $request = \Slim\Slim::getInstance()->request();
+
+    $sql = "SELECT CancionId, Titulo FROM Cancion";
+
+    try 
+    {
+        $db = getConnection();
+        $stmt = $db->query($sql);
+        $response = $stmt->fetchAll(PDO::FETCH_OBJ);
+        
+        echo '[ { "Estatus": "Exito"}, {"Cancion":'.json_encode($response).'} ]'; 
+        $db = null;
+ 
+    } 
+    catch(PDOException $e) 
+    {
+        echo($e);
+        echo '[ { "Estatus": "Fallo" } ]';
+        $app->status(409);
+        $app->stop();
+    }
+}
+
 function AgregarCancion()
 {
     $request = \Slim\Slim::getInstance()->request();
@@ -312,6 +340,33 @@ function GetArtistaPorCancion($id)
 
     $sql = "SELECT * FROM CancionVista 
     WHERE UsuarioId = ".$id;
+
+    try 
+    {
+        $db = getConnection();
+        $stmt = $db->query($sql);
+        $response = $stmt->fetchAll(PDO::FETCH_OBJ);
+        
+        echo '[ { "Estatus": "Exito"}, {"Artista":'.json_encode($response).'} ]'; 
+        $db = null;
+    } 
+    catch(PDOException $e) 
+    {
+        //echo($e);
+        echo '[ { "Estatus": "Fallo" } ]';
+        $app->status(409);
+        $app->stop();
+    }
+}
+
+function GetArtistaPorCancionTodos()
+{
+    global $app;
+    global $session_expiration_time;
+
+    $request = \Slim\Slim::getInstance()->request();
+
+    $sql = "SELECT * FROM CancionVista";
 
     try 
     {

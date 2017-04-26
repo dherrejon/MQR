@@ -14,15 +14,25 @@ class Cancion
 function GetCancion($http, $q, CONFIG, usuarioId)     
 {
     var q = $q.defer();
+    
+    var servicio = "";
+    if(usuarioId == "todos")
+    {
+        servicio = "/GetCancionTodas";
+    }
+    else
+    {
+        servicio = "/GetCancion/" + usuarioId;
+    }
 
     $http({      
           method: 'GET',
-          url: CONFIG.APIURL + '/GetCancion/' + usuarioId,
+          url: CONFIG.APIURL + servicio,
 
       }).success(function(data)
         {
             
-            if(data[0].Estatus = "Exito")
+            if(data[0].Estatus == "Exito")
             {
                 var cancion = []; 
                 
@@ -189,9 +199,20 @@ function GetArtistaPorCancion($http, $q, CONFIG, id)
 {
     var q = $q.defer();
     
+    var servicio = "";
+    
+    if(id == "todos")
+    {
+        servicio = "/GetArtistaPorCancionTodos";
+    }
+    else
+    {
+        servicio = "/GetArtistaPorCancion/" + id;
+    }
+    
     $http({      
           method: 'GET',
-          url: CONFIG.APIURL + '/GetArtistaPorCancion/'+id,
+          url: CONFIG.APIURL + servicio,
       }).success(function(data)
         {
             if(data[0].Estatus == "Exito")

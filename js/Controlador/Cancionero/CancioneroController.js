@@ -11,7 +11,7 @@ app.controller("CancioneroController", function($scope, $window, $http, $rootSco
     //----------------------------- Catálogos ------------------------------------
     $scope.GetCancion = function()              
     {
-        GetCancion($http, $q, CONFIG, $scope.usuarioId).then(function(data)
+        GetCancion($http, $q, CONFIG, "todos").then(function(data)
         {
             $scope.cancion = data;
             $scope.GetArtistaPorCancion();
@@ -24,7 +24,7 @@ app.controller("CancioneroController", function($scope, $window, $http, $rootSco
     
     $scope.GetArtistaPorCancion = function()              
     {
-        GetArtistaPorCancion($http, $q, CONFIG, $scope.usuarioId).then(function(data)
+        GetArtistaPorCancion($http, $q, CONFIG, "todos").then(function(data)
         {
             $scope.artistaCancion = data;
             $scope.SetArtistaCancion();

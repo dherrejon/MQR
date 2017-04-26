@@ -3,6 +3,8 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     $scope.nuevoPassword = {nuevo:"", repetir:"", actual:""};
     $scope.clasePassword = {nuevo:"entrada", repetir:"entrada", actual:"entrada"};
     
+    $rootScope.apps = aplicaciones;
+    
     /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
     $scope.$on('cambioAplicaion',function()
     {
@@ -40,7 +42,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     /*----------------------Control de vista de clases de la barra de navegación----------------------------*/ 
     $scope.MouseClickElemento = function(opcion, funcion)
     {
-        $('#'+ opcion.texto ).removeClass('open');
+        $('#'+ opcion ).removeClass('open');
         $scope.CerrarBarraNavegacion();
         
         if(funcion == "CerrarSesion")
@@ -54,9 +56,17 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         }
     };
     
-    $scope.MouseClickOpcion = function(opcion)
+    $scope.MouseClickOpcion = function(opcion, tipo)
     {
-        $('#'+ opcion.texto ).addClass('open');
+        if(tipo == "opc")
+        {
+            $('#'+ opcion.texto ).addClass('open');
+        }
+        else if(tipo == "pre")
+        {
+            $('#'+ opcion ).addClass('open');
+        }
+        
     };
     
     //despliega las secciones del módulo donde esta el mouse
@@ -66,11 +76,21 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         $('.header-horizontal-menu .navbar-nav > li.dropdown').removeClass('open');
         $('#'+$scope.barraNavegacion.opcion[index].texto).addClass('open');
     };
+    
+    $scope.MouseEnterarElementoPredeterminado = function(id)
+    {
+        $("#" + id).addClass("open");
+    };
 
     //oculta las secciones
     $scope.MouseSalirElemento = function(index)
     {
         $('#'+$scope.barraNavegacion.opcion[index].texto).removeClass('open'); 
+    };
+    
+    $scope.MouseSalirElementoPredeterminado = function(id)
+    {
+        $('#'+ id).removeClass('open'); 
     };
     
     //Cierra la barra de navegacion en el tamaño xs 
@@ -296,6 +316,42 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         
     };
     
+    //---------------------------- Aplicaciones ----------------------------
+    $scope.IniciarApp = function(app)
+    {
+        $('#app').removeClass('open'); 
+        $scope.CerrarBarraNavegacion();
+        
+        if(app != "Aplicaciones")
+        { 
+            datosUsuario.setAplicacion(app.texto);
+        
+            SetAplicacion(app.texto, $http, CONFIG);
+            $location.path(app.paginaPrincipal);
+        }
+        else
+        {
+            datosUsuario.setAplicacion("Aplicaciones");
+        
+            SetAplicacion("Aplicaciones", $http, CONFIG);
+        }
+    };
+    
+    $scope.HabilitarAplicaciones = function()
+    {
+        for(var k=0; k<$scope.usuario.Permiso.length; k++)
+        {
+            if($scope.usuario.Permiso[k] == "SabiduriaCon" || $scope.usuario.Permiso[k] == "SabiduriaAdm")
+            {
+                $rootScope.apps[0].habilitada = true;
+            }
+            if($scope.usuario.Permiso[k] == "CancioneroCon" || $scope.usuario.Permiso[k] == "CancioneroAdm")
+            {
+                $rootScope.apps[2].habilitada = true;
+            }
+        }
+    };
+    
    /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
     $scope.usuario =  datosUsuario.getUsuario(); 
     
@@ -312,6 +368,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             if(!($scope.usuario.Aplicacion  === null ||  $scope.usuario.Aplicacion  === undefined))
             {
                 $scope.CambiarBarraNavegacion();
+                $scope.HabilitarAplicaciones();
             }
         }
     }
@@ -331,6 +388,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             if(!($scope.usuario.Aplicacion  === null ||  $scope.usuario.Aplicacion  === undefined))
             {
                 $scope.CambiarBarraNavegacion();
+                $scope.HabilitarAplicaciones();
             }
         }
     });
@@ -340,7 +398,7 @@ var EncabezadoSabiduria =
 { 
     titulo:"Conocimiento", 
     opcion: [ 
-                    { texto:"Información", tipo:"link", referencia:"#Informacion", show: false},
+                    { texto:"Inicio", tipo:"link", referencia:"#Informacion", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [
@@ -351,13 +409,7 @@ var EncabezadoSabiduria =
                                                 {texto:"Información", referencia:"#ConfigurarInformacion", funcion:""},
                                                 {texto:"Temas", referencia:"#Tema", funcion:""}
                                             ]},
-                    {texto:"Usuario", tipo:"dropdown", show: true, 
-                                            elemento:
-                                            [
-                                                {texto:"Mis Aplicaciones", referencia:"#Aplicacion", funcion:""},
-                                                {texto:"Cerrar Sesión", referencia:"", funcion:"CerrarSesion"},
-                                                {texto:"Cambiar Contraseña", referencia:"", funcion:"CambiarPassword"},
-                                            ]}
+                   
               ]                      
 };
 
@@ -365,7 +417,7 @@ var EncabezadoCancionero =
 { 
     titulo:"Cancionero", 
     opcion: [ 
-                    { texto:"Cancionero", tipo:"link", referencia:"#Informacion", show: false},
+                    { texto:"Inicio", tipo:"link", referencia:"#Informacion", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [
@@ -373,25 +425,12 @@ var EncabezadoCancionero =
                                                 {texto:"Artistas", referencia:"#Artista", funcion:""},
                                                 {texto:"Canciones", referencia:"#Cancion", funcion:""},
                                             ]},
-                    {texto:"Usuario", tipo:"dropdown", show: true, 
-                                            elemento:
-                                            [
-                                                {texto:"Mis Aplicaciones", referencia:"#Aplicacion", funcion:""},
-                                                {texto:"Cerrar Sesión", referencia:"", funcion:"CerrarSesion"},
-                                                {texto:"Cambiar Contraseña", referencia:"", funcion:"CambiarPassword"},
-                                            ]}
+                    
               ]                       
 } ;
 
 var EncabezadoAplicaciones =
 { 
     titulo:"MQRSYS", 
-    opcion: [ 
-                    {texto:"Usuario", tipo:"dropdown", show: true, 
-                                            elemento:
-                                            [
-                                                {texto:"Cerrar Sesión", referencia:"", funcion:"CerrarSesion"},
-                                                {texto:"Cambiar Contraseña", referencia:"", funcion:"CambiarPassword"},
-                                            ]}
-              ]                      
+                        
 } ;

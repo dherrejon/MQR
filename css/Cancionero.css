@@ -85,7 +85,7 @@
 .panelDetalleCancion
 {
     overflow-y: scroll;
-    height: 50vh !important;
+    height: 65vh !important;
 }
 
 .panelDetalleCancion::-webkit-scrollbar, .panelOpciones::-webkit-scrollbar 
@@ -162,7 +162,8 @@
 
 .sepadorDetalles
 {
-    border: 2px solid #848484;
+    height: 3px;
+    background: #848484;
 }
 
 .tituloCancion

@@ -251,12 +251,14 @@
     $app->put('/EditarArtista', $seguridad, $ChecarSesion, 'EditarArtista');
     $app->delete('/BorrarArtista', $seguridad, $ChecarSesion, 'BorrarArtista');
 
-    /*-----------------------  Artista ------------------------------------------*/
+    /*-----------------------  Cancion ------------------------------------------*/
     $app->get('/GetCancion/:id', $seguridad, $ChecarSesion, 'GetCancion');
+    $app->get('/GetCancionTodas', $seguridad, $ChecarSesion, 'GetCancionTodas');
     $app->post('/AgregarCancion', $seguridad, $ChecarSesion, 'AgregarCancion');
     $app->post('/EditarCancion', $seguridad, $ChecarSesion, 'EditarCancion');
     $app->delete('/BorrarCancion', $seguridad, $ChecarSesion, 'BorrarCancion');
     
+    $app->get('/GetArtistaPorCancionTodos', $seguridad, $ChecarSesion, 'GetArtistaPorCancionTodos');
     $app->get('/GetArtistaPorCancion/:id', $seguridad, $ChecarSesion, 'GetArtistaPorCancion');
     $app->get('/GetCancionero/:id', $seguridad, $ChecarSesion, 'GetCancionero');
 
