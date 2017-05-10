@@ -49,6 +49,10 @@ app.controller("ConfigurarInformacionController", function($scope, $window, $htt
             {
                 $rootScope.IrPaginaPrincipal();
             }
+            else
+            {
+                $rootScope.UsuarioId = $scope.usuarioLogeado.UsuarioId;
+            }
         }
     };
     

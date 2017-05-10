@@ -147,7 +147,6 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
         
     };
     
-    
     //Presionar enter para login
     $('#loginPanel').keydown(function(e)
     {

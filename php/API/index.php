@@ -18,6 +18,13 @@
     require 'Cancionero/Artista.php';
     require 'Cancionero/Cancion.php';
 
+    require 'Actividades/Frecuencia.php';
+    require 'Actividades/TemaActividad.php';
+    require 'Actividades/Actividad.php';
+    require 'Actividades/PersonaActividad.php';
+    require 'Actividades/Lugar.php';
+    require 'Actividades/Ciudad.php';
+
     /*-----Seguridad-----*/
     require 'PHP-JWT/Authentication/JWT.php';
     require 'PHP-JWT/Exceptions/SignatureInvalidException.php';
@@ -196,10 +203,11 @@
     $app->put('/ReiniciarPassword', $seguridad, $ChecarSesion, 'ReiniciarPassword');
 
     /*----------------------- Etiqueta ------------------------------------------*/
-    $app->get('/GetEtiqueta', $seguridad, $ChecarSesion, 'GetEtiqueta');
+    $app->get('/GetEtiqueta/:id', $seguridad, $ChecarSesion, 'GetEtiqueta');
     $app->post('/AgregarEtiqueta', $seguridad, $ChecarSesion, 'AgregarEtiqueta');
     $app->put('/EditarEtiqueta', $seguridad, $ChecarSesion, 'EditarEtiqueta');
     $app->post('/ActivarDesactivarEtiqueta', $seguridad, $ChecarSesion, 'ActivarDesactivarEtiqueta');
+    $app->delete('/BorrarEtiqueta', $seguridad, $ChecarSesion, 'BorrarEtiqueta');
 
     /*----------------------- Prefijo ------------------------------------------*/
     $app->get('/GetAutor', $seguridad, $ChecarSesion, 'GetAutor');
@@ -261,6 +269,47 @@
     $app->get('/GetArtistaPorCancionTodos', $seguridad, $ChecarSesion, 'GetArtistaPorCancionTodos');
     $app->get('/GetArtistaPorCancion/:id', $seguridad, $ChecarSesion, 'GetArtistaPorCancion');
     $app->get('/GetCancionero/:id', $seguridad, $ChecarSesion, 'GetCancionero');
+
+    //---------------------------------------------------------------------------------------------------------------Actividades
+    
+    /*-----------------------  Frecuencia ------------------------------------------*/
+    $app->get('/GetFrecuencia/:id', $seguridad, $ChecarSesion, 'GetFrecuencia');
+    $app->post('/AgregarFrecuencia', $seguridad, $ChecarSesion, 'AgregarFrecuencia');
+    $app->put('/EditarFrecuencia', $seguridad, $ChecarSesion, 'EditarFrecuencia');
+    $app->delete('/BorrarFrecuencia', $seguridad, $ChecarSesion, 'BorrarFrecuencia');
+
+    /*-----------------------  Tema Actividad ------------------------------------------*/
+    $app->get('/GetTemaActividad/:id', $seguridad, $ChecarSesion, 'GetTemaActividad');
+    $app->post('/AgregarTemaActividad', $seguridad, $ChecarSesion, 'AgregarTemaActividad');
+    $app->put('/EditarTemaActividad', $seguridad, $ChecarSesion, 'EditarTemaActividad');
+    $app->delete('/BorrarTemaActividad', $seguridad, $ChecarSesion, 'BorrarTemaActividad');
+
+    /*-----------------------  Actividad ------------------------------------------*/
+    $app->get('/GetActividad/:id', $seguridad, $ChecarSesion, 'GetActividad');
+    $app->post('/AgregarActividad', $seguridad, $ChecarSesion, 'AgregarActividad');
+    $app->put('/EditarActividad', $seguridad, $ChecarSesion, 'EditarActividad');
+    $app->delete('/BorrarActividad', $seguridad, $ChecarSesion, 'BorrarActividad');
+
+    $app->get('/GetEtiquetaPorActividad/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorActividad');
+    $app->get('/GetTemaPorActividad/:id', $seguridad, $ChecarSesion, 'GetTemaPorActividad');
+
+    /*-----------------------  Persona ------------------------------------------*/
+    $app->get('/GetPersonaActividad/:id', $seguridad, $ChecarSesion, 'GetPersonaActividad');
+    $app->post('/AgregarPersonaActividad', $seguridad, $ChecarSesion, 'AgregarPersonaActividad');
+    $app->put('/EditarPersonaActividad', $seguridad, $ChecarSesion, 'EditarPersonaActividad');
+    $app->delete('/BorrarPersonaActividad', $seguridad, $ChecarSesion, 'BorrarPersonaActividad');
+
+    /*-----------------------  Lugar ------------------------------------------*/
+    $app->get('/GetLugar/:id', $seguridad, $ChecarSesion, 'GetLugar');
+    $app->post('/AgregarLugar', $seguridad, $ChecarSesion, 'AgregarLugar');
+    $app->put('/EditarLugar', $seguridad, $ChecarSesion, 'EditarLugar');
+    $app->delete('/BorrarLugar', $seguridad, $ChecarSesion, 'BorrarLugar');
+
+    /*-----------------------  Ciudad ------------------------------------------*/
+    $app->get('/GetCiudad/:id', $seguridad, $ChecarSesion, 'GetCiudad');
+    $app->post('/AgregarCiudad', $seguridad, $ChecarSesion, 'AgregarCiudad');
+    $app->put('/EditarCiudad', $seguridad, $ChecarSesion, 'EditarCiudad');
+    $app->delete('/BorrarCiudad', $seguridad, $ChecarSesion, 'BorrarCiudad');
 
     $app->run(); 
 

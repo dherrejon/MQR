@@ -19,7 +19,7 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
         }
     };
     
-    $scope.HabilitarAplicaciones = function()
+    /*$scope.HabilitarAplicaciones = function()
     {
         for(var k=0; k<$scope.usuarioLogeado.Permiso.length; k++)
         {
@@ -32,7 +32,7 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
                 $rootScope.apps[2].habilitada = true;
             }
         }
-    };
+    };*/
     
     /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 
@@ -47,7 +47,7 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
         else
         {
             $scope.IniciarApp("Aplicaciones");
-            $scope.HabilitarAplicaciones();
+            //$rootScope.HabilitarAplicaciones();
         }
     }
     
@@ -64,7 +64,7 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
         else
         {
             $scope.IniciarApp("Aplicaciones");
-            $scope.HabilitarAplicaciones();
+            //$rootScope.HabilitarAplicaciones();
         }
     });
         

@@ -113,6 +113,26 @@ app.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpPro
             templateUrl: 'html/Cancionero/Administrar/AdministrarCancion.html'
         }).
     
+    //Actividades
+        when('/Actividades',{
+            templateUrl: 'html/Actividades/Actividades.html'
+        }).
+        when('/Frecuencia',{
+            templateUrl: 'html/Actividades/Administrar/AdministrarFrecuencia.html'
+        }).
+        when('/TemaActividad',{
+            templateUrl: 'html/Actividades/Administrar/AdministrarTemaActividad.html'
+        }).
+        when('/PersonaActividad',{
+            templateUrl: 'html/Actividades/Administrar/AdministrarPersonaActividad.html'
+        }).
+        when('/Lugar',{
+            templateUrl: 'html/Actividades/Administrar/AdministrarLugar.html'
+        }).
+        when('/Ciudades',{
+            templateUrl: 'html/Actividades/Administrar/AdministrarCiudad.html'
+        }).
+    
     otherwise({
         templateUrl: 'html/Login.html'
     });
@@ -122,11 +142,12 @@ app.run(function($rootScope, $location, $window, $http, CONFIG, $q, datosUsuario
 {   
     $rootScope.claseApp = "col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 appPanel";
     
-$rootScope.erNombrePersonal = /^([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ])+((\s|\.\s)([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ])+)*\.?\s?$/;   //expresion regular para los apellido y el nombre de una persona
-    $rootScope.erEtiqueta = /^(([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ]){1,250})$/;   //expresion regular para los apellido y el nombre de una etiqueta
+    $rootScope.erNombrePersonal = /^([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ])+((\s|\.\s)([A-Z]|Ñ|[a-z]|[ñáéíóú]|[ÁÉÍÓÚ])+)*\.?\s?$/;   //expresion regular para los apellido y el nombre de una persona
+    $rootScope.erEtiqueta = /^([^\s]){1,250}$/;   //expresion regular para los apellido y el nombre de una etiqueta
     $rootScope.erPassword = /^(\w){6}(\w)*$/;   //expresion regular para la contraseña
     $rootScope.erNombreUsuario = /^(\w|ñ){3}(\w|ñ)*$/;   //expresion regular para el nombre de usurio
     $rootScope.erNumeroEntero = /^([0-9]){0,5}$/;   //número entero
+    $rootScope.erTema = /^\S+\s(\S+\s?)+$/;   //expresion regular para los apellido y el nombre de una etiqueta
     
     
     $rootScope.ChecarSesion = function(token)           //verifica el esatdo de la sesión

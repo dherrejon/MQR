@@ -39,9 +39,13 @@ app.controller("AdministrarEtiquetaController", function($scope, $window, $http,
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Conocimiento")
+            if($scope.usuarioLogeado.Aplicacion != "Conocimiento" && $scope.usuarioLogeado.Aplicacion != "Actividades")
             {
                 $rootScope.IrPaginaPrincipal();
+            }
+            else
+            {
+                $rootScope.UsuarioId = $scope.usuarioLogeado.UsuarioId;
             }
         }
     };

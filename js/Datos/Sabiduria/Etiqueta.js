@@ -11,13 +11,13 @@ class Etiqueta
 }
 
 //obtiene los tipos de módulos
-function GetEtiqueta($http, $q, CONFIG)     
+function GetEtiqueta($http, $q, CONFIG, id)     
 {
     var q = $q.defer();
 
     $http({      
           method: 'GET',
-          url: CONFIG.APIURL + '/GetEtiqueta',
+          url: CONFIG.APIURL + '/GetEtiqueta/' + id,
 
       }).success(function(data)
         {
@@ -108,6 +108,25 @@ function ActivarDesactivarEtiqueta($http, $q, CONFIG, etiqueta)
 
      }); 
     
+    return q.promise;
+}
+
+function BorrarEtiqueta($http, CONFIG, $q, id)
+{
+    var q = $q.defer();
+
+    $http({      
+          method: 'DELETE',
+          url: CONFIG.APIURL + '/BorrarEtiqueta',
+          data: id
+
+      }).success(function(data)
+        {
+            q.resolve(data);    
+        }).error(function(data, status){
+            q.resolve([{Estatus:status}]);
+
+     }); 
     return q.promise;
 }
 

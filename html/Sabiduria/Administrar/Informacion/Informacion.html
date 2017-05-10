@@ -314,7 +314,7 @@
     <div ng-repeat="info in informacion |orderBy:[ordenarInformacion, 'Tema.Nombre', 'Fuente.Nombre'] | filter:FitroInformacion">
         <!-- Tema -->
         <div class="col-xs-12">
-            <span class="tema">{{info.Tema.Nombre}} {{dsfffdsfd}}</span>
+            <span class="tema">{{info.Tema.Nombre}}</span>
         </div>
         
         <!-- Fuente -->
@@ -579,7 +579,7 @@
                     <div class="col-sm-12">
                          <div class="">
                             <label class="etiquetaNormal">Información</label>
-                            <textarea required type="text"  class="form-control" ng-class="claseInformacion.contenido" name="contenido" ng-model="nuevaInformacion.Contenido" maxlength="4000"></textarea>
+                            <textarea required type="text"  class="form-control" ng-class="claseInformacion.contenido" name="contenido" ng-model="nuevaInformacion.Contenido" maxlength="10000"></textarea>
                         </div>
                     </div>
                 </div>

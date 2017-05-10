@@ -299,6 +299,7 @@ app.controller("AdministrarCancionController", function($scope, $window, $http, 
             if(artista == $scope.nuevaCancion.Artista[k])
             {
                 $scope.nuevaCancion.Artista.splice(k,1);
+                break;
             }
         }
         
@@ -421,6 +422,8 @@ app.controller("AdministrarCancionController", function($scope, $window, $http, 
                     $scope.cancion[k].NombreArchivo = "";
                     $scope.cancion[k].Cancionero = "";
                     $scope.VerDetalles($scope.cancion[k]);
+                    
+                    break;
                 }
             }
         }
@@ -524,7 +527,7 @@ app.controller("AdministrarCancionController", function($scope, $window, $http, 
                 
                 $scope.detalle = new Cancion();
                 
-                $scope.mensaje = "Artista borrado.";
+                $scope.mensaje = "Canción borrada.";
                 $scope.EnviarAlerta('Vista');
                 
             }
@@ -598,7 +601,6 @@ app.controller("AdministrarCancionController", function($scope, $window, $http, 
         {
             return true;
         }
-        
     };
     
     //--------------- Alerta ----

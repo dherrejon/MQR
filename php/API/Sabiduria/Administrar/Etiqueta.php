@@ -1,13 +1,13 @@
 <?php
 	
-function GetEtiqueta()
+function GetEtiqueta($id)
 {
     global $app;
     global $session_expiration_time;
 
     $request = \Slim\Slim::getInstance()->request();
 
-    $sql = "SELECT EtiquetaId, Nombre, Activo FROM Etiqueta";
+    $sql = "SELECT EtiquetaId, Nombre, Activo FROM Etiqueta WHERE UsuarioId  = ".$id;
 
     try 
     {
@@ -32,7 +32,7 @@ function AgregarEtiqueta()
     $request = \Slim\Slim::getInstance()->request();
     $etiqueta = json_decode($request->getBody());
     global $app;
-    $sql = "INSERT INTO Etiqueta (Nombre, Activo) VALUES(:Nombre, :Activo)";
+    $sql = "INSERT INTO Etiqueta (Nombre, Activo, UsuarioId) VALUES(:Nombre, :Activo, :UsuarioId)";
 
     try 
     {
@@ -41,6 +41,7 @@ function AgregarEtiqueta()
 
         $stmt->bindParam("Nombre", $etiqueta->Nombre);
         $stmt->bindParam("Activo", $etiqueta->Activo);
+        $stmt->bindParam("UsuarioId", $etiqueta->UsuarioId);
 
         $stmt->execute();
         
@@ -61,12 +62,15 @@ function EditarEtiqueta()
     $request = \Slim\Slim::getInstance()->request();
     $etiqueta = json_decode($request->getBody());
    
-    $sql = "UPDATE Etiqueta SET Nombre='".$etiqueta->Nombre."', Activo = '".$etiqueta->Activo."'  WHERE EtiquetaId=".$etiqueta->EtiquetaId."";
+    $sql = "UPDATE Etiqueta SET Nombre = :Nombre, Activo = '".$etiqueta->Activo."'  WHERE EtiquetaId=".$etiqueta->EtiquetaId."";
     
     try 
     {
         $db = getConnection();
         $stmt = $db->prepare($sql);
+        
+        $stmt->bindParam("Nombre", $etiqueta->Nombre);
+        
         $stmt->execute();
         $db = null;
 
@@ -104,6 +108,34 @@ function ActivarDesactivarEtiqueta()
         $app->status(409);
         $app->stop();
     }
+}
+
+function BorrarEtiqueta()
+{
+    global $app;
+    $request = \Slim\Slim::getInstance()->request();
+    $etiquetaId = json_decode($request->getBody());
+   
+    
+    $sql = "DELETE FROM Etiqueta WHERE EtiquetaId =".$etiquetaId;
+    try 
+    {
+        $db = getConnection();
+        $stmt = $db->prepare($sql); 
+        $stmt->execute(); 
+        
+        $db = null;
+        echo '[ { "Estatus": "Exitoso" } ]';
+        
+    } 
+    catch(PDOException $e) 
+    {
+        echo '[ { "Estatus": "Fallo" } ]';
+        //echo $e;
+        $app->status(409);
+        $app->stop();
+    }
+
 }
     
 ?>

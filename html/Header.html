@@ -36,8 +36,6 @@
 
                         </div>
 
-
-
                          <!-- Collect the nav links, forms, and other content for toggling -->
                         <div  class="collapse navbar-collapse" id="navbarCollapse">
                                 
@@ -53,7 +51,7 @@
 
                                 <li ng-if="opcion.show && opcion.tipo=='dropdown' && opcion.show" ng-repeat="opcion in barraNavegacion.opcion"  class="dropdown " ng-mouseenter="MouseEnterarElemento($index);" ng-mouseleave="MouseSalirElemento($index);" id="{{opcion.texto}}">
                                     <!-- menú principal -->
-                                    <a class="claseSeccion" ng-click="MouseClickOpcion(opcion)">
+                                    <a class="claseSeccion" ng-click="MouseClickOpcion(opcion, 'opc')">
                                         <span>{{opcion.texto}}</span>
 
                                     </a>

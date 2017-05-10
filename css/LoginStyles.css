@@ -104,6 +104,7 @@
     
 }
 
+.entrada2 input[type=text]:disabled~label, .entrada2 input[type=text]:focus~label,.entrada2 input[type=text]:valid~label,.entrada2 input[type=password]:focus~label,.entrada2 input[type=password]:valid~label, .entrada2 input[type=email]:focus~label,.entrada2 input[type=email]:valid~label,
 .entrada2 input[type=text]:focus~label,.entrada2 input[type=text]:valid~label,.entrada2 input[type=password]:focus~label,.entrada2 input[type=password]:valid~label, .entrada2 input[type=email]:focus~label,.entrada2 input[type=email]:valid~label
 {
     top:-20px;

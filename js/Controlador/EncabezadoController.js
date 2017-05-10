@@ -30,6 +30,11 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
                 $scope.HabilitarOpcionesBarraNavegacionCancionero();
                 break;
                 
+            case "Actividades": 
+                $scope.barraNavegacion = EncabezadoActividades;
+                $scope.HabilitarOpcionesBarraNavegacionActividades();
+                break;
+                
             case "Aplicaciones": 
                 $scope.barraNavegacion = EncabezadoAplicaciones;
                 break;
@@ -43,6 +48,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     $scope.MouseClickElemento = function(opcion, funcion)
     {
         $('#'+ opcion ).removeClass('open');
+        
         $scope.CerrarBarraNavegacion();
         
         if(funcion == "CerrarSesion")
@@ -159,6 +165,23 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         }
     };
     
+    $scope.HabilitarOpcionesBarraNavegacionActividades = function()
+    {
+        $scope.LimpiarBarraNavegacionActividades();
+
+        for(var k=0; k<$scope.usuario.Permiso.length; k++)
+        {
+            if($scope.usuario.Permiso[k] == "ActividadesCon")
+            {
+                $scope.barraNavegacion.opcion[0].show = true;
+            }
+            if($scope.usuario.Permiso[k] == "ActividadesAdm")
+            {
+                $scope.barraNavegacion.opcion[1].show = true;
+            }
+        }
+    };
+    
     $scope.LimpiarBarraNavegacionInformacion = function()
     {
         $scope.barraNavegacion.opcion[0].show = false;
@@ -166,6 +189,12 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     };
     
     $scope.LimpiarBarraNavegacionCancionero = function()
+    {
+        $scope.barraNavegacion.opcion[0].show = false;
+        $scope.barraNavegacion.opcion[1].show = false;
+    };
+    
+    $scope.LimpiarBarraNavegacionActividades = function()
     {
         $scope.barraNavegacion.opcion[0].show = false;
         $scope.barraNavegacion.opcion[1].show = false;
@@ -337,13 +366,22 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         }
     };
     
-    $scope.HabilitarAplicaciones = function()
+    $rootScope.HabilitarAplicaciones = function()
     {
+        for(var k=0; k<$rootScope.apps.length; k++)
+        {
+            $rootScope.apps[k].habilitada = false;
+        }
+        
         for(var k=0; k<$scope.usuario.Permiso.length; k++)
         {
             if($scope.usuario.Permiso[k] == "SabiduriaCon" || $scope.usuario.Permiso[k] == "SabiduriaAdm")
             {
                 $rootScope.apps[0].habilitada = true;
+            }
+            if($scope.usuario.Permiso[k] == "ActividadesCon" || $scope.usuario.Permiso[k] == "ActividadesAdm")
+            {
+                $rootScope.apps[1].habilitada = true;
             }
             if($scope.usuario.Permiso[k] == "CancioneroCon" || $scope.usuario.Permiso[k] == "CancioneroAdm")
             {
@@ -424,6 +462,26 @@ var EncabezadoCancionero =
                                                 {texto:"Usuarios", referencia:"#Usuario", funcion:""},
                                                 {texto:"Artistas", referencia:"#Artista", funcion:""},
                                                 {texto:"Canciones", referencia:"#Cancion", funcion:""},
+                                            ]},
+                    
+              ]                       
+} ;
+
+var EncabezadoActividades =
+{ 
+    titulo:"Actividades", 
+    opcion: [ 
+                    { texto:"Inicio", tipo:"link", referencia:"#Actividades", show: false},
+                    { texto:"Administrar", tipo:"dropdown", show: false,
+                                            elemento:
+                                            [
+                                                {texto:"Usuarios", referencia:"#Usuario", funcion:""},
+                                                {texto:"Etiquetas", referencia:"#Etiqueta", funcion:""},
+                                                {texto:"Frecuencias", referencia:"#Frecuencia", funcion:""},
+                                                {texto:"Temas", referencia:"#TemaActividad", funcion:""},
+                                                {texto:"Personas", referencia:"#PersonaActividad", funcion:""},
+                                                {texto:"Lugares", referencia:"#Lugar", funcion:""},
+                                                {texto:"Ciudades", referencia:"#Ciudades", funcion:""},
                                             ]},
                     
               ]                       

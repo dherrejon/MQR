@@ -1,4 +1,4 @@
-.botonEditar, .botonBorrar
+.botonEditar, .botonBorrar, .botonEditar:focus, .botonEditar:active, .botonBorrar:focus, .botonBorrar:active
 {
     color: #262626;
 }
@@ -41,6 +41,16 @@
     box-shadow: none;
 }
 
+.buscarTexto.contornoAzul, .buscarTexto.contornoAzul:hover, .buscarTexto.contornoAzul:active, .buscarTexto.contornoAzul:focus
+{
+    border-color: #1859b2;
+}
+
+.limpiarTextoBotonAgregado.contornoAzul, .limpiarTextoBotonAgregado.contornoAzul:hover, .limpiarTextoBotonAgregado.contornoAzul:active, .limpiarTextoBotonAgregado.contornoAzul:focus
+{
+    border-color: #1859b2;
+}
+
 .buscarTexto, .buscarTexto:hover, .buscarTexto:active, .buscarTexto:focus
 {
     color: #262626;
@@ -66,6 +76,7 @@
     outline: none !important;
     box-shadow: none;
 }
+
 
 .panelOpciones
 {

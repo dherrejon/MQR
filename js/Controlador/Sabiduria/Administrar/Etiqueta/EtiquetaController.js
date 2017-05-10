@@ -9,9 +9,11 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
     $scope.mensajeError = [];
     $scope.claseEtiqueta = {nombre:"entrada"};
     
+    $scope.buscarEtiqueta = "";
+    
     $scope.GetEtiqueta = function()              
     {
-        GetEtiqueta($http, $q, CONFIG).then(function(data)
+        GetEtiqueta($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
         {
             $scope.etiqueta = data;
         
@@ -32,6 +34,43 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
         else
         {
             $scope.ordenarEtiqueta = campoOrdenar;
+        }
+    };
+    
+    //Filtrar
+    $scope.FiltrarBuscarEtiqueta = function(etiqueta)
+    {
+        if($scope.buscarEtiqueta !== undefined)
+        {
+            if($scope.buscarEtiqueta.length > 0)
+            {
+                var index = etiqueta.Nombre.toLowerCase().indexOf($scope.buscarEtiqueta.toLowerCase());
+
+
+                if(index < 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    if(index === 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+            return true;
         }
     };
     
@@ -94,6 +133,7 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
         {
             if($scope.operacion == "Agregar" || $scope.operacion=="AgregarExterior")
             {
+                $scope.nuevaEtiqueta.UsuarioId = $rootScope.UsuarioId;
                 $scope.AgregarEtiqueta();
             }
             else if($scope.operacion == "Editar")
@@ -277,6 +317,44 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
     $scope.CancelarCambiarActivoEtiqueta = function()           
     {
         $scope.etiquetaActualizar.Activo = !$scope.etiquetaActualizar.Activo;
+    };
+    
+    //------------------------  Borrar --------------------------------------
+    $scope.BorrarEtiqueta = function(etiqueta)
+    {
+        $scope.borrarEtiqueta = etiqueta.EtiquetaId;
+        
+        $scope.mensajeBorrar = "¿Estas seguro de eliminar " + etiqueta.Nombre + "?";
+        
+        $("#borrarEtiqueta").modal('toggle');
+    };
+    
+    $scope.ConfirmarBorrarEtiqueta = function()
+    {
+        BorrarEtiqueta($http, CONFIG, $q, $scope.borrarEtiqueta).then(function(data)
+        {
+            if(data[0].Estatus == "Exitoso")
+            {                
+                for(var k=0; k<$scope.etiqueta.length; k++)
+                {
+                    if($scope.etiqueta[k].EtiquetaId == $scope.borrarEtiqueta)
+                    {
+                        $scope.etiqueta.splice(k,1);
+                        break;
+                    }
+                }
+                
+                $scope.mensaje = "Etiqueta borrada.";
+                $scope.EnviarAlerta('Vista');
+                
+            }
+            else
+            {
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde";
+                $('#mensajeEtiqueta').modal('toggle');
+            }
+            
+        });
     };
     
     //----------------- Limpiar -----------------------

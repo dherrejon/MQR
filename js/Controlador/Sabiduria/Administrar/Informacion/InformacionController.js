@@ -82,7 +82,7 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
     
     $scope.GetEtiqueta = function()              
     {
-        GetEtiqueta($http, $q, CONFIG).then(function(data)
+        GetEtiqueta($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
         {
             $scope.etiqueta = data;
         
