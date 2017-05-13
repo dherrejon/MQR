@@ -129,8 +129,8 @@ app.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpPro
         when('/Lugar',{
             templateUrl: 'html/Actividades/Administrar/AdministrarLugar.html'
         }).
-        when('/Ciudades',{
-            templateUrl: 'html/Actividades/Administrar/AdministrarCiudad.html'
+        when('/Unidades',{
+            templateUrl: 'html/Actividades/Administrar/AdministrarUnidades.html'
         }).
     
     otherwise({

@@ -95,7 +95,7 @@ app.controller("FrecuenciaController", function($scope, $window, $http, $rootSco
                 $scope.nuevaFrecuencia.FrecuenciaId = data[1].Id; 
                 $scope.frecuencia.push($scope.nuevaFrecuencia);
                 
-                if($scope == "Agregar")
+                if($scope.operacion == "Agregar")
                 {
                     $scope.mensaje = "Frecuencia agregado.";
                     $scope.EnviarAlerta('Modal');

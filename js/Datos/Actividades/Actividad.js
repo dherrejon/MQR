@@ -10,6 +10,7 @@ class Actividad
         this.Tema = [];
         this.Etiqueta = [];
         this.Imagen = [];
+        this.Lugar = new Lugar();
     }
 }
 
@@ -25,20 +26,15 @@ function GetActividad($http, $q, CONFIG, usuarioId)
         {
             if(data[0].Estatus == "Exito")
             {
-                var actividad = []; 
-                for(var k=0; k<data[1].Actividad.length; k++)
-                {
-                    actividad[k] = SetActividad(data[1].Actividad[k]);
-                }
-                q.resolve(actividad); 
+                q.resolve(data[1].Actividad); 
             }
             else
             {
-                q.resolve([]);
+                q.resolve([], []);
             }
              
         }).error(function(data, status){
-            q.resolve([]);
+            q.resolve([], []);
      }); 
     return q.promise;
 }
@@ -52,6 +48,8 @@ function SetActividad(data)
     actividad.FechaCreacion = data.FechaCreacion;
     actividad.Notas = data.Notas;
     
+    actividad.FechaCreacionFormato = TransformarFecha(data.FechaCreacion);
+    
     if(data.Notas !== null)
     {
          actividad.NotasHTML = data.Notas.replace(/\r?\n/g, "<br>");
@@ -61,10 +59,16 @@ function SetActividad(data)
          actividad.NotasHTML = "";
     }
     
-    if(data.FrecuenciaId != null)
+    if(data.FrecuenciaId !== null)
     {
         actividad.Frecuencia.FrecuenciaId = data.FrecuenciaId;
         actividad.Frecuencia.Nombre = data.NombreFrecuencia;
+    }
+    
+    if(data.Lugar !== null)
+    {
+        actividad.Lugar.LugarId = data.LugarId;
+        actividad.Lugar.Nombre = data.NombreLugar;
     }
     
     return actividad;

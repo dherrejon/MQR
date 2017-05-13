@@ -49,6 +49,10 @@ app.controller("AdministrarArtistaController", function($scope, $window, $http, 
                 $rootScope.IrPaginaPrincipal();
             }
         }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
+        }
     };
     
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 

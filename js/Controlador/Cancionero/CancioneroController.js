@@ -175,6 +175,10 @@ app.controller("CancioneroController", function($scope, $window, $http, $rootSco
                 $scope.GetCancion();
             }
         }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
+        }
     };
     
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 

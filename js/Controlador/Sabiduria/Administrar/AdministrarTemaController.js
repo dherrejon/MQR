@@ -49,6 +49,10 @@ app.controller("AdministrarTemaController", function($scope, $window, $http, $ro
                 $rootScope.IrPaginaPrincipal();
             }
         }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
+        }
     };
     
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 

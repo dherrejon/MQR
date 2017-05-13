@@ -24,6 +24,9 @@
     require 'Actividades/PersonaActividad.php';
     require 'Actividades/Lugar.php';
     require 'Actividades/Ciudad.php';
+    require 'Actividades/Unidad.php';
+    require 'Actividades/Divisa.php';
+    require 'Actividades/EventoActividad.php';
 
     /*-----Seguridad-----*/
     require 'PHP-JWT/Authentication/JWT.php';
@@ -284,15 +287,6 @@
     $app->put('/EditarTemaActividad', $seguridad, $ChecarSesion, 'EditarTemaActividad');
     $app->delete('/BorrarTemaActividad', $seguridad, $ChecarSesion, 'BorrarTemaActividad');
 
-    /*-----------------------  Actividad ------------------------------------------*/
-    $app->get('/GetActividad/:id', $seguridad, $ChecarSesion, 'GetActividad');
-    $app->post('/AgregarActividad', $seguridad, $ChecarSesion, 'AgregarActividad');
-    $app->put('/EditarActividad', $seguridad, $ChecarSesion, 'EditarActividad');
-    $app->delete('/BorrarActividad', $seguridad, $ChecarSesion, 'BorrarActividad');
-
-    $app->get('/GetEtiquetaPorActividad/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorActividad');
-    $app->get('/GetTemaPorActividad/:id', $seguridad, $ChecarSesion, 'GetTemaPorActividad');
-
     /*-----------------------  Persona ------------------------------------------*/
     $app->get('/GetPersonaActividad/:id', $seguridad, $ChecarSesion, 'GetPersonaActividad');
     $app->post('/AgregarPersonaActividad', $seguridad, $ChecarSesion, 'AgregarPersonaActividad');
@@ -310,6 +304,34 @@
     $app->post('/AgregarCiudad', $seguridad, $ChecarSesion, 'AgregarCiudad');
     $app->put('/EditarCiudad', $seguridad, $ChecarSesion, 'EditarCiudad');
     $app->delete('/BorrarCiudad', $seguridad, $ChecarSesion, 'BorrarCiudad');
+
+    /*-----------------------  Unidad ------------------------------------------*/
+    $app->get('/GetUnidad/:id', $seguridad, $ChecarSesion, 'GetUnidad');
+    $app->post('/AgregarUnidad', $seguridad, $ChecarSesion, 'AgregarUnidad');
+    $app->put('/EditarUnidad', $seguridad, $ChecarSesion, 'EditarUnidad');
+    $app->delete('/BorrarUnidad', $seguridad, $ChecarSesion, 'BorrarUnidad');
+
+    /*-----------------------  Divisa ------------------------------------------*/
+    $app->get('/GetDivisa/:id', $seguridad, $ChecarSesion, 'GetDivisa');
+    $app->post('/AgregarDivisa', $seguridad, $ChecarSesion, 'AgregarDivisa');
+    $app->put('/EditarDivisa', $seguridad, $ChecarSesion, 'EditarDivisa');
+    $app->delete('/BorrarDivisa', $seguridad, $ChecarSesion, 'BorrarDivisa');
+
+    /*-----------------------  Actividad ------------------------------------------*/
+    $app->get('/GetActividad/:id', $seguridad, $ChecarSesion, 'GetActividad');
+    $app->post('/AgregarActividad', $seguridad, $ChecarSesion, 'AgregarActividad');
+    $app->put('/EditarActividad', $seguridad, $ChecarSesion, 'EditarActividad');
+    $app->delete('/BorrarActividad', $seguridad, $ChecarSesion, 'BorrarActividad');
+
+    $app->get('/GetEtiquetaPorActividad/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorActividad');
+    $app->get('/GetTemaPorActividad/:id', $seguridad, $ChecarSesion, 'GetTemaPorActividad');
+
+    /*-----------------------  Evento Actividad ------------------------------------------*/
+    $app->get('/GetEventoActividad/:id', $seguridad, $ChecarSesion, 'GetEventoActividad');
+    $app->post('/AgregarEventoActividad', $seguridad, $ChecarSesion, 'AgregarEventoActividad');
+    $app->put('/EditarEventoActividad', $seguridad, $ChecarSesion, 'EditarEventoActividad');
+
+    $app->get('/GetPersonaEventoActividad/:id', $seguridad, $ChecarSesion, 'GetPersonaEventoActividad');
 
     $app->run(); 
 

@@ -1,6 +1,6 @@
-app.controller("AdministrarCiudadController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
+app.controller("AdministrarUnidadesController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
 {   
-    $scope.titulo = "Ciudades";
+    $scope.titulo = "Unidades";
     
     $scope.permiso = false;
     
@@ -16,7 +16,7 @@ app.controller("AdministrarCiudadController", function($scope, $window, $http, $
         }
     };
     
-    $scope.tabs = tabCiudad;
+    $scope.tabs = tabUnidad;
     
     //Cambia el contenido de la pestaña
     $scope.SeleccionarTab = function(tab)    
@@ -94,6 +94,7 @@ app.controller("AdministrarCiudadController", function($scope, $window, $http, $
 });
 
 
-var tabCiudad = [
-                        {titulo:"Ciudades", referencia: "#Ciudad", clase:"active", area:"ciudad"}
+var tabUnidad = [
+                        {titulo:"Unidades", referencia: "#Unidad", clase:"active", area:"unidad"},
+                        {titulo:"Divisas", referencia: "#Divisa", clase:"", area:"divisa"}
                     ];

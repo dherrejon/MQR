@@ -1,4 +1,4 @@
-app.controller("LugarController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce)
+app.controller("LugarController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce, LUGAR)
 {   
     $scope.lugar = [];
     
@@ -171,9 +171,20 @@ app.controller("LugarController", function($scope, $window, $http, $rootScope, m
                 $scope.nuevoLugar.LugarId = data[1].Id; 
                 $scope.lugar.push($scope.nuevoLugar);
                 
-                $scope.mensaje = "Lugar agregado.";
-                $scope.EnviarAlerta('Modal');
-                $scope.nuevoLugar = new Lugar();
+                if($scope.operacion == "Agregar")
+                {
+                    $scope.mensaje = "Lugar agregado.";
+                    $scope.EnviarAlerta('Modal');
+                    $scope.nuevoLugar = new Lugar();
+                }
+                else
+                {
+                    $('#modalLugar').modal('toggle');
+                    
+                    LUGAR.TerminarLugar($scope.nuevoLugar);
+                }
+                
+                
             }
             else
             {
@@ -256,9 +267,7 @@ app.controller("LugarController", function($scope, $window, $http, $rootScope, m
         BorrarLugar($http, CONFIG, $q, $scope.lugarBorrar).then(function(data)
         {
             if(data[0].Estatus == "Exitoso")
-            {
-                //$scope.GetArtista();
-                
+            {   
                 for(var k=0; k<$scope.lugar.length; k++)
                 {
                     if($scope.lugar[k].LugarId == $scope.lugarBorrar)
@@ -288,14 +297,14 @@ app.controller("LugarController", function($scope, $window, $http, $rootScope, m
     $scope.GetLugar();
     
     //------------------------ Exterior ---------------------------
-    /*$scope.$on('AgregarArtista',function()
+    $scope.$on('AgregarLugar',function()
     {
         $scope.operacion = "AgregarExterior";
 
-        $scope.nuevoArtista = new Artista();
+        $scope.nuevoLugar = new Lugar();
     
-        $('#mensajeArtista').modal('toggle');
-    });*/
+        $('#modalLugar').modal('toggle');
+    });
     
     //------------------- Alertas ---------------------------
     $scope.EnviarAlerta = function(alerta)
@@ -322,27 +331,27 @@ app.controller("LugarController", function($scope, $window, $http, $rootScope, m
     
 });
 
-/*app.factory('ARTISTA',function($rootScope)
+app.factory('LUGAR',function($rootScope)
 {
   var service = {};
-  service.artista = null;
+  service.lugar = null;
     
-  service.AgregarArtista = function()
+  service.AgregarLugar = function()
   {
-      this.artista = null;
-      $rootScope.$broadcast('AgregarArtista');
+      this.lugar = null;
+      $rootScope.$broadcast('AgregarLugar');
   };
     
-  service.TerminarArtista = function(artista)
+  service.TerminarLugar = function(lugar)
   {
-      this.artista = artista;
-      $rootScope.$broadcast('TerminarArtista');
+      this.lugar = lugar;
+      $rootScope.$broadcast('TerminarLugar');
   };
     
-  service.GetArtista = function()
+  service.GetLugar = function()
   {
-      return this.artista;
+      return this.lugar;
   };
 
   return service;
-});*/
+});

@@ -655,6 +655,10 @@ app.controller("AdministrarCancionController", function($scope, $window, $http, 
                 $scope.GetArtista();
             }
         }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
+        }
     };
     
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 

@@ -150,8 +150,8 @@ function EditarInformacion()
             $archivo = addslashes(file_get_contents($_FILES['file']['tmp_name']));
 
             $sql = "UPDATE Informacion SET TemaId=".$informacion->Tema->TemaId.", TipoInformacionId='".$informacion->TipoInformacion->TipoInformacionId."',
-            FuenteId=".$informacion->Fuente->FuenteId.", OrigenInformacionId='".$informacion->OrigenInformacion->OrigenInformacionId."', Contenido = '".$informacion->Contenido."',
-            Archivo = '".$archivo."', NombreArchivo = '".$name."', ExtensionArchivo = '".$ext."', Seccion = '".$informacion->Seccion."', Observacion = '".$informacion->Observacion."'
+            FuenteId=".$informacion->Fuente->FuenteId.", OrigenInformacionId='".$informacion->OrigenInformacion->OrigenInformacionId."', Contenido = :Contenido,
+            Archivo = '".$archivo."', NombreArchivo = '".$name."', ExtensionArchivo = '".$ext."', Seccion = '".$informacion->Seccion."', Observacion = :Observacion
             WHERE InformacionId=".$informacion->InformacionId;
         }
         else
@@ -163,7 +163,7 @@ function EditarInformacion()
     else
     {
         $sql = "UPDATE Informacion SET TemaId=".$informacion->Tema->TemaId.", TipoInformacionId='".$informacion->TipoInformacion->TipoInformacionId."',
-        FuenteId=".$informacion->Fuente->FuenteId.", OrigenInformacionId='".$informacion->OrigenInformacion->OrigenInformacionId."', Contenido = '".$informacion->Contenido."', Seccion = '".$informacion->Seccion."', Observacion = '".$informacion->Observacion."'
+        FuenteId=".$informacion->Fuente->FuenteId.", OrigenInformacionId='".$informacion->OrigenInformacion->OrigenInformacionId."', Contenido = :Contenido, Seccion = '".$informacion->Seccion."', Observacion = :Observacion
         WHERE InformacionId=".$informacion->InformacionId;
     }
     
@@ -172,6 +172,9 @@ function EditarInformacion()
         $db = getConnection();
         $db->beginTransaction();
         $stmt = $db->prepare($sql);
+        
+        $stmt->bindParam("Contenido", $informacion->Contenido);
+        $stmt->bindParam("Observacion", $informacion->Observacion);
         
         $stmt->execute();
     }

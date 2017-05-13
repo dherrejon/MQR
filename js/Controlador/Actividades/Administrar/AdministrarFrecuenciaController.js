@@ -53,6 +53,10 @@ app.controller("AdministrarFrecuenciaController", function($scope, $window, $htt
                 $rootScope.UsuarioId = $scope.usuarioLogeado.UsuarioId;
             }
         }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
+        }
     };
     
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 

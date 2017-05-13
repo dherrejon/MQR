@@ -217,7 +217,30 @@ function AgregarActividad()
         $app->stop();
     }
     
-    $sql = "SELECT DATE_FORMAT(FechaCreacion, '%d/%m/%Y') as FechaCreacion FROM Actividad WHERE ActividadId = '".$actividadId."'";
+    if(strlen($actividad->Lugar->LugarId) > 0) 
+    {
+        $sql = "INSERT INTO LugarDefectoActividad (ActividadId, LugarId) VALUES(:ActividadId, :LugarId)";
+
+        try 
+        {
+            $stmt = $db->prepare($sql);
+
+            $stmt->bindParam("ActividadId", $actividadId);
+            $stmt->bindParam("LugarId", $actividad->Lugar->LugarId);
+
+            $stmt->execute();
+
+        } catch(PDOException $e) 
+        {
+            //echo $e;
+            echo '[{"Estatus": "Fallo"}]';
+            $db->rollBack();
+            $app->status(409);
+            $app->stop();
+        }
+    }
+
+    $sql = "SELECT FechaCreacion FROM Actividad WHERE ActividadId = '".$actividadId."'";
     
     try 
     {
@@ -227,7 +250,7 @@ function AgregarActividad()
         
         $response = $stmt->fetchAll(PDO::FETCH_OBJ);
         
-        echo '[{"Estatus": "Exitoso"}, {"ActividadId":"'.$actividadId.'"}, {"FechaCreacion":"'.$response[0]->FechaCreacion.'"} ]';
+        echo '[{"Estatus": "Exitoso"}, {"ActividadId":"'.$actividadId.'"}, {"FechaCreacion":"'.$response[0]->FechaCreacion.'"},  {"Etiqueta":'.json_encode($actividad->Etiqueta).'}, {"Tema":'.json_encode($actividad->Tema).'}]';
         $db->commit();
         $db = null;
 
@@ -340,6 +363,21 @@ function EditarActividad()
         $app->stop();
     }
     
+    $sql = "DELETE FROM LugarDefectoActividad WHERE ActividadId=".$actividad->ActividadId;
+    try 
+    {
+        $stmt = $db->prepare($sql); 
+        $stmt->execute(); 
+        
+    } 
+    catch(PDOException $e) 
+    {
+        echo '[ { "Estatus": "Fallo" } ]';
+        //echo $e;
+        $db->rollBack();
+        $app->status(409);
+        $app->stop();
+    }
     
     $countTema = count($actividad->Tema);
     
@@ -460,6 +498,29 @@ function EditarActividad()
         }
     }
     
+    if(strlen($actividad->Lugar->LugarId) > 0) 
+    {
+        $sql = "INSERT INTO LugarDefectoActividad (ActividadId, LugarId) VALUES(:ActividadId, :LugarId)";
+
+        try 
+        {
+            $stmt = $db->prepare($sql);
+
+            $stmt->bindParam("ActividadId", $actividad->ActividadId);
+            $stmt->bindParam("LugarId", $actividad->Lugar->LugarId);
+
+            $stmt->execute();
+
+        } catch(PDOException $e) 
+        {
+            //echo $e;
+            echo '[{"Estatus": "Fallo"}]';
+            $db->rollBack();
+            $app->status(409);
+            $app->stop();
+        }
+    }
+    
     $sql = "INSERT INTO FrecuenciaPorActividad (ActividadId, FrecuenciaId) VALUES(:ActividadId, :FrecuenciaId)";
     
     try 
@@ -471,7 +532,7 @@ function EditarActividad()
 
         $stmt->execute();
         
-        echo '[{"Estatus": "Exitoso"}]';
+        echo '[{"Estatus": "Exitoso"},  {"Etiqueta":'.json_encode($actividad->Etiqueta).'}, {"Tema":'.json_encode($actividad->Tema).'}]';
         $db->commit();
         $db = null;
 

@@ -53,6 +53,10 @@ app.controller("AdministrarTemaActividadController", function($scope, $window, $
                 $rootScope.UsuarioId = $scope.usuarioLogeado.UsuarioId;
             }
         }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
+        }
     };
     
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 

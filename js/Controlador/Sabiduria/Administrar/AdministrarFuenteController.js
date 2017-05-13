@@ -54,6 +54,10 @@ app.controller("AdministrarFuenteController", function($scope, $window, $http, $
                 $rootScope.UsuarioId = $scope.usuarioLogeado.UsuarioId;
             }
         }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
+        }
     };
     
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 

@@ -1,4 +1,4 @@
-app.controller("CiudadController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce)
+app.controller("CiudadController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce, CIUDAD)
 {   
     $scope.ciudad = [];
     
@@ -280,12 +280,20 @@ app.controller("CiudadController", function($scope, $window, $http, $rootScope, 
             {
                 $scope.nuevaCiudad.CiudadId = data[1].Id; 
                 $scope.ciudad.push($scope.nuevaCiudad);
-                
                 $scope.SetPaisEstado($scope.ciudad);
                 
-                $scope.mensaje = "Ciudad agregada.";
-                $scope.EnviarAlerta('Modal');
-                $scope.nuevaCiudad = new Ciudad();
+                if($scope.operacion == "Agregar")
+                {
+                    $scope.mensaje = "Ciudad agregada.";
+                    $scope.EnviarAlerta('Modal');
+                    $scope.nuevaCiudad = new Ciudad();
+                }
+                else
+                {
+                    $('#modalCiudad').modal('toggle');
+                    CIUDAD.TerminarCiudad($scope.nuevaCiudad);
+                }
+                
             }
             else
             {
@@ -400,14 +408,34 @@ app.controller("CiudadController", function($scope, $window, $http, $rootScope, 
     $scope.GetCiudad();
     
     //------------------------ Exterior ---------------------------
-    /*$scope.$on('AgregarArtista',function()
+    $rootScope.$on('AgregarCiudadNuevo',function()
     {
+        var campo = CIUDAD.GetCampo();
+        
+        if(campo == "Pais")
+        {
+            $scope.paisNuevo = true;
+            $scope.estadoNuevo = true;
+        }
+        else if(campo == "Estado")
+        {
+            $scope.paisNuevo = false;
+            $scope.estadoNuevo = true;
+        }
+        else if(campo == "Ciudad")
+        {
+            $scope.paisNuevo = false;
+            $scope.estadoNuevo = false;
+        }
+        
         $scope.operacion = "AgregarExterior";
 
-        $scope.nuevoArtista = new Artista();
+        $scope.nuevaCiudad = new Ciudad();
+        $scope.nuevaCiudad = SetCiudad(CIUDAD.GetCiudad());
+         $scope.nuevaCiudad.CiudadId = "";
     
-        $('#mensajeArtista').modal('toggle');
-    });*/
+        $('#modalCiudad').modal('toggle');
+    });
     
     //------------------- Alertas ---------------------------
     $scope.EnviarAlerta = function(alerta)
@@ -434,27 +462,34 @@ app.controller("CiudadController", function($scope, $window, $http, $rootScope, 
     
 });
 
-/*app.factory('ARTISTA',function($rootScope)
+app.factory('CIUDAD',function($rootScope)
 {
   var service = {};
-  service.artista = null;
+  service.ciudad = null;
+  service.campo = null;
     
-  service.AgregarArtista = function()
+  service.AgregarCiudad = function(ciudad, campo)
   {
-      this.artista = null;
-      $rootScope.$broadcast('AgregarArtista');
+      this.ciudad = SetCiudad(ciudad);
+      this.campo = campo;
+      $rootScope.$broadcast('AgregarCiudadNuevo');
   };
     
-  service.TerminarArtista = function(artista)
+  service.TerminarCiudad = function(ciudad)
   {
-      this.artista = artista;
-      $rootScope.$broadcast('TerminarArtista');
+      this.ciudad = ciudad;
+      $rootScope.$broadcast('TerminarCiudad');
   };
     
-  service.GetArtista = function()
+  service.GetCiudad = function()
   {
-      return this.artista;
+      return this.ciudad;
+  };
+    
+  service.GetCampo = function()
+  {
+      return this.campo;
   };
 
   return service;
-});*/
+});

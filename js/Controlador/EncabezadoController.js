@@ -145,6 +145,11 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             {
                 $scope.barraNavegacion.opcion[1].show = true;
             }
+            
+            if($scope.usuario.Permiso[k] == "AdmUsuarios")
+            {
+                $scope.barraNavegacion.opcion[1].elemento[0].show = true;
+            }
         }
     };
     
@@ -161,6 +166,11 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             if($scope.usuario.Permiso[k] == "CancioneroAdm")
             {
                 $scope.barraNavegacion.opcion[1].show = true;
+            }
+            
+            if($scope.usuario.Permiso[k] == "AdmUsuarios")
+            {
+                $scope.barraNavegacion.opcion[1].elemento[0].show = true;
             }
         }
     };
@@ -179,6 +189,11 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             {
                 $scope.barraNavegacion.opcion[1].show = true;
             }
+            
+            if($scope.usuario.Permiso[k] == "AdmUsuarios")
+            {
+                $scope.barraNavegacion.opcion[1].elemento[0].show = true;
+            }
         }
     };
     
@@ -186,18 +201,24 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     {
         $scope.barraNavegacion.opcion[0].show = false;
         $scope.barraNavegacion.opcion[1].show = false;
+        
+        $scope.barraNavegacion.opcion[1].elemento[0].show = false;
     };
     
     $scope.LimpiarBarraNavegacionCancionero = function()
     {
         $scope.barraNavegacion.opcion[0].show = false;
         $scope.barraNavegacion.opcion[1].show = false;
+        
+        $scope.barraNavegacion.opcion[1].elemento[0].show = false;
     };
     
     $scope.LimpiarBarraNavegacionActividades = function()
     {
         $scope.barraNavegacion.opcion[0].show = false;
         $scope.barraNavegacion.opcion[1].show = false;
+        
+        $scope.barraNavegacion.opcion[1].elemento[0].show = false;
     };
     
     /*------------------------------Cambiar Contraseña--------------------------------------------*/
@@ -440,12 +461,12 @@ var EncabezadoSabiduria =
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [
-                                                {texto:"Usuarios", referencia:"#Usuario", funcion:""},
-                                                {texto:"Fuentes", referencia:"#Fuente", funcion:""},
-                                                {texto:"Autores", referencia:"#Autor", funcion:""},
-                                                {texto:"Etiquetas", referencia:"#Etiqueta", funcion:""},
-                                                {texto:"Información", referencia:"#ConfigurarInformacion", funcion:""},
-                                                {texto:"Temas", referencia:"#Tema", funcion:""}
+                                                {texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
+                                                {texto:"Fuentes", referencia:"#Fuente", funcion:"", show:true},
+                                                {texto:"Autores", referencia:"#Autor", funcion:"", show:true},
+                                                {texto:"Etiquetas", referencia:"#Etiqueta", funcion:"", show:true},
+                                                {texto:"Información", referencia:"#ConfigurarInformacion", funcion:"", show:true},
+                                                {texto:"Temas", referencia:"#Tema", funcion:"", show:true}
                                             ]},
                    
               ]                      
@@ -459,9 +480,9 @@ var EncabezadoCancionero =
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [
-                                                {texto:"Usuarios", referencia:"#Usuario", funcion:""},
-                                                {texto:"Artistas", referencia:"#Artista", funcion:""},
-                                                {texto:"Canciones", referencia:"#Cancion", funcion:""},
+                                                {texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
+                                                {texto:"Artistas", referencia:"#Artista", funcion:"", show:true},
+                                                {texto:"Canciones", referencia:"#Cancion", funcion:"", show:true},
                                             ]},
                     
               ]                       
@@ -475,13 +496,13 @@ var EncabezadoActividades =
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [
-                                                {texto:"Usuarios", referencia:"#Usuario", funcion:""},
-                                                {texto:"Etiquetas", referencia:"#Etiqueta", funcion:""},
-                                                {texto:"Frecuencias", referencia:"#Frecuencia", funcion:""},
-                                                {texto:"Temas", referencia:"#TemaActividad", funcion:""},
-                                                {texto:"Personas", referencia:"#PersonaActividad", funcion:""},
-                                                {texto:"Lugares", referencia:"#Lugar", funcion:""},
-                                                {texto:"Ciudades", referencia:"#Ciudades", funcion:""},
+                                                {texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
+                                                {texto:"Etiquetas", referencia:"#Etiqueta", funcion:"", show:true},
+                                                {texto:"Frecuencias", referencia:"#Frecuencia", funcion:"", show:true},
+                                                {texto:"Temas", referencia:"#TemaActividad", funcion:"", show:true},
+                                                {texto:"Personas", referencia:"#PersonaActividad", funcion:"", show:true},
+                                                {texto:"Lugares", referencia:"#Lugar", funcion:"", show:true},
+                                                {texto:"Unidades", referencia:"#Unidades", funcion:"", show:true},
                                             ]},
                     
               ]                       

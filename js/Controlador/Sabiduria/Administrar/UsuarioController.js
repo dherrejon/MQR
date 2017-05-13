@@ -2,11 +2,12 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
 {   
     $scope.ValidarPermiso = function()
     {
+        $scope.permisoValido = false;
         for(var k=0; k<$scope.usuarioLogeado.Permiso.length; k++)
         {
-            if($scope.usuarioLogeado.Permiso[k] == "SabiduriaAdm")
+            if($scope.usuarioLogeado.Permiso[k] == "AdmUsuarios")
             {
-                $scope.permiso = true;
+                $scope.permisoValido = true;
                 break;
             }
         }
@@ -481,7 +482,7 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
     $scope.InicializarControlador = function()
     {
         $scope.ValidarPermiso();
-        if($scope.permiso)
+        if($scope.permisoValido)
         {
             if($scope.usuarioLogeado.Aplicacion.length == 0 || $scope.usuarioLogeado.Aplicacion == "Aplicaciones")
             {
@@ -491,6 +492,10 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
             {
                 $scope.InicializarUsuario();
             }
+        }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
         }
     };
     
@@ -509,7 +514,7 @@ app.controller("UsuarioController", function($scope, $window, $http, $rootScope,
         }
     }
     
-    //destecta cuando los datos del usuario cambian
+    //detecta cuando los datos del usuario cambian
     $scope.$on('cambioUsuario',function()
     {
         $scope.usuarioLogeado =  datosUsuario.getUsuario();

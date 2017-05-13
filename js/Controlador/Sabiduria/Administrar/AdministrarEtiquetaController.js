@@ -8,7 +8,7 @@ app.controller("AdministrarEtiquetaController", function($scope, $window, $http,
     {
         for(var k=0; k<$scope.usuarioLogeado.Permiso.length; k++)
         {
-            if($scope.usuarioLogeado.Permiso[k] == "SabiduriaAdm")
+            if($scope.usuarioLogeado.Permiso[k] == "SabiduriaAdm" || $scope.usuarioLogeado.Permiso[k] == "ActividadesAdm")
             {
                 $scope.permiso = true;
                 break;
@@ -47,6 +47,10 @@ app.controller("AdministrarEtiquetaController", function($scope, $window, $http,
             {
                 $rootScope.UsuarioId = $scope.usuarioLogeado.UsuarioId;
             }
+        }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
         }
     };
     

@@ -50,6 +50,10 @@ app.controller("AdministrarAutorController", function($scope, $window, $http, $r
                 $rootScope.IrPaginaPrincipal();
             }
         }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
+        }
     };
     
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 

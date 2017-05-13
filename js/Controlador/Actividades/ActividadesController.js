@@ -1,4 +1,4 @@
-app.controller("ActividadesController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce, FRECUENCIA)
+app.controller("ActividadesController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce, FRECUENCIA, LUGAR, CIUDAD, UNIDAD, DIVISA)
 {   
     $scope.titulo = "Actividades";
     
@@ -23,15 +23,26 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     
     $scope.tema = [];
     $scope.frecuencia = [];
-    $scope.tema = [];
+    $scope.etiqueta = [];
+    $scope.lugar = [];
+    
+    $scope.temaF = [];
+    $scope.frecuenciaF = [];
+    $scope.etiquetaF = [];
     
     $scope.buscarActividad = "";
     $scope.detalle = new Actividad();
     $scope.verDetalle = false;
+    $scope.verFiltro = false;
     $scope.nuevaActividad = new Actividad();
     
     $scope.buscarTema = "";
     $scope.buscarEtiqueta = "";
+    $scope.buscarFrecuenciaOperacion = "";
+    $scope.buscarLugarOperacion = "";
+    
+    $scope.mostrarFrecuencia = false;
+    $scope.mostrarLugar = false;
     
     //filtro
     $scope.buscarTemaFiltro = "";
@@ -40,6 +51,26 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     
     $scope.mostrarFiltro = "etiqueta";
     $scope.filtro = {tema:[], etiqueta:[], frecuencia:[]};
+    
+    /*--------- evento variables ------*/
+     $scope.eventoActividad = [];
+    $scope.persoanaEvento = [];
+    $scope.nuevoEvento = null;
+    
+    $scope.ciudad = [];
+    $scope.estado = [];
+    $scope.pais = [];
+    $scope.unidad = [];
+    $scope.divisa = [];
+    $scope.persona = [];
+    
+    $scope.mostrarPais = false;
+    $scope.mostrarEstado = false;
+    $scope.mostrarCiudad = false;
+    
+    $scope.buscarPais = "";
+    $scope.buscarEstado = "";
+    $scope.buscarCiudad = "";
 
     
     /*------------------ Catálogos -----------------------------*/
@@ -47,16 +78,28 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     {
         GetActividad($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
         {
-            $scope.actividad = data;
-            $scope.GetEtiquetaPorActividad();
-        
+            var actividad = []; 
+            for(var k=0; k<data.length; k++)
+            {
+                actividad[k] = SetActividad(data[k]);
+                
+                //Notas
+                actividad[k].NotasHTML = $sce.trustAsHtml(actividad[k].NotasHTML);
+            }
+            
+            $scope.actividad = actividad;
+
+            var sql = "SELECT DISTINCT FrecuenciaId, NombreFrecuencia as Nombre FROM ? WHERE FrecuenciaId IS NOT NULL";
+            $scope.frecuenciaF = alasql(sql, [data]);
+            
+            $scope.GetEtiquetaPorActividad($scope.actividad);
         }).catch(function(error)
         {
             alert(error);
         });
     };
     
-    $scope.GetEtiquetaPorActividad = function()              
+    $scope.GetEtiquetaPorActividad = function(actividad)              
     {
         GetEtiquetaPorActividad($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
         {
@@ -69,7 +112,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
                 alert(data[0].Estatus);
             }
             
-            $scope.GetTemaPorActividad();
+            $scope.GetTemaPorActividad(actividad);
         
         }).catch(function(error)
         {
@@ -77,14 +120,14 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         });
     };
     
-    $scope.GetTemaPorActividad = function()              
+    $scope.GetTemaPorActividad = function(actividad)              
     {
         GetTemaPorActividad($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
         {
             if(data[0].Estatus == "Exito")
             {
                 $scope.temaActividad = data[1].Tema;
-                $scope.SetActividaDatos();
+                $scope.SetActividaDatos(actividad);
             }
             else
             {
@@ -97,27 +140,94 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         });
     };
     
-    $scope.SetActividaDatos = function()
-    {
+    $scope.SetActividaDatos = function(actividad)
+    {   
         var sqlBaseTema = "SELECT * FROM ? WHERE ActividadId = '";
         var sqlBaseEtiqueta = "SELECT * FROM ? WHERE ActividadId = '";
         var sql;
         
-        for(var k=0; k<$scope.actividad.length; k++)
+        for(var k=0; k<actividad.length; k++)
         {
             //tema
             sql = sqlBaseTema;
-            sql += ($scope.actividad[k].ActividadId + "'");
-            $scope.actividad[k].Tema = alasql(sql, [$scope.temaActividad]);
+            sql += (actividad[k].ActividadId + "'");
+            actividad[k].Tema = alasql(sql, [$scope.temaActividad]);
             
             //etiqueta
             sql = sqlBaseEtiqueta;
-            sql += ($scope.actividad[k].ActividadId + "'");
-            $scope.actividad[k].Etiqueta = alasql(sql, [$scope.etiquetaActividad]);
-            
-            //Notas
-            $scope.actividad[k].NotasHTML = $sce.trustAsHtml($scope.actividad[k].NotasHTML);
+            sql += (actividad[k].ActividadId + "'");
+            actividad[k].Etiqueta = alasql(sql, [$scope.etiquetaActividad]);
         }
+        $scope.SetActividadFiltros();
+    };
+    
+    $scope.SetActividadFiltros = function()
+    {
+        var sql = "SELECT DISTINCT EtiquetaId, Nombre  FROM ? ";
+        $scope.etiquetaF = alasql(sql, [$scope.etiquetaActividad]);
+        
+        sql = "SELECT DISTINCT TemaActividadId, Tema  FROM ? ";
+        $scope.temaF = alasql(sql, [$scope.temaActividad]);
+    };
+    
+    /*------------- Catálogos Eventos ----------------------------------------------*/
+    $scope.GetCiudad = function()              
+    {
+        GetCiudad($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
+        {
+            $scope.ciudad = data;
+            
+            $scope.SetPaisEstado($scope.ciudad);
+
+        }).catch(function(error)
+        {
+            alert(error);
+        });
+    };
+    
+    $scope.SetPaisEstado = function(ciudad)
+    {
+        var sql = "SELECT DISTINCT Pais FROM ?";
+        $scope.pais = alasql(sql, [ciudad]);
+
+        sql = "SELECT DISTINCT Pais, Estado FROM ?";
+        $scope.estado = alasql(sql, [ciudad]);
+    };
+    
+    $scope.GetUnidad = function()              
+    {
+        GetUnidad($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
+        {
+            $scope.unidad = data;
+        
+        }).catch(function(error)
+        {
+            alert(error);
+        });
+    };
+    
+    $scope.GetDivisa = function()              
+    {
+        GetDivisa($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
+        {
+            $scope.divisa = data;
+        
+        }).catch(function(error)
+        {
+            alert(error);
+        });
+    };
+    
+    $scope.GetPersonaActividad = function()              
+    {
+        GetPersonaActividad($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
+        {
+            $scope.persona = data;
+        
+        }).catch(function(error)
+        {
+            alert(error);
+        });
     };
     
     
@@ -158,6 +268,22 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         });
     };
     
+    $scope.GetLugar = function()              
+    {
+        GetLugar($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
+        {
+            $scope.lugar = data;
+            /*for(var k=0; k<data.length; k++)
+            {
+                $scope.lugar[k].DireccionHTML = $sce.trustAsHtml($scope.lugar[k].DireccionHTML);
+            }*/
+            
+        }).catch(function(error)
+        {
+            alert(error);
+        });
+    };
+    
     //----------- Detalles -------------------
     $scope.VerDetalles = function(actividad)
     {
@@ -168,6 +294,8 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         {
             $scope.buscarActividad = "";
         }
+
+        $scope.GetEventoActividad(actividad.ActividadId);
     };
     
     $scope.GetClaseActividad = function(id)
@@ -193,18 +321,6 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     };
     
     //------------------------------- Filtrar -------------------------
-    $scope.MostrarFiltros = function(filtro)
-    {
-        if($scope.mostrarFiltro == filtro)
-        {
-            $scope.mostrarFiltro = "";
-        }
-        else
-        {
-            $scope.mostrarFiltro = filtro;
-        }
-    };
-    
     $scope.FitroActividad = function(info)
     {        
         var cumple = false;
@@ -467,6 +583,12 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     
     $scope.SetFiltroTema = function(tema)
     {
+        var sql = "SELECT * FROM ? WHERE Filtro = true";
+        
+        $scope.temaFiltrado = alasql(sql, [$scope.temaF]);
+        
+        $scope.buscarTemaFiltro = "";
+        
         for(var k=0; k<$scope.filtro.tema.length; k++)
         {
             if(tema == $scope.filtro.tema[k])
@@ -481,6 +603,12 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     
     $scope.SetFiltroFrecuencia = function(frecuencia)
     {
+        var sql = "SELECT * FROM ? WHERE Filtro = true";
+        
+        $scope.frecuenciaFiltrada = alasql(sql, [$scope.frecuenciaF]);
+        
+        $scope.buscarFrecuenciaFiltro = "";
+        
         for(var k=0; k<$scope.filtro.frecuencia.length; k++)
         {
             if(frecuencia == $scope.filtro.frecuencia[k])
@@ -495,6 +623,12 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     
     $scope.SetFiltroEtiqueta = function(etiqueta)
     {
+        var sql = "SELECT * FROM ? WHERE Filtro = true";
+        
+        $scope.EtiquetaFiltrada = alasql(sql, [$scope.etiquetaF]);
+        
+        $scope.buscarEtiquetaFiltro = "";
+        
         for(var k=0; k<$scope.filtro.etiqueta.length; k++)
         {
             if(etiqueta == $scope.filtro.etiqueta[k])
@@ -513,24 +647,126 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     {
         $scope.filtro = {tema:[], etiqueta:[], frecuencia:[]};
         
-        for(var k=0; k<$scope.etiqueta.length; k++)
+        for(var k=0; k<$scope.etiquetaF.length; k++)
         {
-            $scope.etiqueta[k].Filtro = false;
+            $scope.etiquetaF[k].Filtro = false;
         }
         
-        for(var k=0; k<$scope.tema.length; k++)
+        for(var k=0; k<$scope.temaF.length; k++)
         {
-            $scope.tema[k].Filtro = false;
+            $scope.temaF[k].Filtro = false;
         }
         
-        for(var k=0; k<$scope.frecuencia.length; k++)
+        for(var k=0; k<$scope.frecuenciaF.length; k++)
         {
-            $scope.frecuencia[k].Filtro = false;
+            $scope.frecuenciaF[k].Filtro = false;
         }
+        
+        $scope.sinTemaFiltro = false;
         
         $scope.buscarEtiquetaFiltro = "";
         $scope.buscarTemaFiltro = "";
         $scope.buscarFrecuenciaFiltro = "";
+    };
+    
+    $scope.LimpiarBuscarFiltro = function()
+    {
+        $scope.buscarEtiquetaFiltro = "";
+        $scope.buscarFrecuenciaFiltro = "";
+        $scope.buscarTemaFiltro = "";
+    };
+    
+    //Presionar enter
+    $('#bucarEtiquetaFiltro').keydown(function(e)
+    {
+        switch(e.which) {
+            case 13:
+                $scope.CheckFiltroEtiqueta();
+              break;
+
+            default:
+                return;
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
+    
+    $scope.CheckFiltroEtiqueta = function()
+    {
+        for(var k=0; k<$scope.etiquetaF.length; k++)
+        {
+            if($scope.etiquetaF[k].Nombre.toLowerCase() == $scope.buscarEtiquetaFiltro.toLowerCase() && !$scope.etiquetaF[k].Filtro)
+            {
+                $scope.etiquetaF[k].Filtro = true;
+                $scope.SetFiltroEtiqueta($scope.etiquetaF[k].EtiquetaId);
+                $scope.buscarEtiquetaFiltro = "";
+                break;
+            }
+        }
+        
+        $scope.$apply();
+    };
+    
+    $('#buscarTemaFiltro').keydown(function(e)
+    {
+        switch(e.which) {
+            case 13:
+                $scope.CheckFiltroTema();
+              break;
+
+            default:
+                return;
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
+    
+    $scope.CheckFiltroTema = function()
+    {
+        for(var k=0; k<$scope.temaF.length; k++)
+        {
+            if($scope.temaF[k].Tema.toLowerCase() == $scope.buscarTemaFiltro.toLowerCase() && !$scope.temaF[k].Filtro)
+            {
+                $scope.temaF[k].Filtro = true;
+                $scope.SetFiltroTema($scope.temaF[k].TemaActividadId);
+                $scope.buscarTemaFiltro = "";
+                break;
+            }
+        }
+        
+        $scope.$apply();
+    };
+    
+    $('#buscarFrecuenciaFiltro').keydown(function(e)
+    {
+        switch(e.which) {
+            case 13:
+                $scope.CheckFiltroFrecuencia();
+              break;
+
+            default:
+                return;
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
+    
+    $scope.CheckFiltroFrecuencia = function()
+    {
+        for(var k=0; k<$scope.frecuenciaF.length; k++)
+        {
+            if($scope.frecuenciaF[k].Nombre.toLowerCase() == $scope.buscarFrecuenciaFiltro.toLowerCase() && !$scope.frecuenciaF[k].Filtro)
+            {
+                $scope.frecuenciaF[k].Filtro = true;
+                $scope.SetFiltroFrecuencia($scope.frecuenciaF[k].FrecuenciaId);
+                $scope.buscarFrecuenciaFiltro = "";
+                break;
+            }
+        }
+        
+        $scope.$apply();
+    };
+    
+    $scope.CambiarVerFiltro = function()
+    {
+        $scope.verFiltro = !$scope.verFiltro;
     };
     
     
@@ -551,9 +787,16 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             $scope.ActivarDesactivarTema(actividad.Tema);
             $scope.ActivarDesactivarEtiqueta(actividad.Etiqueta);
         }
+        else if(operacion == "Copiar")
+        {
+            $scope.nuevaActividad = $scope.CopiarActividad(actividad);
+            $scope.ActivarDesactivarTema(actividad.Tema);
+            $scope.ActivarDesactivarEtiqueta(actividad.Etiqueta);
+        }
     
-        $('#modalFiltro').modal('toggle');
+        $('#modalActividad').modal('toggle');
     };
+    
     
     $scope.ActivarDesactivarTema = function(tema)
     {
@@ -594,6 +837,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         actividad.ActividadId = data.ActividadId;
         actividad.Nombre = data.Nombre;
         actividad.FechaCreacion = data.FechaCreacion;
+        actividad.FechaCreacionFormato = data.FechaCreacionFormato;
         actividad.Notas = data.Notas;
         
         if(data.Notas !== null && data.Notas !== undefined)
@@ -606,9 +850,11 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             actividad.NotasHTML = "";
         }
         
-        
         actividad.Frecuencia.FrecuenciaId = data.Frecuencia.FrecuenciaId;
         actividad.Frecuencia.Nombre = data.Frecuencia.Nombre;
+        
+        actividad.Lugar.LugarId = data.Lugar.LugarId;
+        actividad.Lugar.Nombre = data.Lugar.Nombre;
         
         for(var k=0; k<data.Etiqueta.length; k++)
         {
@@ -628,17 +874,53 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         
         return actividad;
     };
-     
+    
+    $scope.CopiarActividad = function(data)
+    {
+        var actividad = new Actividad();
+
+        actividad.Lugar.LugarId = data.Lugar.LugarId;
+        actividad.Lugar.Nombre = data.Lugar.Nombre;
+        
+        for(var k=0; k<data.Etiqueta.length; k++)
+        {
+            actividad.Etiqueta[k] = new Etiqueta();
+            
+            actividad.Etiqueta[k].EtiquetaId = data.Etiqueta[k].EtiquetaId;
+            actividad.Etiqueta[k].Nombre = data.Etiqueta[k].Nombre;
+        }
+        
+        for(var k=0; k<data.Tema.length; k++)
+        {
+            actividad.Tema[k] = new TemaActividad();
+            
+            actividad.Tema[k].TemaActividadId = data.Tema[k].TemaActividadId;
+            actividad.Tema[k].Tema = data.Tema[k].Tema;
+        }
+        
+        return actividad;
+    };
+    
     $scope.CerrarActividad = function()
     {
         $('#cerrarActividad').modal('toggle');
+        $scope.cerrarVentana = "actividad";
     };
     
     $scope.ConfirmarCerrarActividad = function()
     {
-        $('#modalActividad').modal('toggle');
-        $scope.mensajeError = [];
-        $scope.LimpiarInterfaz();
+        if($scope.cerrarVentana == "actividad")
+        {
+            $('#modalActividad').modal('toggle');
+            $scope.mensajeError = [];
+            $scope.LimpiarInterfaz();
+        }
+        else if($scope.cerrarVentana == "evento")
+        {
+            $('#modalEvento').modal('toggle');
+            $scope.mensajeError = [];
+        }
+        
     };
     
     $scope.LimpiarInterfaz = function()
@@ -931,6 +1213,89 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     $scope.CambiarFrecuencia = function(frecuencia)
     {
         $scope.nuevaActividad.Frecuencia = frecuencia;
+        
+        $scope.mostrarFrecuencia = false;
+        $scope.buscarFrecuenciaOperacion = "";
+    };
+    
+    $scope.MostrarFrecuencia = function()
+    {
+        $scope.mostrarFrecuencia = !$scope.mostrarFrecuencia;
+    };
+    
+    //Lugar
+    $scope.CambiarLugar = function(lugar, objeto)
+    {
+        $scope.mostrarLugar = false;
+        $scope.buscarLugarOperacion = "";
+        
+        if(lugar != 'Ninguno')
+        {
+            if(objeto == "Actividad")
+            {
+                $scope.nuevaActividad.Lugar = lugar;
+            }
+            else if(objeto == "Evento")
+            {
+                $scope.nuevoEvento.Lugar = lugar;
+            }
+        }
+        else
+        {
+            if(objeto == "Actividad")
+            {
+                $scope.nuevaActividad.Lugar = new Lugar();
+            }
+            else if(objeto == "Evento")
+            {
+                $scope.nuevoEvento.Lugar = new Lugar();
+            }
+        }
+    };
+    
+    $scope.MostrarLugar = function()
+    {
+        $scope.mostrarLugar = !$scope.mostrarLugar;
+    };
+    
+    document.getElementById('modalActividad').onclick = function(e) 
+    {
+        if($scope.mostrarLugar)
+        {
+            if(!(e.target.id == "lugarPanel"  || $(e.target).parents("#lugarPanel").size()))
+            { 
+                $scope.mostrarLugar = false;
+                $scope.$apply();
+            }
+        }
+        
+        if($scope.mostrarFrecuencia)
+        {
+            if(!(e.target.id == "frecuenciaPanel"  || $(e.target).parents("#frecuenciaPanel").size()))
+            { 
+                $scope.mostrarFrecuencia = false;
+                $scope.$apply();
+            }
+        }
+        
+        /*if($scope.buscarTema.length > 0)
+        {
+            if(!(e.target.id == "temaPanel"  || $(e.target).parents("#temaPanel").size()))
+            { 
+                $scope.buscarTema = "";
+                $scope.$apply();
+            }
+        }
+        
+        if($scope.buscarEtiqueta.length > 0)
+        {
+            if(!(e.target.id == "etiquetaPanel"  || $(e.target).parents("#etiquetaPanel").size()))
+            { 
+                $scope.buscarEtiqueta = "";
+                $scope.$apply();
+            }
+        }*/
+        
     };
     
     //-------------------- Terminar Actividad -------------------
@@ -944,7 +1309,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         else
         {
             $scope.nuevaActividad.UsuarioId = $rootScope.UsuarioId;
-            if($scope.operacion == "Agregar")
+            if($scope.operacion == "Agregar" || $scope.operacion == "Copiar")
             {
                 var d = new Date();
                 $scope.nuevaActividad.FechaCreacion = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
@@ -971,6 +1336,10 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
                 
                 $scope.nuevaActividad.ActividadId = data[1].ActividadId;
                 $scope.nuevaActividad.FechaCreacion = data[2].FechaCreacion;
+                $scope.nuevaActividad.FechaCreacionFormato = TransformarFecha(data[2].FechaCreacion);
+                $scope.nuevaActividad.Etiqueta = data[3].Etiqueta;
+                $scope.nuevaActividad.Tema = data[4].Tema;
+                
                 
                 $scope.SetNuevaActividad($scope.nuevaActividad);
                 
@@ -981,6 +1350,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
                 $scope.nuevaActividad = new Actividad();
                 $('#modalActividad').modal('toggle');
                 $scope.LimpiarInterfaz();
+                $('#registrarEventoPregunta').modal('toggle');
             }
             else
             {
@@ -1002,6 +1372,9 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         {
             if(data[0].Estatus == "Exitoso")
             {
+                $scope.nuevaActividad.Etiqueta = data[1].Etiqueta;
+                $scope.nuevaActividad.Tema = data[2].Tema;
+                
                 $scope.mensaje = "Actividad editada.";
                 $scope.SetNuevaActividad($scope.nuevaActividad);
                 $scope.LimpiarInterfaz();
@@ -1025,10 +1398,74 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     
     $scope.SetNuevaActividad = function(actividad)
     {
-        if($scope.operacion == "Agregar")
+        var nact = [];
+        nact[0] = $scope.SetActvidad(actividad);
+        
+        
+        //Etiqueta y tema Filtro
+        //$scope.GetEtiquetaPorActividad(nact);
+        
+        //frecuencia filtro
+        var sql = "SELECT COUNT(*) as num FROM ? WHERE FrecuenciaId = '" + actividad.Frecuencia.FrecuenciaId + "'";
+        var count = alasql(sql, [$scope.frecuenciaF]);
+        
+        if(count[0].num === 0)
+        {
+           $scope.frecuenciaF.push(nact[0].Frecuencia);
+        }
+        
+        //tema
+        var sqlBase = "SELECT COUNT(*) as num FROM ? WHERE TemaActividadId= '";
+        for(var k=0; k<actividad.Tema.length; k++)
+        {
+            sql = sqlBase + actividad.Tema[k].TemaActividadId + "'";
+            
+            //tema Filtro
+            count = alasql(sql, [$scope.temaF]);
+            
+            if(count[0].num === 0)
+            {
+               $scope.temaF.push(actividad.Tema[k]);
+            }
+            
+            //tema Dropdownlist
+            count = alasql(sql, [$scope.tema]);
+            
+            if(count[0].num === 0)
+            {
+               $scope.tema.push(actividad.Tema[k]);
+            }
+        }
+        
+        //etiqueta
+        sqlBase = "SELECT COUNT(*) as num FROM ? WHERE EtiquetaId= '";
+        for(var k=0; k<actividad.Etiqueta.length; k++)
+        {
+            sql = sqlBase + actividad.Etiqueta[k].EtiquetaId + "'";
+            
+            //etiqueta Filtro
+            count = alasql(sql, [$scope.etiquetaF]);
+            
+            if(count[0].num === 0)
+            {
+               $scope.etiquetaF.push(actividad.Etiqueta[k]);
+            }
+            
+            //etiqueta Dropdownlist
+            count = alasql(sql, [$scope.etiqueta]);
+            
+            if(count[0].num === 0)
+            {
+               $scope.etiqueta.push(actividad.Etiqueta[k]);
+            }
+        
+        }
+        
+        //agregar y editar
+        if($scope.operacion == "Agregar" || $scope.operacion == "Copiar")
         {
             var index = $scope.actividad.length;
-            $scope.actividad[index] = $scope.SetActvidad(actividad);
+            $scope.actividad[index] = nact[0];
             $scope.VerDetalles($scope.actividad[index]);
         }
         else if($scope.operacion == "Editar")
@@ -1037,7 +1474,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             {
                 if($scope.actividad[k].ActividadId == actividad.ActividadId)
                 {
-                    $scope.actividad[k] = $scope.SetActvidad(actividad);
+                    $scope.actividad[k] = nact[0];
                     $scope.VerDetalles($scope.actividad[k]);
                     break;
                 }
@@ -1093,7 +1530,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     //------------------------  Borrar --------------------------------------
     $scope.BorrarActividad = function(actividad)
     {
-        $scope.borrarActividad = actividad.ActividadId;
+        $scope.borrarActividad = actividad;
         
         $scope.mensajeBorrar = "¿Estas seguro de eliminar " + actividad.Nombre + "?";
         
@@ -1102,13 +1539,13 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     
     $scope.ConfirmarBorrarActividad = function()
     {
-        BorrarActividad($http, CONFIG, $q, $scope.borrarActividad).then(function(data)
+        BorrarActividad($http, CONFIG, $q, $scope.borrarActividad.ActividadId).then(function(data)
         {
             if(data[0].Estatus == "Exitoso")
             {                
                 for(var k=0; k<$scope.actividad.length; k++)
                 {
-                    if($scope.actividad[k].ActividadId == $scope.borrarActividad)
+                    if($scope.actividad[k].ActividadId == $scope.borrarActividad.ActividadId)
                     {
                         $scope.actividad.splice(k,1);
                         break;
@@ -1120,6 +1557,8 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
                 
                 $scope.mensaje = "Actividad borrada.";
                 $scope.EnviarAlerta('Vista');
+                
+                $scope.QuitarFiltros();
                 
             }
             else
@@ -1134,6 +1573,99 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             $('#mensajeActividad').modal('toggle');
         });
     };
+    
+     $scope.QuitarFiltros = function()
+     {
+         var quitar = true;
+        for(var k=0; k<$scope.actividad.length; k++)
+        {
+            if($scope.actividad[k].Frecuencia.FrecuenciaId == $scope.borrarActividad.Frecuencia.FrecuenciaId)
+            {
+                quitar = false;
+                break;
+            }
+        }
+         
+        if(quitar)
+        {
+            for(var k=0; k<$scope.frecuenciaF.length; k++)
+            {
+                if($scope.frecuenciaF[k].FrecuenciaId == $scope.borrarActividad.Frecuencia.FrecuenciaId) 
+                {
+                    $scope.frecuenciaF.splice(k,1);
+                    break;
+                }
+            }
+        }
+         
+         
+        for(var k=0; k<$scope.borrarActividad.Etiqueta.length; k++)
+        {
+            quitar = true;
+            
+            for(var i=0; i<$scope.actividad.length; i++)
+            {
+                for(var j=0; j<$scope.actividad[i].Etiqueta.length; j++)
+                {
+                    if($scope.borrarActividad.Etiqueta[k].EtiquetaId == $scope.actividad[i].Etiqueta[j].EtiquetaId)
+                    {
+                        quitar = false;
+                        break;
+                    }
+                }
+                if(!quitar)
+                {
+                    break;
+                }
+            }
+            
+            if(quitar)
+            {
+                for(var i=0; i<$scope.etiquetaF.length; i++)
+                {
+                    if($scope.etiquetaF[i].EtiquetaId == $scope.borrarActividad.Etiqueta[k].EtiquetaId)
+                    {
+                        $scope.etiquetaF.splice(i,1);
+                        break;
+                    }
+                }
+            }
+        }
+         
+        for(var k=0; k<$scope.borrarActividad.Tema.length; k++)
+        {
+            quitar = true;
+            
+            for(var i=0; i<$scope.actividad.length; i++)
+            {
+                for(var j=0; j<$scope.actividad[i].Tema.length; j++)
+                {
+                    if($scope.borrarActividad.Tema[k].TemaActividadId == $scope.actividad[i].Tema[j].TemaActividadId)
+                    {
+                        quitar = false;
+                        break;
+                    }
+                }
+                if(!quitar)
+                {
+                    break;
+                }
+            }
+            
+            if(quitar)
+            {
+                for(var i=0; i<$scope.temaF.length; i++)
+                {
+                    if($scope.temaF[i].TemaActividadId == $scope.borrarActividad.Tema[k].TemaActividadId)
+                    {
+                        $scope.temaF.splice(i,1);
+                        break;
+                    }
+                }
+            }
+        }
+         
+     };
     
     //----------------Limpiar------------------
     $scope.LimpiarBuscar = function(buscar)
@@ -1162,6 +1694,21 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             case 7:
                 $scope.buscarFrecuenciaFiltro = "";
                 break;
+            case 8:
+                $scope.buscarFrecuenciaOperacion = "";
+                break;
+            case 9:
+                $scope.buscarLugarOperacion = "";
+                break;
+            case 10:
+                $scope.buscarPais = "";
+                break;
+            case 11:
+                $scope.buscarEstado = "";
+                break;
+            case 12:
+                $scope.buscarCiudad = "";
+                break;
             default: 
                 break;
         }
@@ -1184,7 +1731,18 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
                 $scope.GetTemaActividad();
                 $scope.GetEtiqueta();
                 $scope.GetFrecuencia();
+                $scope.GetLugar();
+                
+                //evento
+                $scope.GetCiudad();
+                $scope.GetUnidad();
+                $scope.GetDivisa();
+                $scope.GetPersonaActividad();
             }
+        }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
         }
     };
     
@@ -1234,6 +1792,29 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         $scope.frecuencia.push(FRECUENCIA.GetFrecuencia());
     });
     
+    //-------- Agregar Nueva Lugar----------
+    $scope.AbrirAgregarLugar = function(objeto)
+    {
+        $scope.objetoLugar = objeto;
+        LUGAR.AgregarLugar();
+    };
+    
+    $scope.$on('TerminarLugar',function()
+    {   
+        $scope.mensaje = "Lugar Agregado";
+        $scope.lugar.push(LUGAR.GetLugar());
+        $scope.CambiarLugar(LUGAR.GetLugar(), $scope.objetoLugar);
+        
+        if($scope.objetoLugar == "Actividad")
+        {
+            $scope.EnviarAlerta('Modal');
+        }
+        else if($scope.objetoLugar == "Evento")
+        {
+            $scope.EnviarAlerta('Evento');
+        }    
+    });
+    
     //------------------- Alertas ---------------------------
     $scope.EnviarAlerta = function(alerta)
     {
@@ -1253,8 +1834,475 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             $("#alertaEditarExitosoActividad").fadeIn();
             setTimeout(function () {
                 $("#alertaEditarExitosoActividad").fadeOut();
-            }, 2000)
+            }, 2000);
         }
+        else if('Evento')
+        {
+            $("#alertaEditarExitosoEvento").alert();
+
+            $("#alertaEditarExitosoEvento").fadeIn();
+            setTimeout(function () {
+                $("#alertaEditarExitosoEvento").fadeOut();
+            }, 2000);
+        }
+    };
+    
+    
+    /*--------------------------------- Eventos de actividades ------------------------------------*/
+   
+    
+    $scope.GetEventoActividad = function(id)              
+    {
+        GetEventoActividad($http, $q, CONFIG, id).then(function(data)
+        {
+            var eventoActividad = []; 
+            for(var k=0; k<data.length; k++)
+            {
+                //Notas
+                data[k].NotasHTML = $sce.trustAsHtml(data[k].NotasHTML);
+            }
+            
+            $scope.eventoActividad = data;
+            
+            $scope.GetPersonaEventoActividad(id);
+        }).catch(function(error)
+        {
+            alert(error);
+        });
+    };
+    
+    $scope.GetPersonaEventoActividad = function(id)              
+    {
+        GetPersonaEventoActividad($http, $q, CONFIG, id).then(function(data)
+        {
+            
+            if(data[0].Estatus == "Exito")
+            {
+                $scope.persoanaEvento = data[1].Persona;
+            }
+            else
+            {
+                $scope.persoanaEvento = [];
+            }
+            
+            
+            $scope.SetEventoActividadDatos();
+        }).catch(function(error)
+        {
+            alert(error);
+        });
+    };
+    
+    $scope.SetEventoActividadDatos =  function()
+    {
+        var sqlBase = "SELECT PersonaId, Nombre FROM ? WHERE EventoActividadId = '";
+        var sql = ""; 
+        
+        for(var k=0; k<$scope.eventoActividad.length; k++)
+        {
+            sql = sqlBase + $scope.eventoActividad[k].EventoActividadId + "'";
+            $scope.eventoActividad[k].Persona = alasql(sql, [$scope.persoanaEvento]);
+        }
+    
+    };
+    
+    
+    
+    /*--------------------------- Operaciones -----------------------------*/
+    
+    $scope.VerDetallesEvento = function(evento)
+    {
+        $scope.detalleEvento = evento;
+        $('#DetalleEvento').modal('toggle');
+    };
+    
+    $scope.RegistrarEvento = function(operacion, actividad, evento)
+    {
+        $scope.operacion = operacion;
+        
+        if($scope.operacion == "Agregar")
+        {
+            $scope.nuevoEvento = new EventoActividad();
+            
+            $scope.IniciarEvento(actividad);
+        }
+        else if($scope.operacion == "Editar")
+        {
+            $scope.nuevoEvento = $scope.SetEvento(evento);
+        }
+        
+        $('#modalEvento').modal('toggle');
+    };
+    
+    $scope.IniciarEvento = function(actividad)
+    {
+        $scope.nuevoEvento.Actividad = actividad.Nombre;
+        $scope.nuevoEvento.ActividadId = actividad.ActividadId;
+
+        $scope.nuevoEvento.Fecha = GetDate();
+        $scope.nuevoEvento.FechaFormato = TransformarFecha($scope.nuevoEvento.Fecha);
+        
+        $scope.nuevoEvento.Lugar = SetLugar(actividad.Lugar);
+
+        document.getElementById("fechaEvento").value = $scope.nuevoEvento.Fecha;
+    };
+    
+    $scope.CerrarRegistrarEvento = function()
+    {
+        $('#cerrarActividad').modal('toggle');
+        $scope.cerrarVentana = "evento";
+    };
+    
+    //_-------- Fecha -------------------
+    $('#fechaEvento').bootstrapMaterialDatePicker(
+    { 
+        weekStart : 0, 
+        time: false,
+        format: "YYYY-MM-DD",
+    });
+    
+    $scope.CambiarFecha = function(element) 
+    {
+        $scope.$apply(function($scope) 
+        {
+            $scope.nuevoEvento.Fecha = element.value;
+            $scope.nuevoEvento.FechaFormato = TransformarFecha(element.value);
+        });
+    };
+    
+    //----------------- Ciudad --------------
+    
+    document.getElementById('modalEvento').onclick = function(e) 
+    {
+        if($scope.mostrarLugar)
+        {
+            if(!(e.target.id == "lugarEventoPanel"  || $(e.target).parents("#lugarEventoPanel").size()))
+            { 
+                $scope.mostrarLugar = false;
+                $scope.$apply();
+            }
+        }
+        
+        if($scope.mostrarPais)
+        {
+            if(!(e.target.id == "paisEventoPanel"  || $(e.target).parents("#paisEventoPanel").size()))
+            { 
+                $scope.mostrarPais = false;
+                $scope.$apply();
+            }
+        }
+        
+        if($scope.mostrarEstado)
+        {
+            if(!(e.target.id == "estadoEventoPanel"  || $(e.target).parents("#estadoEventoPanel").size()))
+            { 
+                $scope.mostrarEstado = false;
+                $scope.$apply();
+            }
+        }
+        
+        if($scope.mostrarCiudad)
+        {
+            if(!(e.target.id == "ciudadEventoPanel"  || $(e.target).parents("#ciudadEventoPanel").size()))
+            { 
+                $scope.mostrarCiudad = false;
+                $scope.$apply();
+            }
+        }
+        
+    };
+    
+    $scope.MostrarPais = function()
+    {
+        $scope.mostrarPais = !$scope.mostrarPais;
+    };
+    
+    $scope.MostrarEstado = function()
+    {
+        $scope.mostrarEstado = !$scope.mostrarEstado;
+    };
+    
+    $scope.MostrarCiudad= function()
+    {
+        $scope.mostrarCiudad = !$scope.mostrarCiudad;
+    };
+    
+    $scope.CambiarPais = function(pais)
+    {
+        if(pais === "")
+        {
+            $scope.nuevoEvento.Ciudad.Pais = "";
+            $scope.nuevoEvento.Ciudad.Estado = "";
+            $scope.nuevoEvento.Ciudad.Ciudad = "";
+        }
+        else if(pais != $scope.nuevoEvento.Ciudad.Pais)
+        {
+            $scope.nuevoEvento.Ciudad.Pais = pais;
+            $scope.nuevoEvento.Ciudad.Estado = "";
+            $scope.nuevoEvento.Ciudad.Ciudad = "";
+        }
+        
+        $scope.mostrarPais = false;
+    };
+    
+    $scope.CambiarEstado = function(estado)
+    {
+        if(estado != $scope.nuevoEvento.Ciudad.Estado)
+        {
+            $scope.nuevoEvento.Ciudad.Estado = estado;
+            $scope.nuevoEvento.Ciudad.Ciudad = "";
+        }
+        
+        $scope.mostrarEstado = false;
+    };
+    
+    $scope.CambiarCiudad = function(ciudad)
+    {
+        $scope.nuevoEvento.Ciudad.CiudadId = ciudad.CiudadId;
+        $scope.nuevoEvento.Ciudad.Ciudad = ciudad.Ciudad;
+        
+        
+        $scope.mostrarCiudad = false;
+    };
+    
+    //-------- Agregar Ciudad ----------
+    $scope.AbrirAgregarCiudad = function(campo)
+    {
+        $scope.campoCiudad = campo;
+        CIUDAD.AgregarCiudad($scope.nuevoEvento.Ciudad, campo);
+    };
+    
+    $scope.$on('TerminarCiudad',function()
+    {   
+        $scope.mensaje = "Ciudad Agregada";
+        $scope.ciudad.push(CIUDAD.GetCiudad());
+        $scope.SetPaisEstado($scope.ciudad);
+        
+        $scope.mostrarPais = false;
+        $scope.mostrarEstado = false;
+        $scope.mostrarCiudad = false;
+        
+        var ciudad = CIUDAD.GetCiudad();
+        $scope.nuevoEvento.Ciudad = SetCiudad(ciudad);
+        
+        if($scope.campoCiudad == "Pais")
+        {
+            $scope.CambiarPais(ciudad.Pais);
+            $scope.CambiarEstado(ciudad.Estado);
+        }
+        else if($scope.campoCiudad == "Pais")
+        {
+            $scope.CambiarEstado(ciudad.Estado);
+        }
+
+        $scope.CambiarCiudad(ciudad);
+        
+        
+
+        $scope.EnviarAlerta('Evento');
+           
+    });
+    
+    //----------------- Unidad -----------------------
+    $scope.CambiarUnidad = function(unidad)
+    {
+        $scope.nuevoEvento.Unidad = unidad;
+    };
+    
+    //-------- Agregar Unidad ----------
+    $scope.AbrirAgregarUnidad = function()
+    {
+        UNIDAD.AgregarUnidad();
+    };
+    
+    $scope.$on('TerminarUnidad',function()
+    {   
+        $scope.mensaje = "Unidad Agregada";
+        
+        var unidad = SetUnidad(UNIDAD.GetUnidad());
+            
+        $scope.unidad.push(unidad);
+        $scope.CambiarUnidad(unidad);
+
+        $scope.EnviarAlerta('Evento');
+           
+    });
+    
+    //------- Divisa- -----------------
+    $scope.CambiarDivisa = function(divisa)
+    {
+        $scope.nuevoEvento.Divisa = divisa;
+    };
+    
+    //-------- Agregar Divisa ----------
+    $scope.AbrirAgregarDivisa = function()
+    {
+        DIVISA.AgregarDivisa();
+    };
+    
+    $scope.$on('TerminarDivisa',function()
+    {   
+        $scope.mensaje = "Divisa Agregada";
+        
+        var divisa = SetDivisa(DIVISA.GetDivisa());
+            
+        $scope.divisa.push(divisa);
+        $scope.CambiarDivisa(divisa);
+
+        $scope.EnviarAlerta('Evento');
+           
+    });
+    
+    
+    //----------------- terminar evento actividad -------------------
+    $scope.TerminarEventoActividad = function()
+    {
+        /*if(!$scope.ValidarActividad(actividadInvalida))
+        {
+            $('#mensajeActividad').modal('toggle');
+            return;
+        }
+        else
+        {*/
+            if($scope.operacion == "Agregar")
+            {
+                $scope.AgregarEventoActividad();
+            }
+            else if($scope.operacion == "Editar")
+            {
+                $scope.EditarEventoActividad();
+            }
+        //}
+    };
+    
+    $scope.AgregarEventoActividad = function()    
+    {
+        AgregarEventoActividad($http, CONFIG, $q, $scope.nuevoEvento).then(function(data)
+        {
+            if(data[0].Estatus == "Exitoso")
+            {
+                $scope.mensaje = "Evento agregado.";
+                $scope.EnviarAlerta('Vista');
+                
+                $scope.nuevoEvento.EventoActividadId = data[1].Id;                
+                
+                $scope.SetNuevoEvento($scope.nuevoEvento);
+        
+                $('#modalEvento').modal('toggle');
+            }
+            else
+            {
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde.";
+                $('#mensajeActividad').modal('toggle');
+            }
+            
+            
+        }).catch(function(error)
+        {
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $('#mensajeActividad').modal('toggle');
+        });
+    };
+    
+    $scope.EditarEventoActividad = function()    
+    {
+        EditarEventoActividad($http, CONFIG, $q, $scope.nuevoEvento).then(function(data)
+        {
+            if(data[0].Estatus == "Exitoso")
+            {   
+                $scope.mensaje = "Evento editado.";
+                $scope.SetNuevoEvento($scope.nuevoEvento);
+                $scope.EnviarAlerta('Vista');
+                
+                $('#modalEvento').modal('toggle');
+            }
+            else
+            {
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde.";
+                $('#mensajeActividad').modal('toggle');
+            }
+            
+            
+        }).catch(function(error)
+        {
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $('#mensajeActividad').modal('toggle');
+        });
+    };
+    
+    $scope.SetNuevoEvento = function(evento)
+    {
+        if($scope.operacion == "Agregar")
+        {
+            var nuevoEvento = $scope.SetEvento(evento);
+            $scope.eventoActividad.push(nuevoEvento);
+        }
+        else if($scope.operacion == "Editar")
+        {
+            for(var k=0; k<$scope.eventoActividad.length; k++)
+            {
+                if($scope.eventoActividad[k].EventoActividadId == evento.EventoActividadId)
+                {
+                    $scope.eventoActividad[k] = $scope.SetEvento(evento);
+                    
+                    break;
+                }
+            }
+        }
+    };
+    
+    $scope.SetEvento = function(data)
+    {
+        var evento = new EventoActividad();
+    
+        evento.EventoActividadId = data.EventoActividadId;
+        evento.Fecha = data.Fecha;
+        evento.FechaFormato = data.FechaFormato;
+        evento.ActividadId = data.ActividadId;
+        evento.Actividad = data.Actividad;
+        evento.Costo = data.Costo;
+        evento.Cantidad = data.Cantidad;
+
+        if(data.Notas !== null)
+        {
+             evento.Notas = data.Notas;
+             evento.NotasHTML = data.Notas.replace(/\r?\n/g, "<br>");
+        }
+        else
+        {
+             evento.Notas = ""; 
+             evento.NotasHTML = "";     
+        }
+        
+        evento.NotasHTML = $sce.trustAsHtml(evento.NotasHTML);
+
+        if(data.Ciudad.CiudadId !== null)
+        {
+            evento.Ciudad.CiudadId = data.Ciudad.CiudadId;
+            evento.Ciudad.Ciudad = data.Ciudad.Ciudad;
+            evento.Ciudad.Estado = data.Ciudad.Estado;
+            evento.Ciudad.Pais = data.Ciudad.Pais;
+        }
+
+        if(data.Lugar.LugarId !== null)
+        {
+            evento.Lugar.LugarId = data.Lugar.LugarId;
+            evento.Lugar.Nombre = data.Lugar.Nombre;
+        }
+
+        if(data.Unidad.UnidadId !== null)
+        {
+            evento.Unidad.UnidadId = data.Unidad.UnidadId;
+            evento.Unidad.Unidad = data.Unidad.Unidad;
+        }
+
+        if(data.Divisa.DivisaId !== null)
+        {
+            evento.Divisa.DivisaId = data.Divisa.DivisaId;
+            evento.Divisa.Divisa = data.Divisa.Divisa;
+        }
+            
+        return evento;    
     };
     
 });

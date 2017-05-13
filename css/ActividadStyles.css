@@ -8,11 +8,15 @@
     overflow-y: scroll;
 }
 
-.panelOperacionBotonLateral
+.panelOperacionBotonLateral, .panelOperacionBotonLateral:focus, .panelOperacionBotonLateral:active, .panelOperacionBotonLateral:hover
 {
     color: white;
     background: #1859b2;
     border-bottom: 2px  solid #79adf4;
+    border-radius: 0px;
+    
+    outline: none !important;
+    box-shadow: none;
 }
 
 .botonOperacionBarraLateral, .botonOperacionBarraLateral:hover, .botonOperacionBarraLateral:active, .botonOperacionBarraLateral:focus
@@ -155,7 +159,7 @@
 
 .botonFiltroBarraLateral, .botonFiltroBarraLateral:hover, .botonFiltroBarraLateral:active, .botonFiltroBarraLateral:focus
 {
-    color: #262626;
+    color: #1859b2;
     background: transparent;
     
     outline: none !important;
@@ -194,4 +198,27 @@
     color: white;
     background: #1859b2;
     opacity: 0.8;
+}
+
+.filtroModal
+{ 
+    overflow-x: hidden;
+    position: static;
+}
+
+.verFitros
+{
+    background: #d2e4fb;
+    color:  #262626;
+    border-bottom: 2px  solid #79adf4;
+}
+
+.botonFalsoTitulo, .botonFalsoTitulo:active, .botonFalsoTitulo:focus, .botonFalsoTitulo:hover
+{
+    color:  #262626;
+    background: transparent;
+    cursor: default;
+    
+    outline: none !important;
+    box-shadow: none;
 }

@@ -1,4 +1,4 @@
-<div ng-controller="AdministrarLugarController as admLugar" style="margin-top:57px">
+<div ng-controller="AdministrarUnidadesController as admUnidades" style="margin-top:57px">
    
     <div class="container-fluid">
         <div class="row">
@@ -32,16 +32,18 @@
 
                     <!-- Contenido -->
                     <div class="">
-                        <!-- lugares -->
-                        <div role="tabpanel" class="tab-pane in active" id="Lugar" ng-if="permiso && titulo=='Lugares'" >
+                        <!-- Unidades -->
+                        <div role="tabpanel" class="tab-pane in active" id="Unidad" ng-if="permiso && titulo=='Unidades'" >
                             <br>  
-                            <div class="col-xs-12"><div ng-include=" 'html/Actividades/Administrar/Lugar/Lugar.html' "></div></div>
+                            <div class="col-xs-12"><div ng-include=" 'html/Actividades/Administrar/Unidades/Unidades.html' "></div></div>
                         </div>
-                        <!-- Ciudades -->
-                        <div role="tabpanel" class="tab-pane" id="Ciudad" ng-if="permiso && titulo=='Ciudades'" >
+                        
+                        <!-- Divisas -->
+                        <div role="tabpanel" class="tab-pane" id="Divisa" ng-if="permiso && titulo=='Divisas'" >
                             <br>  
-                            <div class="col-xs-12"><div ng-include=" 'html/Actividades/Administrar/Ciudad/Ciudad.html' "></div></div>
+                            <div class="col-xs-12"><div ng-include=" 'html/Actividades/Administrar/Unidades/Divisas.html' "></div></div>
                         </div>
+                        
                     </div>
             </div>
         </div>

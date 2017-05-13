@@ -151,7 +151,7 @@
     box-shadow: none;
 }
 
-.botonCM, .botonCM:hover, .botonCM:active, .botonCM:focus
+.botonCM, .botonCM:active, .botonCM:focus
 {
     color: #262626;
     background: white;
@@ -159,6 +159,15 @@
     font-size: 13pt;
     border-bottom: 1px solid #848484;
     border-top: 1px solid #848484;
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
+.botonCM:hover
+{
+    color: #262626;
+    background: #E0F2F7;
     
     outline: none !important;
     box-shadow: none;

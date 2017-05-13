@@ -59,7 +59,7 @@
                                     <!-- módulos desplegados en dropdown list -->
                                     <ul class="dropdown-menu barraNavegacionDropdown">
 
-                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0">
+                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0 && elemento.show">
                                             <a  href="{{elemento.referencia}}" class="dropdownOpcion" ng-click="MouseClickElemento(opcion.texto, null);">
                                                 <span>{{elemento.texto}}</span>
                                             </a>
@@ -144,13 +144,13 @@
                                     </a>
 
                                     <ul class="dropdown-menu barraNavegacionDropdown">
-                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0">
+                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0 && elemento.show">
                                             <a href="{{elemento.referencia}}" class="dropdownOpcion text-center" ng-click="CerrarBarraNavegacion()">
                                                 <span>{{elemento.texto}}</span>
                                             </a>
                                         </li>
 
-                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length > 0">
+                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length > 0 && elemento.show">
                                             <a  href="" class="dropdownOpcion text-center" ng-click="MouseClickElemento(opcion, elemento.funcion);">
                                                 <span>{{elemento.texto}}</span>
                                             </a>

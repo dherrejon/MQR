@@ -53,6 +53,10 @@ app.controller("AdministrarLugarController", function($scope, $window, $http, $r
                 $rootScope.UsuarioId = $scope.usuarioLogeado.UsuarioId;
             }
         }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
+        }
     };
     
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 
@@ -91,5 +95,6 @@ app.controller("AdministrarLugarController", function($scope, $window, $http, $r
 
 
 var tabLugar = [
-                        {titulo:"Lugares", referencia: "#Lugar", clase:"active", area:"lugar"}
+                        {titulo:"Lugares", referencia: "#Lugar", clase:"active", area:"lugar"},
+                        {titulo:"Ciudades", referencia: "#Ciudad", clase:"", area:"ciudad"}
                     ];

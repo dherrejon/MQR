@@ -27,6 +27,10 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 $rootScope.IrPaginaPrincipal();
             }
         }
+        else
+        {
+            $rootScope.IrPaginaPrincipal();
+        }
     };
     
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 
