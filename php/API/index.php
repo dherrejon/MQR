@@ -27,6 +27,7 @@
     require 'Actividades/Unidad.php';
     require 'Actividades/Divisa.php';
     require 'Actividades/EventoActividad.php';
+    require 'Actividades/Diario.php';
 
     /*-----Seguridad-----*/
     require 'PHP-JWT/Authentication/JWT.php';
@@ -330,8 +331,18 @@
     $app->get('/GetEventoActividad/:id', $seguridad, $ChecarSesion, 'GetEventoActividad');
     $app->post('/AgregarEventoActividad', $seguridad, $ChecarSesion, 'AgregarEventoActividad');
     $app->put('/EditarEventoActividad', $seguridad, $ChecarSesion, 'EditarEventoActividad');
+    $app->delete('/BorrarEventoActividad', $seguridad, $ChecarSesion, 'BorrarEventoActividad');
 
     $app->get('/GetPersonaEventoActividad/:id', $seguridad, $ChecarSesion, 'GetPersonaEventoActividad');
+
+    /*-----------------------  Actividad ------------------------------------------*/
+    $app->get('/GetDiario/:id', $seguridad, $ChecarSesion, 'GetDiario');
+    //$app->post('/AgregarDiario', $seguridad, $ChecarSesion, 'AgregarDiarios');
+    //$app->put('/EditarActividad', $seguridad, $ChecarSesion, 'EditarActividad');
+    //$app->delete('/BorrarActividad', $seguridad, $ChecarSesion, 'BorrarActividad');
+
+    $app->get('/GetEtiquetaPorDiario/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorDiario');
+    $app->get('/GetTemaPorDiario/:id', $seguridad, $ChecarSesion, 'GetTemaPorDiario');
 
     $app->run(); 
 

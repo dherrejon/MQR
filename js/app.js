@@ -132,6 +132,9 @@ app.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpPro
         when('/Unidades',{
             templateUrl: 'html/Actividades/Administrar/AdministrarUnidades.html'
         }).
+        when('/Diario',{
+            templateUrl: 'html/Actividades/Diario.html'
+        }).
     
     otherwise({
         templateUrl: 'html/Login.html'
@@ -235,7 +238,7 @@ $(document).on('show.bs.modal', '.modal', function ()
     var zIndex = Math.max.apply(null, Array.prototype.map.call(document.querySelectorAll('*'), function(el) 
     {
         return +el.style.zIndex;
-    })) + 100;
+    })) + 9999999;
     
     $(document).on('hidden.bs.modal', '.modal', function () 
     {

@@ -395,14 +395,14 @@ function EditarEventoActividad()
 }
 
 
-/*function BorrarFrecuencia()
+function BorrarEventoActividad()
 {
     global $app;
     $request = \Slim\Slim::getInstance()->request();
-    $frecuenciaId = json_decode($request->getBody());
+    $eventoId = json_decode($request->getBody());
    
     
-    $sql = "DELETE FROM Frecuencia WHERE FrecuenciaId=".$frecuenciaId;
+    $sql = "DELETE FROM EventoActividad WHERE EventoActividadId=".$eventoId;
     try 
     {
         $db = getConnection();
@@ -421,7 +421,7 @@ function EditarEventoActividad()
         $app->stop();
     }
 
-}*/
+}
 
 
 //------------------------------------------ Otros Catálogos---------------------

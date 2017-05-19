@@ -161,12 +161,16 @@
                        
                        <!-- Botones -->
                        <div class="pull-right btn-group">
+                         
+                          <button class="btn  botonDetallesActividad" ng-click="RegistrarEvento('Agregar', detalle, null)">
+                               <b class="fa fa-calendar-check-o" ></b>
+                           </button>
                           
                             <!-- "context menu" -->
                             <button class="fa fa-ellipsis-v btn botonVacio" data-toggle="dropdown" style="font-size: 16pt"></button>
 
                             <ul class="dropdown-menu  contextMenu">
-                                <button class="col-xs-12 btn botonCM" ng-click="RegistrarEvento('Agregar', detalle, null)"> <span class="fa fa-calendar-check-o "></span> Registrar</button>
+                                <!--<button class="col-xs-12 btn botonCM" ng-click="RegistrarEvento('Agregar', detalle, null)"> <span class="fa fa-calendar-check-o "></span> Registrar</button>-->
                                 <button class="col-xs-12 btn botonCM" ng-click="AbrirActividad('Copiar', detalle)"> <span class="fa fa-files-o "></span> Copiar</button>
                                 <button class="col-xs-12 btn botonCM" ng-click="AbrirActividad('Editar', detalle)"> <span class="fa fa-pencil"></span> Editar</button><br>
                                 <button class="col-xs-12 btn botonCM" ng-click="BorrarActividad(detalle)"> <span class="fa fa-minus-circle "></span> Borrar</button>
@@ -261,17 +265,38 @@
                                  <div class="col-xs-12 ">
                                    
                                    <!-- Fecha -->
-                                     <b>{{evento.FechaFormato}}</b><br>
+                                     <b>{{evento.FechaFormato}}</b>
                                    
-                                    <span class="" ng-if="evento.Ciudad.CiudadId.length > 0">
+                                    <!--<span class="" ng-if="evento.Ciudad.CiudadId.length > 0">
                                          <b class=" datoEvento fa fa-map-marker"> </b>
                                          <span class="datoEvento"> {{evento.Ciudad.Ciudad}}, {{evento.Ciudad.Estado}}. {{evento.Ciudad.Pais}}.</span><br>
-                                     </span>
+                                     </span>-->
+                                     
+                                  
+                                     <div class="pull-right btn-group">
+                                        
+                                        <!-- Detalles -->
+                                         <a class=" operacionEvento" ng-click="VerDetallesEvento(evento)">
+                                             <span class="fa fa-eye"></span>
+                                         </a>
+                                         
+                                         <!-- Editar eventos -->
+                                         <a class="operacionEvento" ng-click="RegistrarEvento('Editar', detalle, evento)">
+                                             <span class="fa fa-pencil"></span>
+                                         </a>
+                                         
+                                         <!-- Eliminar evento -->
+                                         <a class="operacionEvento" ng-click="BorrarEventoActividad(evento)">
+                                             <span class="fa fa-trash"></span>
+                                         </a>
+                                          
+                                     </div>
+                           
                                  </div>
                              </div>
                              
                              <!-- Divisor -->
-                             <div class="divisorGris1">
+                             <div class="divisorGris1" ng-if="(evento.Cantidad.length + evento.Costo.length + evento.Lugar.LugarId.length) >0">
                              </div>
                              
                              <!-- Cantidad, costo y lugar -->
@@ -328,27 +353,6 @@
                                      </span>
                                  </div>
                              </div>
-                             
-                             <br>
-              
-                             <div class="row">
-                                 <div class="col-xs-12">
-                                     <div class="pull-right">
-                                        
-                                        <!-- Detalles -->
-                                         <button class="btn operacionEvento" ng-click="VerDetallesEvento(evento)">
-                                             <span class="fa fa-eye"></span> <span class="hidden-xs">Detalles</span>
-                                         </button>
-                                         
-                                         <!-- Editar eventos -->
-                                         <button class="btn operacionEvento" ng-click="RegistrarEvento('Editar', detalle, evento)">
-                                             <span class="fa fa-pencil"></span> <span class="hidden-xs">Editar</span>
-                                         </button>
-                                          
-                                     </div>
-                                 </div>
-                             </div>
-                            
                              
                          </div>
                           <br>
@@ -1009,8 +1013,18 @@
                 <div class="row">
                       
                     <div class="col-xs-12 col-sm-12 etiquetaDropdownList" >
-                        <label class="">Fecha</label>
-                        <button type="text" id="fechaEvento" class="form-control entrada botonFecha" onchange="angular.element(this).scope().CambiarFecha(this)">{{nuevoEvento.FechaFormato}}</button>
+                        <label class="">Fecha</label><br>
+                        <div class="row" >
+                           <div class="col-xs-12" >
+                            <span class="botonFecha">{{nuevoEvento.FechaFormato}}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row" >
+                            <div class="col-xs-12" >
+                                <input type="text"  id="fechaEvento" class="form-control entrada" style=" cursor:pointer; color:transparent; margin-top:-25px; z-index: 5 !important;" onchange="angular.element(this).scope().CambiarFecha(this)"/>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -1020,7 +1034,7 @@
                     <div class="col-sm-12">
                          <div class="">
                             <label class="etiquetaNormal">Notas</label>
-                            <textarea required type="text"  class="form-control contenidoArea" style="font-size:12pt" name="nota" ng-model="nuevoEvento.Notas" maxlength="1000"></textarea>
+                            <textarea required type="text"  class="form-control contenidoArea" style="font-size:12pt" name="nota" ng-model="nuevoEvento.Notas" maxlength="2000"></textarea>
                         </div>
                     </div>
                 </div>
@@ -1345,6 +1359,29 @@
             <br>
             </form> 
             
+        </div>
+    </div>
+    
+    <!-- Borrar -->
+    <div class="modal fade sombraDivModal" id="borrarEventoActividad">
+        <br>    <br>   <br>
+        <div class="modal-dialog modalPrincipal text-center">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <span style="font-size:14pt">{{mensajeBorrar}}</span>
+                </div>
+            </div>
+            <br><br>
+            <div class="row">
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
+                </div>
+                <div class="col-xs-6">
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarBorrarEventoActividad()">Si</button>
+                </div>
+            </div>
+                        
         </div>
     </div>
     

@@ -568,7 +568,7 @@ function BorrarActividad()
     catch(PDOException $e) 
     {
         echo '[ { "Estatus": "Fallo" } ]';
-        //echo $e;
+        echo $e;
         $app->status(409);
         $app->stop();
     }

@@ -878,6 +878,23 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     $scope.CopiarActividad = function(data)
     {
         var actividad = new Actividad();
+        
+        actividad.Nombre = data.Nombre;
+        
+        actividad.Notas = data.Notas;
+        
+        if(data.Notas !== null && data.Notas !== undefined)
+        {
+            actividad.NotasHTML = data.Notas.replace(/\r?\n/g, "<br>");
+            actividad.NotasHTML = $sce.trustAsHtml(actividad.NotasHTML);
+        }
+        else
+        {
+            actividad.NotasHTML = "";
+        }
+        
+        actividad.Frecuencia.FrecuenciaId = data.Frecuencia.FrecuenciaId;
+        actividad.Frecuencia.Nombre = data.Frecuencia.Nombre;
 
         actividad.Lugar.LugarId = data.Lugar.LugarId;
         actividad.Lugar.Nombre = data.Lugar.Nombre;
@@ -1530,11 +1547,20 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     //------------------------  Borrar --------------------------------------
     $scope.BorrarActividad = function(actividad)
     {
-        $scope.borrarActividad = actividad;
-        
-        $scope.mensajeBorrar = "¿Estas seguro de eliminar " + actividad.Nombre + "?";
-        
-        $("#borrarActividad").modal('toggle');
+        if($scope.eventoActividad.length == 0)
+        {
+            $scope.borrarActividad = actividad;
+
+            $scope.mensajeBorrar = "¿Estas seguro de eliminar " + actividad.Nombre + "?";
+
+            $("#borrarActividad").modal('toggle');
+        }
+        else
+        {
+            $scope.mensajeError = [];
+            $scope.mensajeError[0] = "Esta actividad tiene eventos registrados. Tines que borrar todos sus eventos para poder borrar la actividad.";
+            $("#mensajeActividad").modal('toggle');
+        }
     };
     
     $scope.ConfirmarBorrarActividad = function()
@@ -1961,6 +1987,12 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         format: "YYYY-MM-DD",
     });
     
+    $scope.AbrirFechaPanel = function()
+    {
+        console.log("entra");
+        $('#fechaEvento').bootstrapMaterialDatePicker({ weekStart : 0, time: false });
+    };
+    
     $scope.CambiarFecha = function(element) 
     {
         $scope.$apply(function($scope) 
@@ -2263,7 +2295,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         evento.Costo = data.Costo;
         evento.Cantidad = data.Cantidad;
 
-        if(data.Notas !== null)
+        if(data.Notas !== null && data.Notas !== undefined)
         {
              evento.Notas = data.Notas;
              evento.NotasHTML = data.Notas.replace(/\r?\n/g, "<br>");
@@ -2303,6 +2335,49 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         }
             
         return evento;    
+    };
+    
+    //------------ Borrar evento actividad
+    $scope.BorrarEventoActividad = function(evento)
+    {
+        $scope.borrarEventoActividad = evento;
+
+        $scope.mensajeBorrar = "¿Estas seguro de eliminar el evento del " + evento.FechaFormato + "?";
+
+        $("#borrarEventoActividad").modal('toggle');
+        
+    };
+    
+    $scope.ConfirmarBorrarEventoActividad = function()
+    {
+        BorrarEventoActividad($http, CONFIG, $q, $scope.borrarEventoActividad.EventoActividadId).then(function(data)
+        {
+            if(data[0].Estatus == "Exitoso")
+            {                
+                for(var k=0; k<$scope.eventoActividad.length; k++)
+                {
+                    if($scope.eventoActividad[k].EventoActividadId == $scope.borrarEventoActividad.EventoActividadId)
+                    {
+                        $scope.eventoActividad.splice(k,1);
+                        break;
+                    }
+                }
+                
+                $scope.mensaje = "Evento borrado.";
+                $scope.EnviarAlerta('Vista');
+                
+            }
+            else
+            {
+                $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde";
+                $('#mensajeActividad').modal('toggle');
+            }
+            
+        }).catch(function(error)
+        {
+            $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
+            $('#mensajeActividad').modal('toggle');
+        });
     };
     
 });

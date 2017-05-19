@@ -185,14 +185,18 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             {
                 $scope.barraNavegacion.opcion[0].show = true;
             }
-            if($scope.usuario.Permiso[k] == "ActividadesAdm")
+            if($scope.usuario.Permiso[k] == "DiarioCon")
             {
                 $scope.barraNavegacion.opcion[1].show = true;
+            }
+            if($scope.usuario.Permiso[k] == "ActividadesAdm")
+            {
+                $scope.barraNavegacion.opcion[2].show = true;
             }
             
             if($scope.usuario.Permiso[k] == "AdmUsuarios")
             {
-                $scope.barraNavegacion.opcion[1].elemento[0].show = true;
+                $scope.barraNavegacion.opcion[2].elemento[0].show = true;
             }
         }
     };
@@ -217,8 +221,9 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     {
         $scope.barraNavegacion.opcion[0].show = false;
         $scope.barraNavegacion.opcion[1].show = false;
+        $scope.barraNavegacion.opcion[2].show = false;
         
-        $scope.barraNavegacion.opcion[1].elemento[0].show = false;
+        $scope.barraNavegacion.opcion[2].elemento[0].show = false;
     };
     
     /*------------------------------Cambiar Contraseña--------------------------------------------*/
@@ -493,6 +498,7 @@ var EncabezadoActividades =
     titulo:"Actividades", 
     opcion: [ 
                     { texto:"Inicio", tipo:"link", referencia:"#Actividades", show: false},
+                    { texto:"Diario", tipo:"link", referencia:"#Diario", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [

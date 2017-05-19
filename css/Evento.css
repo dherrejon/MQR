@@ -37,7 +37,7 @@
     text-align: center;
 }
 
-.operacionEvento, .operacionEvento:focus, .operacionEvento:active
+/*.operacionEvento, .operacionEvento:focus, .operacionEvento:active
 {
     border: 1px solid #081e3b;
     background: white;
@@ -56,7 +56,7 @@
     
     outline: none !important;
     box-shadow: none;
-}
+}*/
 
 .botonDatePicker, .botonDatePicker:focus, .botonDatePicker:active
 {
@@ -79,6 +79,9 @@
 {
     font-size:16px;
     text-align: left;
+    color:  #262626;
+    margin-left:11px;
+    z-index: 4;
 }
 
 /*Animacion de aparecer*/
@@ -141,4 +144,28 @@
 .rotateInDownLeft {
   -webkit-animation-name: rotateInDownLeft;
   animation-name: rotateInDownLeft;
+}
+
+
+
+.operacionEvento, .operacionEvento:focus, .operacionEvento:active
+{
+    background: white;
+    color: #081e3b;
+    border-radius: 0px;
+    font-size: 14pt;
+    padding-left: 7px;
+    padding-right: 7px;
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
+.operacionEvento:hover
+{
+    color: #1859b2;
+    cursor: pointer;
+    
+    outline: none !important;
+    box-shadow: none;
 }

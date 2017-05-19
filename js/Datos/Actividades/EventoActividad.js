@@ -187,13 +187,13 @@ function EditarEventoActividad($http, CONFIG, $q, evento)
     return q.promise;
 }
 
-/*function BorrarFrecuencia($http, CONFIG, $q, id)
+function BorrarEventoActividad($http, CONFIG, $q, id)
 {
     var q = $q.defer();
 
     $http({      
           method: 'DELETE',
-          url: CONFIG.APIURL + '/BorrarFrecuencia',
+          url: CONFIG.APIURL + '/BorrarEventoActividad',
           data: id
 
       }).success(function(data)
@@ -204,7 +204,7 @@ function EditarEventoActividad($http, CONFIG, $q, evento)
 
      }); 
     return q.promise;
-}*/
+}
 
 
 //------------------- Otros catálogos ---------------------------------------
@@ -238,6 +238,18 @@ function TransformarFecha(fecha)
     var diaNombre = dias[d.getDay()];
     
     var fechaF = diaNombre + " " + dia + " de "  + mes + " de " + year;
+    
+    return fechaF;
+}
+
+function TransformarFecha2(fecha)
+{
+    var year = fecha.slice(6,10);
+    var mes = fecha.slice(3,5);
+    var dia = fecha.slice(0,2);
+    
+    
+    var fechaF = year + "-" + mes + "-" + dia;
     
     return fechaF;
 }
