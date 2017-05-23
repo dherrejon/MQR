@@ -3,7 +3,7 @@
     <div class="container-fluid">
         <div class="row">
 
-            <div class="col-sm-3 col-xs-12 barraLateralActividad" ng-show="anchoPantalla > 767 || detalle.ActividadId.length == 0">
+            <div class="col-sm-3 col-xs-12 barraLateralActividad" ng-show="anchoPantalla > 767 || detalle.DiarioId.length == 0">
                 
                 
                 <!-- Separador -->
@@ -67,6 +67,7 @@
                         </div>
                         
                     </div>
+                    
                     <!-- Etiquetas -->
                     <div class="col-xs-12" ng-show="filtro.etiqueta.length > 0 && verFiltro">
                         <b> Etiquetas: </b><br>
@@ -83,31 +84,19 @@
                             <span ng-if="filtro.tema.length > 1">Sin Tema,</span>
                             <span ng-if="filtro.tema.length  == 1">Sin Tema.</span>
                         </span>
-                        
-                        
-                        
+
                         <span ng-repeat="tema in temaFiltrado | orderBy:'Tema'" ng-if="tema.Filtro">
                             <span ng-if="!$last">{{tema.Tema}}, </span>
                             <span ng-if="$last">{{tema.Tema}}.</span>
                         </span>
                     </div>
                     
-                    <!-- Frecuencia -->
-                    <div class="col-xs-12" ng-show="filtro.frecuencia.length > 0 && verFiltro">
-                        <b> Frecuencia: </b><br>
-                        <span ng-repeat="frecuencia in frecuenciaFiltrada | orderBy:'Nombre'" ng-if="frecuencia.Filtro">
-                            <span ng-if="!$last">{{frecuencia.Nombre}}, </span>
-                            <span ng-if="$last">{{frecuencia.Nombre}}.</span>
-                        </span>
-                    </div>
                 </div>
                 
                 <!-- Fechas -->
                 <div class="row">
-                    <a class="btn itemBarraLateral" ng-class="GetClaseDiario(fecha.Fecha)" ng-repeat="fecha in fecha | orderBy:'-Fecha' | filter:{Fecha:buscarFecha}" ng-click="VerDetalles(fecha)">
-
+                    <a class="btn itemBarraLateral" ng-class="GetClaseDiario(fecha.Fecha)" ng-repeat="fecha in fecha | orderBy:'-Fecha' | filter:{Fecha:buscarFecha}" ng-click="VerDetalles(fecha)"  ng-if="(fecha.Diario | filter:FiltrarDiario).length > 0">
                         <span class="col-xs-12"  style="white-space: normal; max-width: 90%; overflow: hidden;" >{{fecha.FechaFormato}}</span>
-                        
                     </a>
                 </div>
                 
@@ -124,7 +113,7 @@
                     <div class="col-xs-12" style="background: #E6E6E6;">
                         
                         <button class="btn botonTextoAzul" ng-click="CambiarVerBarra()">
-                            <span class="fa fa-chevron-left"></span> <span>Fechas</span>
+                            <span class="fa fa-chevron-left"></span> <span>Atras</span>
                         </button>
                         
                     </div>
@@ -161,7 +150,7 @@
                 <!-- Notas de la Fecha -->
                 <div class="row">
                    <div class="col-xs-12">
-                      <div ng-repeat="diario in detalle.Diario" >
+                      <div ng-repeat="diario in detalle.Diario | filter:FiltrarDiario" >
                         
                          <div class="eventoVista">
                             
@@ -196,13 +185,18 @@
                                      <div class="pull-right btn-group">
                                         
                                         <!-- Detalles -->
-                                         <a class=" operacionEvento" ng-click="VerDetallesEvento(evento)">
+                                         <a class=" operacionEvento" ng-click="VerDetallesDiario(diario)">
                                              <span class="fa fa-eye"></span>
                                          </a>
                                          
                                          <!-- Editar eventos -->
                                          <a class="operacionEvento" ng-click="AbrirDiario('Editar', diario, null)">
                                              <span class="fa fa-pencil"></span>
+                                         </a>
+                                         
+                                         <!-- Eliminar evento -->
+                                         <a class="operacionEvento" ng-click="BorrarDiario(diario)">
+                                             <span class="fa fa-trash"></span>
                                          </a>
                                           
                                      </div>
@@ -220,12 +214,9 @@
                                     <p class="fechaNotas" ng-bind-html="diario.NotasHTML"></p>
                                  </div>
                              </div>
-                            
-                             
-                             
                              
                          </div>
-                          <br>
+                        <br>
                           
                           
                       </div>
@@ -454,7 +445,7 @@
     
     
     <!-- Borrar -->
-    <div class="modal fade sombraDivModal" id="borrarActividad">
+    <div class="modal fade sombraDivModal" id="borrarDiario">
         <br>    <br>   <br>
         <div class="modal-dialog modalPrincipal text-center">
            
@@ -469,7 +460,7 @@
                     <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
                 </div>
                 <div class="col-xs-6">
-                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarBorrarActividad()">Si</button>
+                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarBorrarDiario()">Si</button>
                 </div>
             </div>
                         
@@ -488,7 +479,7 @@
                         <span>OK</span>
                     </button>
 
-                   <button class="btn botonFiltroBarraLateral pull-right" ng-disabled = "(filtro.tema.length + filtro.frecuencia.length + filtro.etiqueta.length) == 0" data-toggle="tooltip" data-placement="bottom" title="Limpiar filtro" ng-click="LimpiarFiltro()">
+                   <button class="btn botonFiltroBarraLateral pull-right" ng-disabled = "(filtro.tema.length + filtro.etiqueta.length) == 0" data-toggle="tooltip" data-placement="bottom" title="Limpiar filtro" ng-click="LimpiarFiltro()">
                         <span >Limpiar</span>
                     </button>
                 </div>  
@@ -507,7 +498,7 @@
                        <div class="input-group">
                             <input type="text"  placeholder="Buscar Etiqueta" class="entrada form-control" name="buscarEtiquetaFiltro" ng-model="buscarEtiquetaFiltro" id="bucarEtiquetaFiltro" autocomplete="off">
                             <span class="input-group-btn">
-                                <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(5)" type="button"><span aria-hidden="true">&times;</span></a>
+                                <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(4)" type="button"><span aria-hidden="true">&times;</span></a>
                             </span>
                         </div>
                     </div>
@@ -543,7 +534,7 @@
                        <div class="input-group">
                             <input type="text"  placeholder="Buscar Tema" class="entrada form-control" name="buscarTema" ng-model="buscarTemaFiltro" id="buscarTemaFiltro" autocomplete="off">
                             <span class="input-group-btn">
-                                <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(6)" type="button"><span aria-hidden="true">&times;</span></a>
+                                <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(5)" type="button"><span aria-hidden="true">&times;</span></a>
                             </span>
                         </div>
                     </div>
@@ -574,45 +565,56 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Frecuencia -->
-                <button class="btn btn-block panelOperacionBotonLateral">Frecuencia</button>
-
-                <div style="background: white">
-                   <div class="col-xs-12" style="margin-top: 10px"></div>
-
-                    <div class="col-xs-12">
-                       <div class="input-group">
-                            <input type="text"  placeholder="Buscar Frecuencia" class="entrada form-control" name="buscarFuente" ng-model="buscarFrecuenciaFiltro" id="buscarFrecuenciaFiltro" autocomplete="off">
-                            <span class="input-group-btn">
-                                <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(7)" type="button"><span aria-hidden="true">&times;</span></a>
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="col-xs-12" style="margin-top: 10px"></div>
-                    <div class="panel  filtroModal" style="border-radius: 0px;">
-                        <div class="row " >
-                            <div class="col-xs-12">
-
-                               <div ng-repeat="frecuencia in frecuenciaF | orderBy:'Nombre'" ng-show="(BuscarFrecuenciaFiltro(frecuencia) && buscarFrecuenciaFiltro.length > 0) || frecuencia.Filtro ">
-
-                                    <div class="checkbox" style="margin-top:5px !important">
-                                        <label class="anchoTotal">
-                                            <input  ng-model="frecuencia.Filtro" type="checkbox" ng-click="SetFiltroFrecuencia(frecuencia.FrecuenciaId)">
-                                            <span class="cr"> <i class="cr-icon fa fa-check"></i> </span>{{frecuencia.Nombre}}
-                                        </label>
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                
             </form> 
+            
+        </div>
+    </div>
+    
+    <div class="modal fade" id="detalleDiario">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-lg modalPrincipal">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <button class="btn close cerrarModal" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">&times;</span></button>
+                    
+                    <!-- Fecha -->
+                    <span class="tituloModal">{{detalleDiario.FechaFormato}}</span><br>
+                    
+                    <!-- Etiqueta -->
+                    <span ng-if="detalleDiario.Etiqueta.length > 0">
+                        <b>Etiquetas: </b> 
+                        <span ng-repeat="etiqueta in detalleDiario.Etiqueta | orderBy:'Nombre'">
+                            <span ng-if="!$last">{{etiqueta.Nombre}}, </span>
+                            <span ng-if="$last">{{etiqueta.Nombre}}.</span>
+                        </span>
+                    </span><br>
+                    
+                    <!-- Temas -->
+                    <span ng-if="detalleDiario.Tema.length > 0">
+                        <b>Temas: </b> 
+                        <span ng-repeat="tema in detalleDiario.Tema | orderBy:'Tema'">
+                            <span ng-if="!$last">{{tema.Tema}}, </span>
+                            <span ng-if="$last">{{tema.Tema}}.</span>
+                        </span>
+                    </span><br>
+
+                </div>
+            </div>
+            <!-- Separador -->
+            <div class="row" ng-if="detalleDiario.Notas.length > 0">
+                <div class="col-xs-12"> <div class="divisorAzul1"></div> </div>
+            </div>
+            
+            <br>
+            <!-- Contenido -->
+            <div class="row">
+                <div class="col-xs-12 detalleInformacion" >
+                    <p ng-bind-html="detalleDiario.NotasHTML"></p>
+                </div>
+            </div>
+            
             
         </div>
     </div>

@@ -33,7 +33,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     $scope.buscarActividad = "";
     $scope.detalle = new Actividad();
     $scope.verDetalle = false;
-    $scope.verFiltro = false;
+    $scope.verFiltro = true;
     $scope.nuevaActividad = new Actividad();
     
     $scope.buscarTema = "";
@@ -663,6 +663,8 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         }
         
         $scope.sinTemaFiltro = false;
+        
+        $scope.verFiltro = true;
         
         $scope.buscarEtiquetaFiltro = "";
         $scope.buscarTemaFiltro = "";
@@ -1955,6 +1957,8 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         else if($scope.operacion == "Editar")
         {
             $scope.nuevoEvento = $scope.SetEvento(evento);
+            
+            document.getElementById("fechaEvento").value = $scope.nuevoEvento.Fecha;
         }
         
         $('#modalEvento').modal('toggle');

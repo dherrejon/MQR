@@ -58,14 +58,14 @@ function SetDiario(data)
     return diario;
 }
 
-function AgregarDiario($http, CONFIG, $q, actividad)
+function AgregarDiario($http, CONFIG, $q, diario)
 {
     var q = $q.defer();
     
     $http({      
           method: 'POST',
-          url: CONFIG.APIURL + '/AgregarActividad',
-          data: actividad
+          url: CONFIG.APIURL + '/AgregarDiario',
+          data: diario
 
       }).success(function(data)
         {
@@ -77,14 +77,14 @@ function AgregarDiario($http, CONFIG, $q, actividad)
     return q.promise;
 }
 
-/*function EditarActividad($http, CONFIG, $q, actividad)
+function EditarDiario($http, CONFIG, $q, diario)
 {
     var q = $q.defer();
 
     $http({      
           method: 'PUT',
-          url: CONFIG.APIURL + '/EditarActividad',
-          data: actividad
+          url: CONFIG.APIURL + '/EditarDiario',
+          data: diario
 
       }).success(function(data)
         {
@@ -96,13 +96,13 @@ function AgregarDiario($http, CONFIG, $q, actividad)
     return q.promise;
 }
 
-function BorrarActividad($http, CONFIG, $q, id)
+function BorrarDiario($http, CONFIG, $q, id)
 {
     var q = $q.defer();
 
     $http({      
           method: 'DELETE',
-          url: CONFIG.APIURL + '/BorrarActividad',
+          url: CONFIG.APIURL + '/BorrarDiario',
           data: id
 
       }).success(function(data)
@@ -113,7 +113,7 @@ function BorrarActividad($http, CONFIG, $q, id)
 
      }); 
     return q.promise;
-}*/
+}
 
 
 //---------- Otras operaciones ---------------

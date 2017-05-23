@@ -337,9 +337,9 @@
 
     /*-----------------------  Actividad ------------------------------------------*/
     $app->get('/GetDiario/:id', $seguridad, $ChecarSesion, 'GetDiario');
-    //$app->post('/AgregarDiario', $seguridad, $ChecarSesion, 'AgregarDiarios');
-    //$app->put('/EditarActividad', $seguridad, $ChecarSesion, 'EditarActividad');
-    //$app->delete('/BorrarActividad', $seguridad, $ChecarSesion, 'BorrarActividad');
+    $app->post('/AgregarDiario', $seguridad, $ChecarSesion, 'AgregarDiario');
+    $app->put('/EditarDiario', $seguridad, $ChecarSesion, 'EditarDiario');
+    $app->delete('/BorrarDiario', $seguridad, $ChecarSesion, 'BorrarDiario');
 
     $app->get('/GetEtiquetaPorDiario/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorDiario');
     $app->get('/GetTemaPorDiario/:id', $seguridad, $ChecarSesion, 'GetTemaPorDiario');
