@@ -39,7 +39,7 @@ app.controller("AdministrarEtiquetaController", function($scope, $window, $http,
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Conocimiento" && $scope.usuarioLogeado.Aplicacion != "Actividades")
+            if($scope.usuarioLogeado.Aplicacion != "Conocimiento" && $scope.usuarioLogeado.Aplicacion != "Actividades" && $scope.usuarioLogeado.Aplicacion != "Diario")
             {
                 $rootScope.IrPaginaPrincipal();
             }

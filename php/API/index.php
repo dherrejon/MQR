@@ -27,7 +27,8 @@
     require 'Actividades/Unidad.php';
     require 'Actividades/Divisa.php';
     require 'Actividades/EventoActividad.php';
-    require 'Actividades/Diario.php';
+
+    require 'Diario/Diario.php';
 
     /*-----Seguridad-----*/
     require 'PHP-JWT/Authentication/JWT.php';
@@ -253,7 +254,9 @@
     $app->get('/GetInformacionEtiqueta/:id', $seguridad, $ChecarSesion, 'GetInformacionEtiqueta');
     
     $app->get('/GetEtiquetasInformacion', $seguridad, $ChecarSesion, 'GetEtiquetasInformacion');
+    $app->get('/GetTemaInformacion', $seguridad, $ChecarSesion, 'GetTemaInformacion');
     $app->get('/GetAutoresFuente', $seguridad, $ChecarSesion, 'GetAutoresFuente');
+    $app->get('/GetArchivoInformacion/:id', $seguridad, $ChecarSesion, 'GetArchivoInformacion');
     
     //---------------------------------------------------------------------------------------------------------------Cancionero
     

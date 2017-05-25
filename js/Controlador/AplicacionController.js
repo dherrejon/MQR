@@ -74,4 +74,5 @@ var aplicaciones = [
                         {texto:"Conocimiento", habilitada:false, paginaPrincipal:"/Informacion", icono:"fa fa-book"},
                         {texto:"Actividades", habilitada:false, paginaPrincipal:"/Actividades",   icono:"fa fa-calendar"},
                         {texto:"Cancionero", habilitada:false, paginaPrincipal:"/Cancionero", icono:"fa fa-music"},
+                        {texto:"Diario", habilitada:false, paginaPrincipal:"/Diario", icono:"fa fa-clock-o"}
                     ];

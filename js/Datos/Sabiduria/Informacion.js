@@ -3,7 +3,7 @@ class Informacion
     constructor()
     {
         this.InformacionId = "";
-        this.Tema = new Tema();
+        this.Tema = [];
         this.Fuente = new Fuente();
         this.OrigenInformacion = new OrigenInformacion();
         this.TipoInformacion = new TipoInformacion();
@@ -57,12 +57,7 @@ function SetInformacion(data)
     
     informacion.Observacion = data.Observacion;
     informacion.Seccion = data.Seccion;
-
-    
-    informacion.Archivo = data.Archivo;
-    
-    informacion.NombreArchivo = data.NombreArchivo;
-    informacion.ExtensionArchivo = data.ExtensionArchivo;
+    informacion.Titulo = data.Titulo;
     
     informacion.ContenidoOriginal = data.Contenido;
     
@@ -75,8 +70,14 @@ function SetInformacion(data)
         informacion.Contenido = "";
     }
     
-    informacion.Tema.TemaId = data.TemaId;
-    informacion.Tema.Nombre = data.NombreTema; 
+    if(data.Observacion != null)
+    {
+        informacion.ObservacionHTML = data.Observacion.replace(/\r?\n/g, "<br>");
+    }
+    else
+    {
+        informacion.ObservacionHTML = "";
+    }
     
     informacion.Fuente.FuenteId = data.FuenteId;
     informacion.Fuente.Nombre = data.NombreFuente;
@@ -138,7 +139,6 @@ function AgregarInformacion($http, CONFIG, $q, informacion)
 function EditarInformacion($http, CONFIG, $q, informacion)
 {
     var q = $q.defer();
-    
     ChecarNulos(informacion, "Editar");
     
     var fd = new FormData();
@@ -150,7 +150,7 @@ function EditarInformacion($http, CONFIG, $q, informacion)
     }
     
     fd.append('informacion', JSON.stringify(informacion));
-
+    
     $http({      
           method: 'POST',
           url: CONFIG.APIURL + '/EditarInformacion',
@@ -182,26 +182,13 @@ function ChecarNulos(data, operacion)
 {
     if(operacion == "Agregar")
     {
-        if(data.Tema.TemaId.length == 0)
-        {
-            data.Tema.TemaId = null;
-        }
         if(data.Fuente.FuenteId.length == 0)
         {
             data.Fuente.FuenteId = null;
         }
     }
     else if(operacion == "Editar")
-    {
-        if(data.Tema.TemaId == null)
-        {
-            data.Tema.TemaId = "null";
-        }
-        else if(data.Tema.TemaId.length == 0 || data.Tema.TemaId == "0")
-        {
-            data.Tema.TemaId = "null";
-        }
-        
+    {   
         if(data.Fuente.FuenteId == null)
         {
             data.Fuente.FuenteId = "null";
@@ -293,6 +280,53 @@ function GetEtiquetasInformacion($http, $q, CONFIG)
     return q.promise;
 }
 
+function GetTemaInformacion($http, $q, CONFIG)     
+{
+    var q = $q.defer();
+    
+    $http({      
+          method: 'GET',
+          url: CONFIG.APIURL + '/GetTemaInformacion'
+      }).success(function(data)
+        {
+            if(data[0].Estatus == "Exito")
+            {
+                q.resolve(data[1].Tema);  
+            }
+            else
+            {
+                q.resolve([]); 
+            }
+            
+        }).error(function(data, status){
+            q.resolve(status);
+     }); 
+    return q.promise;
+}
+
+function GetArchivoInformacion($http, $q, CONFIG, id)     
+{
+    var q = $q.defer();
+    
+    $http({      
+          method: 'GET',
+          url: CONFIG.APIURL + '/GetArchivoInformacion/'+id,
+      }).success(function(data)
+        {
+            if(data[0].Estatus == "Exito")
+            {
+                q.resolve(data[1].Archivo[0]);  
+            }
+            else
+            {
+                q.resolve([]);      
+            }
+            
+        }).error(function(data, status){
+            q.resolve([]);
+     }); 
+    return q.promise;
+}
 
 
 

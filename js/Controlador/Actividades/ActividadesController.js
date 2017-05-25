@@ -287,15 +287,21 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     //----------- Detalles -------------------
     $scope.VerDetalles = function(actividad)
     {
-        $scope.detalle = actividad;
-        $scope.verDetalle = false;
-        
-        if($rootScope.anchoPantalla <= 767)
+        if(actividad.ActividadId != $scope.detalle.ActividadId)
         {
-            $scope.buscarActividad = "";
-        }
+            $scope.detalle = actividad;
+            $scope.verDetalle = false;
 
-        $scope.GetEventoActividad(actividad.ActividadId);
+            if($rootScope.anchoPantalla <= 767)
+            {
+                $scope.buscarActividad = "";
+            }
+        
+        
+            $scope.eventoActividad = [];
+            $scope.GetEventoActividad(actividad.ActividadId);
+        }
+        
     };
     
     $scope.GetClaseActividad = function(id)

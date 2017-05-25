@@ -119,6 +119,7 @@
 .campoAgregadoQuitar.contornoAzul, .campoAgregadoQuitar.contornoAzul:hover, .campoAgregadoQuitar.contornoAzul:active, .limpiarTextoBotonAgregado.contornoAzul:focus
 {
     border-color: #1859b2;
+    background: #e6e6e6;
 }
 
 .campoAgregado, .campoAgregado:hover, .campoAgregado:active, .campoAgregado:focus
@@ -218,6 +219,7 @@
     color:  #262626;
     background: transparent;
     cursor: default;
+    font-size: 12pt;
     
     outline: none !important;
     box-shadow: none;

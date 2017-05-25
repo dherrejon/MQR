@@ -39,7 +39,7 @@
                          <!-- Collect the nav links, forms, and other content for toggling -->
                         <div  class="collapse navbar-collapse" id="navbarCollapse">
                                 
-                            <ul class="nav navbar-nav  hidden-xs">
+                            <ul class="nav navbar-nav navbar-right hidden-xs">
                                    
                                <li ng-if="opcion.show && opcion.tipo=='link' && opcion.show" ng-repeat="opcion in barraNavegacion.opcion">
                                     <!-- menú principal -->
@@ -74,10 +74,7 @@
                                     </ul>
 
                                 </li>
-                            
-                            </ul>
-                            
-                            <ul class="nav navbar-nav navbar-right  hidden-xs">
+                        
                                
                                <!-- app -->
                                 <li class="dropdown " ng-mouseenter="MouseEnterarElementoPredeterminado('app');" ng-mouseleave="MouseSalirElementoPredeterminado('app');" id="app" ng-show="usuario.Aplicacion != 'Aplicaciones'">
@@ -88,6 +85,13 @@
 
 
                                     <ul class="dropdown-menu barraNavegacionDropdown">
+                                        
+                                        <li>
+                                          <a  href="#Aplicacion" class="dropdownOpcion" ng-click="IniciarApp('Aplicaciones')">
+                                            <span class="fa fa-home"></span>
+                                            <span>Bienvenida</span>
+                                          </a>
+                                        </li>
 
                                         <li ng-repeat="app in apps | orderBy:'texto'" ng-show="app.habilitada" >
                                             <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)">
@@ -119,6 +123,12 @@
                                         <li>
                                             <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CerrarSesion');">
                                                 <span>Cerrar Sesión</span>
+                                            </a>
+                                        </li>
+                                        
+                                        <li  ng-if="permisoUsuario">
+                                            <a  href="#Usuario" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', null);">
+                                                <span>Administrar Usuarios</span>
                                             </a>
                                         </li>
 
@@ -167,6 +177,13 @@
                                     </a>
 
                                     <ul class="dropdown-menu barraNavegacionDropdown">
+                                      
+                                      <li>
+                                          <a  href="#Aplicacion" class="dropdownOpcion" ng-click="IniciarApp('Aplicaciones')">
+                                            <span class="fa fa-home"></span>
+                                            <span>Bienvenida</span>
+                                          </a>
+                                      </li>
                                        
                                        <li ng-repeat="app in apps | orderBy:'texto'" ng-show="app.habilitada" >
                                             <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)">
@@ -197,6 +214,12 @@
                                         <li>
                                             <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CerrarSesion');">
                                                 <span>Cerrar Sesión</span>
+                                            </a>
+                                        </li>
+                                        
+                                        <li  ng-if="permisoUsuario">
+                                            <a  href="#Usuario" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', null);">
+                                                <span>Administrar Usuarios</span>
                                             </a>
                                         </li>
 

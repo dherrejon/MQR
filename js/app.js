@@ -132,8 +132,10 @@ app.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpPro
         when('/Unidades',{
             templateUrl: 'html/Actividades/Administrar/AdministrarUnidades.html'
         }).
+    
+    //Diario
         when('/Diario',{
-            templateUrl: 'html/Actividades/Diario.html'
+            templateUrl: 'html/Diario/Diario.html'
         }).
     
     otherwise({

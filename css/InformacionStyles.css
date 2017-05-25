@@ -234,3 +234,72 @@
     max-height: 130px;
     overflow-y: scroll;
 }
+
+.contenidoInformacion
+{
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+
+/*------ buscar informacion ----------------*/
+.barraBuscarInformacion
+{
+    background: #1859b2;
+    color: white;
+    padding: 15px;
+    position: fixed;
+    display: block;
+    width: 100%;
+    left: 0px;
+    top: 57px;
+    z-index: 6;
+}
+
+.labelBuscar
+{
+    border-color: white;
+    border-radius: 0px !important;
+    color: #1859b2;
+    background: white;
+}
+
+.inputBuscar, .inputBuscar:focus, .inputBuscar:active, .inputBuscar:hover
+{
+    border-width: 0px 0px 0px 2px;
+    border-style: solid;
+    border-color: #1859b2;;
+    border-radius: 0px !important;
+    color: #262626;
+    background: white;
+    
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.botonBuscarFiltro, .botonBuscarFiltro:active, .botonBuscarFiltro:focus, .botonBuscarFiltro:hover
+{
+    border-color: white;
+    border-radius: 0px !important;
+    color: #1859b2 !important;
+    background: white;
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
+.botonBuscarFiltro.noActivo
+{
+    color: #79adf4 !important;
+}
+
+.textoDetalleBarra 
+{
+    display: inline-block; 
+    display: -webkit-box;  
+    -webkit-line-clamp: 4;  
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: normal; 
+    font-size: 10pt;
+}    

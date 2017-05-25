@@ -35,6 +35,11 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
                 $scope.HabilitarOpcionesBarraNavegacionActividades();
                 break;
                 
+            case "Diario":
+                $scope.barraNavegacion = EncabezadoDiario;
+                $scope.HabilitarOpcionesBarraNavegacionDiario();
+                break;
+                
             case "Aplicaciones": 
                 $scope.barraNavegacion = EncabezadoAplicaciones;
                 break;
@@ -148,7 +153,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             
             if($scope.usuario.Permiso[k] == "AdmUsuarios")
             {
-                $scope.barraNavegacion.opcion[1].elemento[0].show = true;
+                $scope.permisoUsuario = true;
             }
         }
     };
@@ -170,7 +175,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             
             if($scope.usuario.Permiso[k] == "AdmUsuarios")
             {
-                $scope.barraNavegacion.opcion[1].elemento[0].show = true;
+                $scope.permisoUsuario = true;
             }
         }
     };
@@ -185,18 +190,33 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             {
                 $scope.barraNavegacion.opcion[0].show = true;
             }
-            if($scope.usuario.Permiso[k] == "DiarioCon")
-            {
-                $scope.barraNavegacion.opcion[1].show = true;
-            }
             if($scope.usuario.Permiso[k] == "ActividadesAdm")
             {
-                $scope.barraNavegacion.opcion[2].show = true;
+                $scope.barraNavegacion.opcion[1].show = true;
             }
             
             if($scope.usuario.Permiso[k] == "AdmUsuarios")
             {
-                $scope.barraNavegacion.opcion[2].elemento[0].show = true;
+                $scope.permisoUsuario = true;
+            }
+        }
+    };
+    
+    $scope.HabilitarOpcionesBarraNavegacionDiario = function()
+    {
+        $scope.LimpiarBarraNavegacionDiario();
+
+        for(var k=0; k<$scope.usuario.Permiso.length; k++)
+        {
+            if($scope.usuario.Permiso[k] == "DiarioCon")
+            {
+                $scope.barraNavegacion.opcion[0].show = true;
+                $scope.barraNavegacion.opcion[1].show = true;
+            }
+            
+            if($scope.usuario.Permiso[k] == "AdmUsuarios")
+            {
+                $scope.permisoUsuario = true;
             }
         }
     };
@@ -206,7 +226,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         $scope.barraNavegacion.opcion[0].show = false;
         $scope.barraNavegacion.opcion[1].show = false;
         
-        $scope.barraNavegacion.opcion[1].elemento[0].show = false;
+        $scope.permisoUsuario = false;
     };
     
     $scope.LimpiarBarraNavegacionCancionero = function()
@@ -214,16 +234,23 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         $scope.barraNavegacion.opcion[0].show = false;
         $scope.barraNavegacion.opcion[1].show = false;
         
-        $scope.barraNavegacion.opcion[1].elemento[0].show = false;
+        $scope.permisoUsuario = false;
     };
     
     $scope.LimpiarBarraNavegacionActividades = function()
     {
         $scope.barraNavegacion.opcion[0].show = false;
         $scope.barraNavegacion.opcion[1].show = false;
-        $scope.barraNavegacion.opcion[2].show = false;
         
-        $scope.barraNavegacion.opcion[2].elemento[0].show = false;
+        $scope.permisoUsuario = false;
+    };
+    
+    $scope.LimpiarBarraNavegacionDiario = function()
+    {
+        $scope.barraNavegacion.opcion[0].show = false;
+        $scope.barraNavegacion.opcion[1].show = false;
+        
+        $scope.permisoUsuario = false;
     };
     
     /*------------------------------Cambiar Contraseña--------------------------------------------*/
@@ -413,6 +440,10 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             {
                 $rootScope.apps[2].habilitada = true;
             }
+            if($scope.usuario.Permiso[k] == "DiarioCon")
+            {
+                $rootScope.apps[3].habilitada = true;
+            }
         }
     };
     
@@ -466,7 +497,7 @@ var EncabezadoSabiduria =
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [
-                                                {texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
+                                                //{texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
                                                 {texto:"Fuentes", referencia:"#Fuente", funcion:"", show:true},
                                                 {texto:"Autores", referencia:"#Autor", funcion:"", show:true},
                                                 {texto:"Etiquetas", referencia:"#Etiqueta", funcion:"", show:true},
@@ -485,34 +516,48 @@ var EncabezadoCancionero =
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [
-                                                {texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
+                                                //{texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
                                                 {texto:"Artistas", referencia:"#Artista", funcion:"", show:true},
                                                 {texto:"Canciones", referencia:"#Cancion", funcion:"", show:true},
                                             ]},
                     
               ]                       
-} ;
+};
 
 var EncabezadoActividades =
 { 
     titulo:"Actividades", 
     opcion: [ 
                     { texto:"Inicio", tipo:"link", referencia:"#Actividades", show: false},
-                    { texto:"Diario", tipo:"link", referencia:"#Diario", show: false},
+                    { texto:"Administrar", tipo:"dropdown", show: false,
+                                                elemento:
+                                                [
+                                                    //{texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
+                                                    {texto:"Etiquetas", referencia:"#Etiqueta", funcion:"", show:true},
+                                                    {texto:"Frecuencias", referencia:"#Frecuencia", funcion:"", show:true},
+                                                    {texto:"Temas", referencia:"#TemaActividad", funcion:"", show:true},
+                                                    {texto:"Personas", referencia:"#PersonaActividad", funcion:"", show:true},
+                                                    {texto:"Lugares", referencia:"#Lugar", funcion:"", show:true},
+                                                    {texto:"Unidades", referencia:"#Unidades", funcion:"", show:true},
+                                                ]},
+              ]                       
+};
+
+var EncabezadoDiario =
+{ 
+    titulo:"Diario", 
+    opcion: [ 
+                    { texto:"Inicio", tipo:"link", referencia:"#Diario", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [
-                                                {texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
+                                                //{texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
                                                 {texto:"Etiquetas", referencia:"#Etiqueta", funcion:"", show:true},
-                                                {texto:"Frecuencias", referencia:"#Frecuencia", funcion:"", show:true},
-                                                {texto:"Temas", referencia:"#TemaActividad", funcion:"", show:true},
-                                                {texto:"Personas", referencia:"#PersonaActividad", funcion:"", show:true},
-                                                {texto:"Lugares", referencia:"#Lugar", funcion:"", show:true},
-                                                {texto:"Unidades", referencia:"#Unidades", funcion:"", show:true},
+                                                {texto:"Temas", referencia:"#TemaActividad", funcion:"", show:true}
                                             ]},
                     
               ]                       
-} ;
+};
 
 var EncabezadoAplicaciones =
 { 

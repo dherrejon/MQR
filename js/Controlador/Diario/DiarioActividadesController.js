@@ -873,11 +873,11 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             }
         }
         
-        if(tema.nuevoDiario != "-1")
+        if(tema != "-1")
         {
             for(var k=0; k<$scope.tema.length; k++)
             {
-                if($scope.tema[k].nuevoDiario == tema.TemaActividadId)
+                if($scope.tema[k].TemaActividadId == tema.TemaActividadId)
                 {
                     $scope.tema[k].show = true;
                     return;
@@ -1248,7 +1248,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         
     };
     
-    $scope.ConfirmarBorrarDiario= function()
+    $scope.ConfirmarBorrarDiario = function()
     {
         BorrarDiario($http, CONFIG, $q, $scope.borrarDiario.DiarioId).then(function(data)
         {
@@ -1378,7 +1378,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Actividades")
+            if($scope.usuarioLogeado.Aplicacion != "Diario")
             {
                 $rootScope.IrPaginaPrincipal();
             }

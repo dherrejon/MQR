@@ -16,11 +16,6 @@ function GetInformacion()
         $response = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
         
-        foreach ($response as $file) 
-        {
-            $file->Archivo =  base64_encode($file->Archivo);
-        }
-        
         echo '[ { "Estatus": "Exito"}, {"Informacion":'.json_encode($response).'} ]';
         //echo json_encode($response);  
     } 
@@ -49,8 +44,8 @@ function AgregarInformacion()
 
             $archivo = addslashes(file_get_contents($_FILES['file']['tmp_name']));
 
-            $sql = "INSERT INTO Informacion (TemaId, TipoInformacionId, FuenteId, OrigenInformacionId, Contenido, Archivo, NombreArchivo, ExtensionArchivo, Seccion, Observacion) 
-                            VALUES(:TemaId, :TipoInformacionId, :FuenteId, :OrigenInformacionId, :Contenido, '".$archivo."', '".$informacion->NombreArchivo."', '".$ext."', :Seccion, :Observacion)";
+            $sql = "INSERT INTO Informacion (Titulo, TipoInformacionId, FuenteId, OrigenInformacionId, Contenido, Archivo, NombreArchivo, ExtensionArchivo, Seccion, Observacion) 
+                            VALUES(:Titulo, :TipoInformacionId, :FuenteId, :OrigenInformacionId, :Contenido, '".$archivo."', '".$informacion->NombreArchivo."', '".$ext."', :Seccion, :Observacion)";
         }
         else
         {
@@ -60,8 +55,8 @@ function AgregarInformacion()
     }
     else
     {
-        $sql = "INSERT INTO Informacion (TemaId, TipoInformacionId, FuenteId, OrigenInformacionId, Contenido, Seccion, Observacion) 
-                        VALUES(:TemaId, :TipoInformacionId, :FuenteId, :OrigenInformacionId, :Contenido, :Seccion, :Observacion)";
+        $sql = "INSERT INTO Informacion (Titulo, TipoInformacionId, FuenteId, OrigenInformacionId, Contenido, Seccion, Observacion) 
+                        VALUES(:Titulo, :TipoInformacionId, :FuenteId, :OrigenInformacionId, :Contenido, :Seccion, :Observacion)";
     }
     
     $informacionId;
@@ -71,7 +66,7 @@ function AgregarInformacion()
         $db->beginTransaction();
         $stmt = $db->prepare($sql);
 
-        $stmt->bindParam("TemaId", $informacion->Tema->TemaId);
+        $stmt->bindParam("Titulo", $informacion->Titulo);
         $stmt->bindParam("TipoInformacionId", $informacion->TipoInformacion->TipoInformacionId);
         $stmt->bindParam("FuenteId", $informacion->Fuente->FuenteId);
         $stmt->bindParam("OrigenInformacionId", $informacion->OrigenInformacion->OrigenInformacionId);
@@ -93,10 +88,94 @@ function AgregarInformacion()
         $app->stop();
     }
     
+    
+     $countTema = count($informacion->Tema);
+    
+    if($countTema>0)  
+    {
+        for($k=0; $k<$countTema; $k++)
+        {
+            if($informacion->Tema[$k]->TemaId == "-1")
+            {
+                $sql = "INSERT INTO Tema (Nombre) VALUES (:Tema)";
+                
+                try 
+                {
+                    $stmt = $db->prepare($sql);
+                    
+                    $stmt->bindParam("Tema", $informacion->Tema[$k]->Nombre);
+                    
+                    $stmt->execute();
+                    
+                    $informacion->Tema[$k]->TemaId = $db->lastInsertId();
+                } 
+                catch(PDOException $e) 
+                {
+                    echo '[{"Estatus": "Fallo"}]';
+                    echo $e;
+                    $db->rollBack();
+                    $app->status(409);
+                    $app->stop();
+                }
+            }
+        }
+        
+        $sql = "INSERT INTO TemaPorInformacion (InformacionId, TemaId) VALUES";
+        
+        for($k=0; $k<$countTema; $k++)
+        {
+            $sql .= " (".$informacionId.", ".$informacion->Tema[$k]->TemaId."),";
+        }
+
+        $sql = rtrim($sql,",");
+
+        try 
+        {
+            $stmt = $db->prepare($sql);
+            $stmt->execute();
+        } 
+        catch(PDOException $e) 
+        {
+            echo '[{"Estatus": "Fallido"}]';
+            echo $e;
+            $db->rollBack();
+            $app->status(409);
+            $app->stop();
+        }
+    }
+    
     $countEtiqueta = count($informacion->Etiqueta);
     
     if($countEtiqueta>0)  
     {
+        for($k=0; $k<$countEtiqueta; $k++)
+        {
+            if($informacion->Etiqueta[$k]->EtiquetaId == "-1")
+            {
+                $sql = "INSERT INTO Etiqueta (UsuarioId, Nombre, Activo) VALUES (:UsuarioId, :Nombre, 1)";
+                
+                try 
+                {
+                    $stmt = $db->prepare($sql);
+                    
+                    $stmt->bindParam("UsuarioId", $informacion->UsuarioId);
+                    $stmt->bindParam("Nombre", $informacion->Etiqueta[$k]->Nombre);
+                    
+                    $stmt->execute();
+                    
+                    $informacion->Etiqueta[$k]->EtiquetaId  = $db->lastInsertId();
+                } 
+                catch(PDOException $e) 
+                {
+                    echo '[{"Estatus": "Fallo"}]';
+                    echo $e;
+                    $db->rollBack();
+                    $app->status(409);
+                    $app->stop();
+                }
+            }
+        }
+        
         $sql = "INSERT INTO EtiquetaPorInformacion (InformacionId, EtiquetaId) VALUES";
         
         for($k=0; $k<$countEtiqueta; $k++)
@@ -111,7 +190,7 @@ function AgregarInformacion()
             $stmt = $db->prepare($sql);
             $stmt->execute();
             
-            echo '[{"Estatus": "Exitoso"}, {"Estatus": "'.$informacionId.'"}]';
+            echo '[{"Estatus": "Exitoso"}, {"Id": "'.$informacionId.'"}, {"Etiqueta":'.json_encode($informacion->Etiqueta).'}, {"Tema":'.json_encode($informacion->Tema).'}]';
             $db->commit();
             $db = null;
         } 
@@ -149,7 +228,7 @@ function EditarInformacion()
 
             $archivo = addslashes(file_get_contents($_FILES['file']['tmp_name']));
 
-            $sql = "UPDATE Informacion SET TemaId=".$informacion->Tema->TemaId.", TipoInformacionId='".$informacion->TipoInformacion->TipoInformacionId."',
+            $sql = "UPDATE Informacion SET Titulo= :Titulo, TipoInformacionId='".$informacion->TipoInformacion->TipoInformacionId."',
             FuenteId=".$informacion->Fuente->FuenteId.", OrigenInformacionId='".$informacion->OrigenInformacion->OrigenInformacionId."', Contenido = :Contenido,
             Archivo = '".$archivo."', NombreArchivo = '".$name."', ExtensionArchivo = '".$ext."', Seccion = '".$informacion->Seccion."', Observacion = :Observacion
             WHERE InformacionId=".$informacion->InformacionId;
@@ -162,7 +241,7 @@ function EditarInformacion()
     }
     else
     {
-        $sql = "UPDATE Informacion SET TemaId=".$informacion->Tema->TemaId.", TipoInformacionId='".$informacion->TipoInformacion->TipoInformacionId."',
+        $sql = "UPDATE Informacion SET Titulo= :Titulo, TipoInformacionId='".$informacion->TipoInformacion->TipoInformacionId."',
         FuenteId=".$informacion->Fuente->FuenteId.", OrigenInformacionId='".$informacion->OrigenInformacion->OrigenInformacionId."', Contenido = :Contenido, Seccion = '".$informacion->Seccion."', Observacion = :Observacion
         WHERE InformacionId=".$informacion->InformacionId;
     }
@@ -173,6 +252,7 @@ function EditarInformacion()
         $db->beginTransaction();
         $stmt = $db->prepare($sql);
         
+        $stmt->bindParam("Titulo", $informacion->Titulo);
         $stmt->bindParam("Contenido", $informacion->Contenido);
         $stmt->bindParam("Observacion", $informacion->Observacion);
         
@@ -203,10 +283,109 @@ function EditarInformacion()
         $app->stop();
     }
     
+    $sql = "DELETE FROM TemaPorInformacion WHERE InformacionId=".$informacion->InformacionId;
+    try 
+    {
+        $stmt = $db->prepare($sql); 
+        $stmt->execute(); 
+        
+    } 
+    catch(PDOException $e) 
+    {
+        echo '[ { "Estatus": "Fallo" } ]';
+        echo $e;
+        $db->rollBack();
+        $app->status(409);
+        $app->stop();
+    }
+    
+    $countTema = count($informacion->Tema);
+    
+    if($countTema>0)  
+    {
+        for($k=0; $k<$countTema; $k++)
+        {
+            if($informacion->Tema[$k]->TemaId == "-1")
+            {
+                $sql = "INSERT INTO Tema (Nombre) VALUES (:Tema)";
+                
+                try 
+                {
+                    $stmt = $db->prepare($sql);
+                    
+                    $stmt->bindParam("Tema", $informacion->Tema[$k]->Nombre);
+                    
+                    $stmt->execute();
+                    
+                    $informacion->Tema[$k]->TemaId = $db->lastInsertId();
+                } 
+                catch(PDOException $e) 
+                {
+                    echo '[{"Estatus": "Fallo"}]';
+                    echo $e;
+                    $db->rollBack();
+                    $app->status(409);
+                    $app->stop();
+                }
+            }
+        }
+        
+        $sql = "INSERT INTO TemaPorInformacion (InformacionId, TemaId) VALUES";
+        
+        for($k=0; $k<$countTema; $k++)
+        {
+            $sql .= " (".$informacion->InformacionId.", ".$informacion->Tema[$k]->TemaId."),";
+        }
+
+        $sql = rtrim($sql,",");
+
+        try 
+        {
+            $stmt = $db->prepare($sql);
+            $stmt->execute();
+        } 
+        catch(PDOException $e) 
+        {
+            echo '[{"Estatus": "Fallido"}]';
+            echo $e;
+            $db->rollBack();
+            $app->status(409);
+            $app->stop();
+        }
+    }
+    
     $countEtiqueta = count($informacion->Etiqueta);
     
     if($countEtiqueta>0)  
     {
+        for($k=0; $k<$countEtiqueta; $k++)
+        {
+            if($informacion->Etiqueta[$k]->EtiquetaId == "-1")
+            {
+                $sql = "INSERT INTO Etiqueta (UsuarioId, Nombre, Activo) VALUES (:UsuarioId, :Nombre, 1)";
+                
+                try 
+                {
+                    $stmt = $db->prepare($sql);
+                    
+                    $stmt->bindParam("UsuarioId", $informacion->UsuarioId);
+                    $stmt->bindParam("Nombre", $informacion->Etiqueta[$k]->Nombre);
+                    
+                    $stmt->execute();
+                    
+                    $informacion->Etiqueta[$k]->EtiquetaId  = $db->lastInsertId();
+                } 
+                catch(PDOException $e) 
+                {
+                    echo '[{"Estatus": "Fallo"}]';
+                    echo $e;
+                    $db->rollBack();
+                    $app->status(409);
+                    $app->stop();
+                }
+            }
+        }
+        
         $sql = "INSERT INTO EtiquetaPorInformacion (InformacionId, EtiquetaId) VALUES";
         
         for($k=0; $k<$countEtiqueta; $k++)
@@ -224,7 +403,7 @@ function EditarInformacion()
             $db->commit();
             $db = null; 
 
-            echo '[{"Estatus": "Exitoso"}]';
+            echo '[{"Estatus": "Exitoso"}, {"Etiqueta":'.json_encode($informacion->Etiqueta).'}, {"Tema":'.json_encode($informacion->Tema).'}]';
         } 
         catch(PDOException $e) 
         {
@@ -240,7 +419,7 @@ function EditarInformacion()
         $db->commit();
         $db = null; 
 
-        echo '[{"Estatus": "Exitoso"}]';
+        echo '[{"Estatus": "Exitoso"}, {"Etiqueta":'.json_encode($informacion->Etiqueta).'}, {"Tema":'.json_encode($informacion->Tema).'}]';
     }
 }
 
@@ -294,6 +473,62 @@ function GetEtiquetasInformacion()
     catch(PDOException $e) 
     {
         echo($e);
+        echo '[ { "Estatus": "Fallo" } ]';
+        $app->status(409);
+        $app->stop();
+    }
+}
+
+function GetTemaInformacion()
+{
+    global $app;
+    global $session_expiration_time;
+
+
+    $sql = "SELECT InformacionId, TemaId, Nombre FROM TemaInformacionVista";
+
+    try 
+    {
+        $db = getConnection();
+        $stmt = $db->query($sql);
+        $response = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $db = null;
+        
+        echo '[ { "Estatus": "Exito"}, {"Tema":'.json_encode($response).'} ]';
+    } 
+    catch(PDOException $e) 
+    {
+        echo($e);
+        echo '[ { "Estatus": "Fallo" } ]';
+        $app->status(409);
+        $app->stop();
+    }
+}
+
+function GetArchivoInformacion($id)
+{
+    global $app;
+    global $session_expiration_time;
+
+    $request = \Slim\Slim::getInstance()->request();
+
+    $sql = "SELECT Archivo, NombreArchivo, ExtensionArchivo FROM Informacion WHERE InformacionId = '".$id."'";
+
+    try 
+    {
+        $db = getConnection();
+        $stmt = $db->query($sql);
+        $response = $stmt->fetchAll(PDO::FETCH_OBJ);
+        
+        $response[0]->Archivo =  base64_encode($response[0]->Archivo);
+        
+        $db = null;
+        
+        echo '[ { "Estatus": "Exito"}, {"Archivo":'.json_encode($response).'} ]';
+    } 
+    catch(PDOException $e) 
+    {
+        //echo($e);
         echo '[ { "Estatus": "Fallo" } ]';
         $app->status(409);
         $app->stop();
