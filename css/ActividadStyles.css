@@ -47,7 +47,7 @@
 
 .itemBarraLateral.active
 {
-     background: #E0F2F7;
+    background: #E0F2F7;
     
     outline: none !important;
     box-shadow: none;
@@ -220,6 +220,26 @@
     background: transparent;
     cursor: default;
     font-size: 12pt;
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
+.botonOperacionInformacion, .botonOperacionInformacion:active, .botonOperacionInformacion:focus
+{
+    background: red;
+    color: #081e3b;
+    border-radius: 0px;
+    font-size: 10pt;
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
+.botonOperacionInformacion:hover
+{
+    background: white;
+    color: #1859b2;
     
     outline: none !important;
     box-shadow: none;

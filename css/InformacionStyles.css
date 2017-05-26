@@ -302,4 +302,43 @@
     overflow: hidden;
     white-space: normal; 
     font-size: 10pt;
-}    
+}
+
+.barraOperacionesInformacion
+{
+    background: #1859b2;
+    color: white;
+    position: fixed;
+    display: block;
+    width: 100%;
+    left: 0px;
+    z-index: 6;
+}
+
+.botonBarraPrincipal, .botonBarraPrincipal:hover, .botonBarraPrincipal:focus, .botonBarraPrincipal:active
+{
+    color: white;
+    background: transparent;
+    border: 0;
+    border-radius: 0px;
+    
+    outline: none !important;
+    box-shadow: none;
+    font-size: 16pt;
+}
+
+.vistaInfoAdm
+{
+    background: white;
+    color:  #262626;
+    
+    border-width: 0px 0px 1px 0px;
+    border-color:  #848484;
+    border-style: solid;
+    border-radius: 0px;
+    margin-top: 5px;
+    
+    text-align: left;
+    width: 100%;
+    
+}

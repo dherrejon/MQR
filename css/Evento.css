@@ -1,12 +1,20 @@
 .eventoVista
 {
     width: 100%;
-    color:  #262626;
     border-radius: 0px;
     border-width:  1px 1px 1px 5px;
     border-style: solid;
     border-color: #1859b2;
     padding: 10px;
+    
+    font-size: 14px;
+    color:  #848484;
+}
+
+.eventoVista.Pasada
+{
+    background: #e6e6e6;
+    color: black;
 }
 
 .divisorGris1
@@ -150,7 +158,7 @@
 
 .operacionEvento, .operacionEvento:focus, .operacionEvento:active
 {
-    background: white;
+    background: transparent;
     color: #081e3b;
     border-radius: 0px;
     font-size: 14pt;

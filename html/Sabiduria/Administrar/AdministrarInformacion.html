@@ -1,20 +1,19 @@
-<div ng-controller="ConfigurarInformacionController as conInformacion" style="margin-top:170px">
+<div ng-controller="ConfigurarInformacionController as conInformacion">
    
     <div class="container-fluid">
-       
-        <div class="row">
-            <div class="{{claseApp}}">
-            
-                <div class="row" >
-                   <div class="tab" role="tabpanel">
-                       
-                        <!-- pestañas -->
-                        <ul ng-if="anchoPantalla > 520" class="nav nav-tabs" role="tablist">
+        
+        <div class="barraOperacionesInformacion" style="background: white; margin-top:57px">
+            <div class="row">
+               <div class="tab " role="tabpanel">
+
+                    <!-- pestañas -->
+                    <div >
+                        <ul ng-if="anchoPantalla > 520" class="nav nav-tabs" role="tablist" ng-class="{Noborde: titulo == 'Información'}">
                             <li   ng-repeat="tab in tabs" class="{{tab.clase}}"><a  href="" aria-controls="{{tab.area}}" role="tab" data-toggle="tab" ng-click="SeleccionarTab(tab, $index)">{{tab.titulo}}</a></li>
                         </ul>
-                        
 
-                        <ul ng-if="anchoPantalla < 521" class="nav nav">
+
+                        <ul ng-if="anchoPantalla < 521" class="nav nav" style="z-index: 1000">
                             <li  class="tabSm dropdown">
 
                                 <button  class="dropdown-toggle  btn dropDownTab" data-toggle="dropdown" >
@@ -32,31 +31,30 @@
 
                             </li>
                         </ul>
-
-                        <!-- Contenido -->
-                        <div class="">
-                           <!-- Informacion -->
-                            <div role="tabpanel" class="tab-pane in active" id="Informacion" ng-if="permiso && titulo=='Información'" >
-                              <br>  
-                                <div ng-include=" 'html/Sabiduria/Administrar/Informacion/Informacion.html' ">
-
-                                </div>
-                            </div>
-
-                            <!-- Tipo de Información -->
-                            <div role="tabpanel" class="tab-pane" id="TipoInformacion"  ng-if="permiso && titulo=='Tipo de Información'">
-                              <br>
-                                <div ng-include=" 'html/Sabiduria/Administrar/Informacion/TipoInformacion.html' "></div>
-                            </div>
-
-                        </div>
-                        
                     </div>
                 </div>
-                <br>
-              
+
             </div>
         </div>
+
+        <!-- Contenido -->
+        
+       <!-- Informacion -->
+        <div role="tabpanel" class="tab-pane in active" id="Informacion" ng-if="permiso && titulo=='Información'" > 
+            <div ng-include=" 'html/Sabiduria/Administrar/Informacion/Informacion.html' ">
+
+            </div>
+        </div>
+
+        <!-- Tipo de Información -->
+        <div role="tabpanel" class="tab-pane" id="TipoInformacion"  ng-if="permiso && titulo=='Tipo de Información'">
+          <br>
+            <div ng-include=" 'html/Sabiduria/Administrar/Informacion/TipoInformacion.html' "></div>
+        </div>
+
+  
+        <br>
+
     </div>
     
 </div>

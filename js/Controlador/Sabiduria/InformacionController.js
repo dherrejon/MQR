@@ -9,10 +9,11 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
     $scope.buscarInformacion = "";
     $scope.buscarEtiqueta = "";
     $scope.buscarTema = "";
+    $scope.buscarConcepto = "";
     
     
     
-    $scope.campoBuscar = "Etiquetas";
+    $scope.campoBuscar = "Conceptos";
     $scope.verFiltro = true;
     $scope.filtro = {tema:[], etiqueta: [], origen: {texto:false, imagen:false, archivo:false}};
     
@@ -127,8 +128,9 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
         if(campo != $scope.campoBuscar)
         {
             $scope.buscarInformacion = "";
-            $scope.buscarEtiqueta = "";
-            $scope.buscarTema = "";
+            //$scope.buscarEtiqueta = "";
+            //$scope.buscarTema = "";
+            $scope.buscarConcepto = "";
             
             $scope.campoBuscar = campo;
         
@@ -137,9 +139,10 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
     
     $scope.LimpiarBuscar = function()
     {
-        $scope.buscarTema = "";
-        $scope.buscarEtiqueta = "";
+        //$scope.buscarTema = "";
+        //$scope.buscarEtiqueta = "";
         $scope.buscarInformacion = "";
+        $scope.buscarConcepto = "";
     };
     
     //------------- Detalles --------------------
@@ -309,10 +312,12 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
         etiqueta.mostrar = false;
         $scope.filtro.etiqueta.push(etiqueta.EtiquetaId);
             
-        $scope.buscarEtiqueta = "";
+        //$scope.buscarEtiqueta = "";
+        $scope.buscarConcepto = "";
         
         $scope.GetEtiquetasFiltradas();
-        document.getElementById('bucarEtiqueta').focus();
+        document.getElementById('buscarConcepto').focus();
+        //document.getElementById('bucarEtiqueta').focus();
     };
     
     $scope.SetFiltroTema = function(tema)
@@ -320,10 +325,12 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
         tema.mostrar = false;
         $scope.filtro.tema.push(tema.TemaId);
         
-        $scope.buscarTema = "";
+        //$scope.buscarTema = "";
+        $scope.buscarConcepto = "";
         
         $scope.GetTemasFiltrados();
-        document.getElementById('bucarTema').focus();
+        document.getElementById('buscarConcepto').focus();
+        //document.getElementById('bucarTema').focus();
     };
     
     $scope.LimpiarFiltro = function()
@@ -342,8 +349,9 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
         
         $scope.verFiltro = true;
         
-        $scope.buscarEtiqueta = "";
-        $scope.buscarTema = "";
+        //$scope.buscarEtiqueta = "";
+        //$scope.buscarTema = "";
+        $scope.buscarConcepto = "";
     };
     
     $scope.CambiarVerFiltro = function()
@@ -386,10 +394,10 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
     
     $scope.BuscarEtiquetaFiltro = function(etiqueta)
     {
-        return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarEtiqueta);
+        return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarConcepto);
     };
     
-    $('#bucarEtiqueta').keydown(function(e)
+    /*$('#bucarEtiqueta').keydown(function(e)
     {
         switch(e.which) {
             case 13:
@@ -400,8 +408,33 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 return;
         }
         e.preventDefault(); // prevent the default action (scroll / move caret)
-    });
+    });*/
+    
+    
+    $('#buscarConcepto').keydown(function(e)
+    {
+        switch(e.which) {
+            case 13:
+               var index = $scope.buscarConcepto.indexOf(" ");
+               
+               if(index == -1)
+                {
+                    $scope.buscarEtiqueta = $scope.buscarConcepto;
+                    $scope.AgregarEtiquetaFiltro();
+                }
+                else
+                {
+                    $scope.buscarTema = $scope.buscarConcepto;
+                    $scope.AgregarTemaFiltro();
+                }
+               
+              break;
 
+            default:
+                return;
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
     
     $scope.AgregarEtiquetaFiltro = function()
     {
@@ -415,7 +448,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 }
                 else
                 {
-                    $scope.buscarEtiqueta = "";
+                    $scope.buscarConcepto = "";
                     
                 }
                 $scope.$apply();
@@ -543,10 +576,10 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
     
     $scope.BuscarTemaFiltro = function(tema)
     {
-        return $scope.FiltrarBuscarTema(tema, $scope.buscarTema);
+        return $scope.FiltrarBuscarTema(tema, $scope.buscarConcepto);
     };
     
-    $('#bucarTema').keydown(function(e)
+    /*$('#bucarTema').keydown(function(e)
     {
         switch(e.which) {
             case 13:
@@ -557,7 +590,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 return;
         }
         e.preventDefault(); // prevent the default action (scroll / move caret)
-    });
+    });*/
 
     
     $scope.AgregarTemaFiltro = function()

@@ -326,6 +326,20 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         $scope.detalle = new Actividad();
     };
     
+    $scope.GetClaseEvento = function(evento)
+    {
+        var hoy = GetDate();
+        
+        if(hoy > evento.Fecha)
+        {
+            return "Pasada";
+        }
+        else
+        {
+            return "";
+        }
+    };
+    
     //------------------------------- Filtrar -------------------------
     $scope.FitroActividad = function(info)
     {        

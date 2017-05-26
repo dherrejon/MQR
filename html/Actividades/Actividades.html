@@ -257,7 +257,7 @@
                    <div class="col-xs-12">
                       <div ng-repeat="evento in eventoActividad | orderBy:'-Fecha'" >
                         
-                         <div class="eventoVista">
+                         <div class="eventoVista {{GetClaseEvento(evento)}}">
                             
                              <!-- Fecha y Ciudad -->
                              <div class="row">
@@ -265,7 +265,7 @@
                                  <div class="col-xs-12 ">
                                    
                                    <!-- Fecha -->
-                                     <b>{{evento.FechaFormato}}</b>
+                                     <b style="color: black">{{evento.FechaFormato}}</b>
                                    
                                     <!--<span class="" ng-if="evento.Ciudad.CiudadId.length > 0">
                                          <b class=" datoEvento fa fa-map-marker"> </b>
@@ -304,24 +304,24 @@
                                 <!-- Cantidad -->
                                  <div class="col-sm-4  text-center">
                                     <span ng-if="evento.Cantidad.length > 0">
-                                         <b class="datoEvento">Cantidad</b><br>
-                                         <span class="datoEvento">{{evento.Cantidad}} {{evento.Unidad.Unidad}}</span><br>
+                                         <b class="">Cantidad</b><br>
+                                         <span class="">{{evento.Cantidad}} {{evento.Unidad.Unidad}}</span><br>
                                      </span>
                                  </div>
                                  
                                  <!-- Costo -->
                                  <div class="col-sm-4 text-center">
                                     <span ng-if="evento.Costo.length > 0">
-                                         <b class="datoEvento">Costo</b><br>
-                                         <span class="datoEvento">{{evento.Costo}} {{evento.Divisa.Divisa}}</span><br>
+                                         <b class="">Costo</b><br>
+                                         <span class="">{{evento.Costo}} {{evento.Divisa.Divisa}}</span><br>
                                      </span>
                                  </div>
                                  
                                  <!-- Lugar -->
                                  <div class="col-sm-4 text-center">
                                     <span ng-if="evento.Lugar.LugarId.length > 0">
-                                         <b class="datoEvento">Lugar</b><br>
-                                         <span class="datoEvento">{{evento.Lugar.Nombre}}</span><br>
+                                         <b class="">Lugar</b><br>
+                                         <span class="">{{evento.Lugar.Nombre}}</span><br>
                                      </span>
                                  </div>
                              </div>
@@ -332,24 +332,24 @@
                                 <!-- Cantidad -->
                                  <div class="col-xs-12 ">
                                     <span ng-if="evento.Cantidad.length > 0">
-                                         <b class="datoEvento">Cantidad: </b>
-                                         <span class="datoEvento">{{evento.Cantidad}} {{evento.Unidad.Unidad}}</span>
+                                         <b class="">Cantidad: </b>
+                                         <span class="">{{evento.Cantidad}} {{evento.Unidad.Unidad}}</span>
                                      </span>
                                  </div>
                                  
                                  <!-- Costo -->
                                  <div class="col-xs-12">
                                     <span ng-if="evento.Costo.length > 0">
-                                         <b class="datoEvento">Costo: </b>
-                                         <span class="datoEvento">{{evento.Costo}} {{evento.Divisa.Divisa}}</span>
+                                         <b class="">Costo: </b>
+                                         <span class="">{{evento.Costo}} {{evento.Divisa.Divisa}}</span>
                                      </span>
                                  </div>
                                  
                                  <!-- Lugar -->
                                  <div class="col-xs-12">
                                     <span ng-if="evento.Lugar.LugarId.length > 0">
-                                         <b class="datoEvento">Lugar: </b>
-                                        <span class="datoEvento">{{evento.Lugar.Nombre}}</span>
+                                         <b class="">Lugar: </b>
+                                        <span class="">{{evento.Lugar.Nombre}}</span>
                                      </span>
                                  </div>
                              </div>

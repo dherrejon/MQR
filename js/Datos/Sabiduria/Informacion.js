@@ -186,6 +186,11 @@ function ChecarNulos(data, operacion)
         {
             data.Fuente.FuenteId = null;
         }
+        
+        if(data.TipoInformacion.TipoInformacionId.length == 0)
+        {
+            data.TipoInformacion.TipoInformacionId = null;
+        }
     }
     else if(operacion == "Editar")
     {   
@@ -197,9 +202,14 @@ function ChecarNulos(data, operacion)
         {
             data.Fuente.FuenteId = "null";
         }
+        
+        if(data.TipoInformacion.TipoInformacionId.length == 0)
+        {
+            data.TipoInformacion.TipoInformacionId = null;
+        }
     }
         
-};
+}
 
 //------------------ Origen Informacion --------------------
 class OrigenInformacion

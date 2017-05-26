@@ -205,7 +205,7 @@ function AgregarInformacion()
     }
     else
     {
-        echo '[{"Estatus": "Exitoso"}, {"Estatus": "'.$informacionId.'"}]';
+        echo '[{"Estatus": "Exitoso"}, {"Id": "'.$informacionId.'"}, {"Etiqueta":'.json_encode($informacion->Etiqueta).'}, {"Tema":'.json_encode($informacion->Tema).'}]';
         $db->commit();
         $db = null;
     }

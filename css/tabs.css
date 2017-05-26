@@ -8,8 +8,15 @@ a:hover,a:focus
 
 .tab .nav-tabs
 {
-    border-bottom: 3px solid rgb(41,69,77); 
+    border-bottom: 3px solid #1859b2; 
 }
+
+.tab .nav-tabs.Noborde
+{
+    border-bottom: 0px; 
+    border-bottom: none; 
+}
+
 .tab .nav-tabs li
 {
     margin: 0 0px 0 0;
@@ -21,13 +28,13 @@ a:hover,a:focus
     border: none;
     padding: 13px 35px;
     font-size: 20px;
-    color: rgba(78,122,137,1);
+    color: #081e3b;
     background: transparent;
     border-radius: 0;
 }
 .tab .nav-tabs li a:hover
 {
-    color: rgb(41,69,77);
+    color: #1859b2;
 }
 
 .tab .nav-tabs li a i
@@ -41,8 +48,8 @@ a:hover,a:focus
 .tab .nav-tabs li.active a:hover
 {
     border: none;
-    background: rgb(41,69,77);
-    color: #D9D9D9;
+    background: #1859b2;
+    color: white;
     transition: background 0.20s linear 0s;
 }
 
@@ -64,14 +71,15 @@ a:hover,a:focus
 {
     border-radius: none !important;
     border-radius: 0px !important;
-    background: rgb(41,69,77);
-    color: #D9D9D9;
+    background: #1859b2;
+    color: white;
     font-size: 18px;
     width: 100%;
+    height: 54px;
 }
 
 .dropDownTab:hover, .dropDownTab:active, .dropDownTab:focus
 {
-    opacity: 0.9;
-    color: #D9D9D9;
+    opacity: 1.0;
+    color: white;
 }

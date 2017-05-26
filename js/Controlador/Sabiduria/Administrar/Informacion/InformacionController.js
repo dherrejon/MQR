@@ -1,50 +1,38 @@
-app.controller("AdministrarInformacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce, ETIQUETA, TEMA, TIPOINFORMACION, FUENTE)
+app.controller("AdministrarInformacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce, TIPOINFORMACION, FUENTE)
 {   
-    $scope.informacion = [];
+   $scope.titulo = "Informacion";
     
-    $scope.fuente = [];
-    $scope.tema = [];
-    $scope.tipoInformacion = [];
-    $scope.origenInformacion = [];
+    $scope.permiso = false;
+
+    $scope.informacion = [];
     $scope.etiqueta = [];
-    $scope.informacion = [];
-    $scope.autor = [];
+    $scope.tema = [];
+    $scope.fuente = [];
+    $scope.origenInformacion = [];
+    $scope.tipoInformacion = [];
     
-    $scope.etiquetasInformacion = [];
-    
-    $scope.nuevaInformacion = null;
-    $scope.detalle = null;
-    $scope.mostrarEtiqueta = false;
-    $scope.mostrarTema = false;
-    $scope.mostrarTipoInformacion = false;
-    $scope.mostrarFuente = false;
-    $scope.ordenarInformacion = "Titulo";
-    
-    $scope.claseInformacion = {tema:"dropdownListModal", etiqueta:"dropdownListModal", tipo:"dropdownListModal", fuente:"dropdownListModal", origen:"dropdownListModal", contenido:"contenidoArea"};
-    
-    $scope.archivo = [];
-    $scope.archivoSeleccionado = false; 
-    
-    $scope.filtroInformacion = {comentario:"active", imagen:"active", archivo:"active"};
-    
-    
-    //----buscar
-    $scope.buscarTemaOperacion = "";
-    $scope.buscarTipoOperacion = "";
-    $scope.buscarFuenteOperacion = "";
-    $scope.buscarAutorOperacion = "";
-    $scope.buscarEtiquetaOperacion = "";
-    $scope.buscarTipoInformacionOperacion = "";
-        
-    //filtro
-    $scope.buscarTema = "";
-    $scope.buscarFuente = "";
+    $scope.buscarInformacion = "";
     $scope.buscarEtiqueta = "";
-    $scope.buscarTipoInformacion = "";
-    $scope.buscarAutor = "";
+    $scope.buscarTema = "";
+    $scope.buscarConcepto = "";
     
-    $scope.mostrarFiltro = "etiqueta";
-    $scope.filtro = {tema:[], fuente:[], tipoInformacion:[], etiqueta:[], autor:[]};
+    
+    
+    $scope.campoBuscar = "Conceptos";
+    $scope.verFiltro = true;
+    $scope.filtro = {tema:[], etiqueta: [], origen: {texto:false, imagen:false, archivo:false}, tipoInformacion:[], fuente:[]};
+    
+    $scope.ValidarPermiso = function()
+    {
+        for(var k=0; k<$scope.usuarioLogeado.Permiso.length; k++)
+        {
+            if($scope.usuarioLogeado.Permiso[k] == "SabiduriaCon")
+            {
+                $scope.permiso = true;
+                break;
+            }
+        }
+    };
     
     $scope.GetInformacion = function()              
     {
@@ -55,50 +43,10 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
                 data[k].Contenido = $sce.trustAsHtml(data[k].Contenido);
                 data[k].ObservacionHTML = $sce.trustAsHtml(data[k].ObservacionHTML);
             }
+            
             $scope.informacion = data;
             
             $scope.GetEtiquetasInformacion();
-            $scope.GetAutoresFuente();
-        
-        }).catch(function(error)
-        {
-            alert(error);
-        });
-    };
-    
-    $scope.GetInformacionEtiqueta = function(informacion)              
-    {
-        if(informacion.Etiqueta.length == 0)
-        {
-            GetInformacionEtiqueta($http, $q, CONFIG, informacion.InformacionId).then(function(data)
-            {
-                informacion.Etiqueta = data;
-
-            }).catch(function(error)
-            {
-                alert(error);
-            });
-        }
-    };
-    
-    $scope.GetEtiqueta = function()              
-    {
-        GetEtiqueta($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
-        {
-            $scope.etiqueta = data;
-        
-        }).catch(function(error)
-        {
-            alert(error);
-        });
-    };
-    
-    $scope.GetAutor = function()              
-    {
-        GetAutor($http, $q, CONFIG).then(function(data)
-        {
-            $scope.autor = data;
-        
         }).catch(function(error)
         {
             alert(error);
@@ -152,39 +100,46 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         
         var sql = "SELECT DISTINCT TemaId, Nombre FROM ?";
         $scope.temaF = alasql(sql, [$scope.temaInformacion]);
+        
+        for(var k=0; k<$scope.temaF.length; k++)
+        {
+            $scope.temaF[k].mostrar = true;
+        }
+        
+        for(var k=0; k<$scope.etiquetaF.length; k++)
+        {
+            $scope.etiquetaF[k].mostrar = true;
+        }
     };
     
-    $scope.GetAutoresFuente = function()              
+    $scope.GetArchivoInformacion = function(informacion)              
     {
-        GetAutoresFuente($http, $q, CONFIG).then(function(data)
+        GetArchivoInformacion($http, $q, CONFIG, informacion.InformacionId).then(function(data)
         {
-            $scope.autoresFuente = data;
-            $scope.SetAutoresFuentes();
-            
-            var sql = "SELECT DISTINCT Abreviacion, Nombre, AutorId FROM ?";
-            $scope.autor = alasql(sql, [data]);
-
+            informacion.Archivo = data.Archivo;
+            informacion.NombreArchivo = data.NombreArchivo;
+            informacion.ExtensionArchivo = data.ExtensionArchivo;
+        
         }).catch(function(error)
         {
             alert(error);
         });
     };
     
-    $scope.SetAutoresFuentes = function()
+    
+    //------------- Catálogos --------------------------
+    $scope.GetEtiqueta = function()              
     {
-        var sqlBase = "Select Abreviacion, Nombre, AutorId From ? WHERE FuenteId = '";
-        var sql = "";
-        for(var k=0; k<$scope.informacion.length; k++)
+        GetEtiqueta($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
         {
-            sql = sqlBase;
-            sql +=  $scope.informacion[k].Fuente.FuenteId + "'";
-           
-            $scope.informacion[k].Fuente.Autor = alasql(sql,[$scope.autoresFuente]);
-        }
-
+            $scope.etiqueta = data;
+        
+        }).catch(function(error)
+        {
+            alert(error);
+        });
     };
     
-    /*-------------- Catálogos de información ---------------------*/
     $scope.GetTema = function()              
     {
         GetTema($http, $q, CONFIG).then(function(data)
@@ -225,140 +180,78 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         });
     };
     
-    $scope.GetArchivoInformacion = function(informacion)              
-    {
-        GetArchivoInformacion($http, $q, CONFIG, informacion.InformacionId).then(function(data)
-        {
-            informacion.Archivo = data.Archivo;
-            informacion.NombreArchivo = data.NombreArchivo;
-            informacion.ExtensionArchivo = data.ExtensionArchivo;
-        
-        }).catch(function(error)
-        {
-            alert(error);
-        });
-    };
     
-    //--------------------- Ordenar -------------------
-    $scope.CambiarOrdenar = function(campo)
+    /*------------ General -------------------*/
+    $scope.CambiarCampoBuscar = function(campo)
     {
-        if($scope.ordenarInformacion == campo)
+        if(campo != $scope.campoBuscar)
         {
-            $scope.ordenarInformacion = "-" + campo;
-        }
-        else
-        {
-            $scope.ordenarInformacion = campo;
+            $scope.buscarInformacion = "";
+            //$scope.buscarEtiqueta = "";
+            //$scope.buscarTema = "";
+            $scope.buscarConcepto = "";
+            
+            $scope.campoBuscar = campo;
+        
         }
     };
     
-    $scope.GetClaseOrdenar = function(campo)
+    $scope.LimpiarBuscar2 = function()
     {
-        if($scope.ordenarInformacion == campo || $scope.ordenarInformacion == ("-" + campo))
-        {
-            return "active";
-        }
-        else
-        {
-            return "";
-        }
+        //$scope.buscarTema = "";
+        //$scope.buscarEtiqueta = "";
+        $scope.buscarInformacion = "";
+        $scope.buscarConcepto = "";
     };
     
-    /*---------------- Fitro ------------------*/
-    $scope.MostrarFiltros = function(filtro)
+    //------------- Detalles --------------------
+    $scope.verDetalle  =function(info)
     {
-        if($scope.mostrarFiltro == filtro)
+        $scope.detalle = info;
+        $scope.verMasDetalle = false;
+        
+        if(info.OrigenInformacion.OrigenInformacionId != "1")
         {
-            $scope.mostrarFiltro = "";
+            $scope.GetArchivoInformacion(info);
         }
-        else
-        {
-            $scope.mostrarFiltro = filtro;
-        }
+        
+        $('#DetalleInformacion').modal('toggle');
     };
     
-    $scope.CambiarFiltroInfomacion = function(campo)
+    $scope.CambiarMasDetalles = function()
     {
-        var count = 0;
-        
-        if( $scope.filtroInformacion.comentario == "active")
-        {
-            count++;
-        }
-        if( $scope.filtroInformacion.imagen == "active")
-        {
-            count++;
-        }
-        if( $scope.filtroInformacion.archivo == "active")
-        {
-            count++;
-        }
-        
-        if(campo == "Comentario")
-        {
-            if($scope.filtroInformacion.comentario == "active" && count>1)
-            {
-                $scope.filtroInformacion.comentario = "";
-            }
-            else
-            {
-                $scope.filtroInformacion.comentario = "active";
-            }
-        }
-        
-        if(campo == "Imagen")
-        {
-            if($scope.filtroInformacion.imagen == "active" && count>1)
-            {
-                $scope.filtroInformacion.imagen = "";
-            }
-            else
-            {
-                $scope.filtroInformacion.imagen = "active";
-            }
-        }
-        
-        if(campo == "Archivo")
-        {
-            if($scope.filtroInformacion.archivo == "active" && count>1)
-            {
-                $scope.filtroInformacion.archivo = "";
-            }
-            else
-            {
-                $scope.filtroInformacion.archivo = "active";
-            }
-        }
+        $scope.verMasDetalle = !$scope.verMasDetalle;
     };
     
-    $scope.FitroInformacion = function(info)
+    $scope.VerPDF = function(informacion)
     {
-        if(info.OrigenInformacion.OrigenInformacionId == "1")
+        var url = 'data:application/PDF;base64,' + informacion.Archivo;
+        window.open(url, '_blank');
+    };
+    
+    /*----- filtro -------------*/
+    $scope.FiltroInformacion = function(info)
+    {
+        if($scope.filtro.origen.archivo || $scope.filtro.origen.imagen || $scope.filtro.origen.texto)
         {
-            if($scope.filtroInformacion.comentario != "active")
+            if($scope.filtro.origen.archivo && info.OrigenInformacion.OrigenInformacionId != '3')
             {
                 return false;
             }
-        }
-        
-        if(info.OrigenInformacion.OrigenInformacionId == "2")
-        {
-            if($scope.filtroInformacion.imagen != "active")
+            
+            if($scope.filtro.origen.imagen && info.OrigenInformacion.OrigenInformacionId != '2')
             {
                 return false;
             }
-        }
-        
-        if(info.OrigenInformacion.OrigenInformacionId == "3")
-        {
-            if($scope.filtroInformacion.archivo != "active")
+            
+            if($scope.filtro.origen.texto && info.OrigenInformacion.OrigenInformacionId != '1')
             {
                 return false;
             }
         }
         
         var cumple = false;
-
+        
         
         if($scope.filtro.fuente.length == 0)
         {
@@ -404,6 +297,8 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
             return false;
         }
         
+        cumple = false;
+        
         if($scope.filtro.tema.length > 0)
         {
             for(var i=0; i<$scope.filtro.tema.length; i++)
@@ -417,16 +312,12 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
                         break;
                     }
                 }
-                
+
                 if(!cumple)
                 {
                     return false;
-                }
+                } 
             }
-        }
-        else
-        {
-            cumple = true;
         }
         
         if($scope.filtro.etiqueta.length > 0)
@@ -442,67 +333,148 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
                         break;
                     }
                 }
-                
+
                 if(!cumple)
                 {
                     return false;
-                }
+                } 
             }
         }
-        else
-        {
-            cumple = true;
-        }
         
-        if(!cumple)
+        return true;
+    };
+    
+    $scope.CambiarFiltroOrigen = function(filtro, valor)
+    {
+        if(valor)
         {
-            return false;
-        }
-        
-        if($scope.filtro.autor.length > 0)
-        {
-            for(var i=0; i<$scope.filtro.autor.length; i++)
+            switch(filtro)
             {
-                cumple = false;
-                for(var j=0; j<info.Fuente.Autor.length; j++)
-                {
-                    if($scope.filtro.autor[i] == info.Fuente.Autor[j].AutorId)
-                    {
-                        cumple = true;
-                        break;
-                    }
-                }
-                
-                if(!cumple)
-                {
-                    return false;
-                }
+                case 1: 
+                    $scope.filtro.origen.texto = !$scope.filtro.origen.texto;
+                    break;
+                case 2:
+                    $scope.filtro.origen.imagen = !$scope.filtro.origen.imagen;
+                    break;
+                case 3:
+                    $scope.filtro.origen.archivo = !$scope.filtro.origen.archivo;
+                    break;
+                default: 
+                    break;
             }
         }
         else
         {
-            cumple = true;
+            switch(filtro)
+            {
+                case 1: 
+                    $scope.filtro.origen.texto = !$scope.filtro.origen.texto;
+                    $scope.filtro.origen.imagen = false;
+                    $scope.filtro.origen.archivo = false;
+                    break;
+                case 2:
+                    $scope.filtro.origen.imagen = !$scope.filtro.origen.imagen;
+                    $scope.filtro.origen.texto = false;
+                    $scope.filtro.origen.archivo = false;
+                    break;
+                case 3:
+                    $scope.filtro.origen.archivo = !$scope.filtro.origen.archivo;
+                    $scope.filtro.origen.texto = false;
+                    $scope.filtro.origen.imagen = false;
+                    break;
+                default: 
+                    break;
+            }
         }
-        
-        if(cumple)
+    };
+    
+    $scope.FiltroInformacionContenido = function(info)
+    {
+        if($scope.buscarInformacion !== null && $scope.buscarInformacion !== null)
+        {
+            if($scope.buscarInformacion.length > 0)
+            {
+                var contenido = info.ContenidoOriginal.toLowerCase().indexOf($scope.buscarInformacion.toLocaleLowerCase());
+                var titulo = info.Titulo.toLowerCase().indexOf($scope.buscarInformacion.toLocaleLowerCase());
+                
+                if(contenido > -1 || titulo > -1)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
         {
             return true;
         }
+    };
+    
+    $scope.SetFiltroEtiqueta = function(etiqueta)
+    {
+        etiqueta.mostrar = false;
+        $scope.filtro.etiqueta.push(etiqueta.EtiquetaId);
+            
+        //$scope.buscarEtiqueta = "";
+        $scope.buscarConcepto = "";
         
+        $scope.GetEtiquetasFiltradas();
+        document.getElementById('buscarConcepto').focus();
+        //document.getElementById('bucarEtiqueta').focus();
     };
     
     $scope.SetFiltroTema = function(tema)
     {
-        for(var k=0; k<$scope.filtro.tema.length; k++)
+        tema.mostrar = false;
+        $scope.filtro.tema.push(tema.TemaId);
+        
+        //$scope.buscarTema = "";
+        $scope.buscarConcepto = "";
+        
+        $scope.GetTemasFiltrados();
+        document.getElementById('buscarConcepto').focus();
+        //document.getElementById('bucarTema').focus();
+    };
+    
+    $scope.LimpiarFiltro = function()
+    {
+        $scope.filtro = {tema:[], etiqueta: [], origen: {texto:false, imagen:false, archivo:false}, tipoInformacion:[], fuente:[]};
+        
+        for(var k=0; k<$scope.etiquetaF.length; k++)
         {
-            if(tema == $scope.filtro.tema[k])
-            {
-                $scope.filtro.tema.splice(k,1);
-                return;
-            }
+            $scope.etiquetaF[k].mostrar = true;
         }
         
-        $scope.filtro.tema.push(tema);
+        for(var k=0; k<$scope.temaF.length; k++)
+        {
+            $scope.temaF[k].mostrar = true;
+        }
+        
+        for(var k=0; k<$scope.tipoInformacion.length; k++)
+        {
+            $scope.tipoInformacion[k].Filtro = false;
+        }
+        
+        for(var k=0; k<$scope.fuente.length; k++)
+        {
+            $scope.fuente[k].Filtro = false;
+        }
+        
+        $scope.verFiltro = true;
+        
+        //$scope.buscarEtiqueta = "";
+        //$scope.buscarTema = "";
+        $scope.buscarConcepto = "";
+        $scope.buscarFuente = "";
+        $scope.buscarTipoInformacion = "";
+    };
+    
+    $scope.CambiarVerFiltro = function()
+    {
+        $scope.verFiltro = !$scope.verFiltro;
     };
     
     $scope.SetFiltroFuente = function(fuente)
@@ -519,20 +491,6 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         $scope.filtro.fuente.push(fuente);
     };
     
-    $scope.SetFiltroEtiqueta = function(etiqueta)
-    {
-        for(var k=0; k<$scope.filtro.etiqueta.length; k++)
-        {
-            if(etiqueta == $scope.filtro.etiqueta[k])
-            {
-                $scope.filtro.etiqueta.splice(k,1);
-                return;
-            }
-        }
-        
-        $scope.filtro.etiqueta.push(etiqueta);
-    };
-    
     $scope.SetFiltroTipoInformacion= function(tipo)
     {
         for(var k=0; k<$scope.filtro.tipoInformacion.length; k++)
@@ -547,214 +505,285 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         $scope.filtro.tipoInformacion.push(tipo);
     };
     
-    $scope.SetFiltroAutor = function(autor)
+    //------ etiqueta ------
+    $scope.FiltrarBuscarEtiqueta = function(etiqueta, buscar)
     {
-        for(var k=0; k<$scope.filtro.autor.length; k++)
+        if(buscar !== undefined)
         {
-            if(autor == $scope.filtro.autor[k])
+            if(buscar.length > 0)
             {
-                $scope.filtro.autor.splice(k,1);
-                return;
+                var index = etiqueta.Nombre.toLowerCase().indexOf(buscar.toLowerCase());
+
+
+                if(index < 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    if(index === 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return true;
             }
         }
-        
-        $scope.filtro.autor.push(autor);
     };
     
-    $scope.LimpiarFiltro = function()
+    $scope.BuscarEtiquetaFiltro = function(etiqueta)
     {
-        $scope.filtro = {tema:[], fuente:[], tipoInformacion:[], etiqueta:[], autor:[]};
-        
-        for(var k=0; k<$scope.tipoInformacion.length; k++)
-        {
-            $scope.tipoInformacion[k].Filtro = false;
+        return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarConcepto);
+    };
+    
+    $('#buscarConcepto').keydown(function(e)
+    {
+        switch(e.which) {
+            case 13:
+               var index = $scope.buscarConcepto.indexOf(" ");
+               
+               if(index == -1)
+                {
+                    $scope.buscarEtiqueta = $scope.buscarConcepto;
+                    $scope.AgregarEtiquetaFiltro();
+                }
+                else
+                {
+                    $scope.buscarTema = $scope.buscarConcepto;
+                    $scope.AgregarTemaFiltro();
+                }
+               
+              break;
+
+            default:
+                return;
         }
-        
-        for(var k=0; k<$scope.temaF.length; k++)
-        {
-            $scope.temaF[k].Filtro = false;
-        }
-        
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
+    
+    $scope.AgregarEtiquetaFiltro = function()
+    {
         for(var k=0; k<$scope.etiquetaF.length; k++)
         {
-            $scope.etiquetaF[k].Filtro = false;
+            if($scope.etiquetaF[k].Nombre.toLowerCase() == $scope.buscarEtiqueta.toLowerCase())
+            {
+                if($scope.etiquetaF[k].mostrar)
+                {
+                    $scope.SetFiltroEtiqueta($scope.etiquetaF[k]);
+                }
+                else
+                {
+                    $scope.buscarConcepto = "";
+                    
+                }
+                $scope.$apply();
+            }
         }
-        
-        for(var k=0; k<$scope.fuente.length; k++)
-        {
-            $scope.fuente[k].Filtro = false;
-        }
-        
-        for(var k=0; k<$scope.autor.length; k++)
-        {
-            $scope.autor[k].Filtro = false;
-        }
-        
-        $scope.buscarEtiqueta = "";
-        $scope.buscarFuente = "";
-        $scope.buscarTema = "";
-        $scope.buscarTipoInformacion = "";
-        $scope.buscarAutor = "";
     };
     
-    /*---------- Filtro de filtros -------------*/
-    $scope.FiltroTema = function(tema)
+    
+    $scope.QuitarTemaFiltro = function(tema)
     {
-        var cumple = false;
-        
-        for(var k=0; k<$scope.informacion.length; k++)  //&& $scope.informacion[k].OrigenInformacion.OrigenInformacionId == $scope.filtroInformacion.id
+        for(var k=0; k<$scope.temaF.length; k++)
         {
-            if(tema.TemaId == $scope.informacion[k].Tema.TemaId)
+            if($scope.temaF[k].TemaId == tema.TemaId)
             {
-                cumple  = true;
+                $scope.temaF[k].mostrar = true;
                 break;
             }
         }
         
-        return cumple;
-    };
-    
-    $scope.FiltroFuente = function(fuente)
-    {
-        var cumple = false;
-        
-        for(var k=0; k<$scope.informacion.length; k++)  //&& $scope.informacion[k].OrigenInformacion.OrigenInformacionId == $scope.filtroInformacion.id
+        for(var k=0; k<$scope.filtro.tema.length; k++)
         {
-            if(fuente.FuenteId == $scope.informacion[k].Fuente.FuenteId)
+            if($scope.filtro.tema[k] == tema.TemaId)
             {
-                cumple  = true;
+                $scope.filtro.tema.splice(k,1);
                 break;
             }
         }
         
-        return cumple;
+        for(var k=0; k<$scope.temaFiltrado.length; k++)
+        {
+            if($scope.temaFiltrado[k].TemaId == tema.TemaId)
+            {
+                $scope.temaFiltrado.splice(k,1);
+                break;
+            }
+        }
     };
     
-    
-    $scope.FiltroTipoInformacion = function(tipo)
+    $scope.QuitaretiqeutaFiltro = function(etiqueta)
     {
-        var cumple = false;
-        
-        for(var k=0; k<$scope.informacion.length; k++)  //&& $scope.informacion[k].OrigenInformacion.OrigenInformacionId == $scope.filtroInformacion.id
+        for(var k=0; k<$scope.etiquetaF.length; k++)
         {
-            if(tipo.TipoInformacionId == $scope.informacion[k].TipoInformacion.TipoInformacionId)
+            if($scope.etiquetaF[k].EtiquetaId == etiqueta.EtiquetaId)
             {
-                cumple  = true;
+                $scope.etiquetaF[k].mostrar = true;
                 break;
             }
         }
         
-        return cumple;
-    };
-    
-    
-    /*---------------- Detalle ----------------*/
-    $scope.DetalleInformacion = function(informacion)
-    {
-        $scope.detalle = informacion;
-        
-        $scope.GetArchivoInformacion(informacion);
-    };
-    
-    $scope.VisualizarImagen = function(imagen, origen, preSeleccion)
-    {
-        $scope.preImage = new Object();
-        $scope.preImage.Imagen = imagen;
-        $scope.preImage.Origen = origen;
-        $scope.preImage.PreSeleccion = preSeleccion;
-    };
-    
-    $scope.VerPDF = function(informacion)
-    {
-        var url = 'data:application/PDF;base64,' + informacion.Archivo;
-        
-        /*var link = document.createElement("a");
-        link.download = informacion.NombreArchivo;
-        link.href = url;
-        link.click();
-        
-        var url = 'data:application/pdf;base64,' + $scope.nuevaInformacion.Archivo;*/
-        window.open(url, '_blank');
-    };
-    
-    $scope.DescargarImagen = function(imagen)
-    {
-        var url = 'data:image/png;base64,' + imagen;
-        var link = document.createElement("a");
-        link.download = "Imagen";
-        link.href = url;
-        link.click();
-    };
-    
-    $scope.PrevisualizarArchivo = function()
-    {
-        if($scope.archivoSeleccionado)
+        for(var k=0; k<$scope.filtro.etiqueta.length; k++)
         {
-            var reader = new FileReader();
-            var url = $scope.nuevaInformacion.Archivo;
-            
-            window.open($scope.archivoPreseleccionado);
+            if($scope.filtro.etiqueta[k] == etiqueta.EtiquetaId)
+            {
+                $scope.filtro.etiqueta.splice(k,1);
+                break;
+            }
+        }
+        
+        for(var k=0; k<$scope.etiquetaFiltrada.length; k++)
+        {
+            if($scope.etiquetaFiltrada[k].EtiquetaId == etiqueta.EtiquetaId)
+            {
+                $scope.etiquetaFiltrada.splice(k,1);
+                break;
+            }
+        }
+    };
+    
+    $scope.GetEtiquetasFiltradas = function()
+    {
+        
+        var sql = "SELECT Nombre, EtiquetaId FROM ? WHERE mostrar = false";
+        
+        $scope.etiquetaFiltrada = alasql(sql, [$scope.etiquetaF]);
+    };
+    
+    $scope.GetTemasFiltrados = function()
+    {
+        
+        var sql = "SELECT Nombre, TemaId From ? WHERE mostrar = false";
+        
+        $scope.temaFiltrado = alasql(sql, [$scope.temaF]);
+    };
+    
+    
+    //------ Tema --------
+    $scope.FiltrarBuscarTema = function(tema, buscar)
+    {
+        if(buscar !== undefined)
+        {
+            if(buscar.length > 0)
+            {
+                var index = tema.Nombre.toLowerCase().indexOf(buscar.toLowerCase());
+
+
+                if(index < 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    if(index === 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        if(tema.Nombre[index-1] == " ")
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+    };
+    
+    $scope.BuscarTemaFiltro = function(tema)
+    {
+        return $scope.FiltrarBuscarTema(tema, $scope.buscarConcepto);
+    };
+    
+    
+    $scope.AgregarTemaFiltro = function()
+    {
+        for(var k=0; k<$scope.temaF.length; k++)
+        {
+            if($scope.temaF[k].Nombre.toLowerCase() == $scope.buscarTema.toLowerCase())
+            {
+                if($scope.temaF[k].mostrar)
+                {
+                    $scope.SetFiltroTema($scope.temaF[k]);
+                }
+                else
+                {
+                    $scope.buscarTema = "";
+                    
+                }
+                $scope.$apply();
+            }
+        }
+    };
+    
+    //------------- Administrar
+    $scope.mostrarFiltro = "fuente";
+    $scope.ordenarInformacion = "Titulo";
+     $scope.claseInformacion = {tema:"dropdownListModal", etiqueta:"dropdownListModal", tipo:"dropdownListModal", fuente:"dropdownListModal", origen:"dropdownListModal", contenido:"contenidoArea"};
+    
+    $scope.AbrirDropDownBarraPrincipal = function(dropdown)
+    {
+        $scope.dropdownAbrir = dropdown;
+    };
+    
+    
+    
+    //--------------------- Ordenar -------------------
+    $scope.CambiarOrdenar = function(campo)
+    {
+        if($scope.ordenarInformacion == campo)
+        {
+            $scope.ordenarInformacion = "-" + campo;
         }
         else
         {
-            var url = 'data:application/pdf;base64,' + $scope.nuevaInformacion.Archivo;
-            window.open(url);
+            $scope.ordenarInformacion = campo;
         }
     };
     
-    function ImagenSeleccionada(evt) 
+    $scope.GetClaseOrdenar = function(campo)
     {
-        var files = evt.target.files;
-
-        for (var i = 0, f; f = files[i]; i++) 
+        if($scope.ordenarInformacion == campo || $scope.ordenarInformacion == ("-" + campo))
         {
-            if (!f.type.match('image.*')) 
-            {
-                continue;
-            }
-
-            var reader = new FileReader();
-
-            reader.onload = (function(theFile) 
-            {
-                return function(e) 
-                {
-                    document.getElementById("PrevisualizarImagenDetalles").innerHTML = ['<img class=" center-block img-responsive" src="', e.target.result,'" title="', escape(theFile.name), '"/>'].join('');
-                };
-            })(f);
-
-            reader.readAsDataURL(f);
+            return "active";
         }
-    }
- 
-    document.getElementById('cargarImagen').addEventListener('change', ImagenSeleccionada, false);
+        else
+        {
+            return "";
+        }
+    };
     
-    
-    function ArchivoSeleccionado(evt) 
+    //Filtro
+     $scope.MostrarFiltros = function(filtro)
     {
-        var files = evt.target.files;
-
-        for (var i = 0, f; f = files[i]; i++) 
+        if($scope.mostrarFiltro == filtro)
         {
-            var reader = new FileReader();
-
-            reader.onload = (function(theFile) 
-            {
-                return function(e) 
-                {
-                    $scope.archivoPreseleccionado = e.target.result;
-                    $scope.$apply();
-                };
-            })(f);
-
-            reader.readAsDataURL(f);
+            $scope.mostrarFiltro = "";
         }
-        
-       
-    }
- 
-    document.getElementById('cargarArchivo').addEventListener('change', ArchivoSeleccionado, false);
+        else
+        {
+            $scope.mostrarFiltro = filtro;
+        }
+    };
+
     
+    //Abrir
     // --------------------- Abrir Modal de agregar-editar informacion ----------------
     $scope.AbrirInformacion = function(operacion, objeto)
     {
@@ -780,6 +809,11 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         }
         
         $('#informacionModal').modal('toggle');
+    };
+    
+    $scope.AbrirDropDownBarraPrincipal = function(dropdown)
+    {
+        $scope.dropdownAbrir = dropdown;
     };
     
     $scope.SetInformacion = function(data)
@@ -867,43 +901,6 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         }
     };
     
-    $scope.AgregarEtiqueta = function(etiqueta)
-    {
-        $scope.buscarEtiquetaOperacion = "";
-        
-        $scope.nuevaInformacion.Etiqueta.push(etiqueta);
-        
-        for(var k=0; k<$scope.etiqueta.length; k++)
-        {
-            if($scope.etiqueta[k].EtiquetaId == etiqueta.EtiquetaId)
-            {
-                $scope.etiqueta[k].show = false;
-                break;
-            }
-        }
-    };
-    
-    $scope.QuitarEtiqueta = function(etiqueta)
-    {
-        for(var k=0; k<$scope.nuevaInformacion.Etiqueta.length; k++)
-        {
-            if($scope.nuevaInformacion.Etiqueta[k].EtiquetaId == etiqueta.EtiquetaId)
-            {
-                $scope.nuevaInformacion.Etiqueta.splice(k,1);
-                break;
-            }
-        }
-        
-        for(var k=0; k<$scope.etiqueta.length; k++)
-        {
-            if($scope.etiqueta[k].EtiquetaId == etiqueta.EtiquetaId)
-            {
-                $scope.etiqueta[k].show = true;
-                break;
-            }
-        }
-    };
-    
     $scope.CambiarFuente = function(fuente)
     {
         if($scope.mostrarFuente)
@@ -942,16 +939,6 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
     $scope.PosibleOrigenInformacion = function(origen)
     {
         $scope.posibleOrigen = origen;
-    };
-    
-    $scope.MostrarEtiqueta = function()
-    {
-        $scope.mostrarEtiqueta = !$scope.mostrarEtiqueta;
-    };
-    
-    $scope.MostrarTema = function()
-    {
-        $scope.mostrarTema = !$scope.mostrarTema;
     };
     
     $scope.MostrarTipoInformacion = function()
@@ -1102,50 +1089,11 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         }
     };
     
-    $scope.FiltrarBuscarEtiqueta = function(etiqueta, buscar)
-    {
-        if(buscar !== undefined)
-        {
-            if(buscar.length > 0)
-            {
-                var index = etiqueta.Nombre.toLowerCase().indexOf(buscar.toLowerCase());
-
-
-                if(index < 0)
-                {
-                    return false;
-                }
-                else
-                {
-                    if(index === 0)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                return true;
-            }
-        }
-    };
-    
     $scope.BuscarEtiquetaOperacion = function(etiqueta)
     {
         return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarEtiquetaOperacion);
     };
     
-    $scope.BuscarEtiquetaFiltro = function(etiqueta)
-    {
-        return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarEtiqueta);
-    };
-    
-    
-    //--------------Tema---------------
      $('#nuevoTema').keydown(function(e)
     {
         switch(e.which) {
@@ -1264,7 +1212,6 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         }
     };
     
-    
     $scope.EditarTema = function(tema)
     {
         if(tema.TemaId == "-1")
@@ -1284,92 +1231,10 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         }
     };
     
-    $scope.FiltrarBuscarTema = function(tema, buscar)
-    {
-        if(buscar !== undefined)
-        {
-            if(buscar.length > 0)
-            {
-                var index = tema.Nombre.toLowerCase().indexOf(buscar.toLowerCase());
-
-
-                if(index < 0)
-                {
-                    return false;
-                }
-                else
-                {
-                    if(index === 0)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        if(tema.Nombre[index-1] == " ")
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                return true;
-            }
-        }
-    };
-    
     $scope.BuscarTemaOperacion = function(tema)
     {
-        return $scope.FiltrarBuscarTema(tema, $scope.buscarTemaOperacion);
+        return $scope.FiltrarBuscarEtiqueta(tema, $scope.buscarTemaOperacion);
     };
-    
-    $scope.BuscarTemaFiltro = function(tema)
-    {
-        return $scope.FiltrarBuscarTema(tema, $scope.buscarTema);
-    };
-    
-    //-------------- Agregar Exterior -------------------------------
-    //Etiqueta
-    $scope.AbrirAgregarEtiqueta = function()
-    {
-        ETIQUETA.AgregarEtiqueta('Informacion');
-    };
-    
-    $scope.$on('TerminarEtiquetaInformacion',function()
-    {
-        var etiqueta = SetEtiqueta(ETIQUETA.GetEtiqueta());
-        etiqueta.show = false;
-        $scope.nuevaInformacion.Etiqueta.push(etiqueta);
-        $scope.etiqueta.push(etiqueta);
-        
-        $scope.buscarEtiquetaOperacion = "";
-    });
-    
-    $scope.$on('TerminarEtiqueta',function()
-    {
-        var etiqueta = SetEtiqueta(ETIQUETA.GetEtiqueta());
-        etiqueta.show = true;
-        $scope.etiqueta.push(etiqueta);
-    });
-    
-    //tema
-    $scope.AbrirAgregarTema = function()
-    {
-        TEMA.AgregarTema();
-    };
-    
-    $scope.$on('TerminarTema',function()
-    {   
-        $scope.mensaje = "Tema Agregado";
-        $scope.EnviarAlerta('Modal');
-        $scope.CambiarTema(TEMA.GetTema());
-        $scope.tema.push(TEMA.GetTema());
-    });
     
     //tipo de información
     $scope.AbrirAgregarTipoInformacion = function()
@@ -1514,6 +1379,7 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
             
             if(count[0].num === 0)
             {
+                informacion.Tema[k].mostrar = true;
                $scope.temaF.push(informacion.Tema[k]);
             }
             
@@ -1522,7 +1388,7 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
             
             if(count[0].num === 0)
             {
-               $scope.tema.push(informacion.Tema[k]);
+                $scope.tema.push(informacion.Tema[k]);
             }
         }
         
@@ -1537,8 +1403,10 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
             
             if(count[0].num === 0)
             {
-               $scope.etiquetaF.push(informacion.Etiqueta[k]);
+                informacion.Etiqueta[k].mostrar = true;
+                $scope.etiquetaF.push(informacion.Etiqueta[k]);
             }
+            
             
             //etiqueta Dropdownlist
             count = alasql(sql, [$scope.etiqueta]);
@@ -1608,9 +1476,9 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
             $scope.mensajeError[$scope.mensajeError.length] = "*Debes indicar un titulo.";
         }
         
-        if($scope.nuevaInformacion.Etiqueta.length == 0)
+        if($scope.nuevaInformacion.Etiqueta.length === 0 && $scope.nuevaInformacion.Tema.length === 0)
         {
-            $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona al menos una etiqueta.";
+            $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona al menos una etiqueta o un tema.";
             $scope.claseInformacion.etiqueta = "dropdownListModalError";
         }
         else
@@ -1618,7 +1486,7 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
             $scope.claseInformacion.etiqueta = "dropdownListModal";
         }
         
-        if($scope.nuevaInformacion.TipoInformacion.TipoInformacionId.length == 0)
+        /*if($scope.nuevaInformacion.TipoInformacion.TipoInformacionId.length == 0)
         {
             $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona un tipo de información.";
             $scope.claseInformacion.tipo = "dropdownListModalError";
@@ -1626,9 +1494,9 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         else
         {
             $scope.claseInformacion.tipo = "dropdownListModal";
-        }
+        }*/
 
-        if($scope.nuevaInformacion.OrigenInformacion.OrigenInformacionId.length == 0)
+        if($scope.nuevaInformacion.OrigenInformacion.OrigenInformacionId.length === 0)
         {
             $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona el origen de la información.";
             $scope.claseInformacion.origen = "dropdownListModalError";
@@ -1684,23 +1552,6 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
     
     document.getElementById('informacionModal').onclick = function(e) 
     {
-        if($scope.mostrarEtiqueta)
-        {
-            if(!(e.target.id == "etiquetaPanel" || e.target.id == "etiquetasAgregadas" || $(e.target).parents("#etiquetaPanel").size()))
-            { 
-                $scope.mostrarEtiqueta = false;
-                $scope.$apply();
-            }
-        }
-
-        if($scope.mostrarTema)
-        {
-            if(!(e.target.id == "temaPanel" || $(e.target).parents("#temaPanel").size()))
-            { 
-                $scope.mostrarTema = false;
-                $scope.$apply();
-            }
-        }
         
         if($scope.mostrarTipoInformacion)
         {
@@ -1747,7 +1598,7 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
             case 3:
                 $scope.buscarTemaOperacion = "";
                 break;
-            case 4:
+            /*case 4:
                 $scope.buscarEtiqueta = "";
                 break;
             case 5:
@@ -1761,7 +1612,8 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
                 break;
             case 8:
                 $scope.buscarTipoInformacion = "";
-                break;
+
+                break;*/
             case 9:
                 $scope.buscarTipoInformacionOperacion = "";
                 break;
@@ -1796,14 +1648,13 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         }
     };
     
-    /*----------------------- Inicializar ---------------------------*/
-
+    
+    //Inicializar Catalogos
     $scope.GetTema();
     $scope.GetTipoInformacion();
     $scope.GetFuente();
     $scope.GetOrigenInformacion();
     $scope.GetInformacion();
     $scope.GetEtiqueta();
-    //$scope.GetAutor();
-    
+ 
 });

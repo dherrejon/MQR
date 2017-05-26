@@ -17,52 +17,43 @@
                                 <span class="fa fa-search"></span> {{campoBuscar}}
                            </button>
                             <ul class="dropdown-menu dropdown-menu-left" style=" border-radius:0px">
-                              <li><a href="" ng-click="CambiarCampoBuscar('Etiquetas')" class="dropdownOpcion">
+                             
+                             <li><a href="" ng-click="CambiarCampoBuscar('Conceptos')" class="dropdownOpcion">
+                                  Conceptos
+                              </a></li>
+                             
+                              <!--<li><a href="" ng-click="CambiarCampoBuscar('Etiquetas')" class="dropdownOpcion">
                                   Etiquetas
                               </a></li>
                               <li><a href="" ng-click="CambiarCampoBuscar('Temas')" class="dropdownOpcion">
                                   Temas
-                              </a></li>
+                              </a></li>-->
                               <li><a href="" ng-click="CambiarCampoBuscar('Contenido')" class="dropdownOpcion"> 
                                   Contenido
                               </a></li>
                             </ul>
                       </span>
                       
-                      
                       <!-- entradas -->
                       <input onclick="this.setSelectionRange(0, this.value.length)" ng-show="campoBuscar=='Contenido'" type="text" class="form-control inputBuscar" placeholder="Buscar" aria-describedby="sizing-addon1" ng-model="buscarInformacion" id="bucarContenido">
                       
-                      <input autofocus ng-show="campoBuscar=='Etiquetas'" type="text"  placeholder="Buscar" class="inputBuscar form-control" name="buscarEtiquetaFiltro" ng-model="buscarEtiqueta" id="bucarEtiqueta" autocomplete="off">
+                      <input ng-show="campoBuscar=='Conceptos'" type="text"  placeholder="Agregar Concepto" class="inputBuscar form-control" name="buscarConceptoFiltro" ng-model="buscarConcepto" id="buscarConcepto" autocomplete="off">
                       
-                      <input ng-show="campoBuscar=='Temas'" type="text"  placeholder="Buscar" class="inputBuscar form-control" name="buscarTemaFiltro" ng-model="buscarTema" id="bucarTema" autocomplete="off">
+                      <!--<input autofocus ng-show="campoBuscar=='Etiquetas'" type="text"  placeholder="Buscar" class="inputBuscar form-control" name="buscarEtiquetaFiltro" ng-model="buscarEtiqueta" id="bucarEtiqueta" autocomplete="off">
                       
-                      <div ng-show="buscarTema.length > 0 || buscarEtiqueta.length > 0" class="dropdown-menu modalAgregarDropdown" style="margin-left:130px">
-                           <div class="col-xs-12" style="margin-top: 10px"></div>
-                            <div class="panel  panelFiltro" style="border-radius: 0px;">
-                                <div class="row " >
-                                    <div class="col-xs-12">
+                      <input ng-show="campoBuscar=='Temas'" type="text"  placeholder="Buscar" class="inputBuscar form-control" name="buscarTemaFiltro" ng-model="buscarTema" id="bucarTema" autocomplete="off">-->
+                      
+                      <div ng-show="buscarConcepto.length > 0" class="dropdown-menu modalAgregarDropdown" style="margin-left:130px; padding: 5px">
 
-                                        <table  class="table table-responsive">
+                         <li><a href=""  ng-click="SetFiltroEtiqueta(etiqueta)" class="dropdownOpcion text-left" ng-repeat="etiqueta in etiquetaF | filter:BuscarEtiquetaFiltro | orderBy:'Nombre'" ng-show="etiqueta.mostrar">
+                              {{etiqueta.Nombre}}
+                          </a></li>
 
-                                            <tbody  style="cursor: pointer">
-
-                                                <tr  ng-repeat="etiqueta in etiquetaF | filter:BuscarEtiquetaFiltro | orderBy:'Nombre'" ng-if="campoBuscar == 'Etiquetas'" ng-show="etiqueta.mostrar">
-                                                  <td style="margin-left:10px; color:black" class="botonSeleccionar" ng-click="SetFiltroEtiqueta(etiqueta)">{{etiqueta.Nombre}}</td>
-                                                </tr>
-                                                
-                                                <tr  ng-repeat="tema in temaF | filter:BuscarTemaFiltro | orderBy:'Nombre'" ng-if="campoBuscar == 'Temas'" ng-show="tema.mostrar">
-                                                  <td style="margin-left:10px; color:black" class="botonSeleccionar" ng-click="SetFiltroTema(tema)">{{tema.Nombre}}</td>
-                                                </tr>
-
-                                            </tbody>
-
-                                        </table>
-
-                                    </div>
-                                </div>
-                            </div>
-                         </div>
+                          <li><a href="" ng-click="SetFiltroTema(tema)" class="dropdownOpcion" ng-repeat="tema in temaF | filter:BuscarTemaFiltro | orderBy:'Nombre'"  ng-show="tema.mostrar"> 
+                              {{tema.Nombre}}
+                          </a></li>
+                          
+                      </div>
                       
                       
                       <!-- origen de informacion -->
@@ -180,23 +171,31 @@
                 <!-- Informacion -->
                 <div class="row" ng-show="filtro.etiqueta.length > 0 || filtro.tema.length > 0 || buscarInformacion.length > 0">
                     <a class="btn itemBarraLateral" ng-class="GetClaseActividad(actividad.ActividadId)" ng-repeat="informacion in informacion| orderBy:'Titulo' | filter:FiltroInformacionContenido | filter:FiltroInformacion" ng-click="verDetalle(informacion)">
+                        
+                        <div class="col-xs-12">
+                            <b   style="white-space: normal; overflow: hidden;" >
 
-                        <b   style="white-space: normal; overflow: hidden;" >
-                          
-                           <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='1'" class="fa fa-commenting-o pull-right"></span>
-                           <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='2'" class="fa fa-file-image-o pull-right"></span>
-                           <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='3'" class="fa fa-file-text-o pull-right"></span>
-                           
-                            {{informacion.Titulo}}
-                        </b><br>
-                        <p class="textoDetalleBarra " data-ng-bind-html="informacion.Contenido" ></p>
+                               <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='1'" class="fa fa-commenting-o "></span>
+                               <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='2'" class="fa fa-file-image-o "></span>
+                               <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='3'" class="fa fa-file-text-o"></span>
+
+                                {{informacion.Titulo}}
+                            </b>
+                        </div>
+                        <div class="col-xs-12">
+                            <p class="textoDetalleBarra " data-ng-bind-html="informacion.Contenido" ></p>
+                        </div>
                         
                     </a>
                 </div>
                 
-            </div>
-            
-            <div class="col-sm-3 col-xs-12 ">
+                <div class="row">
+                    <div class="col-xs-12" ng-if="(informacion | filter:FiltroInformacionContenido  ).length == 0 || (informacion | filter:FiltroInformacion).length == 0">
+
+                         <br>
+                        <span style="color:black; font-size:18pt"> Sin Resultados </span>
+                    </div>
+                </div>
                 
             </div>
             
