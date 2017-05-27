@@ -2,6 +2,8 @@
  
      
      <!-- barra de operaciones-->
+     
+    
      <div class="row " >
        
         <div class="col-xs-12 barraOperacionesInformacion" style="border-top: 3px solid #d2e4fb; z-index: 2; top:113px">
@@ -313,7 +315,7 @@
     
     
     <!-- Barra Busqueda -->
-    <div class="barraBuscarInformacion" style="border-top: 3px solid #d2e4fb; z-index: 1; top:161px" >
+    <div class="barraBuscarInformacion" style="border-top: 3px solid #d2e4fb; z-index: 1; top:160px" >
 
         <div class="row ">
            <div class="col-xs-12">
@@ -322,22 +324,22 @@
 
                  <!-- tipo de busqueda -->
                   <span class="input-group-btn">
-                       <button type="button" class="btn botonBuscarFiltro dropdown-toggle" style="width: 130px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                       <button type="button" class="btn botonBuscarFiltro dropdown-toggle" style="width: 133px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="fa fa-search"></span> {{campoBuscar}}
                        </button>
                         <ul class="dropdown-menu dropdown-menu-left" style=" border-radius:0px">
 
-                         <li><a href="" ng-click="CambiarCampoBuscar('Conceptos')" class="dropdownOpcion">
+                         <li><a href="" ng-click="CambiarCampoBuscar('Conceptos')" class="dropdownOpcion2">
                               Conceptos
                           </a></li>
 
-                          <!--<li><a href="" ng-click="CambiarCampoBuscar('Etiquetas')" class="dropdownOpcion">
+                          <!--<li><a href="" ng-click="CambiarCampoBuscar('Etiquetas')" class="dropdownOpcion2">
                               Etiquetas
                           </a></li>
-                          <li><a href="" ng-click="CambiarCampoBuscar('Temas')" class="dropdownOpcion">
+                          <li><a href="" ng-click="CambiarCampoBuscar('Temas')" class="dropdownOpcion2">
                               Temas
                           </a></li>-->
-                          <li><a href="" ng-click="CambiarCampoBuscar('Contenido')" class="dropdownOpcion"> 
+                          <li><a href="" ng-click="CambiarCampoBuscar('Contenido')" class="dropdownOpcion2"> 
                               Contenido
                           </a></li>
                         </ul>
@@ -346,7 +348,7 @@
                   <!-- entradas -->
                   <input onclick="this.setSelectionRange(0, this.value.length)" ng-show="campoBuscar=='Contenido'" type="text" class="form-control inputBuscar" placeholder="Buscar" aria-describedby="sizing-addon1" ng-model="buscarInformacion" id="bucarContenido">
 
-                  <input ng-show="campoBuscar=='Conceptos'" type="text"  placeholder="Agregar Concepto" class="inputBuscar form-control" name="buscarConceptoFiltro" ng-model="buscarConcepto" id="buscarConcepto" autocomplete="off">
+                  <input ng-show="campoBuscar=='Conceptos'" type="text"  placeholder="Consultar" class="inputBuscar form-control" name="buscarConceptoFiltro" ng-model="buscarConcepto" id="buscarConcepto" autocomplete="off">
 
                   <!--<input autofocus ng-show="campoBuscar=='Etiquetas'" type="text"  placeholder="Buscar" class="inputBuscar form-control" name="buscarEtiquetaFiltro" ng-model="buscarEtiqueta" id="bucarEtiqueta" autocomplete="off">
 
@@ -354,11 +356,11 @@
 
                   <div ng-show="buscarConcepto.length > 0" class="dropdown-menu modalAgregarDropdown" style="margin-left:130px; padding: 5px">
 
-                     <li><a href=""  ng-click="SetFiltroEtiqueta(etiqueta)" class="dropdownOpcion text-left" ng-repeat="etiqueta in etiquetaF | filter:BuscarEtiquetaFiltro | orderBy:'Nombre'" ng-show="etiqueta.mostrar">
+                     <li><a href=""  ng-click="SetFiltroEtiqueta(etiqueta)" class="dropdownOpcion2 text-left" ng-repeat="etiqueta in etiquetaF | filter:BuscarEtiquetaFiltro | orderBy:'Nombre'" ng-show="etiqueta.mostrar">
                           {{etiqueta.Nombre}}
                       </a></li>
 
-                      <li><a href="" ng-click="SetFiltroTema(tema)" class="dropdownOpcion" ng-repeat="tema in temaF | filter:BuscarTemaFiltro | orderBy:'Nombre'"  ng-show="tema.mostrar"> 
+                      <li><a href="" ng-click="SetFiltroTema(tema)" class="dropdownOpcion2" ng-repeat="tema in temaF | filter:BuscarTemaFiltro | orderBy:'Nombre'"  ng-show="tema.mostrar"> 
                           {{tema.Nombre}}
                       </a></li>
 
@@ -413,11 +415,11 @@
     <!-- ------------------------ Contenido ---------------------------- -->
     <!-- barra lateral -->
     <div class="row">
-       <div class=" col-xs-12 barraLateralActividad" style="width: 100%"> <!-- ng-show="anchoPantalla > 767 || detalle.ActividadId.length == 0" -->
+       <div class=" col-xs-12 barraLateralActividad" style="width: 100%; z-index:0"> <!-- ng-show="anchoPantalla > 767 || detalle.ActividadId.length == 0" -->
             
             <div class="row">
                  <div class="col-xs-12">
-                     <div style="height: 238px"></div>
+                     <div style="height: 237px"></div>
                  </div>
              </div>
 

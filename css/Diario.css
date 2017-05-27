@@ -6,3 +6,37 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
+.fechaIndicador, .fechaIndicador:hover, .fechaIndicador:focus, .fechaIndicador:active
+{
+    width: 16px !important;
+    height: 16px !important;
+    border-radius: 8px;
+    border-width: 0px;
+    cursor: default;
+    background: #b3b3b3;
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
+.fechaIndicador.futuro
+{
+    background: #2076ed;
+}
+
+.dropdownOpcion2 /*Opciones de los dropdown list*/
+{
+    color: #081e3b !important;
+    border-bottom: solid 1px #2076ED;;
+    margin-left: 3px;
+    margin-right: 3px;
+    font-size: 12pt;
+}
+
+.dropdownOpcion2:hover, .dropdownOpcion2:focus, .dropdownOpcion2:active  /*Hover en las opciones de las dropdown list*/
+{
+    background-color: #2076ED !important;
+    color: white !important;
+    cursor: hand !important;
+}

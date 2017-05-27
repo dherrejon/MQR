@@ -33,13 +33,19 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     $scope.detalle = new Diario();
     
     $scope.buscarFecha = "";
+    $scope.agruparDiario = "Fecha";
+    
+    $scope.hoy = GetDate();
     
     //filtro
     $scope.buscarTemaFiltro = "";
     $scope.buscarEtiquetaFiltro = "";
     $scope.verFiltro = true;
+    $scope.buscarEtiquetaBarra = "";
+    $scope.buscarTemaBarra = "";
     
     $scope.filtro = {tema:[], etiqueta:[], frecuencia:[]};
+    
     
     /*------------------ Catálogos -----------------------------*/
     $scope.GetDiario = function()              
@@ -113,30 +119,28 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         var sqlBase;
         
         sql = "SELECT DISTINCT Fecha, FechaFormato FROM ?";
-        var fecha = alasql(sql, [$scope.diario]);
-        //eventos fecha 
-        sqlBase = "SELECT DiarioId, Notas, Fecha, FechaFormato, NotasHTML FROM ? WHERE Fecha = '";
+        var fecha= alasql(sql, [$scope.diario]);
+    
+        sqlBase = "SELECT * FROM ? WHERE DiarioId = '";
+    
+        for(var i=0; i<$scope.diario.length; i++)
+        {
+
+            sql =  sqlBase + $scope.diario[i].DiarioId + "'";
+            //tema
+            $scope.diario[i].Tema = alasql(sql, [$scope.temaDiario]);
+
+            //etiqueta
+            $scope.diario[i].Etiqueta = alasql(sql, [$scope.etiquetaDiario]);
+        }
+        
+       //eventos fecha 
+        sqlBase = "SELECT * FROM ? WHERE Fecha = '";
         
         for(var k=0; k<fecha.length; k++)
         {
             sql = sqlBase + fecha[k].Fecha + "'";
             fecha[k].Diario = alasql(sql, [$scope.diario]);
-        }
-    
-        sqlBase = "SELECT * FROM ? WHERE DiarioId = '";
-        
-        for(var k=0; k<fecha.length; k++)
-        {
-            for(var i=0; i<fecha[k].Diario.length; i++)
-            {
-                
-                sql =  sqlBase + fecha[k].Diario[i].DiarioId + "'";
-                //tema
-                fecha[k].Diario[i].Tema = alasql(sql, [$scope.temaDiario]);
-
-                //etiqueta
-                fecha[k].Diario[i].Etiqueta = alasql(sql, [$scope.etiquetaDiario]);
-            }
         }
         
         $scope.fecha = fecha;
@@ -145,12 +149,30 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     };
     
     $scope.SetDiarioFiltros = function()
-    {
+    {           
+        $scope.temaF = [];
+        $scope.etiquetaF = [];
+        
+        
         var sql = "SELECT DISTINCT EtiquetaId, Nombre  FROM ? ";
         $scope.etiquetaF = alasql(sql, [$scope.etiquetaDiario]);
         
         sql = "SELECT DISTINCT TemaActividadId, Tema  FROM ? ";
         $scope.temaF = alasql(sql, [$scope.temaDiario]);
+        
+        
+        
+        //agrupar por tema
+        for(var k=0; k<$scope.temaF.length; k++)
+        {
+            $scope.temaF[k].Diario = $scope.GetDiarioTemas($scope.temaF[k].TemaActividadId);
+        }
+        
+        //agrupar por etiquetas
+        for(var k=0; k<$scope.etiquetaF.length; k++)
+        {
+            $scope.etiquetaF[k].Diario = $scope.GetDiarioEtiquetas($scope.etiquetaF[k].EtiquetaId);
+        }
     };
     
     
@@ -181,15 +203,57 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     
     
     //----------- Detalles -------------------
-    $scope.VerDetalles = function(fecha)
+    $scope.VerDetalles = function(dato, titulo, diario)
     {
-        $scope.detalle = fecha;
-        
+        if(dato != $scope.detalleDato)
+        {
+            $scope.detalleDato = dato;
+            $scope.detalleTitulo = titulo;
+            
+             $scope.detalle = diario;
+            
+            /*if($scope.agruparDiario == "Fecha")
+            {
+                $scope.detalle = $scope.GetDiarioFecha(dato);
+            }
+            else if($scope.agruparDiario == "Etiquetas")
+            {
+                $scope.detalle = $scope.GetDiarioEtiquetas(dato);
+            }
+            if($scope.agruparDiario == "Temas")
+            {
+                $scope.detalle = $scope.GetDiarioTemas(dato);
+            }*/
+        }
     };
     
-    $scope.GetClaseDiario = function(fecha)
+    /*$scope.GetDiarioFecha = function(fecha)
     {
-        if(fecha == $scope.detalle.Fecha)
+        var sql = "SELECT * FROM ? WHERE Fecha = '" + fecha + "'";
+        
+        
+        return alasql(sql, [$scope.diario]);
+    };*/
+    
+    $scope.GetDiarioEtiquetas = function(etiqueta)
+    {
+        var sql = "SELECT d.* FROM ? ed JOIN ? d ON d.DiarioId = ed.DiarioId WHERE ed.EtiquetaId = '" + etiqueta + "'";
+        
+        return alasql(sql, [$scope.etiquetaDiario, $scope.diario]);
+    };
+    
+    $scope.GetDiarioTemas = function(tema)
+    {
+        var sql = "SELECT d.* FROM ? td JOIN ? d ON d.DiarioId = td.DiarioId WHERE td.TemaActividadId = '" + tema + "'";
+        
+        return alasql(sql, [$scope.temaDiario, $scope.diario]);
+    };
+    
+    
+    
+    $scope.GetClaseDiario = function(dato)
+    {
+        if(dato == $scope.detalleDato)
         {
             return "active";
         }
@@ -208,6 +272,19 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     $scope.CambiarVerBarra = function()
     {
         $scope.detalle = new Diario();
+    };
+    
+    $scope.CambiarAgruparDiario = function(agrupar)
+    {
+        if(agrupar != $scope.agruparDiario)
+        {
+            $scope.agruparDiario = agrupar;
+            //$scope.AgruparDiario(agrupar);
+            
+            $scope.buscarEtiquetaBarra = "";
+            $scope.buscarTemaBarra = "";
+            document.getElementById("fechaBuscar").value = "";
+        }
     };
     
     //------------------------------- Filtrar -------------------------
@@ -289,14 +366,26 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         
     };
     
+    //tema
     $scope.BuscarTemaFiltro = function(tema)
     {
         return $scope.FiltrarBuscarTema(tema, $scope.buscarTemaFiltro);
     };
     
+    $scope.BuscarTemaBarra = function(tema)
+    {
+        return $scope.FiltrarBuscarTema(tema, $scope.buscarTemaBarra);
+    };
+    
+    //etiqueta
     $scope.BuscarEtiquetaFiltro = function(etiqueta)
     {
         return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarEtiquetaFiltro);
+    };
+    
+    $scope.BuscarEtiquetaBarra = function(etiqueta)
+    {
+        return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarEtiquetaBarra);
     };
     
     $scope.SetFiltroTema = function(tema)
@@ -447,7 +536,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         }
         else if(operacion == "Editar")
         {
-            $scope.nuevoDiario = objeto;   
+            $scope.nuevoDiario = $scope.SetDiario(objeto);   
             $scope.FechaDefinida = false;
             $scope.ActivarDesactivarTema($scope.nuevoDiario.Tema);
             $scope.ActivarDesactivarEtiqueta($scope.nuevoDiario.Etiqueta);
@@ -490,11 +579,11 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     
     $scope.IniciarDiario = function(fecha)
     {
-        if(fecha !== null)
+        if(fecha !== null && $scope.agruparDiario == "Fecha")
         {
             $scope.FechaDefinida = true;
-            $scope.nuevoDiario.Fecha = fecha.Fecha;
-            $scope.nuevoDiario.FechaFormato = fecha.FechaFormato;
+            $scope.nuevoDiario.Fecha = fecha;
+            $scope.nuevoDiario.FechaFormato = TransformarFecha(fecha);
         }
         else
         {
@@ -564,6 +653,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         weekStart : 0, 
         time: false,
         format: "DD-MM-YYYY",
+        maxDate: new Date()
     });
     
     $scope.CambiarFechaBuscar = function(element) 
@@ -580,6 +670,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         weekStart : 0, 
         time: false,
         format: "YYYY-MM-DD",
+        maxDate: new Date()
     });
     
     $scope.CambiarFechaDiario = function(element) 
@@ -1042,6 +1133,29 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     {
         var ndiario = $scope.SetDiario(diario);
         
+        
+        if($scope.operacion == "Editar")
+        {
+            
+            for(var k=0; k<$scope.etiquetaDiario.length; k++)
+            {
+                if($scope.etiquetaDiario[k].DiarioId == ndiario.DiarioId)
+                {
+                   $scope.etiquetaDiario.splice(k,1);
+                    k--;
+                }
+            }
+            
+            for(var k=0; k<$scope.temaDiario.length; k++)
+            {
+                if($scope.temaDiario[k].DiarioId == ndiario.DiarioId)
+                {
+                   $scope.temaDiario.splice(k,1);
+                    k--;
+                }
+            }
+        }
+        
         //tema
         var sqlBase = "SELECT COUNT(*) as num FROM ? WHERE TemaActividadId= '";
         for(var k=0; k<diario.Tema.length; k++)
@@ -1049,12 +1163,12 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             sql = sqlBase + diario.Tema[k].TemaActividadId + "'";
             
             //tema Filtro
-            count = alasql(sql, [$scope.temaF]);
+            /*count = alasql(sql, [$scope.temaF]);
             
             if(count[0].num === 0)
             {
                $scope.temaF.push(diario.Tema[k]);
-            }
+            }*/
             
             //tema Dropdownlist
             count = alasql(sql, [$scope.tema]);
@@ -1072,12 +1186,12 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             sql = sqlBase + diario.Etiqueta[k].EtiquetaId + "'";
             
             //etiqueta Filtro
-            count = alasql(sql, [$scope.etiquetaF]);
+            /*count = alasql(sql, [$scope.etiquetaF]);
             
             if(count[0].num === 0)
             {
                $scope.etiquetaF.push(diario.Etiqueta[k]);
-            }
+            }*/
             
             //etiqueta Dropdownlist
             count = alasql(sql, [$scope.etiqueta]);
@@ -1086,12 +1200,37 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             {
                $scope.etiqueta.push(diario.Etiqueta[k]);
             }
-        
         }
+        
+        for(var k=0; k<ndiario.Tema.length; k++)
+        {
+            var tema = new Object();
+            
+            tema.TemaActividadId = diario.Tema[k].TemaActividadId;
+            tema.Tema = diario.Tema[k].Tema;
+            tema.DiarioId = diario.DiarioId;
+            
+            $scope.temaDiario.push(tema);
+        }
+        
+        
+        for(var k=0; k<ndiario.Etiqueta.length; k++)
+        {
+            var etiqueta = new Object();
+            
+            etiqueta.EtiquetaId = diario.Etiqueta[k].EtiquetaId;
+            etiqueta.Nombre = diario.Etiqueta[k].Nombre;
+            etiqueta.DiarioId = diario.DiarioId;
+            
+            $scope.etiquetaDiario.push(etiqueta);
+        }
+        
         
         //agregar y editar
         if($scope.operacion == "Agregar")
         {
+            $scope.diario.push(ndiario);
+            
             var agregado = false;
             for(var k=0; k<$scope.fecha.length; k++)
             {
@@ -1112,12 +1251,28 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                 fecha.Diario = [];
                 fecha.Diario[0] = ndiario;
                 $scope.fecha.push(fecha);
-                $scope.VerDetalles($scope.fecha[$scope.fecha.length-1]);
+                
+                if($scope.agruparDiario == "Fecha")
+                {
+                    $scope.VerDetalles($scope.fecha[$scope.fecha.length-1].Fecha, $scope.fecha[$scope.fecha.length-1].FechaFormato, $scope.fecha[$scope.fecha.length-1].Diario);
+                }
+                
             }
         }
         else if($scope.operacion == "Editar")
         {   
             var agregado = false;
+            
+            for(var k=0; k<$scope.diario.length; k++)
+            {
+                if(ndiario.DiarioId == $scope.diario[k].DiarioId)
+                {
+                    $scope.diario.splice(k,1);
+                    break;
+                }
+            }
+            
+            $scope.diario.push(ndiario);
             
             // eliminar fecha 
             for(var k=0; k<$scope.fecha.length; k++)
@@ -1155,7 +1310,12 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                     {
                         agregado = true;
                         $scope.fecha[k].Diario.push(ndiario);
-                        $scope.VerDetalles($scope.fecha[k]);
+                        
+                        if($scope.agruparDiario == "Fecha")
+                        {
+                            $scope.VerDetalles($scope.fecha[k].Fecha, $scope.fecha[k].FechaFormato, $scope.fecha[k].Diario);
+                        }
+                        
                         break;
                     }
                 }
@@ -1169,9 +1329,89 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                 fecha.Diario = [];
                 fecha.Diario[0] = ndiario;
                 $scope.fecha.push(fecha);
-                $scope.VerDetalles($scope.fecha[$scope.fecha.length-1]);
+                if($scope.agruparDiario == "Fecha")
+                {
+                    $scope.VerDetalles($scope.fecha[$scope.fecha.length-1].Fecha, $scope.fecha[$scope.fecha.length-1].FechaFormato, $scope.fecha[$scope.fecha.length-1].Diario);
+                }
             }
         }
+        
+        $scope.SetDiarioFiltros();
+        
+        if($scope.agruparDiario == "Temas")
+        {
+            if(ndiario.Tema.length == 0)
+            {
+                $scope.detalle = [];
+            }
+            else
+            {
+                var conserva = false;
+                for(var k=0; k<ndiario.Tema.length; k++)
+                {
+                    if(ndiario.Tema[k].TemaActividadId == $scope.detalleDato)
+                    {
+                        conserva = true;
+                        break;
+                    }
+                }
+
+                if(!conserva)
+                {
+                    /*$scope.detalleDato = "";
+                    $scope.detalleTitulo = "";
+                    $scope.detalle = [];*/
+                    for(var k=0; k<$scope.temaF.length; k++)
+                    {
+                        if($scope.temaF[k].TemaActividadId == ndiario.Tema[0].TemaActividadId)
+                        {
+                            $scope.VerDetalles(ndiario.Tema[0].TemaActividadId, ndiario.Tema[0].Tema, $scope.temaF[k].Diario);
+                            break;
+                        }
+                    }
+                   
+                }
+            }
+            
+        }
+        
+        if($scope.agruparDiario == "Etiquetas")
+        {
+            if(ndiario.Etiqueta.length == 0)
+            {
+                $scope.detalle = [];
+            }
+            else
+            {
+                var conserva = false;
+                for(var k=0; k<ndiario.Etiqueta.length; k++)
+                {
+                    if(ndiario.Etiqueta[k].EtiquetaId == $scope.detalleDato)
+                    {
+                        conserva = true;
+                        break;
+                    }
+                }
+
+                if(!conserva)
+                {
+                    /*$scope.detalle = [];
+                    $scope.detalleDato = "";
+                    $scope.detalleTitulo = "";*/
+                    for(var k=0; k<$scope.etiquetaF.length; k++)
+                    {
+                        if($scope.etiquetaF[k].EtiquetaId == ndiario.Etiqueta[0].EtiquetaId)
+                        {
+                            $scope.VerDetalles(ndiario.Etiqueta[0].EtiquetaId, ndiario.Etiqueta[0].Nombre, $scope.etiquetaF[k].Diario);
+                            break;
+                        }
+                    }
+                   
+                }
+            }
+            
+        }
+        
     };
     
     $scope.ValidarDatos = function()
@@ -1232,6 +1472,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             case 5:
                 $scope.buscarTemaFiltro = "";
                 break;
+
             default: 
                 break;
         }
@@ -1273,6 +1514,40 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                             break;
                         }
                     }
+                }
+                
+                for(var k=0; k<$scope.diario.length; k++)
+                {
+                    if($scope.diario[k].DiarioId == $scope.borrarDiario.DiarioId)
+                    {
+                        $scope.diario.splice(k,1);
+                        break;       
+                    }
+                }
+                
+                for(var k=0; k<$scope.temaDiario.length; k++)
+                {
+                    if($scope.temaDiario[k].DiarioId == $scope.borrarDiario.DiarioId)
+                    {
+                        $scope.temaDiario.splice(k,1);
+                        break;       
+                    }
+                }
+                
+                for(var k=0; k<$scope.etiquetaDiario.length; k++)
+                {
+                    if($scope.etiquetaDiario[k].DiarioId == $scope.borrarDiario.DiarioId)
+                    {
+                        $scope.etiquetaDiario.splice(k,1);
+                        break;       
+                    }
+                }
+                
+                $scope.SetDiarioFiltros();
+                
+                if($scope.detalle.length == 1)
+                {
+                    $scope.detalle =[];
                 }
                 
                 $scope.mensaje = "Diario borrado.";

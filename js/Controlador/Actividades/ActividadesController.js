@@ -52,6 +52,8 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     $scope.mostrarFiltro = "etiqueta";
     $scope.filtro = {tema:[], etiqueta:[], frecuencia:[]};
     
+    $scope.hoy = GetDate();
+    
     /*--------- evento variables ------*/
      $scope.eventoActividad = [];
     $scope.persoanaEvento = [];
@@ -328,9 +330,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     
     $scope.GetClaseEvento = function(evento)
     {
-        var hoy = GetDate();
-        
-        if(hoy > evento.Fecha)
+        if($scope.hoy > evento.Fecha)
         {
             return "Pasada";
         }

@@ -23,6 +23,7 @@
 {
     color: white !important;
     border-radius: 0px;
+    background: transparent;
     
     outline: none !important;
     box-shadow: none;
