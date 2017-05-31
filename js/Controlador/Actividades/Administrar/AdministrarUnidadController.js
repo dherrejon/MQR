@@ -44,7 +44,7 @@ app.controller("AdministrarUnidadesController", function($scope, $window, $http,
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Actividades")
+            if($scope.usuarioLogeado.Aplicacion != "Mis Actividades")
             {
                 $rootScope.IrPaginaPrincipal();
             }

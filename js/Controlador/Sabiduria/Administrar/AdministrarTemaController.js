@@ -44,7 +44,7 @@ app.controller("AdministrarTemaController", function($scope, $window, $http, $ro
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Conocimiento")
+            if($scope.usuarioLogeado.Aplicacion != "Enciclopedia MQR")
             {
                 $rootScope.IrPaginaPrincipal();
             }

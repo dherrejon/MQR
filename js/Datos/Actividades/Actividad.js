@@ -169,5 +169,23 @@ function GetEtiquetaPorActividad($http, $q, CONFIG, usuarioId)
     return q.promise;
 }
 
+function GetFechaActividad($http, $q, CONFIG, usuarioId)     
+{
+    var q = $q.defer();
+
+    $http({      
+          method: 'GET',
+          url: CONFIG.APIURL + '/GetFechaActividad/' + usuarioId,
+
+      }).success(function(data)
+        {
+            q.resolve(data);
+             
+        }).error(function(data, status){
+            q.resolve([{Estatus: status}]);
+     }); 
+    return q.promise;
+}
+
 
   

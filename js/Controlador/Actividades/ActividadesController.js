@@ -51,6 +51,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     
     $scope.mostrarFiltro = "etiqueta";
     $scope.filtro = {tema:[], etiqueta:[], frecuencia:[]};
+    $scope.filtroFecha = {Fecha:"", FechaFormato:"", Seleccion:""};
     
     $scope.hoy = GetDate();
     
@@ -129,7 +130,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             if(data[0].Estatus == "Exito")
             {
                 $scope.temaActividad = data[1].Tema;
-                $scope.SetActividaDatos(actividad);
+                $scope.GetFechaActividad(actividad);
             }
             else
             {
@@ -142,10 +143,33 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         });
     };
     
+    $scope.GetFechaActividad = function(actividad)              
+    {
+        GetFechaActividad($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
+        {
+            if(data[0].Estatus == "Exito")
+            {
+                $scope.fechaActividad = data[1].Fecha;
+            }
+            else
+            {
+                alert(data[0].Estatus);
+            }
+            
+            
+            $scope.SetActividaDatos(actividad);
+        
+        }).catch(function(error)
+        {
+            alert(data[0].Estatus);
+        });
+    };
+    
     $scope.SetActividaDatos = function(actividad)
     {   
         var sqlBaseTema = "SELECT * FROM ? WHERE ActividadId = '";
         var sqlBaseEtiqueta = "SELECT * FROM ? WHERE ActividadId = '";
+        var sqlBaseFecha = "SELECT * FROM ? WHERE ActividadId = '";
         var sql;
         
         for(var k=0; k<actividad.length; k++)
@@ -159,7 +183,13 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             sql = sqlBaseEtiqueta;
             sql += (actividad[k].ActividadId + "'");
             actividad[k].Etiqueta = alasql(sql, [$scope.etiquetaActividad]);
+            
+            //fecha
+            sql = sqlBaseFecha;
+            sql += (actividad[k].ActividadId + "'");
+            actividad[k].Fecha = alasql(sql, [$scope.fechaActividad]);
         }
+        
         $scope.SetActividadFiltros();
     };
     
@@ -302,6 +332,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         
             $scope.eventoActividad = [];
             $scope.GetEventoActividad(actividad.ActividadId);
+            
         }
         
     };
@@ -344,6 +375,30 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     $scope.FitroActividad = function(info)
     {        
         var cumple = false;
+        
+        
+        if($scope.filtroFecha.Fecha.length > 0)
+        {
+            for(var k=0; k<info.Fecha.length; k++)
+            {
+                if(info.Fecha[k].Fecha == $scope.filtroFecha.Fecha)
+                {
+                    cumple = true;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            cumple = true;
+        }
+        
+        if(!cumple)
+        {
+            return false;
+        }
+        
+        cumple = false;
         
         if($scope.filtro.etiqueta.length > 0)
         {
@@ -789,6 +844,47 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     $scope.CambiarVerFiltro = function()
     {
         $scope.verFiltro = !$scope.verFiltro;
+    };
+    
+    $('#fechaFiltro').bootstrapMaterialDatePicker(
+    { 
+        weekStart : 0, 
+        time: false,
+        format: "YYYY-MM-DD",
+    });
+    
+    $scope.AbrirCalendario = function()
+    {        
+        document.getElementById("fechaFiltro").focus();
+    };
+    
+    $scope.FiltroFechaHoy = function()
+    {
+        if($scope.filtroFecha.Seleccion != "Hoy")
+        {
+            $scope.filtroFecha.Seleccion = "Hoy";
+            $scope.filtroFecha.Fecha = $scope.hoy;
+            $scope.filtroFecha.FechaFormato = TransformarFecha($scope.hoy);
+            
+            document.getElementById("fechaFiltro").value = $scope.hoy;
+        }
+        
+    };
+    
+    $scope.LimpiarFiltroFecha = function()
+    {
+        $scope.filtroFecha = {Fecha:"", FechaFormato:"", Seleccion:""};
+        
+    };
+    
+    $scope.CambiarFechaFiltro = function(element) 
+    {
+        $scope.$apply(function($scope) 
+        {   
+            $scope.filtroFecha.Seleccion = "Calendario";
+            $scope.filtroFecha.Fecha = element.value;
+            $scope.filtroFecha.FechaFormato = TransformarFecha(element.value);
+        });
     };
     
     
@@ -1768,7 +1864,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Actividades")
+            if($scope.usuarioLogeado.Aplicacion != "Mis Actividades")
             {
                 $rootScope.IrPaginaPrincipal();
             }
@@ -2011,11 +2107,6 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         format: "YYYY-MM-DD",
     });
     
-    $scope.AbrirFechaPanel = function()
-    {
-        console.log("entra");
-        $('#fechaEvento').bootstrapMaterialDatePicker({ weekStart : 0, time: false });
-    };
     
     $scope.CambiarFecha = function(element) 
     {

@@ -62,7 +62,7 @@
 
 .etiquetaNormal
 {
-    color: rgba(78,122,137,1);
+    color: #262626;
 }
 /*-------- dropdown de informacion ------------*/
 .dropdownInfo
@@ -301,7 +301,7 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     white-space: normal; 
-    font-size: 10pt;
+    font-size: 12pt;
 }
 
 .barraOperacionesInformacion

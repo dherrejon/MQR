@@ -45,7 +45,7 @@ app.controller("ConfigurarInformacionController", function($scope, $window, $htt
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Conocimiento")
+            if($scope.usuarioLogeado.Aplicacion != "Enciclopedia MQR")
             {
                 $rootScope.IrPaginaPrincipal();
             }

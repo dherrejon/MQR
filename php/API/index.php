@@ -346,6 +346,7 @@
 
     $app->get('/GetEtiquetaPorDiario/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorDiario');
     $app->get('/GetTemaPorDiario/:id', $seguridad, $ChecarSesion, 'GetTemaPorDiario');
+    $app->get('/GetFechaActividad/:id', $seguridad, $ChecarSesion, 'GetFechaActividad');
 
     $app->run(); 
 

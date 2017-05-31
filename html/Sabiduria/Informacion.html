@@ -173,7 +173,7 @@
                     <a class="btn itemBarraLateral" ng-class="GetClaseActividad(actividad.ActividadId)" ng-repeat="informacion in informacion| orderBy:'Titulo' | filter:FiltroInformacionContenido | filter:FiltroInformacion" ng-click="verDetalle(informacion)">
                         
                         <div class="col-xs-12">
-                            <b   style="white-space: normal; overflow: hidden;" >
+                            <b   style="white-space: normal; overflow: hidden; font-size:12pt" >
 
                                <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='1'" class="fa fa-commenting-o "></span>
                                <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='2'" class="fa fa-file-image-o "></span>
@@ -268,7 +268,7 @@
                        </span>
                        
                        <!-- Observacion -->
-                       <span ng-if="detalle.TipoInformacion.TipoInformacionId.length > 0">
+                       <span ng-if="detalle.Observaciones.length > 0">
                            <br><br>
                             <b>Observaciones: </b>
                            <p ng-bind-html="detalle.ObservacionHTML"></p>

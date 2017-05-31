@@ -10,23 +10,42 @@
                        
                         
                         <div class="row">
-                          <div class="col-xs-4" >
+                          <!--<div class="col-xs-4" >
                              <button type="button" class="btn btn-default btn-circle btn-xl pull-right">MQR</button>
-                          </div>
+                          </div>-->
                           
-                          <div class="col-xs-8">
-                                <span class="textoBienvenido"> Bienvenido</span><br>
+                          <div class="col-xs-12 text-center">
+                                <span class="textoBienvenido">Bienvenido</span>
+                                <b class="textoBienvenido" ng-if="grupoApp != 'Inicio'"> {{grupoApp}}</b>
+                                <br>
                                 <span class="textoPregunta">¿Con qué aplicación deseas trabajar?</span>
                             </div>
                        </div>
+                        
+                        <div class="row"  ng-show="grupoApp != 'Inicio'">
+                            <div class="col-xs-12">
+                                 <button   type="button" class="btn inicioBienvenida" ng-click="CambiarGrupoAplicacion('Inicio')">
+                                    <span class="fa fa-arrow-left"></span> Inicio
+                                </button>
+                           </div>
+                        </div>
+
 
                         <div style="margin-top:60px"></div>
-
+                        
+                        
+                        
                         <div class="row">
-                            <div class="col-xs-6 col-sm-3 text-center" ng-repeat="app in apps | orderBy:'texto'">
-                                <button ng-disabled="!app.habilitada" style="margin-top:20px" type="button" class="btn btn-default btnCircleApp botnIcono" ng-click="IniciarApp(app)">
+                           
+                            <div class="col-xs-6 col-sm-3 text-center " ng-repeat="app in apps | filter:{grupo:grupoApp}">
+                                <button ng-disabled="!app.habilitada" style="margin-top:20px" type="button" class="btn btn-default btnCircleApp botnIcono" ng-click="IniciarApp(app)" ng-if="!app.isGrupo">
                                     <span class="{{app.icono}}"></span>
                                 </button>
+                            
+                                <button  ng-disabled="!app.habilitada"  style="margin-top:20px" type="button" class="btn btn-default btnCircleApp botnIcono" ng-click="CambiarGrupoAplicacion(app.texto)" ng-if="app.isGrupo">
+                                    <span class="{{app.icono}}"></span>
+                                </button>
+                                
                                 <div style="margin-top: 5px;"></div>
                                 <span class="tituloApp">{{app.texto}}</span>
                             </div>

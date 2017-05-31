@@ -4,6 +4,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     $scope.clasePassword = {nuevo:"entrada", repetir:"entrada", actual:"entrada"};
     
     $rootScope.apps = aplicaciones;
+    $rootScope.apps.Grupo = "Inicio";
     
     /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
     $scope.$on('cambioAplicaion',function()
@@ -20,22 +21,22 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     {
         switch($scope.usuario.Aplicacion)
         {
-            case "Conocimiento": 
+            case "Enciclopedia MQR": 
                 $scope.barraNavegacion = EncabezadoSabiduria;
                 $scope.HabilitarOpcionesBarraNavegacionSabiduria();
                 break;
                 
-            case "Cancionero": 
+            case "GuitarApp": 
                 $scope.barraNavegacion = EncabezadoCancionero;
                 $scope.HabilitarOpcionesBarraNavegacionCancionero();
                 break;
                 
-            case "Actividades": 
+            case "Mis Actividades": 
                 $scope.barraNavegacion = EncabezadoActividades;
                 $scope.HabilitarOpcionesBarraNavegacionActividades();
                 break;
                 
-            case "Diario":
+            case "Mi Diario":
                 $scope.barraNavegacion = EncabezadoDiario;
                 $scope.HabilitarOpcionesBarraNavegacionDiario();
                 break;
@@ -426,23 +427,30 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             $rootScope.apps[k].habilitada = false;
         }
         
-        for(var k=0; k<$scope.usuario.Permiso.length; k++)
+        if($rootScope.apps.Grupo === "Inicio")
         {
-            if($scope.usuario.Permiso[k] == "SabiduriaCon" || $scope.usuario.Permiso[k] == "SabiduriaAdm")
+            for(var k=0; k<$scope.usuario.Permiso.length; k++)
             {
-                $rootScope.apps[0].habilitada = true;
-            }
-            if($scope.usuario.Permiso[k] == "ActividadesCon" || $scope.usuario.Permiso[k] == "ActividadesAdm")
-            {
-                $rootScope.apps[1].habilitada = true;
-            }
-            if($scope.usuario.Permiso[k] == "CancioneroCon" || $scope.usuario.Permiso[k] == "CancioneroAdm")
-            {
-                $rootScope.apps[2].habilitada = true;
-            }
-            if($scope.usuario.Permiso[k] == "DiarioCon")
-            {
-                $rootScope.apps[3].habilitada = true;
+                if($scope.usuario.Permiso[k] == "SabiduriaCon" || $scope.usuario.Permiso[k] == "SabiduriaAdm")
+                {
+                    $rootScope.apps[4].habilitada = true;
+                }
+                if($scope.usuario.Permiso[k] == "ActividadesCon" || $scope.usuario.Permiso[k] == "ActividadesAdm")
+                {
+                    $rootScope.apps[1].habilitada = true;
+                }
+                if($scope.usuario.Permiso[k] == "CancioneroCon" || $scope.usuario.Permiso[k] == "CancioneroAdm")
+                {
+                    $rootScope.apps[3].habilitada = true;
+                }
+                if($scope.usuario.Permiso[k] == "DiarioCon")
+                {
+                    $rootScope.apps[2].habilitada = true;
+                }
+                if($scope.usuario.Permiso[k] == "DiarioCon" || $scope.usuario.Permiso[k] == "ActividadesCon" || $scope.usuario.Permiso[k] == "ActividadesAdm")
+                {
+                    $rootScope.apps[0].habilitada = true;
+                }
             }
         }
     };
@@ -491,7 +499,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
 
 var EncabezadoSabiduria =
 { 
-    titulo:"Conocimiento", 
+    titulo:"Enciclopedia MQR", 
     opcion: [ 
                     { texto:"Inicio", tipo:"link", referencia:"#Informacion", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
@@ -510,7 +518,7 @@ var EncabezadoSabiduria =
 
 var EncabezadoCancionero =
 { 
-    titulo:"Cancionero", 
+    titulo:"GuitarApp", 
     opcion: [ 
                     { texto:"Inicio", tipo:"link", referencia:"#Informacion", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
@@ -526,7 +534,7 @@ var EncabezadoCancionero =
 
 var EncabezadoActividades =
 { 
-    titulo:"Actividades", 
+    titulo:"Mis Actividades", 
     opcion: [ 
                     { texto:"Inicio", tipo:"link", referencia:"#Actividades", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
@@ -545,7 +553,7 @@ var EncabezadoActividades =
 
 var EncabezadoDiario =
 { 
-    titulo:"Diario", 
+    titulo:"Mi Diario", 
     opcion: [ 
                     { texto:"Inicio", tipo:"link", referencia:"#Diario", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,

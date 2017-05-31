@@ -473,12 +473,12 @@
             </div>
 
             <!-- Informacion -->
-            <div class="row" ng-show="filtro.etiqueta.length > 0 || filtro.tema.length > 0 || buscarInformacion.length > 0">
+            <div class="row" > <!-- ng-show="filtro.etiqueta.length > 0 || filtro.tema.length > 0 || buscarInformacion.length > 0" -->
                
                 <div class="btn itemBarraLateral" style="cursor: default" ng-class="GetClaseActividad(actividad.ActividadId)" ng-repeat="informacion in informacion| orderBy:ordenarInformacion | filter:FiltroInformacionContenido | filter:FiltroInformacion">
                     
                     <div class="col-xs-12">
-                        <b   style="white-space: normal; overflow: hidden;" >
+                        <b   style="white-space: normal; overflow: hidden; font-size:12pt" >
 
                            <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='1'" class="fa fa-commenting-o"></span>
                            <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='2'" class="fa fa-file-image-o"></span>
@@ -499,12 +499,12 @@
                                  <span class="fa fa-pencil"></span>
                              </a>
                              
-                             <div class="dropup btn-group pull-right">
+                             <div class=" btn-group pull-right">
                                 <a  class="operacionEvento"  data-toggle="dropdown" id="menuEtiquetas">
                                    <span  class="fa fa-tag"></span>
                                </a>
 
-                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="menuEtiquetas">
+                                <ul class="dropdown-menu dropdown-menu-right dropdownInfo" aria-labelledby="menuEtiquetas">
 
                                     <div  class="row ">
                                         <div class="col-xs-9"> 

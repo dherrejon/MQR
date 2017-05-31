@@ -34,7 +34,7 @@
 
 .cerrarModal, .cerrarModal:focus, .cerrarModal:active
 {
-    color: rgba(78,122,137,1); 
+    color: #79adf4; 
     opacity: 1.0;
     font-size: 24px;
     
@@ -44,7 +44,7 @@
 
 .cerrarModal:hover
 {
-    color: rgb(41,69,77);
+    color: #1859b2;
     opacity: 1.0;
 }
 
@@ -356,7 +356,7 @@
     left: 0 !important;
     position: fixed;
     
-    outline: none !impoprtant;
+    outline: none !important;
     box-shadow: none;
 }
 
@@ -409,6 +409,15 @@
     transition: 0s
 }
 
+.inicioBienvenida, .inicioBienvenida:focus, .inicioBienvenida:active, .inicioBienvenida:hover
+{
+    color: #1859b2;
+    background: white;
+    font-size: 12pt;
+    
+    outline: none !important;
+    box-shadow: none;
+}
 
 
 

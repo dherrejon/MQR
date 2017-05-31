@@ -44,7 +44,7 @@ app.controller("AdministrarFrecuenciaController", function($scope, $window, $htt
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Actividades")
+            if($scope.usuarioLogeado.Aplicacion != "Mis Actividades")
             {
                 $rootScope.IrPaginaPrincipal();
             }

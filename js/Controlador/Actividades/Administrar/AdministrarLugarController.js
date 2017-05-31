@@ -44,7 +44,7 @@ app.controller("AdministrarLugarController", function($scope, $window, $http, $r
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Actividades")
+            if($scope.usuarioLogeado.Aplicacion != "Mis Actividades")
             {
                 $rootScope.IrPaginaPrincipal();
             }

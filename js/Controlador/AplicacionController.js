@@ -2,6 +2,8 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
 {   
     $scope.claseMargen = "margin-top:55px";
     
+    $scope.grupoApp = "Inicio";
+    
     $scope.IniciarApp = function(app)
     {
         if(app != "Aplicaciones")
@@ -33,6 +35,11 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
             }
         }
     };*/
+    
+    $scope.CambiarGrupoAplicacion = function(app)
+    {
+        $scope.grupoApp = app;
+    };
     
     /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
     $scope.usuarioLogeado =  datosUsuario.getUsuario(); 
@@ -71,8 +78,11 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
 });
 
 var aplicaciones = [
-                        {texto:"Conocimiento", habilitada:false, paginaPrincipal:"/Informacion", icono:"fa fa-book"},
-                        {texto:"Actividades", habilitada:false, paginaPrincipal:"/Actividades",   icono:"fa fa-calendar"},
-                        {texto:"Cancionero", habilitada:false, paginaPrincipal:"/Cancionero", icono:"fa fa-music"},
-                        {texto:"Diario", habilitada:false, paginaPrincipal:"/Diario", icono:"fa fa-clock-o"}
+                        {texto:"LifeApp", habilitada:false,   icono:"fa fa-cog", grupo:"Inicio", isGrupo:true},
+
+                        {texto:"Mis Actividades", habilitada:false, paginaPrincipal:"/Actividades",   icono:"fa fa-calendar", grupo:"LifeApp", isGrupo:false},
+                        {texto:"Mi Diario", habilitada:false, paginaPrincipal:"/Diario", icono:"fa fa-clock-o", grupo:"LifeApp", isGrupo:false},
+
+                        {texto:"GuitarApp", habilitada:false, paginaPrincipal:"/Cancionero", icono:"fa fa-music", grupo:"Inicio", isGrupo:false},
+                        {texto:"Enciclopedia MQR", habilitada:false, paginaPrincipal:"/Informacion", icono:"fa fa-book", grupo:"Inicio", isGrupo:false},
                     ];

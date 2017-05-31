@@ -632,5 +632,33 @@ function GetTemaPorActividad($id)
         $app->stop();
     }
 }
+
+function GetFechaActividad($id)
+{
+    global $app;
+    global $session_expiration_time;
+
+    $request = \Slim\Slim::getInstance()->request();
+
+    $sql = "SELECT ea.ActividadId, ea.Fecha FROM EventoActividad ea INNER JOIN Actividad a ON a.ActividadId = ea.ActividadId  WHERE a.UsuarioId = ".$id;
+
+    try 
+    {
+        $db = getConnection();
+        $stmt = $db->query($sql);
+        $response = $stmt->fetchAll(PDO::FETCH_OBJ);
+        
+        echo '[ { "Estatus": "Exito"}, {"Fecha":'.json_encode($response).'} ]'; 
+        $db = null;
+ 
+    } 
+    catch(PDOException $e) 
+    {
+        //echo($e);
+        echo '[ { "Estatus": "Fallo" } ]';
+        $app->status(409);
+        $app->stop();
+    }
+}
     
 ?>

@@ -165,7 +165,7 @@ app.controller("CancioneroController", function($scope, $window, $http, $rootSco
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Cancionero")
+            if($scope.usuarioLogeado.Aplicacion != "GuitarApp")
             {
                 $rootScope.IrPaginaPrincipal();
             }

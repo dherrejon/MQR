@@ -632,7 +632,7 @@ app.controller("AdministrarCancionController", function($scope, $window, $http, 
     {
         for(var k=0; k<$scope.usuarioLogeado.Permiso.length; k++)
         {
-            if($scope.usuarioLogeado.Permiso[k] == "CancioneroCon")
+            if($scope.usuarioLogeado.Permiso[k] == "GuitarApp")
             {
                 $scope.permiso = true;
                 break;

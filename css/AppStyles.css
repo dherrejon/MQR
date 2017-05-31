@@ -15,13 +15,13 @@
 
 .textoBienvenido
 {
-    color: rgb(41,69,77);
+    color: #081e3b;
     font-size: 24pt;
 }
 
 .textoPregunta
 {
-    color: rgba(78,122,137,1);
+    color: #848484;
     font-size: 12pt;
 }
 
@@ -48,9 +48,9 @@
     font-size: 40px;
     line-height: 1.33;
     border-radius: 60px;
-    border: 3px solid rgb(41,69,77);
+    border: 3px solid #081e3b;
     background: white;
-    color: rgb(41,69,77);
+    color: #081e3b;
 }
 
 .btnCircleApp.botnIcono:hover, .btnCircleApp.botnIcono:focus
@@ -61,8 +61,8 @@
     font-size: 50px;
     line-height: 1.33;
     border-radius: 60px;
-    border: 3px solid rgb(41,69,77);
-    background: rgb(41,69,77);
+    border: 3px solid #1859b2;
+    background: #1859b2;
     color: white;
     z-index: 4;
     
@@ -80,7 +80,7 @@
 
 .tituloApp
 {
-    color: rgb(41,69,77);
+    color: #081e3b;
     font-size: 12pt;
 }
 
@@ -88,7 +88,7 @@
 {    
     .textoBienvenido
 {
-    color: rgb(41,69,77);
+    color: #081e3b;
     font-size: 20pt;
 }
 }

@@ -7,23 +7,23 @@
 .tituloLogin
 {
     font-size: 24pt;
-    color: rgb(41,69,77);
-    border-color: rgb(41,69,77);
+    color: #1859b2;
+    border-color: #1859b2;
     border-width: 0px 0px 0px 5px;
     border-style: solid;
 }
 
 .botonLogin
 {
-    border: 3px solid rgb(41,69,77);
+    border: 3px solid #1859b2;
     background: white;
-    color: rgb(41,69,77);
+    color: #1859b2;
     border-radius: 0px;
 }
 
 .botonLogin:hover, .botonLogin:focus
 {
-    background: rgb(41,69,77);
+    background: #1859b2;
     color: white;
 }
 
@@ -49,10 +49,10 @@
 .entradaLogin, .entradaLogin:focus
 {
     background-color: transparent;
-    color: rgb(41,69,77);
+    color: #1859b2;
     border-width: 0px 0px 3px 0px; 
     border-style: solid;
-    border-color: rgb(41,69,77);
+    border-color: #1859b2;
     border-radius: 0px;
     outline: none !important;
     box-shadow: none;
@@ -60,9 +60,9 @@
 
 .entrada:focus, .entradaError:focus
 {
-    color: rgb(41,69,77);
+    color: #262626;
     border-style: solid;
-    border-color:  rgba(78,122,137,1); 
+    border-color: #262626; 
     outline: none !important;
     box-shadow: none;
 }
@@ -70,7 +70,7 @@
 .entradaError
 {
     background-color: transparent;
-    color: rgb(41,69,77);
+    color: #262626;
     border-width: 0px 0px 3px 0px; 
     border-style: solid;
     border-color: #970000;
@@ -87,7 +87,7 @@
 
 .entrada2 label
 {
-    color: rgb(41,69,77);
+    color: #262626;
     font-size:16px;
     font-weight:400;
     letter-spacing:.5px;
@@ -114,7 +114,7 @@
 .entrada2 input[type=text]:focus~label,.entrada2 input[type=text]:valid~label,.entrada2 input[type=password]:focus~label,.entrada2 input[type=password]:valid~label, .entrada2 input[type=email]:focus~label,.entrada2 input[type=email]:valid~label
 {
     top:-20px;
-    color: rgba(78,122,137,1);
+    color: #1859b2;
     opacity:1;
     font-weight:400;
     font-size:14px;
@@ -123,7 +123,7 @@
 
 .entrada2 input[type=text]:focus:not([readonly])~label,.entrada2 input[type=password]:focus:not([readonly])~label,.entrada2 input[type=email]:focus:not([readonly])~label
 {
-    color: rgba(78,122,137,1) !important;
+    color: #262626 !important;
     font-weight:400;
     font-weight: bold;
 }
@@ -180,8 +180,8 @@
     font-size: 30px;
     line-height: 1.33;
     border-radius: 50px;
-    border: 3px solid rgb(41,69,77);
-    background: rgb(41,69,77);
+    border: 3px solid #1859b2;
+    background: #1859b2;
     color: white;
 }
 
@@ -193,8 +193,8 @@
     font-size: 30px;
     line-height: 1.33;
     border-radius: 50px;
-    border: 3px solid rgb(41,69,77);
-    background: rgb(41,69,77);
+    border: 3px solid #1859b2;
+    background: #1859b2;
     color: white;
     
     outline:0px;
@@ -202,7 +202,7 @@
 
 .textoError
 {
-    color: rgb(41,69,77);
+    color: #1859b2;
 }
 
 /*-------Recuperar password*/
@@ -219,7 +219,7 @@
 
 .margenNegro
 {
-    border: solid 3px rgb(36,36,36);
+    border: solid 3px #1859b2;
     border-radius: 3px;
     padding: 20px;
 }
@@ -227,7 +227,7 @@
 .usuarioTimes
 {
     border-width: 0px;
-    border-bottom: solid 3px rgb(41,69,77);
+    border-bottom: solid 3px #1859b2;
     border-radius: 0px;
     margin-top: -5px;
 }
