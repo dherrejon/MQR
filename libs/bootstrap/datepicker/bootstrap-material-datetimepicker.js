@@ -213,7 +213,7 @@
                       '<div><a href="javascript:void(0);" class="btn btn-default dtp-select-year-range after" style="margin: 0;"><i class="fa fa-chevron-down"></i></a></div>' +
                       '</div>';
 
-                 this.template = '<div class="dtp hidden sombraDivModal" id="' + this.name + '">' +
+                 this.template = '<div class="dtp hidden" id="' + this.name + '" >' +
                          '<div class="dtp-content animated  rotateInDownLeft">' +
                          '<div class="dtp-date-view">' +
                          '<header class="dtp-header">' +

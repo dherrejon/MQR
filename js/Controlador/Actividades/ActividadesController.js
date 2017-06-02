@@ -190,6 +190,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             actividad[k].Fecha = alasql(sql, [$scope.fechaActividad]);
         }
         
+        $scope.FiltroFechaHoy();
         $scope.SetActividadFiltros();
     };
     
@@ -375,7 +376,6 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     $scope.FitroActividad = function(info)
     {        
         var cumple = false;
-        
         
         if($scope.filtroFecha.Fecha.length > 0)
         {

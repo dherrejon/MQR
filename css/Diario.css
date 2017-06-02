@@ -104,6 +104,36 @@
     border-bottom-color: white;
 }
 
+/*--- drop down */
+.dropdownRight
+{
+    border-radius: 0px;
+    border: solid 2px #1859b2;
+    margin-top: 0px;
+}
+
+.dropdownRight:before
+{
+    content: "";
+    position: absolute;
+    top: -24px;
+    right: 2px;
+    
+    border: 12px solid transparent;
+    border-bottom-color: #1859b2;
+}
+
+.dropdownRight:after
+{
+    content: "";
+    position: absolute;
+    top: -18px;
+    right: 5px;
+    
+    border: 9px solid transparent;
+    border-bottom-color: white;
+}
+
 /*---- Etiqueta concepto --------------*/
 .labelConcepto, .labelConcepto:hover, .labelConcepto:active, .labelConcepto:focus
 {

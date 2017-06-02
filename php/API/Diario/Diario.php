@@ -201,6 +201,8 @@ function AgregarDiario()
     }
     else
     {
+        $db->commit();
+        $db = null;
         echo '[{"Estatus": "Exitoso"}, {"DiarioId":"'.$diarioId.'"}, {"Etiqueta":'.json_encode($diario->Etiqueta).'}, {"Tema":'.json_encode($diario->Tema).'}]';
     }
 }
@@ -415,7 +417,9 @@ function EditarDiario()
     }
     else
     {
-        echo '[{"Estatus": "Exitoso2"},  {"Etiqueta":'.json_encode($diario->Etiqueta).'}, {"Tema":'.json_encode($diario->Tema).'}]';
+        $db->commit();
+        $db = null;
+        echo '[{"Estatus": "Exitoso"},  {"Etiqueta":'.json_encode($diario->Etiqueta).'}, {"Tema":'.json_encode($diario->Tema).'}]';
     }
     
 }
@@ -505,8 +509,6 @@ function GetTemaPorDiario($id)
         $app->stop();
     }
 }
-
-
 
     
 ?>

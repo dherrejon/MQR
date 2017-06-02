@@ -1,13 +1,13 @@
 <?php
 	
-function GetDiario($id)
+function GetNotas($id)
 {
     global $app;
     global $session_expiration_time;
 
     $request = \Slim\Slim::getInstance()->request();
 
-    $sql = "SELECT DiarioId, Notas, Fecha FROM Diario WHERE UsuarioId = ".$id;
+    $sql = "SELECT NotaId, Titulo FROM Nota WHERE UsuarioId = ".$id;
 
     try 
     {
@@ -15,7 +15,7 @@ function GetDiario($id)
         $stmt = $db->query($sql);
         $response = $stmt->fetchAll(PDO::FETCH_OBJ);
         
-        echo '[ { "Estatus": "Exito"}, {"Diario":'.json_encode($response).'} ]'; 
+        echo '[ { "Estatus": "Exito"}, {"Notas":'.json_encode($response).'} ]'; 
         $db = null;
  
     } 
@@ -28,10 +28,241 @@ function GetDiario($id)
     }
 }
 
-function AgregarDiario()
+function GetNotasPorId()
 {
     $request = \Slim\Slim::getInstance()->request();
-    $diario = json_decode($request->getBody());
+    $datos = json_decode($request->getBody());
+    global $app;
+    
+    
+    
+    if($datos->Tipo == "Nota")
+    {
+        $sql = "SELECT * FROM Nota WHERE NotaId = ".$datos->Id;
+    }
+    else if($datos->Tipo == "Etiqueta")
+    {
+        $sql = "SELECT * FROM Nota n INNER JOIN EtiquetaPorNota en ON en.NotaId = n.NotaId WHERE en.EtiquetaId = " .$datos->Id;
+    }
+    else if($datos->Tipo == "Tema")
+    {
+        $sql = "SELECT * FROM Nota n INNER JOIN TemaPorNota tn ON tn.NotaId = n.NotaId WHERE tn.TemaActividadId = " .$datos->Id;
+    }
+
+    try 
+    {
+        $db = getConnection();
+        $stmt = $db->query($sql);
+        $nota = $stmt->fetchAll(PDO::FETCH_OBJ);
+ 
+    } 
+    catch(PDOException $e) 
+    {
+        //echo($e);
+        echo '[ { "Estatus": "Fallo" } ]';
+        $app->status(409);
+        $app->stop();
+    }
+    
+    $numNota = count($nota);
+    
+    if($numNota > 0)
+    {
+        for($k=0; $k<$numNota; $k++)
+        {
+            $sql = "SELECT EtiquetaId, Nombre FROM EtiquetaNotaVista WHERE NotaId = ".$nota[$k]->NotaId;
+            
+            try 
+            {
+                $stmt = $db->query($sql);
+                $nota[$k]->Etiqueta = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            } 
+            catch(PDOException $e) 
+            {
+                //echo($e);
+                echo '[ { "Estatus": "Fallo" } ]';
+                $app->status(409);
+                $app->stop();
+            }
+            
+            
+            $sql = "SELECT TemaActividadId, Tema FROM TemaNotaVista WHERE NotaId = ".$nota[$k]->NotaId;
+            
+            try 
+            {
+                $stmt = $db->query($sql);
+                $nota[$k]->Tema = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            } 
+            catch(PDOException $e) 
+            {
+                //echo($e);
+                echo '[ { "Estatus": "Fallo" } ]';
+                $app->status(409);
+                $app->stop();
+            }
+        }
+    }
+    
+    $db = null;
+    echo '[{"Estatus": "Exito"},  {"Notas":'.json_encode($nota).'}]';
+    
+}
+
+function GetNotasFiltro()
+{
+    $request = \Slim\Slim::getInstance()->request();
+    $filtro = json_decode($request->getBody());
+    global $app;
+    
+    
+    $numTema = count($filtro->tema);
+    $numEtiqueta = count($filtro->etiqueta);
+    
+    
+    if($numTema > 0)
+    {
+        $whereTema = "(";
+        
+        for($k=0; $k<$numTema; $k++)
+        {
+            $whereTema .= $filtro->tema[$k]. ",";
+        }
+        $whereTema = rtrim($whereTema,",");
+        $whereTema .= ")";
+        
+    }
+    
+    if($numEtiqueta > 0)
+    {
+        $whereEtiqueta = "(";
+        
+        for($k=0; $k<$numEtiqueta; $k++)
+        {
+            $whereEtiqueta .= $filtro->etiqueta[$k]. ",";
+        }
+        $whereEtiqueta = rtrim($whereEtiqueta,",");
+        $whereEtiqueta .= ")";
+        
+    }
+    
+    
+    if($numEtiqueta > 0 && $numTema > 0)
+    {
+         $sql = "SELECT n.NotaId, n.Titulo FROM Nota n
+                    INNER JOIN (
+                    
+                    SELECT e.NotaId FROM EtiquetaNotaVista e   
+                    INNER JOIN (SELECT t.NotaId FROM TemaNotaVista t WHERE t.TemaActividadId in ".$whereTema." GROUP BY t.NotaId HAVING count(*) = ".$numTema.") y ON y.NotaId = e.NotaId
+                        
+                    WHERE e.EtiquetaId IN ".$whereEtiqueta." GROUP BY e.NotaId HAVING count(*) = ".$numEtiqueta."
+                    ) x ON x.NotaId = n.NotaId";
+    }
+    else if($numEtiqueta > 0 || $numTema > 0)
+    {
+        if($numEtiqueta > 0)
+        {
+            $sql = "SELECT n.NotaId, n.Titulo FROM Nota n 
+                    INNER JOIN (
+                        SELECT e.NotaId FROM EtiquetaNotaVista e WHERE e.EtiquetaId in ".$whereEtiqueta." GROUP BY e.NotaId HAVING count(*) = ".$numEtiqueta."
+                    ) x ON x.NotaId = n.NotaId";
+        }
+        else if($numTema > 0)
+        {
+            $sql = "SELECT n.NotaId, n.Titulo FROM Nota n
+                    INNER JOIN (
+                        SELECT t.NotaId FROM TemaNotaVista t WHERE t.TemaActividadId in ".$whereTema." GROUP BY t.NotaId HAVING count(*) = ".$numTema."
+                    ) x ON x.NotaId = n.NotaId";
+        }
+    }
+    else
+    {
+        $sql = "SELECT n.NotaId, n.Titulo FROM Nota n";
+    }
+    
+    if($filtro->fecha != "")
+    {
+        $sql .= " WHERE Fecha = '". $filtro->fecha."'";
+    }
+    
+    try 
+    {
+        $db = getConnection();
+        $stmt = $db->query($sql);
+        $nota = $stmt->fetchAll(PDO::FETCH_OBJ);
+ 
+    } 
+    catch(PDOException $e) 
+    {
+        echo($sql);
+        echo '[ { "Estatus": "Fallo" } ]';
+        $app->status(409);
+        $app->stop();
+    }
+    
+    $numNota = count($nota);
+    
+    if($numNota > 0)
+    {
+        $inNota = "(";
+        
+        for($k=0; $k<$numNota; $k++)
+        {
+            $inNota .= $nota[$k]->NotaId. ",";
+        }
+        $inNota = rtrim($inNota,",");
+        $inNota .= ")";
+        
+        $sql = "SELECT DISTINCT EtiquetaId, Nombre FROM EtiquetaNotaVista WHERE NotaId IN ".$inNota;
+        
+        try 
+        {
+            $db = getConnection();
+            $stmt = $db->query($sql);
+            $etiqueta = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+        } 
+        catch(PDOException $e) 
+        {
+            echo($sql);
+            echo '[ { "Estatus": "Fallo" } ]';
+            $app->status(409);
+            $app->stop();
+        }
+        
+        $sql = "SELECT DISTINCT TemaActividadId, Tema FROM TemaNotaVista WHERE NotaId IN ".$inNota;
+        
+        try 
+        {
+            $db = getConnection();
+            $stmt = $db->query($sql);
+            $tema = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+        } 
+        catch(PDOException $e) 
+        {
+            echo($sql);
+            echo '[ { "Estatus": "Fallo" } ]';
+            $app->status(409);
+            $app->stop();
+        }
+        
+        
+        echo '[{"Estatus": "Exito"},  {"Notas":'.json_encode($nota).'}, {"Etiquetas":'.json_encode($etiqueta).'}, {"Temas":'.json_encode($tema).'}]';
+    }
+    else
+    {
+        $db = null;
+        echo '[{"Estatus": "Vacio"}]';
+    }
+}
+
+
+function AgregarNota()
+{
+    $request = \Slim\Slim::getInstance()->request();
+    $nota = json_decode($request->getBody());
     global $app;
     
     //$cancion = json_decode($_POST['cancion']);
@@ -50,7 +281,7 @@ function AgregarDiario()
         $app->stop();
     }*/
 
-    $sql = "INSERT INTO Diario (UsuarioId, Notas, Fecha) VALUES(:UsuarioId, :Notas, :Fecha)";
+    $sql = "INSERT INTO Nota (UsuarioId, Notas, Fecha, Titulo) VALUES(:UsuarioId, :Notas, :Fecha, :Titulo)";
     
     try 
     {
@@ -58,13 +289,14 @@ function AgregarDiario()
         $db->beginTransaction();
         $stmt = $db->prepare($sql);
 
-        $stmt->bindParam("UsuarioId", $diario->UsuarioId);
-        $stmt->bindParam("Fecha", $diario->Fecha);
-        $stmt->bindParam("Notas", $diario->Notas);
+        $stmt->bindParam("UsuarioId", $nota->UsuarioId);
+        $stmt->bindParam("Fecha", $nota->Fecha);
+        $stmt->bindParam("Notas", $nota->Notas);
+        $stmt->bindParam("Titulo", $nota->Titulo);
 
         $stmt->execute();
         
-        $diarioId = $db->lastInsertId();
+        $notaId = $db->lastInsertId();
         //echo '[{"Estatus": "Exitoso"}, {"Id": "'.$db->lastInsertId().'"}]';
         //$db = null;
 
@@ -77,14 +309,14 @@ function AgregarDiario()
         $app->stop();
     }
     
-    $countTema = count($diario->Tema);
+    $countTema = count($nota->Tema);
     
     if($countTema>0)  
     {
         //temas Nuevos
         for($k=0; $k<$countTema; $k++)
         {
-            if($diario->Tema[$k]->TemaActividadId == "-1")
+            if($nota->Tema[$k]->TemaActividadId == "-1")
             {
                 $sql = "INSERT INTO TemaActividad (UsuarioId, Tema) VALUES (:UsuarioId, :Tema)";
                 
@@ -92,12 +324,12 @@ function AgregarDiario()
                 {
                     $stmt = $db->prepare($sql);
                     
-                    $stmt->bindParam("UsuarioId", $diario->UsuarioId);
-                    $stmt->bindParam("Tema", $diario->Tema[$k]->Tema);
+                    $stmt->bindParam("UsuarioId", $nota->UsuarioId);
+                    $stmt->bindParam("Tema", $nota->Tema[$k]->Tema);
                     
                     $stmt->execute();
                     
-                    $diario->Tema[$k]->TemaActividadId = $db->lastInsertId();
+                    $nota->Tema[$k]->TemaActividadId = $db->lastInsertId();
                 } 
                 catch(PDOException $e) 
                 {
@@ -110,13 +342,13 @@ function AgregarDiario()
             }
         }
         
-        $sql = "INSERT INTO TemaPorDiario (DiarioId, TemaActividadId) VALUES";
+        $sql = "INSERT INTO TemaPorNota (NotaId, TemaActividadId) VALUES";
         
         
         /*Artista de cancion*/
         for($k=0; $k<$countTema; $k++)
         {
-            $sql .= " (".$diarioId.", ".$diario->Tema[$k]->TemaActividadId."),";
+            $sql .= " (".$notaId.", ".$nota->Tema[$k]->TemaActividadId."),";
         }
 
         $sql = rtrim($sql,",");
@@ -137,14 +369,14 @@ function AgregarDiario()
         }
     }
     
-    $countEtiqueta = count($diario->Etiqueta);
+    $countEtiqueta = count($nota->Etiqueta);
     
     if($countEtiqueta>0)  
     {
         //etiquetas Nuevos
         for($k=0; $k<$countEtiqueta; $k++)
         {
-            if($diario->Etiqueta[$k]->EtiquetaId == "-1")
+            if($nota->Etiqueta[$k]->EtiquetaId == "-1")
             {
                 $sql = "INSERT INTO Etiqueta (UsuarioId, Nombre, Activo) VALUES (:UsuarioId, :Nombre, 1)";
                 
@@ -152,12 +384,12 @@ function AgregarDiario()
                 {
                     $stmt = $db->prepare($sql);
                     
-                    $stmt->bindParam("UsuarioId", $diario->UsuarioId);
-                    $stmt->bindParam("Nombre", $diario->Etiqueta[$k]->Nombre);
+                    $stmt->bindParam("UsuarioId", $nota->UsuarioId);
+                    $stmt->bindParam("Nombre", $nota->Etiqueta[$k]->Nombre);
                     
                     $stmt->execute();
                     
-                    $diario->Etiqueta[$k]->EtiquetaId  = $db->lastInsertId();
+                    $nota->Etiqueta[$k]->EtiquetaId  = $db->lastInsertId();
                 } 
                 catch(PDOException $e) 
                 {
@@ -170,13 +402,13 @@ function AgregarDiario()
             }
         }
         
-        $sql = "INSERT INTO EtiquetaPorDiario (DiarioId, EtiquetaId) VALUES";
+        $sql = "INSERT INTO EtiquetaPorNota (NotaId, EtiquetaId) VALUES";
         
         
         /*Etiqueta de la actividad*/
         for($k=0; $k<$countEtiqueta; $k++)
         {
-            $sql .= " (".$diarioId.", ".$diario->Etiqueta[$k]->EtiquetaId."),";
+            $sql .= " (".$notaId.", ".$nota->Etiqueta[$k]->EtiquetaId."),";
         }
 
         $sql = rtrim($sql,",");
@@ -186,7 +418,7 @@ function AgregarDiario()
             $stmt = $db->prepare($sql);
             $stmt->execute();
             
-            echo '[{"Estatus": "Exitoso"}, {"DiarioId":"'.$diarioId.'"}, {"Etiqueta":'.json_encode($diario->Etiqueta).'}, {"Tema":'.json_encode($diario->Tema).'}]';
+            echo '[{"Estatus": "Exitoso"}, {"NotaId":"'.$notaId.'"}, {"Etiqueta":'.json_encode($nota->Etiqueta).'}, {"Tema":'.json_encode($nota->Tema).'}]';
             $db->commit();
             $db = null;
         } 
@@ -201,15 +433,16 @@ function AgregarDiario()
     }
     else
     {
-        echo '[{"Estatus": "Exitoso"}, {"DiarioId":"'.$diarioId.'"}, {"Etiqueta":'.json_encode($diario->Etiqueta).'}, {"Tema":'.json_encode($diario->Tema).'}]';
+        $db->commit();
+        $db = null;
+        echo '[{"Estatus": "Exitoso"}, {"NotaId":"'.$notaId.'"}, {"Etiqueta":'.json_encode($nota->Etiqueta).'}, {"Tema":'.json_encode($nota->Tema).'}]';
     }
 }
 
-
-function EditarDiario()
+function EditarNota()
 {
     $request = \Slim\Slim::getInstance()->request();
-    $diario = json_decode($request->getBody());
+    $nota = json_decode($request->getBody());
     global $app;
     
     //$cancion = json_decode($_POST['cancion']);
@@ -235,7 +468,7 @@ function EditarDiario()
          $sql = "UPDATE Cancion SET Titulo = :Titulo WHERE CancionId = ".$cancion->CancionId;
     }*/
 
-    $sql = "UPDATE Diario SET Fecha = :Fecha, Notas = :Notas WHERE DiarioId = ".$diario->DiarioId;
+    $sql = "UPDATE Nota SET Fecha = :Fecha, Notas = :Notas, Titulo= :Titulo WHERE NotaId = ".$nota->NotaId;
     
     try 
     {
@@ -243,8 +476,9 @@ function EditarDiario()
         $db->beginTransaction();
         $stmt = $db->prepare($sql);
         
-        $stmt->bindParam("Notas", $diario->Notas);
-        $stmt->bindParam("Fecha", $diario->Fecha);
+        $stmt->bindParam("Notas", $nota->Notas);
+        $stmt->bindParam("Fecha", $nota->Fecha);
+        $stmt->bindParam("Titulo", $nota->Titulo);
 
         $stmt->execute();
 
@@ -257,7 +491,7 @@ function EditarDiario()
         $app->stop();
     }
     
-    $sql = "DELETE FROM TemaPorDiario WHERE DiarioId=".$diario->DiarioId;
+    $sql = "DELETE FROM TemaPorNota WHERE NotaId =".$nota->NotaId;
     try 
     {
         $stmt = $db->prepare($sql); 
@@ -273,7 +507,7 @@ function EditarDiario()
         $app->stop();
     }
     
-    $sql = "DELETE FROM EtiquetaPorDiario WHERE DiarioId=".$diario->DiarioId;
+    $sql = "DELETE FROM EtiquetaPorNota WHERE NotaId =".$nota->NotaId;
     try 
     {
         $stmt = $db->prepare($sql); 
@@ -290,14 +524,14 @@ function EditarDiario()
     }
 
     
-    $countTema = count($diario->Tema);
+    $countTema = count($nota->Tema);
     
     if($countTema>0)  
     {
         //temas Nuevos
         for($k=0; $k<$countTema; $k++)
         {
-            if($diario->Tema[$k]->TemaActividadId == "-1")
+            if($nota->Tema[$k]->TemaActividadId == "-1")
             {
                 $sql = "INSERT INTO TemaActividad (UsuarioId, Tema) VALUES (:UsuarioId, :Tema)";
                 
@@ -305,12 +539,12 @@ function EditarDiario()
                 {
                     $stmt = $db->prepare($sql);
                     
-                    $stmt->bindParam("UsuarioId", $diario->UsuarioId);
-                    $stmt->bindParam("Tema", $diario->Tema[$k]->Tema);
+                    $stmt->bindParam("UsuarioId", $nota->UsuarioId);
+                    $stmt->bindParam("Tema", $nota->Tema[$k]->Tema);
                     
                     $stmt->execute();
                     
-                    $diario->Tema[$k]->TemaActividadId = $db->lastInsertId();
+                    $nota->Tema[$k]->TemaActividadId = $db->lastInsertId();
                 } 
                 catch(PDOException $e) 
                 {
@@ -323,13 +557,13 @@ function EditarDiario()
             }
         }
         
-        $sql = "INSERT INTO TemaPorDiario (DiarioId, TemaActividadId) VALUES";
+        $sql = "INSERT INTO TemaPorNota (NotaId, TemaActividadId) VALUES";
         
         
         /*Artista de cancion*/
         for($k=0; $k<$countTema; $k++)
         {
-            $sql .= " (".$diario->DiarioId.", ".$diario->Tema[$k]->TemaActividadId."),";
+            $sql .= " (".$nota->NotaId.", ".$nota->Tema[$k]->TemaActividadId."),";
         }
 
         $sql = rtrim($sql,",");
@@ -350,14 +584,14 @@ function EditarDiario()
         }
     }
     
-    $countEtiqueta = count($diario->Etiqueta);
+    $countEtiqueta = count($nota->Etiqueta);
     
     if($countEtiqueta>0)  
     {
         //etiquetas Nuevos
         for($k=0; $k<$countEtiqueta; $k++)
         {
-            if($diario->Etiqueta[$k]->EtiquetaId == "-1")
+            if($nota->Etiqueta[$k]->EtiquetaId == "-1")
             {
                 $sql = "INSERT INTO Etiqueta (UsuarioId, Nombre, Activo) VALUES (:UsuarioId, :Nombre, 1)";
                 
@@ -365,12 +599,12 @@ function EditarDiario()
                 {
                     $stmt = $db->prepare($sql);
                     
-                    $stmt->bindParam("UsuarioId", $diario->UsuarioId);
-                    $stmt->bindParam("Nombre", $diario->Etiqueta[$k]->Nombre);
+                    $stmt->bindParam("UsuarioId", $nota->UsuarioId);
+                    $stmt->bindParam("Nombre", $nota->Etiqueta[$k]->Nombre);
                     
                     $stmt->execute();
                     
-                    $diario->Etiqueta[$k]->EtiquetaId  = $db->lastInsertId();
+                    $nota->Etiqueta[$k]->EtiquetaId  = $db->lastInsertId();
                 } 
                 catch(PDOException $e) 
                 {
@@ -383,13 +617,13 @@ function EditarDiario()
             }
         }
         
-        $sql = "INSERT INTO EtiquetaPorDiario (DiarioId, EtiquetaId) VALUES";
+        $sql = "INSERT INTO EtiquetaPorNota (NotaId, EtiquetaId) VALUES";
         
         
         /*Etiqueta del diario*/
         for($k=0; $k<$countEtiqueta; $k++)
         {
-            $sql .= " (".$diario->DiarioId.", ".$diario->Etiqueta[$k]->EtiquetaId."),";
+            $sql .= " (".$nota->NotaId.", ".$nota->Etiqueta[$k]->EtiquetaId."),";
         }
 
         $sql = rtrim($sql,",");
@@ -399,7 +633,7 @@ function EditarDiario()
             $stmt = $db->prepare($sql);
             $stmt->execute();
             
-            echo '[{"Estatus": "Exitoso"},  {"Etiqueta":'.json_encode($diario->Etiqueta).'}, {"Tema":'.json_encode($diario->Tema).'}]';
+            echo '[{"Estatus": "Exitoso"},  {"Etiqueta":'.json_encode($nota->Etiqueta).'}, {"Tema":'.json_encode($nota->Tema).'}]';
             $db->commit();
             $db = null;
 
@@ -415,19 +649,20 @@ function EditarDiario()
     }
     else
     {
-        echo '[{"Estatus": "Exitoso2"},  {"Etiqueta":'.json_encode($diario->Etiqueta).'}, {"Tema":'.json_encode($diario->Tema).'}]';
+        $db->commit();
+        $db = null;
+        echo '[{"Estatus": "Exitoso"},  {"Etiqueta":'.json_encode($nota->Etiqueta).'}, {"Tema":'.json_encode($nota->Tema).'}]';
     }
-    
 }
 
-function BorrarDiario()
+function BorrarNota()
 {
     global $app;
     $request = \Slim\Slim::getInstance()->request();
-    $diarioId = json_decode($request->getBody());
+    $notaId = json_decode($request->getBody());
    
     
-    $sql = "DELETE FROM Diario WHERE DiarioId =".$diarioId;
+    $sql = "DELETE FROM Nota WHERE NotaId =".$notaId;
     try 
     {
         $db = getConnection();
@@ -449,15 +684,14 @@ function BorrarDiario()
 }
 
 //------------- Otas operaciones -----------------
-
-function GetEtiquetaPorDiario($id)
+function GetEtiquetaPorNota($id)
 {
     global $app;
     global $session_expiration_time;
 
     $request = \Slim\Slim::getInstance()->request();
 
-    $sql = "SELECT DiarioId, EtiquetaId, Nombre FROM EtiquetaDiarioVista WHERE UsuarioId = ".$id;
+    $sql = "SELECT DISTINCT EtiquetaId, Nombre FROM EtiquetaNotaVista WHERE UsuarioId = ".$id;
 
     try 
     {
@@ -478,14 +712,14 @@ function GetEtiquetaPorDiario($id)
     }
 }
 
-function GetTemaPorDiario($id)
+function GetTemaPorNota($id)
 {
     global $app;
     global $session_expiration_time;
 
     $request = \Slim\Slim::getInstance()->request();
 
-    $sql = "SELECT DiarioId, TemaActividadId, Tema FROM TemaDiarioVista WHERE UsuarioId = ".$id;
+    $sql = "SELECT DISTINCT TemaActividadId, Tema FROM TemaNotaVista WHERE UsuarioId = ".$id;
 
     try 
     {
@@ -506,7 +740,4 @@ function GetTemaPorDiario($id)
     }
 }
 
-
-
-    
 ?>

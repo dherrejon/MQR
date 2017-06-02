@@ -138,6 +138,11 @@ app.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpPro
             templateUrl: 'html/Diario/Diario.html'
         }).
     
+    //Notas
+        when('/Notas',{
+            templateUrl: 'html/Notas/Notas.html'
+        }).
+    
     otherwise({
         templateUrl: 'html/Login.html'
     });

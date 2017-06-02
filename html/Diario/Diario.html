@@ -197,7 +197,7 @@
                 
                 <!-- Etiquetas -->
                 <div class="row" ng-if="agruparDiario == 'Conceptos'">
-                    <a class="btn itemBarraLateral" ng-class="GetClaseDiario(etiqueta.EtiquetaId)" ng-repeat="etiqueta in etiquetaF | orderBy:'Nombre' | filter:BuscarEtiquetaBarra" ng-click="VerDetalles(etiqueta.EtiquetaId, etiqueta.Nombre, etiqueta.Diario, 'Etiquetas')" ng-if="(etiqueta.Diario | filter:FiltrarDiario).length > 0" ng-show="verConcepto.etiqueta">
+                    <a class="btn itemBarraLateral" ng-class="GetClaseDiario(etiqueta.Nombre)" ng-repeat="etiqueta in etiquetaF | orderBy:'Nombre' | filter:BuscarEtiquetaBarra" ng-click="VerDetalles(etiqueta.Nombre, etiqueta.Nombre, etiqueta.Diario, 'Etiquetas')" ng-if="(etiqueta.Diario | filter:FiltrarDiario).length > 0" ng-show="verConcepto.etiqueta">
                         <span class="col-xs-12"  style="white-space: normal; max-width: 90%; overflow: hidden;" >{{etiqueta.Nombre}}</span>
                     </a>
                 </div>
@@ -213,7 +213,7 @@
                 
                 <!-- Temas -->
                 <div class="row" ng-if="agruparDiario == 'Conceptos'">
-                    <a class="btn itemBarraLateral" ng-class="GetClaseDiario(tema.TemaActividadId)" ng-repeat="tema in temaF | orderBy:'Tema' | filter:BuscarTemaBarra" ng-click="VerDetalles(tema.TemaActividadId, tema.Tema, tema.Diario, 'Temas')" ng-if="(tema.Diario | filter:FiltrarDiario).length > 0" ng-show="verConcepto.tema">
+                    <a class="btn itemBarraLateral" ng-class="GetClaseDiario(tema.Tema)" ng-repeat="tema in temaF | orderBy:'Tema' | filter:BuscarTemaBarra" ng-click="VerDetalles(tema.Tema, tema.Tema, tema.Diario, 'Temas')" ng-if="(tema.Diario | filter:FiltrarDiario).length > 0" ng-show="verConcepto.tema">
                         <span class="col-xs-12"  style="white-space: normal; max-width: 90%; overflow: hidden;" >{{tema.Tema}}</span>
                     </a>
                 </div>
@@ -249,7 +249,7 @@
                        <div class="pull-right btn-group">
                          
                           <button class="btn  botonDetallesActividad" ng-click="AbrirDiario('Agregar', null, detalle[0].Fecha)">
-                               <b class="fa fa-commenting-o" ></b>
+                               <b class="fa fa-plus" ></b>
                            </button>
 
                         </div>
@@ -268,113 +268,127 @@
                 <!-- Notas de la Fecha -->
                 <div class="row">
                    <div class="col-xs-12">
-                      <div ng-repeat="diario in detalle | filter:FiltrarDiario | orderBy:'-Fecha'"   > <!-- -->
+                      <div ng-repeat="diario in detalle | filter:FiltrarDiario | orderBy:'-Fecha'"> <!-- -->
                         
                          <div class="" style="color: black">
                             
                              <!-- Fecha y Ciudad -->
                              <div class="row">
                                 <!-- Cantidad -->
-                                 <div class="col-xs-12">
+                                 <div >
                                    
                                     <!-- Opciones -->
-                                    <div class="btn-group-vertical pull-left" role="group" aria-label="...">
-                                         
-                                         
-                                        <!-- Bullet -->
-                                        <button class="btn btnOptDiarioDetalles" style="cursor: default">
+                                    <div class="col-xs-12">
+                                       
+                                       <!--<button class="btn btnOptDiarioDetalles pull-left" style="cursor: default">
                                             <spna class="fa fa-dot-circle-o fa fa-2x"> </spna>
-                                        </button>
-                                        
-                                        <!-- Operaciones -->
-                                        <div class="btn-group">
-                                            <button class="btn btnOptDiarioDetalles boton" data-toggle="dropdown">
-                                                <spna class="fa fa-ellipsis-h"> </spna>
-                                            </button>
-                                            
-                                            <ul class="dropdown-menu dropdownOpt">
-                                                <li><a class=" dropdownOpcion2" ng-click="VerDetallesDiario(diario)">
-                                                     <span class="fa fa-eye"> Detalles</span>
-                                                </a></li>
-                                                
-                                                <li><a class=" dropdownOpcion2" ng-click="AbrirDiario('Editar', diario)">
-                                                     <span class="fa fa-pencil"> Editar</span>
-                                                </a></li>
-                                                
-                                                 <li><a class=" dropdownOpcion2" ng-click="BorrarDiario(diario)">
-                                                     <span class="fa fa-trash"> Borrar</span>
-                                                </a></li>
-                                                
-                                                
-                                            </ul>
-                                        </div>
-                                        
-                                        <!-- Conceptos -->
-                                        <div class="btn-group">
-                                            <button class="btn btnOptDiarioDetalles boton" data-toggle="dropdown">
-                                                <spna class="fa fa-lightbulb-o"> </spna>
-                                            </button>
+                                        </button>-->
+                                       
+                                        <div class="btn-group pull-right" >
 
-                                            <ul class="dropdown-menu  dropdownOpt">
 
-                                                <div  class="row " ng-show="diario.Etiqueta.length > 0">
-                                                    <div class="col-xs-12"> 
-                                                        <li  class="dropdown-header tituloFitro"><b>Etiquetas</b></li>
-                                                    </div>
-                                                </div>
+                                            <!-- Bullet -->
+                                            <!--<button class="btn btnOptDiarioDetalles" style="cursor: default">
+                                                <spna class="fa fa-dot-circle-o fa fa-2x"> </spna>
+                                            </button>-->
 
-                                                <li style="width: auto">
-                                                    <form role="infoEtoiqueta">
-                                                        <div  style="margin-top: 10px"></div>
+                                            <!-- Operaciones -->
+                                            <div class="btn-group">
+                                                <button class="btn btnOptDiarioDetalles boton" data-toggle="dropdown">
+                                                    <spna class="fa fa-ellipsis-h"> </spna>
+                                                </button>
 
-                                                        <div class="panel  panelFiltro" style="border-radius: 0px; padding: 2px important;">
-                                                            <div class="row">
-                                                                <div class="col-xs-12">
-                                                                    <ul>
-                                                                        <li ng-repeat="etiqueta in diario.Etiqueta | orderBy:'Nombre'">
-                                                                            <span>{{etiqueta.Nombre}}</span>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
+                                                <ul class="dropdown-menu dropdown-menu-right dropdownRight">
+                                                    <li><a class=" dropdownOpcion2" ng-click="VerDetallesDiario(diario)">
+                                                         <span class="fa fa-eye"> Detalles</span>
+                                                    </a></li>
 
+                                                    <li><a class=" dropdownOpcion2" ng-click="AbrirDiario('Editar', diario)">
+                                                         <span class="fa fa-pencil"> Editar</span>
+                                                    </a></li>
+
+                                                     <li><a class=" dropdownOpcion2" ng-click="BorrarDiario(diario)">
+                                                         <span class="fa fa-trash"> Borrar</span>
+                                                    </a></li>
+
+
+                                                </ul>
+                                            </div>
+
+                                            <!-- Conceptos -->
+                                            <div class="btn-group">
+                                                <button class="btn btnOptDiarioDetalles boton" data-toggle="dropdown">
+                                                    <spna class="fa fa-comment-o"> </spna>
+                                                </button>
+
+                                                <ul class="dropdown-menu dropdown-menu-right  dropdownRight">
+
+                                                    <div  class="row " ng-show="diario.Etiqueta.length > 0">
+                                                        <div class="col-xs-12"> 
+                                                            <li  class="dropdown-header tituloFitro"><b>Etiquetas</b></li>
                                                         </div>
-                                                    </form>
-                                                </li>
-                                                
-                                                
-                                                <div  class="row " ng-show="diario.Tema.length > 0">
-                                                    <div class="col-xs-12"> 
-                                                        <li  class="dropdown-header tituloFitro"><b>Temas</b></li>
                                                     </div>
-                                                </div>
 
-                                                <li style="width: auto">
-                                                    <form role="infoEtoiqueta">
-                                                        <div  style="margin-top: 10px"></div>
+                                                    <li style="width: auto">
+                                                        <form role="infoEtoiqueta">
+                                                            <div  style="margin-top: 10px"></div>
 
-                                                        <div class="panel  panelFiltro" style="border-radius: 0px; padding: 2px important;">
-                                                            <div class="row">
-                                                                <div class="col-xs-12">
-                                                                    <ul>
-                                                                        <li ng-repeat="tema in diario.Tema | orderBy:'Tema'">
-                                                                            <span>{{tema.Tema}}</span>
-                                                                        </li>
-                                                                    </ul>
+                                                            <div class="panel  panelFiltro" style="border-radius: 0px; padding: 2px important;">
+                                                                <div class="row">
+                                                                    <div class="col-xs-12">
+                                                                        <ul>
+                                                                            <li ng-repeat="etiqueta in diario.Etiqueta | orderBy:'Nombre'">
+                                                                                <span>{{etiqueta.Nombre}}</span>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
 
+                                                            </div>
+                                                        </form>
+                                                    </li>
+
+
+                                                    <div  class="row " ng-show="diario.Tema.length > 0">
+                                                        <div class="col-xs-12"> 
+                                                            <li  class="dropdown-header tituloFitro"><b>Temas</b></li>
                                                         </div>
-                                                    </form>
-                                                </li>
-                                            </ul>
+                                                    </div>
+
+                                                    <li style="width: auto">
+                                                        <form role="infoEtoiqueta">
+                                                            <div  style="margin-top: 10px"></div>
+
+                                                            <div class="panel  panelFiltro" style="border-radius: 0px; padding: 2px important;">
+                                                                <div class="row">
+                                                                    <div class="col-xs-12">
+                                                                        <ul>
+                                                                            <li ng-repeat="tema in diario.Tema | orderBy:'Tema'">
+                                                                                <span>{{tema.Tema}}</span>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
+                                         <b style="font-size:12pt" ng-show="detalleAgrupado != 'Fecha'">{{diario.FechaFormato}}</b>
+                                     </div>
+                                    
+                                    <!-- Notas -->
+                                    <div class="col-xs-12">
+                                        <p style="font-size:12pt" ng-bind-html="diario.NotasHTML"></p>
                                     </div>
                                     
                                     <!-- Notas -->
-                                    <div style="margin-top: 8px"></div>
-                                    <b style="font-size:12pt" ng-show="detalleAgrupado != 'Fecha'">{{diario.FechaFormato}}</b>
-                                    <p style="font-size:12pt" ng-bind-html="diario.NotasHTML"></p>
+                                    <div class="col-xs-12" >
+                                        <div style="border-bottom: 1px solid #1859b2;"></div>
+                                    </div>
+                                    
                                  </div>
                              </div>
                           </div>
@@ -705,16 +719,6 @@
                     <div class="panel  filtroModal" style="border-radius: 0px;">
                         <div class="row " >
                             <div class="col-xs-12">
-
-                                <div ng-show="(buscarTemaFiltro.length == 0 || sinTemaFiltro)">
-                                    <div class="checkbox" style="margin-top:5px !important;">
-                                        <label class="anchoTotal">
-                                            <input class="form-control" ng-model="sinTemaFiltro" type="checkbox"  ng-click="SetFiltroTema('0')">
-                                            <span class="cr"> <i class="cr-icon fa fa-check"></i> </span>Sin Tema
-                                        </label>
-                                    </div>
-                                </div>
-
                                 <div ng-repeat="tema in temaF | orderBy:'Tema'" ng-show="(BuscarTemaFiltro(tema) && buscarTemaFiltro.length > 0) || tema.Filtro ">
                                     <div class="checkbox" style="margin-top:5px !important;">
                                         <label class="anchoTotal">

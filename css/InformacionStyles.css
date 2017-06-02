@@ -77,7 +77,7 @@
     content: "";
     position: absolute;
     top: -24px;
-    right: 2px;
+    right: 4px;
     
     border: 12px solid transparent;
     border-bottom-color: #262626;
@@ -88,7 +88,7 @@
     content: "";
     position: absolute;
     top: -18px;
-    right: 5px;
+    right: 7px;
     
     border: 9px solid transparent;
     border-bottom-color: white;

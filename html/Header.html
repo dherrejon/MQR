@@ -21,7 +21,6 @@
                 <nav class="encabezadoUsuario navbar  navbar-fixed-top">
                     <div style="padding-left:15px; padding-right:20px">
 
-                        <!-- Brand and toggle get grouped for better mobile display -->
                         <div class="navbar-header">
 
                             <button id="buttonCollapse" type="button" class="barraNavegacionBoton navbar-toggle" data-toggle="collapse" data-target="#navbarCollapse">
@@ -93,11 +92,25 @@
                                           </a>
                                         </li>
 
-                                        <li ng-repeat="app in apps " ng-show="app.habilitada" >
-                                            <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)" ng-if="!app.isGrupo">
+                                        <li ng-repeat="app in apps |orderBy:['grupo']" ng-show="app.habilitada" ng-class="{dropdownsubmenu: app.isGrupo}">
+                                            <!-- Inicio -->
+                                            <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)" ng-if="!app.isGrupo && app.grupo == 'Inicio'">
                                                 <span ng-class="app.icono"></span>
                                                 <span>{{app.texto}}</span>
                                             </a>
+                                            
+                                            <!-- dropdownlist -->
+                                            <a href="" class="dropdownOpcion" ng-if="app.isGrupo">
+                                                <span class="fa fa-caret-left"></span > {{app.texto}}
+                                            </a>
+                                            <ul class="dropdown-menu dropdown-menu-right">
+                                                <li ng-repeat="app2 in apps" ng-if="app2.grupo == app.texto">
+                                                    <a ng-if="app2.habilitada" href="" class="dropdownOpcion" ng-click="IniciarApp(app2)"> 
+                                                        <span ng-class="app2.icono"></span>
+                                                        <span>{{app2.texto}}</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </li>
 
                                     </ul>
@@ -185,15 +198,28 @@
                                           </a>
                                       </li>
                                        
-                                       <li ng-repeat="app in apps" ng-show="app.habilitada" ng-if="!app.isGrupo">
-                                            <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)">
+                                       <li ng-repeat="app in apps |orderBy:['grupo']" ng-show="app.habilitada" ng-class="{dropdownsubmenu: app.isGrupo}">
+                                            <!-- Inicio -->
+                                            <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)" ng-if="!app.isGrupo && app.grupo == 'Inicio'">
                                                 <span ng-class="app.icono"></span>
                                                 <span>{{app.texto}}</span>
                                             </a>
+                                            
+                                            <!-- dropdownlist -->
+                                            <a href="" data-toggle="dropdown" class="dropdown-toggle dropdownOpcion" ng-if="app.isGrupo" id="{{app.texto}}">
+                                                <b>{{app.texto}}</b> <span class="fa fa-caret-right"></span >
+                                            </a>   
+                                            <ul class="dropdown-menu dropdown-menu-right" role="{{app.texto}}" aria-labelledby="{{elemento.texto}}"  ng-if="app.isGrupo" style="display: block !important;">
+                                                <li ng-repeat="app2 in apps" ng-if="app2.grupo == app.texto">
+                                                    <a ng-if="app2.habilitada" href="" class="dropdownOpcion dropdownOpcion2level" ng-click="IniciarApp(app2)"> 
+                                                        <span ng-class="app2.icono"></span>
+                                                        <span>{{app2.texto}}</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </li>                                        
-
                                     </ul>
-                                </li>
+                                </li>                
                                 
                                 <!-- Usuario -->
                                 <li>

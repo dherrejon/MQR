@@ -619,7 +619,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Enciclopedia MQR")
+            if($scope.usuarioLogeado.Aplicacion != "WikiMario")
             {
                 $rootScope.IrPaginaPrincipal();
             }

@@ -45,7 +45,7 @@ app.controller("AdministrarFuenteController", function($scope, $window, $http, $
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Enciclopedia MQR")
+            if($scope.usuarioLogeado.Aplicacion != "WikiMario")
             {
                 $rootScope.IrPaginaPrincipal();
             }

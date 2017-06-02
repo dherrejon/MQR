@@ -21,12 +21,12 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     {
         switch($scope.usuario.Aplicacion)
         {
-            case "Enciclopedia MQR": 
+            case "WikiMario": 
                 $scope.barraNavegacion = EncabezadoSabiduria;
                 $scope.HabilitarOpcionesBarraNavegacionSabiduria();
                 break;
                 
-            case "GuitarApp": 
+            case "GuitaraBit": 
                 $scope.barraNavegacion = EncabezadoCancionero;
                 $scope.HabilitarOpcionesBarraNavegacionCancionero();
                 break;
@@ -39,6 +39,11 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             case "Mi Diario":
                 $scope.barraNavegacion = EncabezadoDiario;
                 $scope.HabilitarOpcionesBarraNavegacionDiario();
+                break;
+                
+            case "Mis Notas":
+                $scope.barraNavegacion = EncabezadoNotas;
+                $scope.HabilitarOpcionesBarraNavegacionNotas();
                 break;
                 
             case "Aplicaciones": 
@@ -84,7 +89,6 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     //despliega las secciones del módulo donde esta el mouse
     $scope.MouseEnterarElemento = function(index)
     {
-
         $('.header-horizontal-menu .navbar-nav > li.dropdown').removeClass('open');
         $('#'+$scope.barraNavegacion.opcion[index].texto).addClass('open');
     };
@@ -222,6 +226,25 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         }
     };
     
+    $scope.HabilitarOpcionesBarraNavegacionNotas = function()
+    {
+        $scope.LimpiarBarraNavegacionNotas();
+
+        for(var k=0; k<$scope.usuario.Permiso.length; k++)
+        {
+            if($scope.usuario.Permiso[k] == "NotasAcc")
+            {
+                $scope.barraNavegacion.opcion[0].show = true;
+                $scope.barraNavegacion.opcion[1].show = true;
+            }
+            
+            if($scope.usuario.Permiso[k] == "AdmUsuarios")
+            {
+                $scope.permisoUsuario = true;
+            }
+        }
+    };
+    
     $scope.LimpiarBarraNavegacionInformacion = function()
     {
         $scope.barraNavegacion.opcion[0].show = false;
@@ -247,6 +270,14 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     };
     
     $scope.LimpiarBarraNavegacionDiario = function()
+    {
+        $scope.barraNavegacion.opcion[0].show = false;
+        $scope.barraNavegacion.opcion[1].show = false;
+        
+        $scope.permisoUsuario = false;
+    };
+    
+    $scope.LimpiarBarraNavegacionNotas = function()
     {
         $scope.barraNavegacion.opcion[0].show = false;
         $scope.barraNavegacion.opcion[1].show = false;
@@ -451,6 +482,14 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
                 {
                     $rootScope.apps[0].habilitada = true;
                 }
+                if($scope.usuario.Permiso[k] == "NotasAcc")
+                {
+                    $rootScope.apps[5].habilitada = true;
+                }
+                if($scope.usuario.Permiso[k] == "CancioneroCon" || $scope.usuario.Permiso[k] == "CancioneroAdm" || $scope.usuario.Permiso[k] == "SabiduriaCon" || $scope.usuario.Permiso[k] == "SabiduriaAdm")
+                {
+                    $rootScope.apps[6].habilitada = true;
+                }
             }
         }
     };
@@ -499,7 +538,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
 
 var EncabezadoSabiduria =
 { 
-    titulo:"Enciclopedia MQR", 
+    titulo:"WikiMario", 
     opcion: [ 
                     { texto:"Inicio", tipo:"link", referencia:"#Informacion", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
@@ -518,7 +557,7 @@ var EncabezadoSabiduria =
 
 var EncabezadoCancionero =
 { 
-    titulo:"GuitarApp", 
+    titulo:"GuitaraBit", 
     opcion: [ 
                     { texto:"Inicio", tipo:"link", referencia:"#Informacion", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
@@ -556,6 +595,22 @@ var EncabezadoDiario =
     titulo:"Mi Diario", 
     opcion: [ 
                     { texto:"Inicio", tipo:"link", referencia:"#Diario", show: false},
+                    { texto:"Administrar", tipo:"dropdown", show: false,
+                                            elemento:
+                                            [
+                                                //{texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
+                                                {texto:"Etiquetas", referencia:"#Etiqueta", funcion:"", show:true},
+                                                {texto:"Temas", referencia:"#TemaActividad", funcion:"", show:true}
+                                            ]},
+                    
+              ]                       
+};
+
+var EncabezadoNotas =
+{ 
+    titulo:"Mis Notas", 
+    opcion: [ 
+                    { texto:"Inicio", tipo:"link", referencia:"#Notas", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [

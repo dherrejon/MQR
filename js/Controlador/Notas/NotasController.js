@@ -1,6 +1,6 @@
-app.controller("DiarioController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce)
+app.controller("NotasController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce)
 {   
-    $scope.titulo = "Diario";
+    $scope.titulo = "Notas";
     
     $scope.permiso = false;
     
@@ -8,7 +8,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     {
         for(var k=0; k<$scope.usuarioLogeado.Permiso.length; k++)
         {
-            if($scope.usuarioLogeado.Permiso[k] == "DiarioCon")
+            if($scope.usuarioLogeado.Permiso[k] == "NotasAcc")
             {
                 $scope.permiso = true;
                 break;
@@ -16,77 +16,72 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         }
     };
     
-    $scope.diario = [];
+    $scope.nota = [];
     $scope.fecha = [];
-    $scope.etiquetaDiario = [];
-    $scope.temaDiario = [];
+    $scope.etiquetaNota = [];
+    $scope.temaNota = [];
     $scope.mensajeError = [];
     
     $scope.tema = [];
     $scope.etiqueta = [];
     
-    $scope.buscarEtiqueta = "";
-    $scope.buscarTema = "";
-    
     $scope.etiquetaF = [];
     $scope.temaF = [];
-    $scope.detalle = new Diario();
     
-    $scope.buscarFecha = "";
-    $scope.agruparDiario = "Fecha";
+    $scope.etiquetaB = [];
+    $scope.temaB = [];
     
-    $scope.hoy = GetDate();
+    $scope.detalle = new Nota();
     
-    //filtro
-    $scope.buscarTemaFiltro = "";
-    $scope.buscarEtiquetaFiltro = "";
-    $scope.verFiltro = true;
-    $scope.buscarEtiquetaBarra = "";
-    $scope.buscarTemaBarra = "";
-    $scope.buscarConceptoBarra = "";
-    
+    //vista
+    $scope.detalle = [];
+    $scope.agrupar = "Titulo";
     $scope.verConcepto = {etiqueta:true, tema:true};
     
-    $scope.filtro = {tema:[], etiqueta:[], frecuencia:[]};
+    $scope.buscarTituloBarra = "";
+    $scope.buscarConceptoBarra = "";
+    
+    
+    
+    //filtro
+    $scope.filtro = {tema:[], etiqueta:[], fecha:"", fechaFormato: ""};
+    
+    $scope.buscarTemaFiltro = "";
+    $scope.buscarEtiquetaFiltro = "";
+    
+    $scope.verFiltro = true;
     
     
     /*------------------ Catálogos -----------------------------*/
-    $scope.GetDiario = function()              
+    $scope.GetNotas = function()              
     {
-        GetDiario($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
-        {
-            var diario = []; 
-            for(var k=0; k<data.length; k++)
-            {
-                diario[k] = SetDiario(data[k]);
-                
-                //Notas
-                diario[k].NotasHTML = $sce.trustAsHtml(diario[k].NotasHTML);
-            }
+        GetNotas($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
+        {      
+            $scope.nota = data;
             
-            $scope.diario = diario;
-            
-            $scope.GetEtiquetaPorDiario();
+            $scope.GetEtiquetaPorNota();
         }).catch(function(error)
         {
             alert(error);
         });
     };
     
-    $scope.GetEtiquetaPorDiario = function()              
+    $scope.GetEtiquetaPorNota = function()              
     {
-        GetEtiquetaPorDiario($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
+        GetEtiquetaPorNota($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
         {
             if(data[0].Estatus == "Exito")
             {
-                $scope.etiquetaDiario = data[1].Etiqueta;
+                $scope.etiquetaF = data[1].Etiqueta;
+                $scope.etiquetaB = data[1].Etiqueta;
             }
             else
             {
-                $scope.etiquetaDiario = [];
+                $scope.etiquetaF = [];
+                $scope.etiquetaB = [];
             }
             
-            $scope.GetTemaPorDiario();
+            $scope.GetTemaPorNota();
         
         }).catch(function(error)
         {
@@ -94,21 +89,22 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         });
     };
     
-    $scope.GetTemaPorDiario = function()              
+    $scope.GetTemaPorNota = function()              
     {
-        GetTemaPorDiario($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
+        GetTemaPorNota($http, $q, CONFIG, $rootScope.UsuarioId).then(function(data)
         {
             if(data[0].Estatus == "Exito")
             {
-                $scope.temaDiario = data[1].Tema;
-                
+                $scope.temaF = data[1].Tema;
+                $scope.temaB = data[1].Tema;
             }
             else
             {
-                $scope.temaDiario = [];
+                $scope.temaF = [];
+                $scope.temaB = [];
             }
             
-            $scope.SetDiarioDatos();
+            //$scope.SetNotaDatos();
         
         }).catch(function(error)
         {
@@ -116,68 +112,41 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         });
     };
     
-    $scope.SetDiarioDatos = function()
+    /*$scope.SetNotaDatos = function()
     {   
         var sql;
         var sqlBase;
         
-        sql = "SELECT DISTINCT Fecha, FechaFormato FROM ?";
-        var fecha= alasql(sql, [$scope.diario]);
     
-        sqlBase = "SELECT * FROM ? WHERE DiarioId = '";
+        sqlBase = "SELECT * FROM ? WHERE NotaId = '";
     
-        for(var i=0; i<$scope.diario.length; i++)
+        for(var i=0; i<$scope.nota.length; i++)
         {
-
-            sql =  sqlBase + $scope.diario[i].DiarioId + "'";
+            sql =  sqlBase + $scope.nota[i].NotaId + "'";
             //tema
-            $scope.diario[i].Tema = alasql(sql, [$scope.temaDiario]);
+            $scope.nota[i].Tema = alasql(sql, [$scope.temaNota]);
 
             //etiqueta
-            $scope.diario[i].Etiqueta = alasql(sql, [$scope.etiquetaDiario]);
+            $scope.nota[i].Etiqueta = alasql(sql, [$scope.etiquetaNota]);
         }
         
-       //eventos fecha 
-        sqlBase = "SELECT * FROM ? WHERE Fecha = '";
-        
-        for(var k=0; k<fecha.length; k++)
-        {
-            sql = sqlBase + fecha[k].Fecha + "'";
-            fecha[k].Diario = alasql(sql, [$scope.diario]);
-        }
-        
-        $scope.fecha = fecha;
         
         $scope.SetDiarioFiltros();
-    };
+    };*/
     
-    $scope.SetDiarioFiltros = function()
+    /*$scope.SetDiarioFiltros = function()
     {           
         $scope.temaF = [];
         $scope.etiquetaF = [];
         
         
         var sql = "SELECT DISTINCT EtiquetaId, Nombre  FROM ? ";
-        $scope.etiquetaF = alasql(sql, [$scope.etiquetaDiario]);
+        $scope.etiquetaF = alasql(sql, [$scope.etiquetaNota]);
         
         sql = "SELECT DISTINCT TemaActividadId, Tema  FROM ? ";
-        $scope.temaF = alasql(sql, [$scope.temaDiario]);
+        $scope.temaF = alasql(sql, [$scope.temaNota]);
         
-        
-        
-        //agrupar por tema
-        for(var k=0; k<$scope.temaF.length; k++)
-        {
-            $scope.temaF[k].Diario = $scope.GetDiarioTemas($scope.temaF[k].TemaActividadId);
-        }
-        
-        //agrupar por etiquetas
-        for(var k=0; k<$scope.etiquetaF.length; k++)
-        {
-            $scope.etiquetaF[k].Diario = $scope.GetDiarioEtiquetas($scope.etiquetaF[k].EtiquetaId);
-        }
-    };
-    
+    };*/
     
     /*------- Otros catálogos ---------------*/
     $scope.GetTemaActividad = function()              
@@ -204,92 +173,59 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         });
     };
     
-    
-    //----------- Detalles -------------------
-    $scope.VerDetalles = function(dato, titulo, diario, concepto)
+    //-------- Notas de detalles --------
+    $scope.GetNotasPorId = function(id, tipo)
     {
-        //if(dato != $scope.detalleDato)
-        //{
-            $scope.detalleAgrupado = $scope.agruparDiario;
-            $scope.detalleDato = dato;
-            $scope.detalleTitulo = titulo;
-            $scope.tipoConcepto = concepto;
+        var datos = {Tipo:tipo, Id:id};
+        
+        GetNotasPorId($http, $q, CONFIG, datos).then(function(data)
+        {
             
-             $scope.detalle = diario;
-            
-            /*if($scope.agruparDiario == "Fecha")
+            for(var k=0; k<data.length; k++)
             {
-                $scope.detalle = $scope.GetDiarioFecha(dato);
+                data[k].NotasHTML = $sce.trustAsHtml(data[k].NotasHTML);
             }
-            else if($scope.agruparDiario == "Etiquetas")
+             
+            $scope.detalle = data;
+        
+        }).catch(function(error)
+        {
+            alert(error);
+        });
+        
+    };
+    
+    $scope.GetNotasFiltro = function(id, tipo)
+    {   
+        GetNotasFiltro($http, $q, CONFIG, $scope.filtro).then(function(data)
+        {
+            if(data[0].Estatus == "Exito")
             {
-                $scope.detalle = $scope.GetDiarioEtiquetas(dato);
+                $scope.nota = data[1].Notas;
+                $scope.etiquetaB = data[2].Etiquetas;
+                $scope.temaB = data[3].Temas;
             }
-            if($scope.agruparDiario == "Temas")
+            else
             {
-                $scope.detalle = $scope.GetDiarioTemas(dato);
-            }*/
-        //}
-    };
-    
-    /*$scope.GetDiarioFecha = function(fecha)
-    {
-        var sql = "SELECT * FROM ? WHERE Fecha = '" + fecha + "'";
+                $scope.nota = [];
+                $scope.etiquetaB = [];
+                $scope.temaB = []; 
+            }
         
-        
-        return alasql(sql, [$scope.diario]);
-    };*/
-    
-    $scope.GetDiarioEtiquetas = function(etiqueta)
-    {
-        var sql = "SELECT d.* FROM ? ed JOIN ? d ON d.DiarioId = ed.DiarioId WHERE ed.EtiquetaId = '" + etiqueta + "'";
-        
-        return alasql(sql, [$scope.etiquetaDiario, $scope.diario]);
-    };
-    
-    $scope.GetDiarioTemas = function(tema)
-    {
-        var sql = "SELECT d.* FROM ? td JOIN ? d ON d.DiarioId = td.DiarioId WHERE td.TemaActividadId = '" + tema + "'";
-        
-        return alasql(sql, [$scope.temaDiario, $scope.diario]);
-    };
-    
-    
-    
-    $scope.GetClaseDiario = function(dato)
-    {
-        if(dato == $scope.detalleDato)
+        }).catch(function(error)
         {
-            return "active";
-        }
-        else
+            alert(error);
+        });
+    };
+    
+    //-------------------------------------Vista--------------------------------
+    $scope.CambiarAgrupar = function(grupo)
+    {
+        if(grupo != $scope.agrupar)
         {
-            return "";
+           $scope.agrupar = grupo;
         }
-    };
-    
-    $scope.VerDetallesDiario = function(diario)
-    {
-        $scope.detalleDiario = diario;
-        $('#detalleDiario').modal('toggle');
-    };
-    
-    $scope.CambiarVerBarra = function()
-    {
-        $scope.detalle = new Diario();
-    };
-    
-    $scope.CambiarAgruparDiario = function(agrupar)
-    {
-        if(agrupar != $scope.agruparDiario)
-        {
-            $scope.agruparDiario = agrupar;
-            //$scope.AgruparDiario(agrupar);
-            
-            $scope.buscarEtiquetaBarra = "";
-            $scope.buscarTemaBarra = "";
-            document.getElementById("fechaBuscar").value = "";
-        }
+        
     };
     
     $scope.CambiarVerConcepto = function(concepto)
@@ -304,8 +240,212 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         }
     };
     
-    //------------------------------- Filtrar -------------------------
-    $scope.FiltrarDiario = function(diario)
+    //-----------------------------------Detalles--------------------------------
+    $scope.VerDetalles = function(dato, id ,tipo)
+    {
+        //if(dato != $scope.datoDetalle)
+        //{
+            $scope.datoDetalle = dato;
+            $scope.tipoDato = tipo;
+            $scope.idDetalle = id;
+            
+            $scope.GetNotasPorId(id, tipo);
+        //}
+    };
+    
+    $scope.GetClaseDiario = function(dato)
+    {
+        if($scope.datoDetalle == dato)
+        {
+            return "active";
+        }
+        else
+        {
+            return "";
+        }
+    };
+    
+    $scope.VerDetallesNota = function(nota)
+    {
+        $scope.detalleNota = nota;
+        $('#detalleNota').modal('toggle');
+    };
+    
+    
+    //----------------------- Buscar Barra --------------------------
+    $scope.FiltrarBuscarTema = function(tema, buscar)
+    {
+        if(buscar !== undefined)
+        {
+            if(buscar.length > 0)
+            {
+                var index = tema.Tema.toLowerCase().indexOf(buscar.toLowerCase());
+
+
+                if(index < 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    if(index === 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        if(tema.Tema[index-1] == " ")
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+    };
+    
+    $scope.BuscarTemaBarra = function(tema)
+    {
+        return $scope.FiltrarBuscarTema(tema, $scope.buscarConceptoBarra);
+    };
+    
+    $scope.BuscarTemaFiltro = function(tema)
+    {
+        return $scope.FiltrarBuscarTema(tema, $scope.buscarTemaFiltro);
+    };
+    
+    $scope.FiltrarBuscarEtiqueta = function(etiqueta, buscar)
+    {
+        if(buscar !== undefined)
+        {
+            if(buscar.length > 0)
+            {
+                var index = etiqueta.Nombre.toLowerCase().indexOf(buscar.toLowerCase());
+
+
+                if(index < 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    if(index === 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+    };
+    
+    $scope.BuscarEtiquetaBarra = function(etiqueta)
+    {
+        return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarConceptoBarra);
+    };
+    
+    $scope.BuscarEtiquetaFiltro = function(etiqueta)
+    {
+        return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarEtiquetaFiltro);
+    };
+    
+    $scope.FiltrarBuscarTitulo = function(titulo, buscar)
+    {
+        if(buscar !== undefined)
+        {
+            if(buscar.length > 0)
+            {
+                var index = titulo.toLowerCase().indexOf(buscar.toLowerCase());
+
+
+                if(index < 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    if(index === 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        if(titulo[index-1] == " ")
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+            return true;
+        }
+        
+        return true;
+    };
+    
+    $scope.BuscarTituloBarra = function(nota)
+    {
+        return $scope.FiltrarBuscarTitulo(nota.Titulo, $scope.buscarTituloBarra);
+    };
+    
+    //-- fecha filtro
+    $('#fechaFiltro').bootstrapMaterialDatePicker(
+    { 
+        weekStart : 0, 
+        time: false,
+        format: "YYYY-MM-DD",
+    });
+    
+    $scope.AbrirCalendario = function()
+    {        
+        document.getElementById("fechaFiltro").focus();
+    };
+    
+    
+    $scope.LimpiarFiltroFecha = function()
+    {
+        $scope.filtro.fecha = "";
+        $scope.filtro.fechaFormato = "";
+        
+    };
+    
+    $scope.CambiarFechaFiltro = function(element) 
+    {
+        $scope.$apply(function($scope) 
+        {   
+            $scope.filtro.fecha = element.value;
+            $scope.filtro.fechaFormato = TransformarFecha(element.value);
+        });
+    };
+    
+    //---------------------------- Filtros ----------------------------------------
+    $scope.FiltrarNota = function(nota)
     {        
         var cumple = false;
         
@@ -314,9 +454,9 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             for(var i=0; i<$scope.filtro.etiqueta.length; i++)
             {
                 cumple = false;
-                for(var j=0; j<diario.Etiqueta.length; j++)
+                for(var j=0; j<nota.Etiqueta.length; j++)
                 {
-                    if($scope.filtro.etiqueta[i] == diario.Etiqueta[j].EtiquetaId)
+                    if($scope.filtro.etiqueta[i] == nota.Etiqueta[j].EtiquetaId)
                     {
                         cumple = true;
                         break;
@@ -343,9 +483,9 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                 if($scope.filtro.tema != "0")
                 {
                     cumple = false;
-                    for(var j=0; j<diario.Tema.length; j++)
+                    for(var j=0; j<nota.Tema.length; j++)
                     {
-                        if($scope.filtro.tema[i] == diario.Tema[j].TemaActividadId)
+                        if($scope.filtro.tema[i] == nota.Tema[j].TemaActividadId)
                         {
                             cumple = true;
                             break;
@@ -372,6 +512,21 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             cumple = true;
         }
         
+        
+        cumple = false;
+        
+        if($scope.filtro.fecha.length > 0)
+        {
+            if($scope.filtro.fecha == nota.Fecha)
+            {
+                cumple = true;
+            }
+        }
+        else
+        {
+            cumple = true;
+        }
+        
         if(cumple)
         {
             return true;
@@ -381,28 +536,6 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             return false;
         }
         
-    };
-    
-    //tema
-    $scope.BuscarTemaFiltro = function(tema)
-    {
-        return $scope.FiltrarBuscarTema(tema, $scope.buscarTemaFiltro);
-    };
-    
-    $scope.BuscarTemaBarra = function(tema)
-    {
-        return $scope.FiltrarBuscarTema(tema, $scope.buscarConceptoBarra);
-    };
-    
-    //etiqueta
-    $scope.BuscarEtiquetaFiltro = function(etiqueta)
-    {
-        return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarEtiquetaFiltro);
-    };
-    
-    $scope.BuscarEtiquetaBarra = function(etiqueta)
-    {
-        return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarConceptoBarra);
     };
     
     $scope.SetFiltroTema = function(tema)
@@ -425,7 +558,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         $scope.filtro.tema.push(tema);
     };
     
-    $scope.SetFiltroEtiqueta = function(etiqueta)
+     $scope.SetFiltroEtiqueta = function(etiqueta)
     {
         var sql = "SELECT * FROM ? WHERE Filtro = true";
         
@@ -443,34 +576,6 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         }
         
         $scope.filtro.etiqueta.push(etiqueta);
-    };
-
-    $scope.LimpiarFiltro = function()
-    {
-        $scope.filtro = {tema:[], etiqueta:[]};
-        
-        for(var k=0; k<$scope.etiquetaF.length; k++)
-        {
-            $scope.etiquetaF[k].Filtro = false;
-        }
-        
-        for(var k=0; k<$scope.temaF.length; k++)
-        {
-            $scope.temaF[k].Filtro = false;
-        }
-        
-        $scope.sinTemaFiltro = false;
-        
-        $scope.verFiltro = true;
-        
-        $scope.buscarEtiquetaFiltro = "";
-        $scope.buscarTemaFiltro = "";
-    };
-    
-    $scope.LimpiarBuscarFiltro = function()
-    {
-        $scope.buscarEtiquetaFiltro = "";
-        $scope.buscarTemaFiltro = "";
     };
     
     //Presionar enter etiqueta
@@ -537,108 +642,100 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         $scope.verFiltro = !$scope.verFiltro;
     };
     
-    //------------ Abrir - Editar -----------------
-    $scope.AbrirDiario = function(operacion, objeto, fecha)
+    
+    $scope.GetDatosFiltro = function()
+    {
+        $scope.LimpiarBuscarFiltro();
+        $scope.GetNotasFiltro();
+    };
+    
+    $scope.LimpiarFiltro = function()
+    {
+        $scope.filtro = {tema:[], etiqueta:[], fecha:"", fechaFormato: ""};
+        
+        for(var k=0; k<$scope.etiquetaF.length; k++)
+        {
+            $scope.etiquetaF[k].Filtro = false;
+        }
+        
+        for(var k=0; k<$scope.temaF.length; k++)
+        {
+            $scope.temaF[k].Filtro = false;
+        }
+        
+        $scope.verFiltro = true;
+        
+        $scope.buscarEtiquetaFiltro = "";
+        $scope.buscarTemaFiltro = "";
+        
+        $scope.GetNotasFiltro();
+    };
+    
+    $scope.LimpiarBuscarFiltro = function()
+    {
+        $scope.buscarEtiquetaFiltro = "";
+        $scope.buscarTemaFiltro = "";
+    };
+    
+    
+    //--------------------------- Agregar - Editar ------------------------
+    $scope.AbrirNota = function(operacion, objeto)
     {
         $scope.operacion = operacion;
-    
-        document.getElementById("fechaDiaria");
         
         if(operacion == "Agregar")
         {
-            $scope.nuevoDiario = new Diario();
+            $scope.nuevaNota = new Nota();
             $scope.ActivarDesactivarTema([]);
             $scope.ActivarDesactivarEtiqueta([]);
-            $scope.IniciarDiario(fecha);
+            $scope.IniciarNota();
             
         }
         else if(operacion == "Editar")
         {
-            $scope.nuevoDiario = $scope.SetDiario(objeto);   
-            $scope.FechaDefinida = false;
-            $scope.ActivarDesactivarTema($scope.nuevoDiario.Tema);
-            $scope.ActivarDesactivarEtiqueta($scope.nuevoDiario.Etiqueta);
+            $scope.nuevaNota = SetNota(objeto);   
+            $scope.ActivarDesactivarTema($scope.nuevaNota.Tema);
+            $scope.ActivarDesactivarEtiqueta($scope.nuevaNota.Etiqueta);
+            
+            document.getElementById("fechaNota").value = $scope.nuevaNota.Fecha;
         }
         
-        $('#modalDiario').modal('toggle');
+        $('#modalNota').modal('toggle');
     };
     
-    $scope.SetDiario = function(data)
+    $scope.IniciarNota = function(fecha)
     {
-        var diario = new Diario();
-        
-        diario.DiarioId = data.DiarioId;
-        diario.Notas = data.Notas;
-        diario.Fecha = data.Fecha;
-        diario.FechaFormato = data.FechaFormato;
-        
-        if(diario.Notas !== null && diario !==undefined)
-        {
-             diario.NotasHTML = data.Notas.replace(/\r?\n/g, "<br>");
-             diario.NotasHTML = $sce.trustAsHtml(diario.NotasHTML);
-        }
-        else
-        {
-            diario.NotasHTML = "";
-        }
-        
-        for(var k=0; k<data.Etiqueta.length; k++)
-        {
-            diario.Etiqueta[k] = SetEtiqueta(data.Etiqueta[k]);
-        }
-        
-        for(var k=0; k<data.Tema.length; k++)
-        {
-            diario.Tema[k] = SetTemaActividad(data.Tema[k]);
-        }
-        
-        return diario;
+        $scope.nuevaNota.Fecha = GetDate();
+        $scope.nuevaNota.FechaFormato = TransformarFecha($scope.nuevaNota.Fecha);
 
-    };
-    
-    $scope.IniciarDiario = function(fecha)
-    {
-        if(fecha !== null && $scope.agruparDiario == "Fecha")
+
+        if($scope.tipoDato == "Tema")
         {
-            $scope.FechaDefinida = true;
-            $scope.nuevoDiario.Fecha = fecha;
-            $scope.nuevoDiario.FechaFormato = TransformarFecha(fecha);
-        }
-        else
-        {
-            $scope.FechaDefinida = false;
-            $scope.nuevoDiario.Fecha = GetDate();
-            $scope.nuevoDiario.FechaFormato = TransformarFecha($scope.nuevoDiario.Fecha);
-        }
-        
-        if($scope.tipoConcepto == "Temas" && $scope.operacion == "Agregar")
-        {
-            console.log("entra");
             for(var k=0; k<$scope.tema.length; k++)
             {
-                if($scope.tema[k].TemaActividadId == $scope.detalleDato)
+                if($scope.tema[k].TemaActividadId == $scope.idDetalle)
                 {
-                    $scope.nuevoDiario.Tema.push($scope.tema[k]);
+                    $scope.nuevaNota.Tema.push($scope.tema[k]);
                     $scope.tema[k].show = false;
                     break;
                 }
             }
         }
         
-        if($scope.tipoConcepto == "Etiquetas" && $scope.operacion == "Agregar")
+        if($scope.tipoDato == "Etiqueta")
         {
             for(var k=0; k<$scope.etiqueta.length; k++)
             {
-                if($scope.etiqueta[k].EtiquetaId == $scope.detalleDato)
+                if($scope.etiqueta[k].EtiquetaId == $scope.idDetalle)
                 {
-                    $scope.nuevoDiario.Etiqueta.push($scope.etiqueta[k]);
+                    $scope.nuevaNota.Etiqueta.push($scope.etiqueta[k]);
                     $scope.etiqueta[k].show = false;
                     break;
                 }
             }
         }
 
-        document.getElementById("fechaDiario").value = $scope.nuevoDiario.Fecha;
+        document.getElementById("fechaNota").value = $scope.nuevaNota.Fecha;
     };
     
     $scope.ActivarDesactivarTema = function(tema)
@@ -673,15 +770,33 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         }
     };
     
-    //----------- Cerrar
-    $scope.CerrarDiario = function()
+    
+    //------ Fecha ---
+    $('#fechaNota').bootstrapMaterialDatePicker(
+    { 
+        weekStart : 0, 
+        time: false,
+        format: "YYYY-MM-DD"
+    });
+    
+    $scope.CambiarFechaNota = function(element) 
     {
-        $('#cerrarDiario').modal('toggle');
+        $scope.$apply(function($scope) 
+        {
+            $scope.nuevaNota.Fecha = element.value;
+            $scope.nuevaNota.FechaFormato = TransformarFecha(element.value);
+        });
     };
     
-    $scope.ConfirmarCerrarDiario = function()
+    //----------- Cerrar
+    $scope.CerrarNota = function()
     {
-        $('#modalDiario').modal('toggle');
+        $('#cerrarNota').modal('toggle');
+    };
+    
+    $scope.ConfirmarCerrarNota = function()
+    {
+        $('#modalNota').modal('toggle');
         $scope.mensajeError = [];
         $scope.LimpiarInterfaz();
     };
@@ -691,218 +806,6 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         $scope.buscarEtiqueta = "";
         $scope.buscarTema = "";
     };
-    
-    
-    //_-------- Buscar Fecha Buscar -------------------
-    $('#fechaBuscar').bootstrapMaterialDatePicker(
-    { 
-        weekStart : 0, 
-        time: false,
-        format: "DD-MM-YYYY",
-        maxDate: new Date()
-    });
-    
-    $scope.CambiarFechaBuscar = function(element) 
-    {
-        $scope.$apply(function($scope) 
-        {
-            $scope.buscarFecha = TransformarFecha2(element.value);
-        });
-    };
-    
-    //--------- Fecha -------------------
-    $('#fechaDiario').bootstrapMaterialDatePicker(
-    { 
-        weekStart : 0, 
-        time: false,
-        format: "YYYY-MM-DD",
-        maxDate: new Date()
-    });
-    
-    $scope.CambiarFechaDiario = function(element) 
-    {
-        $scope.$apply(function($scope) 
-        {
-            $scope.nuevoDiario.Fecha = element.value;
-            $scope.nuevoDiario.FechaFormato = TransformarFecha(element.value);
-        });
-    };
-    
-    //etiqueta
-    $('#nuevaEtiqueta').keydown(function(e)
-    {
-        switch(e.which) {
-            case 13:
-               $scope.AgregarNuevaEtiqueta();
-              break;
-
-            default:
-                return;
-        }
-        e.preventDefault(); // prevent the default action (scroll / move caret)
-    });
-    
-    $scope.AgregarEtiqueta = function(etiqueta)
-    {
-        $scope.nuevoDiario.Etiqueta.push(etiqueta);
-        
-        etiqueta.show = false;
-        $scope.buscarEtiqueta = "";
-    };
-    
-    $scope.AgregarNuevaEtiqueta = function()
-    {
-        if($scope.buscarEtiqueta.length > 0)
-        {
-            if(!$scope.ValidarEtiquetaAgregado())
-            {
-                $scope.$apply();
-                return;    
-            }
-            else
-            {
-                var etiqueta = new Etiqueta();
-                etiqueta.Nombre = $scope.buscarEtiqueta;
-                etiqueta.EtiquetaId = "-1";
-                $scope.buscarEtiqueta = "";
-                
-                $scope.nuevoDiario.Etiqueta.push(etiqueta);
-                $scope.$apply();
-            }
-        }
-    };
-    
-    $scope.ValidarEtiquetaAgregado = function()
-    {
-        if($rootScope.erEtiqueta.test($scope.buscarEtiqueta))
-        {
-            for(var k=0; k<$scope.etiqueta.length; k++)
-            {
-                if($scope.etiqueta[k].Nombre.toLowerCase() == $scope.buscarEtiqueta.toLowerCase())
-                {
-                    if($scope.etiqueta[k].show)
-                    {
-                        $scope.AgregarEtiqueta($scope.etiqueta[k]);
-                        return false;
-                    }
-                    else
-                    {
-                        $scope.mensajeError = [];
-                        $scope.mensajeError[$scope.mensajeError.length] = "*Esta etiqueta ya fue agregada.";
-                        $scope.buscarEtiqueta = "";
-                        $('#mensajeDiario').modal('toggle');
-                        return false;
-                    }
-                }
-            }
-
-            for(var k=0; k<$scope.nuevoDiario.Etiqueta.length; k++)
-            {
-                if($scope.nuevoDiario.Etiqueta[k].Nombre.toLowerCase() == $scope.buscarEtiqueta.toLowerCase())
-                {
-                    $scope.mensajeError = [];
-                    $scope.mensajeError[$scope.mensajeError.length] = "*Esta etiqueta ya fue agregada.";
-                    $scope.buscarEtiqueta = "";
-                    $('#mensajeDiario').modal('toggle');
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            $scope.mensajeError = [];
-            $scope.mensajeError[$scope.mensajeError.length] = "*Escribe una etiqueta válida.";
-            $scope.buscarEtiqueta = "";
-            $('#mensajeDiario').modal('toggle');
-            
-            return false;
-        }
-        
-        
-        return true;
-    };
-    
-    $scope.QuitarEtiqueta = function(etiqueta)
-    {
-        
-        for(var k=0; k<$scope.nuevoDiario.Etiqueta.length; k++)
-        {
-            if(etiqueta == $scope.nuevoDiario.Etiqueta[k])
-            {
-                $scope.nuevoDiario.Etiqueta.splice(k,1);
-                break;
-            }
-        }
-        
-        if(etiqueta.EtiquetaId != "-1")
-        {
-            for(var k=0; k<$scope.etiqueta.length; k++)
-            {
-                if($scope.etiqueta[k].EtiquetaId == etiqueta.EtiquetaId)
-                {
-                    $scope.etiqueta[k].show = true;
-                    return;
-                }
-            }
-        }
-    };
-    
-    $scope.EditarEtiqueta = function(etiqueta)
-    {
-        if(etiqueta.EtiquetaId == "-1")
-        {
-            $scope.buscarEtiqueta = etiqueta.Nombre;
-            
-            for(var k=0; k<$scope.nuevoDiario.Etiqueta.length; k++)
-            {
-                if($scope.nuevoDiario.Etiqueta[k].Nombre == etiqueta.Nombre)
-                {
-                    $scope.nuevoDiario.Etiqueta.splice(k,1);
-                    break;
-                }
-            }
-            
-            $("#nuevaEtiqueta").focus();
-        }
-    };
-    
-    $scope.FiltrarBuscarEtiqueta = function(etiqueta, buscar)
-    {
-        if(buscar !== undefined)
-        {
-            if(buscar.length > 0)
-            {
-                var index = etiqueta.Nombre.toLowerCase().indexOf(buscar.toLowerCase());
-
-
-                if(index < 0)
-                {
-                    return false;
-                }
-                else
-                {
-                    if(index === 0)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                return true;
-            }
-        }
-    };
-    
-    $scope.BuscarEtiqueta = function(etiqueta)
-    {
-        return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarEtiqueta);
-    };
-    
     
     //----Tema-----
     $('#nuevoTema').keydown(function(e)
@@ -920,7 +823,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     
     $scope.AgregarTema = function(tema)
     {
-        $scope.nuevoDiario.Tema.push(tema);
+        $scope.nuevaNota.Tema.push(tema);
         
         tema.show = false;
         $scope.buscarTema = "";
@@ -942,7 +845,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                 tema.TemaActividadId = "-1";
                 $scope.buscarTema = "";
                 
-                $scope.nuevoDiario.Tema.push(tema);
+                $scope.nuevaNota.Tema.push(tema);
                 $scope.$apply();
             }
         }
@@ -966,20 +869,20 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                         $scope.mensajeError = [];
                         $scope.mensajeError[$scope.mensajeError.length] = "*Este tema ya fue agregado.";
                         $scope.buscarTema = "";
-                        $('#mensajeDiario').modal('toggle');
+                        $('#mensajeNota').modal('toggle');
                         return false;
                     }
                 }
             }
 
-            for(var k=0; k<$scope.nuevoDiario.Tema.length; k++)
+            for(var k=0; k<$scope.nuevaNota.Tema.length; k++)
             {
-                if($scope.nuevoDiario.Tema[k].Tema.toLowerCase() == $scope.buscarTema.toLowerCase())
+                if($scope.nuevaNota.Tema[k].Tema.toLowerCase() == $scope.buscarTema.toLowerCase())
                 {
                     $scope.mensajeError = [];
                     $scope.mensajeError[$scope.mensajeError.length] = "*Este tema ya fue agregado.";
                     $scope.buscarTema = "";
-                    $('#mensajeDiario').modal('toggle');
+                    $('#mensajeNota').modal('toggle');
                     return false;
                 }
             }
@@ -989,7 +892,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             $scope.mensajeError = [];
             $scope.mensajeError[$scope.mensajeError.length] = "*Escribe un tema válido.";
             $scope.buscarTema = "";
-            $('#mensajeDiario').modal('toggle');
+            $('#mensajeNota').modal('toggle');
             
             return false;
         }
@@ -1001,11 +904,11 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     $scope.QuitarTema = function(tema)
     {
         
-        for(var k=0; k<$scope.nuevoDiario.Tema.length; k++)
+        for(var k=0; k<$scope.nuevaNota.Tema.length; k++)
         {
-            if(tema == $scope.nuevoDiario.Tema[k])
+            if(tema == $scope.nuevaNota.Tema[k])
             {
-                $scope.nuevoDiario.Tema.splice(k,1);
+                $scope.nuevaNota.Tema.splice(k,1);
                 break;
             }
         }
@@ -1030,11 +933,11 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         {
             $scope.buscarTema = tema.Tema;
             
-            for(var k=0; k<$scope.nuevoDiario.Tema.length; k++)
+            for(var k=0; k<$scope.nuevaNota.Tema.length; k++)
             {
-                if($scope.nuevoDiario.Tema[k].Tema == tema.Tema)
+                if($scope.nuevaNota.Tema[k].Tema == tema.Tema)
                 {
-                    $scope.nuevoDiario.Tema.splice(k,1);
+                    $scope.nuevaNota.Tema.splice(k,1);
                     break;
                 }
             }
@@ -1043,476 +946,416 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         }
     };
     
-    $scope.FiltrarBuscarTema = function(tema, buscar)
-    {
-        if(buscar !== undefined)
-        {
-            if(buscar.length > 0)
-            {
-                var index = tema.Tema.toLowerCase().indexOf(buscar.toLowerCase());
-
-
-                if(index < 0)
-                {
-                    return false;
-                }
-                else
-                {
-                    if(index === 0)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        if(tema.Tema[index-1] == " ")
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                return true;
-            }
-        }
-    };
-    
     $scope.BuscarTema = function(tema)
     {
         return $scope.FiltrarBuscarTema(tema, $scope.buscarTema);
     };
     
+    //etiqueta
+    $('#nuevaEtiqueta').keydown(function(e)
+    {
+        switch(e.which) {
+            case 13:
+               $scope.AgregarNuevaEtiqueta();
+              break;
+
+            default:
+                return;
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
     
-    //------------ terminar ---------
-    $scope.TerminarDiario = function()
+    $scope.AgregarEtiqueta = function(etiqueta)
+    {
+        $scope.nuevaNota.Etiqueta.push(etiqueta);
+        
+        etiqueta.show = false;
+        $scope.buscarEtiqueta = "";
+    };
+    
+    $scope.AgregarNuevaEtiqueta = function()
+    {
+        if($scope.buscarEtiqueta.length > 0)
+        {
+            if(!$scope.ValidarEtiquetaAgregado())
+            {
+                $scope.$apply();
+                return;    
+            }
+            else
+            {
+                var etiqueta = new Etiqueta();
+                etiqueta.Nombre = $scope.buscarEtiqueta;
+                etiqueta.EtiquetaId = "-1";
+                $scope.buscarEtiqueta = "";
+                
+                $scope.nuevaNota.Etiqueta.push(etiqueta);
+                $scope.$apply();
+            }
+        }
+    };
+    
+    $scope.ValidarEtiquetaAgregado = function()
+    {
+        if($rootScope.erEtiqueta.test($scope.buscarEtiqueta))
+        {
+            for(var k=0; k<$scope.etiqueta.length; k++)
+            {
+                if($scope.etiqueta[k].Nombre.toLowerCase() == $scope.buscarEtiqueta.toLowerCase())
+                {
+                    if($scope.etiqueta[k].show)
+                    {
+                        $scope.AgregarEtiqueta($scope.etiqueta[k]);
+                        return false;
+                    }
+                    else
+                    {
+                        $scope.mensajeError = [];
+                        $scope.mensajeError[$scope.mensajeError.length] = "*Esta etiqueta ya fue agregada.";
+                        $scope.buscarEtiqueta = "";
+                        $('#mensajeNota').modal('toggle');
+                        return false;
+                    }
+                }
+            }
+
+            for(var k=0; k<$scope.nuevaNota.Etiqueta.length; k++)
+            {
+                if($scope.nuevaNota.Etiqueta[k].Nombre.toLowerCase() == $scope.buscarEtiqueta.toLowerCase())
+                {
+                    $scope.mensajeError = [];
+                    $scope.mensajeError[$scope.mensajeError.length] = "*Esta etiqueta ya fue agregada.";
+                    $scope.buscarEtiqueta = "";
+                    $('#mensajeNota').modal('toggle');
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            $scope.mensajeError = [];
+            $scope.mensajeError[$scope.mensajeError.length] = "*Escribe una etiqueta válida.";
+            $scope.buscarEtiqueta = "";
+            $('#mensajeNota').modal('toggle');
+            
+            return false;
+        }
+        
+        
+        return true;
+    };
+    
+    $scope.QuitarEtiqueta = function(etiqueta)
+    {
+        
+        for(var k=0; k<$scope.nuevaNota.Etiqueta.length; k++)
+        {
+            if(etiqueta == $scope.nuevaNota.Etiqueta[k])
+            {
+                $scope.nuevaNota.Etiqueta.splice(k,1);
+                break;
+            }
+        }
+        
+        if(etiqueta.EtiquetaId != "-1")
+        {
+            for(var k=0; k<$scope.etiqueta.length; k++)
+            {
+                if($scope.etiqueta[k].EtiquetaId == etiqueta.EtiquetaId)
+                {
+                    $scope.etiqueta[k].show = true;
+                    return;
+                }
+            }
+        }
+    };
+    
+    $scope.EditarEtiqueta = function(etiqueta)
+    {
+        if(etiqueta.EtiquetaId == "-1")
+        {
+            $scope.buscarEtiqueta = etiqueta.Nombre;
+            
+            for(var k=0; k<$scope.nuevaNota.Etiqueta.length; k++)
+            {
+                if($scope.nuevaNota.Etiqueta[k].Nombre == etiqueta.Nombre)
+                {
+                    $scope.nuevaNota.Etiqueta.splice(k,1);
+                    break;
+                }
+            }
+            
+            $("#nuevaEtiqueta").focus();
+        }
+    };
+    
+    $scope.BuscarEtiqueta = function(etiqueta)
+    {
+        return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarEtiqueta);
+    };
+    
+    //------------------------------------- terminar --------------------------------------
+    $scope.TerminarNota = function()
     {
         if(!$scope.ValidarDatos())
         {
-            $('#mensajeDiario').modal('toggle');
+            $('#mensajeNota').modal('toggle');
             return;
         }
         else
         {
-            $scope.nuevoDiario.UsuarioId = $scope.usuarioLogeado.UsuarioId;
+            $scope.nuevaNota.UsuarioId = $scope.usuarioLogeado.UsuarioId;
             if($scope.operacion == "Agregar")
             {
-                $scope.AgregarDiario();
+                $scope.AgregarNota();
             }
             if($scope.operacion == "Editar")
             {
-                $scope.EditarDiario();
+                $scope.EditarNota();
             }
         }
     };
     
-    $scope.AgregarDiario = function()    
+    $scope.AgregarNota = function()    
     {
-        AgregarDiario($http, CONFIG, $q, $scope.nuevoDiario).then(function(data)
+        AgregarNota($http, CONFIG, $q, $scope.nuevaNota).then(function(data)
         {
             if(data[0].Estatus == "Exitoso")
             {
                 
-                $scope.mensaje = "Diario agregado.";
+                $scope.mensaje = "Nota agregada.";
                 $scope.EnviarAlerta('Vista');
                 
-                $scope.nuevoDiario.DiarioId = data[1].DiarioId;
-                $scope.nuevoDiario.Etiqueta = data[2].Etiqueta;
-                $scope.nuevoDiario.Tema = data[3].Tema;
+                $scope.nuevaNota.NotaId = data[1].NotaId;
+                $scope.nuevaNota.Etiqueta = data[2].Etiqueta;
+                $scope.nuevaNota.Tema = data[3].Tema;
                 
-                $scope.SetNuevoDiario($scope.nuevoDiario);
+                $scope.SetNuevaNota($scope.nuevaNota);
                 
                 
-                $scope.nuevoDiario = new Diario();
-                $('#modalDiario').modal('toggle');
+                $('#modalNota').modal('toggle');
                 $scope.LimpiarInterfaz();
             }
             else
             {
                 $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde.";
-                $('#mensajeDiario').modal('toggle');
+                $('#mensajeNota').modal('toggle');
             }
             
             
         }).catch(function(error)
         {
             $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
-            $('#mensajeDiario').modal('toggle');
+            $('#mensajeNota').modal('toggle');
         });
     };
     
-    $scope.EditarDiario = function()    
+    $scope.EditarNota = function()    
     {
-        EditarDiario($http, CONFIG, $q, $scope.nuevoDiario).then(function(data)
+        EditarNota($http, CONFIG, $q, $scope.nuevaNota).then(function(data)
         {
             if(data[0].Estatus == "Exitoso")
             {
-                $scope.nuevoDiario.Etiqueta = data[1].Etiqueta;
-                $scope.nuevoDiario.Tema = data[2].Tema;
+                $scope.nuevaNota.Etiqueta = data[1].Etiqueta;
+                $scope.nuevaNota.Tema = data[2].Tema;
                 
-                $scope.mensaje = "Diario editado.";
-                $scope.SetNuevoDiario($scope.nuevoDiario);
+                $scope.mensaje = "Nota editada.";
+                $scope.SetNuevaNota($scope.nuevaNota);
                 $scope.LimpiarInterfaz();
                 $scope.EnviarAlerta('Vista');
                 
-                $('#modalDiario').modal('toggle');
+                $('#modalNota').modal('toggle');
             }
             else
             {
                 $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde.";
-                $('#mensajeDiario').modal('toggle');
+                $('#mensajeNota').modal('toggle');
             }
             
             
         }).catch(function(error)
         {
             $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
-            $('#mensajeDiario').modal('toggle');
+            $('#mensajeNota').modal('toggle');
         });
     };
     
-    $scope.SetNuevoDiario = function(diario)
+    $scope.SetNuevaNota = function(data)
     {
-        var ndiario = $scope.SetDiario(diario);
-        
-        
-        if($scope.operacion == "Editar")
-        {
-            
-            for(var k=0; k<$scope.etiquetaDiario.length; k++)
-            {
-                if($scope.etiquetaDiario[k].DiarioId == ndiario.DiarioId)
-                {
-                   $scope.etiquetaDiario.splice(k,1);
-                    k--;
-                }
-            }
-            
-            for(var k=0; k<$scope.temaDiario.length; k++)
-            {
-                if($scope.temaDiario[k].DiarioId == ndiario.DiarioId)
-                {
-                   $scope.temaDiario.splice(k,1);
-                    k--;
-                }
-            }
-        }
+        var nota = SetNota(data);
         
         //tema
         var sqlBase = "SELECT COUNT(*) as num FROM ? WHERE TemaActividadId= '";
-        for(var k=0; k<diario.Tema.length; k++)
+        for(var k=0; k<nota.Tema.length; k++)
         {
-            sql = sqlBase + diario.Tema[k].TemaActividadId + "'";
-            
+            sql = sqlBase + nota.Tema[k].TemaActividadId + "'";
             //tema Filtro
-            /*count = alasql(sql, [$scope.temaF]);
+            count = alasql(sql, [$scope.temaF]);
             
             if(count[0].num === 0)
             {
-               $scope.temaF.push(diario.Tema[k]);
-            }*/
+               $scope.temaF.push(nota.Tema[k]);
+            }
             
-            //tema Dropdownlist
+            //dropdown
             count = alasql(sql, [$scope.tema]);
             
             if(count[0].num === 0)
             {
-               $scope.tema.push(diario.Tema[k]);
+               $scope.tema.push(nota.Tema[k]);
             }
         }
         
         //etiqueta
         sqlBase = "SELECT COUNT(*) as num FROM ? WHERE EtiquetaId= '";
-        for(var k=0; k<diario.Etiqueta.length; k++)
+        for(var k=0; k<nota.Etiqueta.length; k++)
         {
-            sql = sqlBase + diario.Etiqueta[k].EtiquetaId + "'";
-            
+            sql = sqlBase + nota.Etiqueta[k].EtiquetaId + "'";
             //etiqueta Filtro
-            /*count = alasql(sql, [$scope.etiquetaF]);
+            count = alasql(sql, [$scope.etiquetaF]);
             
             if(count[0].num === 0)
             {
-               $scope.etiquetaF.push(diario.Etiqueta[k]);
-            }*/
+               $scope.etiquetaF.push(nota.Etiqueta[k]);
+            }
             
             //etiqueta Dropdownlist
             count = alasql(sql, [$scope.etiqueta]);
             
             if(count[0].num === 0)
             {
-               $scope.etiqueta.push(diario.Etiqueta[k]);
+               $scope.etiqueta.push(nota.Etiqueta[k]);
             }
         }
         
-        for(var k=0; k<ndiario.Tema.length; k++)
+        
+        if($scope.tipoDato == "Nota")
         {
-            var tema = new Object();
-            
-            tema.TemaActividadId = diario.Tema[k].TemaActividadId;
-            tema.Tema = diario.Tema[k].Tema;
-            tema.DiarioId = diario.DiarioId;
-            
-            $scope.temaDiario.push(tema);
+            $scope.VerDetalles(nota.Titulo, nota.NotaId, 'Nota');
         }
-        
-        
-        for(var k=0; k<ndiario.Etiqueta.length; k++)
+        else if($scope.tipoDato == "Etiqueta")
         {
-            var etiqueta = new Object();
-            
-            etiqueta.EtiquetaId = diario.Etiqueta[k].EtiquetaId;
-            etiqueta.Nombre = diario.Etiqueta[k].Nombre;
-            etiqueta.DiarioId = diario.DiarioId;
-            
-            $scope.etiquetaDiario.push(etiqueta);
-        }
-        
-        
-        //agregar y editar
-        if($scope.operacion == "Agregar")
-        {
-            $scope.diario.push(ndiario);
-            
-            var agregado = false;
-            for(var k=0; k<$scope.fecha.length; k++)
+            if(nota.Etiqueta.length > 0)
             {
-                if($scope.fecha[k].Fecha == diario.Fecha)
+                var permanece = false;
+
+                for(var k=0; k<nota.Etiqueta.length; k++)
                 {
-                    agregado = true;
-                    $scope.fecha[k].Diario.push(ndiario);
-                    
-                    if($scope.detalleAgrupado == "Fecha")
+                    if(nota.Etiqueta[k].EtiquetaId == $scope.idDetalle)
                     {
-                        $scope.VerDetalles($scope.fecha[k].Fecha, $scope.fecha[k].FechaFormato, $scope.fecha[k].Diario, null);
+                        $scope.VerDetalles(nota.Etiqueta[k].Nombre, nota.Etiqueta[k].EtiquetaId, 'Etiqueta');
+                        permanece = true;
+                        break;
                     }
-                    
-                    break;
                 }
-            }
-            
-            if(!agregado)
-            {
-                var fecha = new Object();
-                fecha.Fecha = diario.Fecha;
-                fecha.FechaFormato = diario.FechaFormato;
-                fecha.Diario = [];
-                fecha.Diario[0] = ndiario;
-                $scope.fecha.push(fecha);
-                
-                if($scope.detalleAgrupado == "Fecha")
+
+                if(!permanece)
                 {
-                    $scope.VerDetalles($scope.fecha[$scope.fecha.length-1].Fecha, $scope.fecha[$scope.fecha.length-1].FechaFormato, $scope.fecha[$scope.fecha.length-1].Diario, null);
+                    $scope.VerDetalles(nota.Etiqueta[0].Nombre, nota.Etiqueta[0].EtiquetaId, 'Etiqueta');
                 }
-                
             }
+            else
+            {
+                  $scope.LimpiarDetalle();
+            }
+          
+        }
+        else if($scope.tipoDato == "Tema")
+        {
+            if(nota.Tema.length > 0)
+            {
+                var permanece = false;
+
+                for(var k=0; k<nota.Tema.length; k++)
+                {
+                    if(nota.Tema[k].TemaActividadId == $scope.idDetalle)
+                    {
+                        $scope.VerDetalles(nota.Tema[k].Tema, nota.Tema[k].TemaActividadId, 'Tema');
+                        permanece = true;
+                        break;
+                    }
+                }
+
+                if(!permanece)
+                {
+                    $scope.VerDetalles(nota.Tema[0].Tema, nota.Tema[0].TemaActividadId, 'Tema');
+                }
+            }
+            else
+            {
+                $scope.LimpiarDetalle();
+            }
+        }
+        
+        if($scope.operacion == "Agregar" && $scope.FiltrarNota(nota))
+        {
+            $scope.nota.push(nota);
         }
         else if($scope.operacion == "Editar")
-        {   
-            var agregado = false;
-            
-            for(var k=0; k<$scope.diario.length; k++)
+        {
+            for(var k=0; k<$scope.nota.length; k++)
             {
-                if(ndiario.DiarioId == $scope.diario[k].DiarioId)
+                if($scope.nota[k].NotaId == nota.NotaId)
                 {
-                    $scope.diario.splice(k,1);
+                    if($scope.FiltrarNota(nota))
+                    {
+                        $scope.nota[k] = nota;
+                    }
+                    else
+                    {
+                        $scope.nota.splice(k,1);
+                    }
                     break;
                 }
             }
-            
-            $scope.diario.push(ndiario);
-            
-            // eliminar fecha 
-            for(var k=0; k<$scope.fecha.length; k++)
-            {
-                for(var i=0; i<$scope.fecha[k].Diario.length; i++)
-                {
-                    if($scope.fecha[k].Diario[i].DiarioId == diario.DiarioId)
-                    {
-                        if($scope.fecha[k].Fecha != diario.Fecha)
-                        {
-                            if($scope.fecha[k].Diario.length > 1)
-                            {
-                                $scope.fecha[k].Diario.splice(i,1);
-                            }
-                            else
-                            {
-                                $scope.fecha.splice(k,1);
-                            }
-                            break;
-                        }
-                        else
-                        {
-                            agregado = true;
-                            $scope.fecha[k].Diario[i] = $scope.SetDiario(ndiario);
-                            
-                            if($scope.detalleAgrupado == "Fecha")
-                            {
-                                $scope.VerDetalles($scope.fecha[k].Fecha, $scope.fecha[k].FechaFormato, $scope.fecha[k].Diario, null);
-                            }
-                        }
-                    }
-                }
-            }
-            
-            if(!agregado)
-            {
-                for(var k=0; k<$scope.fecha.length; k++)
-                {
-                    if($scope.fecha[k].Fecha == diario.Fecha)
-                    {
-                        agregado = true;
-                        $scope.fecha[k].Diario.push(ndiario);
-                        
-                        if($scope.detalleAgrupado == "Fecha")
-                        {
-                            $scope.VerDetalles($scope.fecha[k].Fecha, $scope.fecha[k].FechaFormato, $scope.fecha[k].Diario, null);
-                        }
-                        
-                        break;
-                    }
-                }
-            }
-            
-            if(!agregado)
-            {
-                var fecha = new Object();
-                fecha.Fecha = diario.Fecha;
-                fecha.FechaFormato = diario.FechaFormato;
-                fecha.Diario = [];
-                fecha.Diario[0] = ndiario;
-                $scope.fecha.push(fecha);
-                if($scope.detalleAgrupado == "Fecha")
-                {
-                    $scope.VerDetalles($scope.fecha[$scope.fecha.length-1].Fecha, $scope.fecha[$scope.fecha.length-1].FechaFormato, $scope.fecha[$scope.fecha.length-1].Diario, null);
-                }
-            }
         }
         
-        $scope.SetDiarioFiltros();
-        
-        if($scope.tipoConcepto == "Temas")
-        {
-            if(ndiario.Tema.length == 0)
-            {
-                $scope.detalle = [];
-            }
-            else
-            {
-                var conserva = false;
-                for(var k=0; k<ndiario.Tema.length; k++)
-                {
-                    if(ndiario.Tema[k].TemaActividadId == $scope.detalleDato)
-                    {
-                        conserva = true;
-                        
-                        for(var i=0; i<$scope.temaF.length; i++)
-                        {
-                             
-                            if($scope.temaF[i].TemaActividadId == ndiario.Tema[k].TemaActividadId)
-                            {
-                                $scope.VerDetalles(ndiario.Tema[k].TemaActividadId, ndiario.Tema[k].Tema, $scope.temaF[i].Diario, "Temas");
-                                break;
-                            }
-                        }
-                        
-                        break;
-                    }
-                }
-
-                if(!conserva)
-                {
-                    /*$scope.detalleDato = "";
-                    $scope.detalleTitulo = "";
-                    $scope.detalle = [];*/
-                    for(var k=0; k<$scope.temaF.length; k++)
-                    {
-                        if($scope.temaF[k].TemaActividadId == ndiario.Tema[0].TemaActividadId)
-                        {
-                            $scope.VerDetalles(ndiario.Tema[0].TemaActividadId, ndiario.Tema[0].Tema, $scope.temaF[k].Diario, "Temas");
-                            break;
-                        }
-                    }
-                   
-                }
-            }
-            
-        }
-        
-        if($scope.tipoConcepto == "Etiquetas")
-        {
-            if(ndiario.Etiqueta.length == 0)
-            {
-                $scope.detalle = [];
-            }
-            else
-            {
-                var conserva = false;
-                for(var k=0; k<ndiario.Etiqueta.length; k++)
-                {
-                    if(ndiario.Etiqueta[k].EtiquetaId == $scope.detalleDato)
-                    {
-                        conserva = true;
-                        
-                        for(var i=0; i<$scope.etiquetaF.length; i++)
-                        {
-                            if($scope.etiquetaF[i].EtiquetaId == ndiario.Etiqueta[k].EtiquetaId)
-                            {
-                                $scope.VerDetalles(ndiario.Etiqueta[k].EtiquetaId, ndiario.Etiqueta[k].Nombre, $scope.etiquetaF[i].Diario, "Etiquetas");
-                                break;
-                            }
-                        }
-                        
-                        break;
-                    }
-                }
-
-                if(!conserva)
-                {
-                    /*$scope.detalle = [];
-                    $scope.detalleDato = "";
-                    $scope.detalleTitulo = "";*/
-                    for(var k=0; k<$scope.etiquetaF.length; k++)
-                    {
-                        if($scope.etiquetaF[k].EtiquetaId == ndiario.Etiqueta[0].EtiquetaId)
-                        {
-                            $scope.VerDetalles(ndiario.Etiqueta[0].EtiquetaId, ndiario.Etiqueta[0].Nombre, $scope.etiquetaF[k].Diario, "Etiquetas");
-                            break;
-                        }
-                    }
-                   
-                }
-            }
-            
-        }
-        
+        $scope.GetNotasFiltro();
+    
+    };
+    
+    $scope.LimpiarDetalle = function()
+    {
+        $scope.detalle = [];
+        $scope.datoDetalle = "";
+        $scope.idDetalle = "";
+        $scope.tipoDato = "";
     };
     
     $scope.ValidarDatos = function()
     {
         $scope.mensajeError = [];
-        
-        if($scope.nuevoDiario.Fecha.length === 0)
+         
+        if($scope.nuevaNota.Titulo !== undefined && $scope.nuevaNota.Titulo !== null)
         {
-            $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona una fecha.";
-        }
-        
-        if($scope.nuevoDiario.Notas !== undefined && $scope.nuevoDiario.Notas !== null)
-        {
-            if($scope.nuevoDiario.Notas.length === 0)
+            if($scope.nuevaNota.Titulo.length === 0)
             {
-                $scope.mensajeError[$scope.mensajeError.length] = "*Escribe una nota del diario.";
+                $scope.mensajeError[$scope.mensajeError.length] = "*Escribe un titulo.";
             }
         }
         else
         {
-            $scope.mensajeError[$scope.mensajeError.length] = "*Escribe una nota del diario.";
+            $scope.mensajeError[$scope.mensajeError.length] = "*Escribe un titulo.";
         }
         
-        if(($scope.nuevoDiario.Etiqueta.length + $scope.nuevoDiario.Tema.length) === 0)
+        if($scope.nuevaNota.Fecha.length === 0)
+        {
+            $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona una fecha.";
+        }
+        
+        if($scope.nuevaNota.Notas !== undefined && $scope.nuevaNota.Notas !== null)
+        {
+            if($scope.nuevaNota.Notas.length === 0)
+            {
+                $scope.mensajeError[$scope.mensajeError.length] = "*Escribe una nota.";
+            }
+        }
+        else
+        {
+            $scope.mensajeError[$scope.mensajeError.length] = "*Escribe una nota.";
+        }
+        
+        if(($scope.nuevaNota.Etiqueta.length + $scope.nuevaNota.Tema.length) === 0)
         {
             $scope.mensajeError[$scope.mensajeError.length] = "*Selecciona al menos una etiqueta o un tema.";
         }
@@ -1527,201 +1370,63 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         }
     };
     
-
-    //----------------Limpiar------------------
-    $scope.LimpiarBuscar = function(buscar)
-    {
-        switch(buscar)
-        {
-            case 1:
-                $scope.buscarFecha = "";
-                document.getElementById("fechaBuscar").value = "";
-                break;
-            case 2:
-                $scope.buscarEtiqueta = "";
-                break;
-            case 3:
-                $scope.buscarTema = "";
-                break;
-            case 4:
-                $scope.buscarEtiquetaFiltro = "";
-                break;
-            case 5:
-                $scope.buscarTemaFiltro = "";
-                break;
-
-            default: 
-                break;
-        }
-    };
-    
     //-------------- Borrar Diario -----------------
-    $scope.BorrarDiario= function(diario)
+    $scope.BorrarNota = function(nota)
     {
-        $scope.borrarDiario = diario;
+        $scope.borrarNota = nota;
 
-        $scope.mensajeBorrar = "¿Estas seguro de eliminar el diario?";
+        $scope.mensajeBorrar = "¿Estas seguro de eliminar la nota?";
 
-        $("#borrarDiario").modal('toggle');
+        $("#borrarNota").modal('toggle');
         
     };
     
-    $scope.ConfirmarBorrarDiario = function()
+    $scope.ConfirmarBorrarNota = function()
     {
-        BorrarDiario($http, CONFIG, $q, $scope.borrarDiario.DiarioId).then(function(data)
+        BorrarNota($http, CONFIG, $q, $scope.borrarNota.NotaId).then(function(data)
         {
             if(data[0].Estatus == "Exitoso")
             {                
-                for(var k=0; k<$scope.fecha.length; k++)
+                for(var k=0; k<$scope.nota.length; k++)
                 {
-                    for(var i=0; i<$scope.fecha[k].Diario.length; i++)
+                    if($scope.borrarNota.NotaId == $scope.nota[k].NotaId)
                     {
-                        if($scope.fecha[k].Diario[i].DiarioId == $scope.borrarDiario.DiarioId)
+                        $scope.nota.splice(k,1);
+                        break;
+                    }
+                }
+                       
+                if($scope.detalle.length == 1)
+                {
+                    $scope.LimpiarDetalle();
+                }
+                else
+                {
+                    for(var k=0; k<$scope.detalle.length; k++)
+                    {
+                        if($scope.detalle[k].NotaId == $scope.borrarNota.NotaId)
                         {
-                            if($scope.fecha[k].Diario.length > 1)
-                            {
-                                $scope.fecha[k].Diario.splice(i,1);
-                            }
-                            else
-                            {
-                                $scope.fecha.splice(k,1);
-                                $scope.detalle = new Diario();
-                            }
-                            
-                            break;
+                           $scope.detalle.splice(k,1); 
                         }
                     }
                 }
                 
-                for(var k=0; k<$scope.diario.length; k++)
-                {
-                    if($scope.diario[k].DiarioId == $scope.borrarDiario.DiarioId)
-                    {
-                        $scope.diario.splice(k,1);
-                        break;       
-                    }
-                }
-                
-                for(var k=0; k<$scope.temaDiario.length; k++)
-                {
-                    if($scope.temaDiario[k].DiarioId == $scope.borrarDiario.DiarioId)
-                    {
-                        $scope.temaDiario.splice(k,1);
-                        break;       
-                    }
-                }
-                
-                for(var k=0; k<$scope.etiquetaDiario.length; k++)
-                {
-                    if($scope.etiquetaDiario[k].DiarioId == $scope.borrarDiario.DiarioId)
-                    {
-                        $scope.etiquetaDiario.splice(k,1);
-                        break;       
-                    }
-                }
-                
-                $scope.SetDiarioFiltros();
-                
-                if($scope.detalle.length == 1)
-                {
-                    $scope.detalle =[];
-                }
-                
-                $scope.mensaje = "Diario borrado.";
+                $scope.mensaje = "Nota borrada.";
                 $scope.EnviarAlerta('Vista');
-                
-                $scope.QuitarFiltros();
+                $scope.GetNotasFiltro();
                 
             }
             else
             {
                 $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde";
-                $('#mensajeActividad').modal('toggle');
+                $('#mensajeNota').modal('toggle');
             }
             
         }).catch(function(error)
         {
             $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde. Error: " + error;
-            $('#mensajeActividad').modal('toggle');
+            $('#mensajeNota').modal('toggle');
         });
-    };
-    
-    $scope.QuitarFiltros = function()
-     {
-         var quitar = true;
-
-                 
-        for(var k=0; k<$scope.borrarDiario.Etiqueta.length; k++)
-        {
-            quitar = true;
-            
-            for(var i=0; i<$scope.fecha.length; i++)
-            {
-                for(var j=0; j<$scope.fecha[i].Diario.length; j++)
-                {
-                    for(var m=0; m<$scope.fecha[i].Diario[j].Etiqueta.length; m++)
-                    {
-                        if($scope.borrarDiario.Etiqueta[k].EtiquetaId == $scope.fecha[i].Diario[j].Etiqueta[m].EtiquetaId)
-                        {
-                            quitar = false;
-                            break;
-                        }
-                    }
-                    if(!quitar)
-                    {
-                        break;
-                    }
-                }
-            }
-            
-            if(quitar)
-            {
-                for(var i=0; i<$scope.etiquetaF.length; i++)
-                {
-                    if($scope.etiquetaF[i].EtiquetaId == $scope.borrarDiario.Etiqueta[k].EtiquetaId)
-                    {
-                        $scope.etiquetaF.splice(i,1);
-                        break;
-                    }
-                }
-            }
-        }
-        
-        for(var k=0; k<$scope.borrarDiario.Tema.length; k++)
-        {
-            quitar = true;
-            
-            for(var i=0; i<$scope.fecha.length; i++)
-            {
-                for(var j=0; j<$scope.fecha[i].Diario.length; j++)
-                {
-                    for(var m=0; m<$scope.fecha[i].Diario[j].Tema.length; m++)
-                    {
-                        if($scope.borrarDiario.Tema[k].TemaActividadId == $scope.fecha[i].Diario[j].Tema[m].TemaActividadId)
-                        {
-                            quitar = false;
-                            break;
-                        }
-                    }
-                    if(!quitar)
-                    {
-                        break;
-                    }
-                }
-            }
-            
-            if(quitar)
-            {
-                for(var i=0; i<$scope.temaF.length; i++)
-                {
-                    if($scope.temaF[i].TemaActividadId == $scope.borrarDiario.Tema[k].TemaActividadId)
-                    {
-                        $scope.temaF.splice(i,1);
-                        break;
-                    }
-                }
-            }
-        }
     };
     
     /*----------------------- Usuario logeado --------------------------*/
@@ -1730,14 +1435,14 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Mi Diario")
+            if($scope.usuarioLogeado.Aplicacion != "Mis Notas")
             {
                 $rootScope.IrPaginaPrincipal();
             }
             else
             {
                 $rootScope.UsuarioId = $scope.usuarioLogeado.UsuarioId;
-                $scope.GetDiario();
+                $scope.GetNotas();
                 $scope.GetTemaActividad();
                 $scope.GetEtiqueta();
             }
@@ -1784,20 +1489,20 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     {
         if(alerta == "Modal")
         {
-            $("#alertaExitosoDiario").alert();
+            $("#alertaExitosoNota").alert();
 
-            $("#alertaExitosoDiario").fadeIn();
+            $("#alertaExitosoNota").fadeIn();
             setTimeout(function () {
-                $("#alertaExitosoDiario").fadeOut();
+                $("#alertaExitosoNota").fadeOut();
             }, 2000);
         }
         else if('Vista')
         {
-            $("#alertaEditarExitosoDiario").alert();
+            $("#alertaEditarExitosoNota").alert();
 
-            $("#alertaEditarExitosoDiario").fadeIn();
+            $("#alertaEditarExitosoNota").fadeIn();
             setTimeout(function () {
-                $("#alertaEditarExitosoDiario").fadeOut();
+                $("#alertaEditarExitosoNota").fadeOut();
             }, 2000);
         }
     };

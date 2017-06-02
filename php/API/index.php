@@ -30,6 +30,8 @@
 
     require 'Diario/Diario.php';
 
+    require 'Notas/Notas.php';
+
     /*-----Seguridad-----*/
     require 'PHP-JWT/Authentication/JWT.php';
     require 'PHP-JWT/Exceptions/SignatureInvalidException.php';
@@ -329,6 +331,7 @@
 
     $app->get('/GetEtiquetaPorActividad/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorActividad');
     $app->get('/GetTemaPorActividad/:id', $seguridad, $ChecarSesion, 'GetTemaPorActividad');
+    $app->get('/GetFechaActividad/:id', $seguridad, $ChecarSesion, 'GetFechaActividad');
 
     /*-----------------------  Evento Actividad ------------------------------------------*/
     $app->get('/GetEventoActividad/:id', $seguridad, $ChecarSesion, 'GetEventoActividad');
@@ -338,7 +341,11 @@
 
     $app->get('/GetPersonaEventoActividad/:id', $seguridad, $ChecarSesion, 'GetPersonaEventoActividad');
 
-    /*-----------------------  Actividad ------------------------------------------*/
+    
+
+    //---------------------------------------------------------------------------------------------------------------Actividades
+
+    /*-----------------------  Diario ------------------------------------------*/
     $app->get('/GetDiario/:id', $seguridad, $ChecarSesion, 'GetDiario');
     $app->post('/AgregarDiario', $seguridad, $ChecarSesion, 'AgregarDiario');
     $app->put('/EditarDiario', $seguridad, $ChecarSesion, 'EditarDiario');
@@ -346,7 +353,20 @@
 
     $app->get('/GetEtiquetaPorDiario/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorDiario');
     $app->get('/GetTemaPorDiario/:id', $seguridad, $ChecarSesion, 'GetTemaPorDiario');
-    $app->get('/GetFechaActividad/:id', $seguridad, $ChecarSesion, 'GetFechaActividad');
+
+    //---------------------------------------------------------------------------------------------------------------Notas
+
+    /*-----------------------  Diario ------------------------------------------*/
+    $app->get('/GetNotas/:id', $seguridad, $ChecarSesion, 'GetNotas');
+    $app->post('/GetNotasPorId', $seguridad, $ChecarSesion, 'GetNotasPorId');
+    $app->post('/AgregarNota', $seguridad, $ChecarSesion, 'AgregarNota');
+    $app->put('/EditarNota', $seguridad, $ChecarSesion, 'EditarNota');
+    $app->delete('/BorrarNota', $seguridad, $ChecarSesion, 'BorrarNota');
+
+    $app->get('/GetEtiquetaPorNota/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorNota');
+    $app->get('/GetTemaPorNota/:id', $seguridad, $ChecarSesion, 'GetTemaPorNota');
+    $app->post('/GetNotasFiltro', $seguridad, $ChecarSesion, 'GetNotasFiltro');
+
 
     $app->run(); 
 

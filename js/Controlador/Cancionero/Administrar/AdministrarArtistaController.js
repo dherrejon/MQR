@@ -44,7 +44,7 @@ app.controller("AdministrarArtistaController", function($scope, $window, $http, 
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "GuitarApp")
+            if($scope.usuarioLogeado.Aplicacion != "GuitaraBit")
             {
                 $rootScope.IrPaginaPrincipal();
             }
