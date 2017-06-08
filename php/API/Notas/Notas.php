@@ -178,12 +178,19 @@ function GetNotasFiltro()
     }
     else
     {
-        $sql = "SELECT n.NotaId, n.Titulo FROM Nota n";
+        $sql = "SELECT n.NotaId, n.Titulo FROM Nota n WHERE UsuarioId = ".$filtro->usuarioId;
     }
     
     if($filtro->fecha != "")
     {
-        $sql .= " WHERE Fecha = '". $filtro->fecha."'";
+        if($numEtiqueta > 0 || $numTema > 0)
+        {
+            $sql .= " WHERE  Fecha = '". $filtro->fecha."'";
+        }
+        else
+        {
+            $sql .= " AND  Fecha = '". $filtro->fecha."'";
+        }
     }
     
     try 
@@ -468,7 +475,7 @@ function EditarNota()
          $sql = "UPDATE Cancion SET Titulo = :Titulo WHERE CancionId = ".$cancion->CancionId;
     }*/
 
-    $sql = "UPDATE Nota SET Fecha = :Fecha, Notas = :Notas, Titulo= :Titulo WHERE NotaId = ".$nota->NotaId;
+    $sql = "UPDATE Nota SET Notas = :Notas, Titulo= :Titulo WHERE NotaId = ".$nota->NotaId;
     
     try 
     {
@@ -477,7 +484,6 @@ function EditarNota()
         $stmt = $db->prepare($sql);
         
         $stmt->bindParam("Notas", $nota->Notas);
-        $stmt->bindParam("Fecha", $nota->Fecha);
         $stmt->bindParam("Titulo", $nota->Titulo);
 
         $stmt->execute();

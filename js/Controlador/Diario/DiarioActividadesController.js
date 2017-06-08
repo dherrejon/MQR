@@ -206,10 +206,10 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     
     
     //----------- Detalles -------------------
-    $scope.VerDetalles = function(dato, titulo, diario, concepto)
+    $scope.VerDetalles = function(dato, titulo, diario, concepto, entrar)
     {
-        //if(dato != $scope.detalleDato)
-        //{
+        if(dato != $scope.detalleDato || entrar === true)
+        {
             $scope.detalleAgrupado = $scope.agruparDiario;
             $scope.detalleDato = dato;
             $scope.detalleTitulo = titulo;
@@ -229,7 +229,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             {
                 $scope.detalle = $scope.GetDiarioTemas(dato);
             }*/
-        //}
+        }
     };
     
     /*$scope.GetDiarioFecha = function(fecha)
@@ -1288,7 +1288,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                     
                     if($scope.detalleAgrupado == "Fecha")
                     {
-                        $scope.VerDetalles($scope.fecha[k].Fecha, $scope.fecha[k].FechaFormato, $scope.fecha[k].Diario, null);
+                        $scope.VerDetalles($scope.fecha[k].Fecha, $scope.fecha[k].FechaFormato, $scope.fecha[k].Diario, null, true);
                     }
                     
                     break;
@@ -1306,7 +1306,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                 
                 if($scope.detalleAgrupado == "Fecha")
                 {
-                    $scope.VerDetalles($scope.fecha[$scope.fecha.length-1].Fecha, $scope.fecha[$scope.fecha.length-1].FechaFormato, $scope.fecha[$scope.fecha.length-1].Diario, null);
+                    $scope.VerDetalles($scope.fecha[$scope.fecha.length-1].Fecha, $scope.fecha[$scope.fecha.length-1].FechaFormato, $scope.fecha[$scope.fecha.length-1].Diario, null, true);
                 }
                 
             }
@@ -1352,7 +1352,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                             
                             if($scope.detalleAgrupado == "Fecha")
                             {
-                                $scope.VerDetalles($scope.fecha[k].Fecha, $scope.fecha[k].FechaFormato, $scope.fecha[k].Diario, null);
+                                $scope.VerDetalles($scope.fecha[k].Fecha, $scope.fecha[k].FechaFormato, $scope.fecha[k].Diario, null, true);
                             }
                         }
                     }
@@ -1370,7 +1370,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                         
                         if($scope.detalleAgrupado == "Fecha")
                         {
-                            $scope.VerDetalles($scope.fecha[k].Fecha, $scope.fecha[k].FechaFormato, $scope.fecha[k].Diario, null);
+                            $scope.VerDetalles($scope.fecha[k].Fecha, $scope.fecha[k].FechaFormato, $scope.fecha[k].Diario, null, true);
                         }
                         
                         break;
@@ -1388,7 +1388,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                 $scope.fecha.push(fecha);
                 if($scope.detalleAgrupado == "Fecha")
                 {
-                    $scope.VerDetalles($scope.fecha[$scope.fecha.length-1].Fecha, $scope.fecha[$scope.fecha.length-1].FechaFormato, $scope.fecha[$scope.fecha.length-1].Diario, null);
+                    $scope.VerDetalles($scope.fecha[$scope.fecha.length-1].Fecha, $scope.fecha[$scope.fecha.length-1].FechaFormato, $scope.fecha[$scope.fecha.length-1].Diario, null, true);
                 }
             }
         }
@@ -1415,7 +1415,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                              
                             if($scope.temaF[i].TemaActividadId == ndiario.Tema[k].TemaActividadId)
                             {
-                                $scope.VerDetalles(ndiario.Tema[k].Tema, ndiario.Tema[k].Tema, $scope.temaF[i].Diario, "Temas");
+                                $scope.VerDetalles(ndiario.Tema[k].Tema, ndiario.Tema[k].Tema, $scope.temaF[i].Diario, "Temas", true);
                                 break;
                             }
                         }
@@ -1433,7 +1433,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                     {
                         if($scope.temaF[k].TemaActividadId == ndiario.Tema[0].TemaActividadId)
                         {
-                            $scope.VerDetalles(ndiario.Tema[0].Tema, ndiario.Tema[0].Tema, $scope.temaF[k].Diario, "Temas");
+                            $scope.VerDetalles(ndiario.Tema[0].Tema, ndiario.Tema[0].Tema, $scope.temaF[k].Diario, "Temas", true);
                             break;
                         }
                     }
@@ -1462,7 +1462,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                         {
                             if($scope.etiquetaF[i].EtiquetaId == ndiario.Etiqueta[k].EtiquetaId)
                             {
-                                $scope.VerDetalles(ndiario.Etiqueta[k].Nombre, ndiario.Etiqueta[k].Nombre, $scope.etiquetaF[i].Diario, "Etiquetas");
+                                $scope.VerDetalles(ndiario.Etiqueta[k].Nombre, ndiario.Etiqueta[k].Nombre, $scope.etiquetaF[i].Diario, "Etiquetas", true);
                                 break;
                             }
                         }
@@ -1480,7 +1480,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                     {
                         if($scope.etiquetaF[k].EtiquetaId == ndiario.Etiqueta[0].EtiquetaId)
                         {
-                            $scope.VerDetalles(ndiario.Etiqueta[0].Nombre, ndiario.Etiqueta[0].Nombre, $scope.etiquetaF[k].Diario, "Etiquetas");
+                            $scope.VerDetalles(ndiario.Etiqueta[0].Nombre, ndiario.Etiqueta[0].Nombre, $scope.etiquetaF[k].Diario, "Etiquetas", true);
                             break;
                         }
                     }
@@ -1636,7 +1636,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                     {
                         if($scope.temaF[k].Tema == $scope.detalleDato)
                         {
-                            $scope.VerDetalles($scope.temaF[k].Tema, $scope.temaF[k].Tema, $scope.temaF[k].Diario, 'Temas');
+                            $scope.VerDetalles($scope.temaF[k].Tema, $scope.temaF[k].Tema, $scope.temaF[k].Diario, 'Temas', true);
                             break;
                         }
                     }
@@ -1647,7 +1647,7 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
                     {
                         if($scope.etiquetaF[k].Nombre == $scope.detalleDato)
                         {
-                            $scope.VerDetalles($scope.etiquetaF[k].Nombre, $scope.etiquetaF[k].Nombre, $scope.etiquetaF[k].Diario, 'Etiquetas');
+                            $scope.VerDetalles($scope.etiquetaF[k].Nombre, $scope.etiquetaF[k].Nombre, $scope.etiquetaF[k].Diario, 'Etiquetas', true);
                             break;
                         }
                     }

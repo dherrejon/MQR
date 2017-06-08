@@ -1,6 +1,6 @@
-app.controller("NotasController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce)
+app.controller("ConocimientoController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce)
 {   
-    $scope.titulo = "Notas";
+    $scope.titulo = "Conocimiento";
     
     $scope.permiso = false;
     
@@ -35,7 +35,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
     
     //vista
     $scope.detalle = [];
-    $scope.agrupar = "Conceptos";
+    $scope.agrupar = "Titulo";
     $scope.verConcepto = {etiqueta:true, tema:true};
     
     $scope.buscarTituloBarra = "";
@@ -44,7 +44,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
     
     
     //filtro
-    $scope.filtro = {tema:[], etiqueta:[], fecha:"", fechaFormato: "", usuarioId: ""};
+    $scope.filtro = {tema:[], etiqueta:[], fecha:"", fechaFormato: ""};
     
     $scope.buscarTemaFiltro = "";
     $scope.buscarEtiquetaFiltro = "";
@@ -197,9 +197,6 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
     
     $scope.GetNotasFiltro = function(id, tipo)
     {   
-        
-        $scope.filtro.usuarioId = $rootScope.UsuarioId;
-        
         GetNotasFiltro($http, $q, CONFIG, $scope.filtro).then(function(data)
         {
             if(data[0].Estatus == "Exito")
@@ -244,16 +241,16 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
     };
     
     //-----------------------------------Detalles--------------------------------
-    $scope.VerDetalles = function(dato, id ,tipo, entrar)
+    $scope.VerDetalles = function(dato, id ,tipo)
     {
-        if(dato != $scope.datoDetalle || entrar === true)
-        {
+        //if(dato != $scope.datoDetalle)
+        //{
             $scope.datoDetalle = dato;
             $scope.tipoDato = tipo;
             $scope.idDetalle = id;
             
             $scope.GetNotasPorId(id, tipo);
-        }
+        //}
     };
     
     $scope.GetClaseDiario = function(dato)
@@ -423,7 +420,6 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
         weekStart : 0, 
         time: false,
         format: "YYYY-MM-DD",
-        maxDate: new Date()
     });
     
     $scope.AbrirCalendario = function()
@@ -701,7 +697,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
             $scope.ActivarDesactivarTema($scope.nuevaNota.Tema);
             $scope.ActivarDesactivarEtiqueta($scope.nuevaNota.Etiqueta);
             
-            //document.getElementById("fechaNota").value = $scope.nuevaNota.Fecha;
+            document.getElementById("fechaNota").value = $scope.nuevaNota.Fecha;
         }
         
         $('#modalNota').modal('toggle');
@@ -739,7 +735,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
             }
         }
 
-        //document.getElementById("fechaNota").value = $scope.nuevaNota.Fecha;
+        document.getElementById("fechaNota").value = $scope.nuevaNota.Fecha;
     };
     
     $scope.ActivarDesactivarTema = function(tema)
@@ -776,7 +772,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
     
     
     //------ Fecha ---
-    /*$('#fechaNota').bootstrapMaterialDatePicker(
+    $('#fechaNota').bootstrapMaterialDatePicker(
     { 
         weekStart : 0, 
         time: false,
@@ -790,7 +786,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
             $scope.nuevaNota.Fecha = element.value;
             $scope.nuevaNota.FechaFormato = TransformarFecha(element.value);
         });
-    };*/
+    };
     
     //----------- Cerrar
     $scope.CerrarNota = function()
@@ -1235,7 +1231,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
         
         if($scope.tipoDato == "Nota")
         {
-            $scope.VerDetalles(nota.Titulo, nota.NotaId, 'Nota', true);
+            $scope.VerDetalles(nota.Titulo, nota.NotaId, 'Nota');
         }
         else if($scope.tipoDato == "Etiqueta")
         {
@@ -1247,7 +1243,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
                 {
                     if(nota.Etiqueta[k].EtiquetaId == $scope.idDetalle)
                     {
-                        $scope.VerDetalles(nota.Etiqueta[k].Nombre, nota.Etiqueta[k].EtiquetaId, 'Etiqueta', true);
+                        $scope.VerDetalles(nota.Etiqueta[k].Nombre, nota.Etiqueta[k].EtiquetaId, 'Etiqueta');
                         permanece = true;
                         break;
                     }
@@ -1255,7 +1251,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
 
                 if(!permanece)
                 {
-                    $scope.VerDetalles(nota.Etiqueta[0].Nombre, nota.Etiqueta[0].EtiquetaId, 'Etiqueta', true);
+                    $scope.VerDetalles(nota.Etiqueta[0].Nombre, nota.Etiqueta[0].EtiquetaId, 'Etiqueta');
                 }
             }
             else
@@ -1274,7 +1270,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
                 {
                     if(nota.Tema[k].TemaActividadId == $scope.idDetalle)
                     {
-                        $scope.VerDetalles(nota.Tema[k].Tema, nota.Tema[k].TemaActividadId, 'Tema', true);
+                        $scope.VerDetalles(nota.Tema[k].Tema, nota.Tema[k].TemaActividadId, 'Tema');
                         permanece = true;
                         break;
                     }
@@ -1282,7 +1278,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
 
                 if(!permanece)
                 {
-                    $scope.VerDetalles(nota.Tema[0].Tema, nota.Tema[0].TemaActividadId, 'Tema', true);
+                    $scope.VerDetalles(nota.Tema[0].Tema, nota.Tema[0].TemaActividadId, 'Tema');
                 }
             }
             else
@@ -1439,7 +1435,7 @@ app.controller("NotasController", function($scope, $window, $http, $rootScope, m
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Mis Notas")
+            if($scope.usuarioLogeado.Aplicacion != "Mis Conocimientos")
             {
                 $rootScope.IrPaginaPrincipal();
             }

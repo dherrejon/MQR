@@ -36,7 +36,7 @@
 
                     <div class="col-xs-12">
                         <div class="input-group">
-                            <input autofocus type="text" class="buscarTexto form-control" ng-model="buscarActividad" placeholder="Buscar Actividad" id="buscarActividad">
+                            <input autofocus type="text" class="buscarTexto form-control" ng-model="buscarActividad" placeholder="Buscar Actividad" id="buscarActividad" ng-focus="LimpiarFiltroFecha()">
                             <span class="input-group-btn">
                                 <a class="btn limpiarTextoBoton"  ng-click="LimpiarBuscar(1)" type="button"><span class="fa fa-times-circle"></span></a>
                             </span>
@@ -144,7 +144,7 @@
                             <button class="fa fa-ellipsis-v btn botonVacio" data-toggle="dropdown"></button>
 
                             <ul class="dropdown-menu dropdown-menu-right contextMenu">
-                                <button class="col-xs-12 btn botonCM" ng-click="RegistrarEvento('Agregar', actividad, null)"> <span class="fa fa-calendar-check-o "></span> Registrar</button>
+                                <button class="col-xs-12 btn botonCM" ng-click="RegistrarEvento('Agregar', actividad, null)"> <span class="fa fa-calendar-plus-o "></span> Registrar</button>
                                 <button class="col-xs-12 btn botonCM" ng-click="AbrirActividad('Copiar', actividad)"> <span class="fa fa-files-o "></span> Copiar</button>
                                 <button class="col-xs-12 btn botonCM" ng-click="AbrirActividad('Editar', actividad)"> <span class="fa fa-pencil"></span> Editar</button><br>
                                 <button class="col-xs-12 btn botonCM" ng-click="BorrarActividad(actividad)"> <span class="fa fa-minus-circle "></span> Borrar</button>
@@ -194,7 +194,7 @@
                        <div class="pull-right btn-group">
                          
                           <button class="btn  botonDetallesActividad" ng-click="RegistrarEvento('Agregar', detalle, null)">
-                               <b class="fa fa-calendar-check-o" ></b>
+                               <b class="fa fa-calendar-plus-o" ></b>
                            </button>
                           
                             <!-- "context menu" -->
@@ -286,7 +286,7 @@
                 <!-- Eventos Actividades -->
                 <div class="row">
                    <div class="col-xs-12">
-                      <div ng-repeat="evento in eventoActividad | orderBy:'-Fecha' | filter: {Fecha:filtroFecha.Fecha}" >
+                      <div ng-repeat="evento in eventoActividad | orderBy:'-Fecha' " > <!-- | filter: {Fecha:filtroFecha.Fecha} -->
                         
                          <div class="eventoVista {{GetClaseEvento(evento)}}">
                             
@@ -778,7 +778,7 @@
                 <div class="col-xs-12">
                     <span class="tituloModal">Filtrar</span>
                     
-                    <button class="btn botonFiltroBarraLateral pull-right" data-dismiss="modal" aria-label="Close" ng-click="LimpiarBuscarFiltro()">
+                    <button class="btn botonFiltroBarraLateral pull-right" data-dismiss="modal" aria-label="Close" ng-click="BuscarFiltroActividad()">
                         <span>OK</span>
                     </button>
 
@@ -1435,10 +1435,10 @@
 </div>
 
 <!--------------- otros html -------------------->
-<div ng-include=" 'html/Actividades/Administrar/Frecuencia/AgregarFrecuencia.html' "> </div>
-<div ng-include=" 'html/Actividades/Administrar/Lugar/AgregarLugar.html' "> </div>
-<div ng-include=" 'html/Actividades/Administrar/Ciudad/AgregarCiudad.html' "> </div>
-<div ng-include=" 'html/Actividades/Administrar/Unidades/AgregarUnidades.html' "> </div>
-<div ng-include=" 'html/Actividades/Administrar/Unidades/AgregarDivisas.html' "> </div>
+<div ng-if="CargarExterior" ng-include=" 'html/Actividades/Administrar/Frecuencia/AgregarFrecuencia.html' "> </div>
+<div ng-if="CargarExterior" ng-include=" 'html/Actividades/Administrar/Lugar/AgregarLugar.html' "> </div>
+<div ng-if="CargarExterior" ng-include=" 'html/Actividades/Administrar/Ciudad/AgregarCiudad.html' "> </div>
+<div ng-if="CargarExterior" ng-include=" 'html/Actividades/Administrar/Unidades/AgregarUnidades.html' "> </div>
+<div ng-if="CargarExterior" ng-include=" 'html/Actividades/Administrar/Unidades/AgregarDivisas.html' "> </div>
    
     

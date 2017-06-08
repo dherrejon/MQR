@@ -32,6 +32,10 @@
 
     require 'Notas/Notas.php';
 
+    require 'Conocimiento/Conocimiento.php';
+
+    require 'Buscador/Buscador.php';
+
     /*-----Seguridad-----*/
     require 'PHP-JWT/Authentication/JWT.php';
     require 'PHP-JWT/Exceptions/SignatureInvalidException.php';
@@ -343,7 +347,7 @@
 
     
 
-    //---------------------------------------------------------------------------------------------------------------Actividades
+    //---------------------------------------------------------------------------------------------------------------Diario
 
     /*-----------------------  Diario ------------------------------------------*/
     $app->get('/GetDiario/:id', $seguridad, $ChecarSesion, 'GetDiario');
@@ -356,7 +360,7 @@
 
     //---------------------------------------------------------------------------------------------------------------Notas
 
-    /*-----------------------  Diario ------------------------------------------*/
+    /*-----------------------  Notas ------------------------------------------*/
     $app->get('/GetNotas/:id', $seguridad, $ChecarSesion, 'GetNotas');
     $app->post('/GetNotasPorId', $seguridad, $ChecarSesion, 'GetNotasPorId');
     $app->post('/AgregarNota', $seguridad, $ChecarSesion, 'AgregarNota');
@@ -366,6 +370,14 @@
     $app->get('/GetEtiquetaPorNota/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorNota');
     $app->get('/GetTemaPorNota/:id', $seguridad, $ChecarSesion, 'GetTemaPorNota');
     $app->post('/GetNotasFiltro', $seguridad, $ChecarSesion, 'GetNotasFiltro');
+
+    //---------------------------------------------------------------------------------------------------------------Buscador
+
+    /*-----------------------  Notas ------------------------------------------*/
+    $app->post('/GetBuscador', $seguridad, $ChecarSesion, 'GetBuscador');
+
+    $app->post('/GetDiarioPorId', $seguridad, $ChecarSesion, 'GetDiarioPorId');
+    $app->post('/GetActividadPorId', $seguridad, $ChecarSesion, 'GetActividadPorId');
 
 
     $app->run(); 

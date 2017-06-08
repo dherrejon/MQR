@@ -55,6 +55,22 @@ function SetDiario(data)
          diario.NotasHTML = "";
     }
     
+    if(data.Etiqueta !== null && data.Etiqueta !== undefined )
+    {
+        for(var k=0; k<data.Etiqueta.length; k++)
+        {
+            diario.Etiqueta[k] = data.Etiqueta[k];
+        }
+    }
+    
+    if(data.Tema !== null && data.Tema !== undefined )
+    {
+        for(var k=0; k<data.Tema.length; k++)
+        {
+            diario.Tema[k] = data.Tema[k];
+        }
+    }
+    
     return diario;
 }
 

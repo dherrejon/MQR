@@ -30,6 +30,8 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     $scope.frecuenciaF = [];
     $scope.etiquetaF = [];
     
+    $rootScope.CargarExterior = false;
+    
     $scope.buscarActividad = "";
     $scope.detalle = new Actividad();
     $scope.verDetalle = false;
@@ -318,7 +320,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     };
     
     //----------- Detalles -------------------
-    $scope.VerDetalles = function(actividad)
+    $scope.VerDetalles = function(actividad, editar)
     {
         if(actividad.ActividadId != $scope.detalle.ActividadId)
         {
@@ -333,7 +335,10 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         
             $scope.eventoActividad = [];
             $scope.GetEventoActividad(actividad.ActividadId);
-            
+        }
+        else if(editar == true)
+        {
+            $scope.detalle = actividad;
         }
         
     };
@@ -887,6 +892,11 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         });
     };
     
+    $scope.BuscarFiltroActividad = function()
+    {
+        $scope.LimpiarBuscarFiltro();
+        $scope.LimpiarFiltroFecha();
+    };
     
     /*-----------------Abrir Panel Agregar-Editar termino-------------------*/
     $scope.AbrirActividad = function(operacion, actividad)
@@ -1600,6 +1610,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         if($scope.operacion == "Agregar" || $scope.operacion == "Copiar")
         {
             var index = $scope.actividad.length;
+            nact[0].Fecha = [];
             $scope.actividad[index] = nact[0];
             $scope.VerDetalles($scope.actividad[index]);
         }
@@ -1610,7 +1621,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
                 if($scope.actividad[k].ActividadId == actividad.ActividadId)
                 {
                     $scope.actividad[k] = nact[0];
-                    $scope.VerDetalles($scope.actividad[k]);
+                    $scope.VerDetalles($scope.actividad[k], true);
                     break;
                 }
             }
@@ -1870,6 +1881,7 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             }
             else
             {
+                $rootScope.CargarExterior = true;
                 $rootScope.UsuarioId = $scope.usuarioLogeado.UsuarioId;
                 $scope.GetActividad();
                 $scope.GetTemaActividad();
@@ -2383,16 +2395,91 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         {
             var nuevoEvento = $scope.SetEvento(evento);
             $scope.eventoActividad.push(nuevoEvento);
+            
+            for(var k=0; k<$scope.actividad.length; k++)
+            {
+                if($scope.actividad[k].ActividadId == nuevoEvento.ActividadId)
+                {
+                    var fecha = new Object();
+                    fecha.ActividadId = nuevoEvento.ActividadId;
+                    fecha.Fecha = nuevoEvento.Fecha;
+                    
+                    $scope.actividad[k].Fecha.push(fecha);
+                    break;
+                }
+            }
         }
         else if($scope.operacion == "Editar")
         {
+            var quitarFecha = true; //Eliminar fecha de la actividad
+            var agregarFecha = true; //Agregar fecha de la actividad
+            var fechaEliminar = "";
+            
             for(var k=0; k<$scope.eventoActividad.length; k++)
             {
                 if($scope.eventoActividad[k].EventoActividadId == evento.EventoActividadId)
                 {
+                    //operaciones de fechas
+                    if($scope.eventoActividad[k].Fecha != evento.Fecha)
+                    {
+                        fechaEliminar = $scope.eventoActividad[k].Fecha;
+                        for(var i=0; i<$scope.eventoActividad.length; i++)
+                        {
+                            //Validar si la fecha del evento actual existe en otros eventos
+                            if(k!=i && $scope.eventoActividad[k].Fecha == $scope.eventoActividad[i].Fecha)
+                            {
+                                quitarFecha = false;
+                                if(!quitarFecha)
+                                {
+                                    break;
+                                }
+                            }
+                            //Validar que la nueva fecha no exita en otros 
+                            if($scope.eventoActividad[i].Fecha == evento.Fecha)
+                            {
+                                agregarFecha = false;
+                                if(!quitarFecha)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                                    
                     $scope.eventoActividad[k] = $scope.SetEvento(evento);
                     
                     break;
+                }
+            }
+            
+            if(agregarFecha || quitarFecha)
+            {
+                for(var k=0; k<$scope.actividad.length; k++)
+                {
+                    if($scope.actividad[k].ActividadId == evento.ActividadId)
+                    {
+                        if(agregarFecha)
+                        {
+                           var nfecha = new Object();
+                            nfecha.ActividadId = evento.ActividadId;
+                            nfecha.Fecha = evento.Fecha;
+
+                            $scope.actividad[k].Fecha.push(nfecha);
+                        }
+
+                        if(quitarFecha)
+                        {
+                            for(var j=0; j<$scope.actividad[k].Fecha.length; j++)
+                            {
+                                if($scope.actividad[k].Fecha[j].Fecha == fechaEliminar)
+                                {
+                                    $scope.actividad[k].Fecha.splice(j,1);
+                                    break;
+                                }
+                            }
+                        }    
+                        break;
+                    }
                 }
             }
         }

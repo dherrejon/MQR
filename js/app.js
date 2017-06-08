@@ -143,6 +143,17 @@ app.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpPro
             templateUrl: 'html/Notas/Notas.html'
         }).
     
+    //Conocimiento
+        when('/Conocimiento',{
+            templateUrl: 'html/Conocimiento/Conocimiento.html'
+        }).
+    
+    //Buscador
+        when('/Buscador',{
+            templateUrl: 'html/Buscador/Buscador.html'
+        }).
+    
+    
     otherwise({
         templateUrl: 'html/Login.html'
     });

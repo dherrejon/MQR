@@ -79,17 +79,20 @@ app.controller("AplicacionController", function($scope, $window, $http, $rootSco
 });
 
 var aplicaciones = [
-                        {texto:"LifeaBit", habilitada:false,   icono:"fa fa-cog", grupo:"Inicio", isGrupo:true},
+                        {texto:"Life@Bit", habilitada:false,   icono:"fa fa-cog", grupo:"Inicio", isGrupo:true},
 
-                        {texto:"Mis Actividades", habilitada:false, paginaPrincipal:"/Actividades",   icono:"fa fa-calendar", grupo:"LifeaBit", isGrupo:false},
-                        {texto:"Mi Diario", habilitada:false, paginaPrincipal:"/Diario", icono:"fa fa-clock-o", grupo:"LifeaBit", isGrupo:false},
+                        {texto:"Mis Actividades", habilitada:false, paginaPrincipal:"/Actividades",   icono:"fa fa-calendar", grupo:"Life@Bit", isGrupo:false},
+                        {texto:"Mi Buscador", habilitada:false, paginaPrincipal:"/Buscador",   icono:"fa fa-search", grupo:"Life@Bit", isGrupo:false},
+                        {texto:"Mis Conocimientos", habilitada:false, paginaPrincipal:"/Conocimiento", icono:"fa fa-book", grupo:"Life@Bit", isGrupo:false},
+                        {texto:"Mi Diario", habilitada:false, paginaPrincipal:"/Diario", icono:"fa fa-clock-o", grupo:"Life@Bit", isGrupo:false},
 
                         {texto:"GuitaraBit", habilitada:false, paginaPrincipal:"/Cancionero", icono:"fa fa-music", grupo:"MQRSYS", isGrupo:false},
                         {texto:"WikiMario", habilitada:false, paginaPrincipal:"/Informacion", icono:"fa fa-book", grupo:"MQRSYS", isGrupo:false},
     
-                        {texto:"Mis Notas", habilitada:false, paginaPrincipal:"/Notas", icono:"fa fa-sticky-note", grupo:"LifeaBit", isGrupo:false},
+                        {texto:"Mis Notas", habilitada:false, paginaPrincipal:"/Notas", icono:"fa fa-sticky-note", grupo:"Life@Bit", isGrupo:false},
     
                         {texto:"MQRSYS", habilitada:false,   icono:"fa fa-cog", grupo:"Inicio", isGrupo:true},
+                        
                     ];
 
 app.factory('APLICACION',function($rootScope)

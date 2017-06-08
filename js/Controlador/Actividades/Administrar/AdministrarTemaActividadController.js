@@ -44,7 +44,7 @@ app.controller("AdministrarTemaActividadController", function($scope, $window, $
         $scope.ValidarPermiso();
         if($scope.permiso)
         {
-            if($scope.usuarioLogeado.Aplicacion != "Mis Actividades" && $scope.usuarioLogeado.Aplicacion != "Mi Diario" && $scope.usuarioLogeado.Aplicacion != "Mis Notas")
+            if($scope.usuarioLogeado.Aplicacion != "Mis Actividades" && $scope.usuarioLogeado.Aplicacion != "Mi Diario" && $scope.usuarioLogeado.Aplicacion != "Mis Notas" && $scope.usuarioLogeado.Aplicacion != "Mis Conocimientos")
             {
                 $rootScope.IrPaginaPrincipal();
             }

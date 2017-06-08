@@ -415,9 +415,9 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
     {
         switch(e.which) {
             case 13:
-               var index = $scope.buscarConcepto.indexOf(" ");
+                var index = $scope.buscarConcepto.indexOf(" ");
                
-               if(index == -1)
+                if(index == -1)
                 {
                     $scope.buscarEtiqueta = $scope.buscarConcepto;
                     $scope.AgregarEtiquetaFiltro();
@@ -428,7 +428,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                     $scope.AgregarTemaFiltro();
                 }
                
-              break;
+                break;
 
             default:
                 return;
@@ -605,7 +605,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 }
                 else
                 {
-                    $scope.buscarTema = "";
+                    $scope.buscarConcepto = "";
                     
                 }
                 $scope.$apply();
