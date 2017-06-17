@@ -7,7 +7,7 @@ function GetNotas($id)
 
     $request = \Slim\Slim::getInstance()->request();
 
-    $sql = "SELECT NotaId, Titulo FROM Nota WHERE UsuarioId = ".$id;
+    $sql = "SELECT NotaId, Titulo, FechaModificacion FROM Nota WHERE UsuarioId = ".$id;
 
     try 
     {
@@ -102,6 +102,29 @@ function GetNotasPorId()
                 $app->status(409);
                 $app->stop();
             }
+            
+            $sql = "SELECT ImagenId, Imagen, Nombre, Extension, Size FROM ImagenNotaVista WHERE NotaId = ".$nota[$k]->NotaId;
+            
+            try 
+            {
+                $stmt = $db->query($sql);
+                
+                $response = $stmt->fetchAll(PDO::FETCH_OBJ);
+                
+                foreach ($response as $aux) 
+                {
+                    $aux->Imagen =  base64_encode($aux->Imagen);
+                }
+                
+                $nota[$k]->Imagen = $response;
+            } 
+            catch(PDOException $e) 
+            {
+                //echo($e);
+                echo '[ { "Estatus": "Fallo" } ]';
+                $app->status(409);
+                $app->stop();
+            }
         }
     }
     
@@ -150,7 +173,7 @@ function GetNotasFiltro()
     
     if($numEtiqueta > 0 && $numTema > 0)
     {
-         $sql = "SELECT n.NotaId, n.Titulo FROM Nota n
+         $sql = "SELECT n.NotaId, n.Titulo, n.FechaModificacion FROM Nota n
                     INNER JOIN (
                     
                     SELECT e.NotaId FROM EtiquetaNotaVista e   
@@ -163,14 +186,14 @@ function GetNotasFiltro()
     {
         if($numEtiqueta > 0)
         {
-            $sql = "SELECT n.NotaId, n.Titulo FROM Nota n 
+            $sql = "SELECT n.NotaId, n.Titulo, n.FechaModificacion FROM Nota n 
                     INNER JOIN (
                         SELECT e.NotaId FROM EtiquetaNotaVista e WHERE e.EtiquetaId in ".$whereEtiqueta." GROUP BY e.NotaId HAVING count(*) = ".$numEtiqueta."
                     ) x ON x.NotaId = n.NotaId";
         }
         else if($numTema > 0)
         {
-            $sql = "SELECT n.NotaId, n.Titulo FROM Nota n
+            $sql = "SELECT n.NotaId, n.Titul, n.FechaModificaciono FROM Nota n
                     INNER JOIN (
                         SELECT t.NotaId FROM TemaNotaVista t WHERE t.TemaActividadId in ".$whereTema." GROUP BY t.NotaId HAVING count(*) = ".$numTema."
                     ) x ON x.NotaId = n.NotaId";
@@ -178,7 +201,7 @@ function GetNotasFiltro()
     }
     else
     {
-        $sql = "SELECT n.NotaId, n.Titulo FROM Nota n WHERE UsuarioId = ".$filtro->usuarioId;
+        $sql = "SELECT n.NotaId, n.Titulo, n.FechaModificacion FROM Nota n WHERE UsuarioId = ".$filtro->usuarioId;
     }
     
     if($filtro->fecha != "")
@@ -269,26 +292,10 @@ function GetNotasFiltro()
 function AgregarNota()
 {
     $request = \Slim\Slim::getInstance()->request();
-    $nota = json_decode($request->getBody());
+    $nota = json_decode($_POST['nota']);
     global $app;
-    
-    //$cancion = json_decode($_POST['cancion']);
-    
-    /*if($_FILES['file']['error'] == 0)
-    {
-        $name = $_FILES['file']['name'];
 
-        $archivo = addslashes(file_get_contents($_FILES['file']['tmp_name']));
-        
-         $sql = "INSERT INTO Cancion (UsuarioId, Titulo, Cancionero, NombreArchivo) VALUES(:UsuarioId, :Titulo, '".$archivo."', :NombreArchivo)";
-    }
-    else
-    {
-        echo '[ { "Estatus": "No se puedo leer el archivo" } ]';
-        $app->stop();
-    }*/
-
-    $sql = "INSERT INTO Nota (UsuarioId, Notas, Fecha, Titulo) VALUES(:UsuarioId, :Notas, :Fecha, :Titulo)";
+    $sql = "INSERT INTO Nota (UsuarioId, Notas, Fecha, Titulo,  Observacion, FechaModificacion) VALUES(:UsuarioId, :Notas, :Fecha, :Titulo, :Observacion, NOW())";
     
     try 
     {
@@ -300,6 +307,7 @@ function AgregarNota()
         $stmt->bindParam("Fecha", $nota->Fecha);
         $stmt->bindParam("Notas", $nota->Notas);
         $stmt->bindParam("Titulo", $nota->Titulo);
+        $stmt->bindParam("Observacion", $nota->Observacion);
 
         $stmt->execute();
         
@@ -314,6 +322,121 @@ function AgregarNota()
         $db->rollBack();
         $app->status(409);
         $app->stop();
+    }
+    
+    $countFile = 0;
+    if($nota->AgregarImagen > 0)
+    {
+        $countFile = count($_FILES['file']['name']);
+    }
+        
+    $count= 0;
+    $imagenId = [];
+    if($countFile > 0)
+    {
+            
+        for($k=0; $k<$countFile; $k++)
+        {
+            if($_FILES['file']['error'][$k] == 0)
+            {
+                $count++;
+                
+                $name = $_FILES['file']['name'][$k];
+                $size = $_FILES['file']['size'][$k];
+                $ext = pathinfo($name, PATHINFO_EXTENSION);
+                $imagen = addslashes(file_get_contents($_FILES['file']['tmp_name'][$k]));
+                
+                $sql = "INSERT INTO Imagen (Imagen, Nombre, Extension, Size, UsuarioId) VALUES ('".$imagen."', '".$name."', '".$ext."', ".$size.", ".$nota->UsuarioId.")";
+                
+                try 
+                {
+                    $stmt = $db->prepare($sql);                
+                    $stmt->execute();
+                    
+                    $imagenId[$k]  = $db->lastInsertId();
+                } 
+                catch(PDOException $e) 
+                {
+                    echo '[{"Estatus": "Fallo"}]';
+                    echo $sql;
+                    $db->rollBack();
+                    $app->status(409);
+                    $app->stop();
+                }
+            }
+            else
+            {
+                $imagenId[$k] = 0;
+            }
+            
+        }
+        
+        
+        if($count > 0)
+        {
+            $sql = "INSERT INTO ImagenPorNota (NotaId, ImagenId) VALUES";
+            
+            //Imagen de la nota
+            for($k=0; $k<$countFile; $k++)
+            {
+                if($imagenId[$k] != 0)
+                {
+                    $sql .= " (".$notaId.", ".$imagenId[$k]."),";
+                }
+            }
+
+            $sql = rtrim($sql,",");
+
+            try 
+            {
+                $stmt = $db->prepare($sql);
+                $stmt->execute();
+
+            } 
+            catch(PDOException $e) 
+            {
+                echo '[{"Estatus": "Fallo"}]';
+                echo $sql;
+                $db->rollBack();
+                $app->status(409);
+                $app->stop();
+            }
+        }
+    }
+    
+     $countImg = count($nota->Imagen);
+    
+    if($countImg>0)  
+    {    
+        $sql = "INSERT INTO ImagenPorNota (NotaId, ImagenId) VALUES";
+        
+        $count = 0;
+        for($k=0; $k<$countImg; $k++)
+        {
+            if(!$nota->Imagen[$k]->Eliminada)
+            {
+                $count++;
+                $sql .= " (".$notaId.", ".$nota->Imagen[$k]->ImagenId."),";
+            }
+        }
+        if($count > 0)
+        {
+            $sql = rtrim($sql,",");
+
+            try 
+            {
+                $stmt = $db->prepare($sql);
+                $stmt->execute();
+            } 
+            catch(PDOException $e) 
+            {
+                echo '[{"Estatus": "Fallo"}]';
+                echo $e;
+                $db->rollBack();
+                $app->status(409);
+                $app->stop();
+            }
+        }
     }
     
     $countTema = count($nota->Tema);
@@ -448,34 +571,14 @@ function AgregarNota()
 
 function EditarNota()
 {
-    $request = \Slim\Slim::getInstance()->request();
-    $nota = json_decode($request->getBody());
     global $app;
+    $request = \Slim\Slim::getInstance()->request();
+
+    $nota = json_decode($_POST['nota']);
     
     //$cancion = json_decode($_POST['cancion']);
     
-    /*if($cancion->ArchivoSeleccionado)
-    {
-        if($_FILES['file']['error'] == 0)
-        {
-            $name = $_FILES['file']['name'];
-
-            $archivo = addslashes(file_get_contents($_FILES['file']['tmp_name']));
-
-             $sql = "UPDATE Cancion SET Titulo = :Titulo, Cancionero = '".$archivo."', NombreArchivo = '".$cancion->NombreArchivo."' WHERE CancionId = ".$cancion->CancionId;
-        }
-        else
-        {
-            echo '[ { "Estatus": "No se puedo leer el archivo" } ]';
-            $app->stop();
-        }
-    }
-    else
-    {
-         $sql = "UPDATE Cancion SET Titulo = :Titulo WHERE CancionId = ".$cancion->CancionId;
-    }*/
-
-    $sql = "UPDATE Nota SET Notas = :Notas, Titulo= :Titulo WHERE NotaId = ".$nota->NotaId;
+    $sql = "UPDATE Nota SET Notas = :Notas, Titulo= :Titulo, Fecha = :Fecha, Observacion = :Observacion, FechaModificacion = NOW() WHERE NotaId = ".$nota->NotaId;
     
     try 
     {
@@ -485,6 +588,8 @@ function EditarNota()
         
         $stmt->bindParam("Notas", $nota->Notas);
         $stmt->bindParam("Titulo", $nota->Titulo);
+        $stmt->bindParam("Fecha", $nota->Fecha);
+        $stmt->bindParam("Observacion", $nota->Observacion);
 
         $stmt->execute();
 
@@ -528,7 +633,164 @@ function EditarNota()
         $app->status(409);
         $app->stop();
     }
+    
+    $sql = "DELETE FROM ImagenPorNota WHERE NotaId =".$nota->NotaId;
+    try 
+    {
+        $stmt = $db->prepare($sql); 
+        $stmt->execute(); 
+        
+    } 
+    catch(PDOException $e) 
+    {
+        echo '[ { "Estatus": "Fallo" } ]';
+        //echo $e;
+        $db->rollBack();
+        $app->status(409);
+        $app->stop();
+    }
+    
+    /*$countImagen = count($nota->Imagen);
+    
+    for($k=0; $k<$countImagen; $k++)
+    {
+        if($nota->Imagen[$k]->Eliminada == true)
+        {
+            $sql = "DELETE FROM ImagenPorNota WHERE NotaId = ".$nota->NotaId. " AND ImagenId = ".$nota->Imagen[$k]->ImagenId;
+            try 
+            {
+                $stmt = $db->prepare($sql); 
+                $stmt->execute(); 
 
+            } 
+            catch(PDOException $e) 
+            {
+                echo '[ { "Estatus": "Fallo" } ]';
+                //echo $e;
+                $db->rollBack();
+                $app->status(409);
+                $app->stop();
+            }
+        }
+    }*/
+    
+    $countFile = 0;
+    if($nota->AgregarImagen > 0)
+    {
+        $countFile = count($_FILES['file']['name']);
+    }
+        
+    $count= 0;
+    $imagenId = [];
+    if($countFile > 0)
+    {
+            
+        for($k=0; $k<$countFile; $k++)
+        {
+            if($_FILES['file']['error'][$k] == 0)
+            {
+                $count++;
+                
+                $name = $_FILES['file']['name'][$k];
+                $size = $_FILES['file']['size'][$k];
+                $ext = pathinfo($name, PATHINFO_EXTENSION);
+                $imagen = addslashes(file_get_contents($_FILES['file']['tmp_name'][$k]));
+                
+                $sql = "INSERT INTO Imagen (Imagen, Nombre, Extension, Size, UsuarioId) VALUES ('".$imagen."', '".$name."', '".$ext."', ".$size.", ".$nota->UsuarioId.")";
+                
+                try 
+                {
+                    $stmt = $db->prepare($sql);                
+                    $stmt->execute();
+                    
+                    $imagenId[$k]  = $db->lastInsertId();
+                } 
+                catch(PDOException $e) 
+                {
+                    echo '[{"Estatus": "Fallo"}]';
+                    echo $sql;
+                    $db->rollBack();
+                    $app->status(409);
+                    $app->stop();
+                }
+            }
+            else
+            {
+                $imagenId[$k] = 0;
+            }
+            
+        }
+        
+        
+        if($count > 0)
+        {
+            $sql = "INSERT INTO ImagenPorNota (NotaId, ImagenId) VALUES";
+            
+            //Imagen de la nota
+            for($k=0; $k<$countFile; $k++)
+            {
+                if($imagenId[$k] != 0)
+                {
+                    $sql .= " (".$nota->NotaId.", ".$imagenId[$k]."),";
+                }
+            }
+
+            $sql = rtrim($sql,",");
+
+            try 
+            {
+                $stmt = $db->prepare($sql);
+                $stmt->execute();
+
+            } 
+            catch(PDOException $e) 
+            {
+                echo '[{"Estatus": "Fallo"}]';
+                echo $sql;
+                $db->rollBack();
+                $app->status(409);
+                $app->stop();
+            }
+        }
+    }
+    
+    
+    $countImg = count($nota->Imagen);
+    
+    if($countImg>0)  
+    {    
+        $sql = "INSERT INTO ImagenPorNota (NotaId, ImagenId) VALUES";
+        
+        $count = 0;
+        /*Artista de cancion*/
+        for($k=0; $k<$countImg; $k++)
+        {
+            if(!$nota->Imagen[$k]->Eliminada)
+            {
+                $count++;
+                $sql .= " (".$nota->NotaId.", ".$nota->Imagen[$k]->ImagenId."),";
+            }
+        }
+        if($count > 0)
+        {
+            $sql = rtrim($sql,",");
+
+            try 
+            {
+                $stmt = $db->prepare($sql);
+                $stmt->execute();
+
+            } 
+            catch(PDOException $e) 
+            {
+                echo '[{"Estatus": "Fallo"}]';
+                echo $e;
+                $db->rollBack();
+                $app->status(409);
+                $app->stop();
+            }
+        }
+    }
     
     $countTema = count($nota->Tema);
     

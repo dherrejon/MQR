@@ -148,7 +148,7 @@ function EditarCancion($http, CONFIG, $q, cancion)
             q.resolve(status);
 
      }); 
-    return q.promise
+    return q.promise;
 }
 
 function BorrarCancion($http, CONFIG, $q, id)

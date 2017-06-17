@@ -14,9 +14,9 @@ function GetBuscador($http, $q, CONFIG, filtro)
         }).error(function(data, status){
             q.resolve([]);
      }); 
+    
     return q.promise;
 }
-
 
 function GetDiarioPorId($http, $q, CONFIG, datos)     
 {

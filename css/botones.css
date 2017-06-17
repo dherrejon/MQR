@@ -16,8 +16,9 @@
 /*-----------Modales-------------------*/
 .botonFinModal, .botonFinModal:focus, .botonFinModal:active
 {
-    border: 2px solid rgb(41,69,77); 
-    color:  rgb(41,69,77); 
+    border: 2px solid #1859b2;
+    border-radius: 0px;
+    color:  #1859b2; 
     background: #F1F1F1;
     font-size: 18px;
     
@@ -27,9 +28,14 @@
 
 .botonFinModal:hover
 {
-    border: 2px solid rgb(41,69,77); 
+    border: 2px solid #1859b2;
     color: #F1F1F1;
-    background: rgb(41,69,77); 
+    background: #1859b2;
+}
+
+.botonFinModal:disabled
+{
+    background: rgb(234, 234, 234);
 }
 
 .cerrarModal, .cerrarModal:focus, .cerrarModal:active

@@ -1588,6 +1588,8 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         });
     };
     
+    
+    
     $scope.LimpiarBuscar = function(buscar)
     {
         switch(buscar)

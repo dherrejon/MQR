@@ -36,6 +36,8 @@
 
     require 'Buscador/Buscador.php';
 
+    require 'Imagen/Imagen.php';
+
     /*-----Seguridad-----*/
     require 'PHP-JWT/Authentication/JWT.php';
     require 'PHP-JWT/Exceptions/SignatureInvalidException.php';
@@ -364,7 +366,7 @@
     $app->get('/GetNotas/:id', $seguridad, $ChecarSesion, 'GetNotas');
     $app->post('/GetNotasPorId', $seguridad, $ChecarSesion, 'GetNotasPorId');
     $app->post('/AgregarNota', $seguridad, $ChecarSesion, 'AgregarNota');
-    $app->put('/EditarNota', $seguridad, $ChecarSesion, 'EditarNota');
+    $app->post('/EditarNota', $seguridad, $ChecarSesion, 'EditarNota');
     $app->delete('/BorrarNota', $seguridad, $ChecarSesion, 'BorrarNota');
 
     $app->get('/GetEtiquetaPorNota/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorNota');
@@ -378,6 +380,11 @@
 
     $app->post('/GetDiarioPorId', $seguridad, $ChecarSesion, 'GetDiarioPorId');
     $app->post('/GetActividadPorId', $seguridad, $ChecarSesion, 'GetActividadPorId');
+    
+
+    //---------------------------------------------------------------------------------------------------------------Imagenes  
+    /*-----------------------  Imagenes ------------------------------------------*/
+    $app->post('/GetGaleriaFotos', $seguridad, $ChecarSesion, 'GetGaleriaFotos');
 
 
     $app->run(); 
