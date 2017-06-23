@@ -110,7 +110,7 @@ function AgregarUsuario()
     //Enviar Correo
     $to= $usuario->Correo;
     $subject_message = "Bienvenido al Sistema MQR.";
-    $body_message = "Ya puedes acceder al Sistema MQR (http://mqrsys.com/). Tu usuario y " .utf8_decode("contraseña"). " son los siguientes:";
+    $body_message = "Ya puedes acceder a Lifeabit (http://lifeabit.com/). Tu usuario y " .utf8_decode("contraseña"). " son los siguientes:";
     $body_message .= "\n\n";
     $body_message .="Usario: ". $usuario->Correo;
     $body_message .= "\n  ".utf8_decode("contraseña").": ". $password;
@@ -373,7 +373,7 @@ function RecuperarPassword()
     $subject_message = "Recuperar contraseña";
     $body_message = "Accede al enlace especificado para que puedas reiniciar tu " .utf8_decode("contraseña");
     $body_message .= "\n\n";
-    $body_message .="Enlace: http://mqrsys.com/#/RecuperarPassword/".$response[0]->UsuarioId."/".$codigo;
+    $body_message .="Enlace: http://lifeabit.com/#/RecuperarPassword/".$response[0]->UsuarioId."/".$codigo;
 
     $header = "De: Sistemas MQR K\r\n";
 

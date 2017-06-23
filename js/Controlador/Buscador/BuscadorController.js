@@ -87,6 +87,9 @@ app.controller("BucadorController", function($scope, $window, $http, $rootScope,
                     }
                     else if($scope.campoBuscar == "Fecha")
                     {*/
+                    
+                    data[2].Diario[k].FechaFormato = TransformarFecha( data[2].Diario[k].Fecha);
+                    
                     if(data[2].Diario[k].Notas !== null && data[2].Diario[k].Notas !== undefined)
                     {
                          data[2].Diario[k].NotasHTML = data[2].Diario[k].Notas.replace(/\r?\n/g, "<br>");

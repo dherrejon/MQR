@@ -465,27 +465,6 @@
 
                     </div>-->
 
-                   <!-- Titulo -->
-                    <div class="row">
-
-                        <div class="col-xs-12 col-sm-12 etiquetaDropdownList" >
-                            
-
-                             <div class="input-group">
-                               
-                                <div class="entrada2">
-                                    <input type="text" required class="entrada form-control" name="titulo" ng-model="nuevaNota.Titulo"  ng-maxlength="300" autocomplete="off"/>
-                                     <label class="">Título</label><br>
-                                 </div>
-                                <span class="input-group-btn">
-                                    <a class="btn close cerrarModal"  ng-click="nuevaNota.Titulo = ''" type="button"><span class="fa fa-times-circle"></span></a>
-                                </span>
-                            </div>
-
-                        </div>
-
-                    </div>
-
                     <!-- Fecha -->
                     <!--<div class="row">
 
@@ -507,33 +486,38 @@
                     </div>-->
 
                     <!-- Etiqueta -->
-                    <div class="row">
+                    <div class="row" id="AgregarConcepto">
 
-                         <div class="col-sm-12" id="etiquetaPanel">
+                         <div class="col-sm-12">
                             <label class="etiquetaNormal">Etiquetas</label><br>
-                             <!--lista de etiquetas Seleccionados -->
-                             <span ng-repeat="etiqueta in nuevaNota.Etiqueta | orderBy:'Nombre'">
-                                 <div class="btn-group" role="group" style="margin-bottom:8px">
-                                  <a class="btn campoAgregado" ng-class="{contornoAzul:(etiqueta.EtiquetaId != '-1')}" style="font-size:10pt" ng-click="EditarEtiqueta(etiqueta)">{{etiqueta.Nombre}}</a>
-                                  <a class="btn campoAgregadoQuitar" ng-class="{contornoAzul:(etiqueta.EtiquetaId != '-1')}" style="font-size:10pt" ng-click="QuitarEtiqueta(etiqueta)"><span class="fa fa-times-circle"></span></a>
-                                </div>
-                             </span>
+                            
+                             
                              <!-- Buscar Etiqueta -->
                              <div class="input-group">
-                                <input type="text" required class="entrada form-control" name="etiqueta" ng-model="buscarEtiqueta" placeholder="Etiqueta" ng-maxlength="120"  data-toggle="dropdown" id="nuevaEtiqueta" autocomplete="off" onblur="angular.element(this).scope().AgregarEtiquetaBlur()"/>
+                                <input type="text" required class="entrada form-control" name="etiqueta" ng-model="buscarConcepto" placeholder="Etiqueta" ng-maxlength="255"  data-toggle="dropdown" id="nuevoConcepto" autocomplete="off" /> <!-- onblur="angular.element(this).scope().AgregarEtiquetaBlur()" -->
+                            
                                 <span class="input-group-btn">
-                                    <a class="btn close cerrarModal"  ng-click="buscarEtiqueta = ''" type="button"><span class="fa fa-times-circle"></span></a>
+                                    <a class="btn close cerrarModal"  ng-click="buscarConcepto = ''" type="button"><span class="fa fa-times-circle"></span></a>
                                 </span>
+                                
+                                
                             </div>
 
                              <!-- lista de etiquetas -->
-                             <div class="dropdown-menu modalAgregarDropdown" ng-show="buscarEtiqueta.length > 0">
+                             <div class="dropdown-menu modalAgregarDropdown" ng-show="buscarConcepto.length > 0">
 
                                 <table  class="table table-responsive">
                                     <tbody  style="cursor: pointer">
+                                        
+                                        <!-- etiquetas --> 
                                         <tr   ng-repeat="etiqueta in etiqueta | orderBy:'Nombre' | filter:BuscarEtiqueta" ng-show="etiqueta.show">
                                           <td style="margin-left:10px; color:black" class="botonSeleccionar" ng-click="AgregarEtiqueta(etiqueta)">{{etiqueta.Nombre}}</td>
                                         </tr>
+                                        
+                                        <!-- temas -->
+                                        <!-- <tr   ng-repeat="tema in tema | orderBy:'Tema' | filter:BuscarTema" ng-show="tema.show">
+                                          <td style="margin-left:10px; color:black" class="botonSeleccionar" ng-click="AgregarTema(tema)">{{tema.Tema}}</td>
+                                        </tr> -->
 
                                     </tbody>
                                 </table>
@@ -543,27 +527,45 @@
                     </div>
                     <br>
 
-                    <!-- Temas -->
-                    <div class="row">
-
-                         <div class="col-sm-12" id="temaPanel">
-                            <label class="etiquetaNormal">Temas</label><br>
-                             <!--lista de temas Seleccionados -->
-                             <span ng-repeat="tema in nuevaNota.Tema | orderBy:'Tema'">
-                                 <div class="btn-group" role="group" style="margin-bottom:8px">
-                                  <a class="btn campoAgregado" ng-click="EditarTema(tema)" ng-class="{contornoAzul:(tema.TemaActividadId != '-1')}" style="font-size:10pt">{{tema.Tema}}</a>
-                                  <a class="btn campoAgregadoQuitar" ng-class="{contornoAzul:(tema.TemaActividadId != '-1')}" style="font-size:10pt" ng-click="QuitarTema(tema)"><span class="fa fa-times-circle"></span></a>
-                                </div>
-                             </span>
-                             <!-- Buscar Tema -->
+                    
+                    <div class="row" >
+                    
+                         <div class="col-sm-12">
+                           
+                           <!--lista de etiquetas Seleccionados -->
+                            <div ng-show="nuevaNota.Etiqueta.length > 0" >
+                                <b>Etiquetas</b><br>
+                                 <span ng-repeat="etiqueta in nuevaNota.Etiqueta | orderBy:'Nombre'">
+                                     <div class="btn-group" role="group" style="margin-bottom:8px">
+                                      <a class="btn campoAgregado" ng-class="{contornoAzul:(etiqueta.EtiquetaId != '-1')}" style="font-size:10pt" ng-click="EditarEtiqueta(etiqueta)">{{etiqueta.Nombre}}</a>
+                                      <a class="btn campoAgregadoQuitar" ng-class="{contornoAzul:(etiqueta.EtiquetaId != '-1')}" style="font-size:10pt" ng-click="QuitarEtiqueta(etiqueta)"><span class="fa fa-times-circle"></span></a>
+                                    </div>
+                                 </span>
+                                 <br><br>
+                             </div>
+                          
+                             <!-- Temas -->
+                            <div  ng-show="nuevaNota.Tema.length > 0">
+                                <b>Temas</b><br>
+                                <!--<label class="etiquetaNormal">Temas</label><br>-->
+                                 <!--lista de temas Seleccionados -->
+                                 <span ng-repeat="tema in nuevaNota.Tema | orderBy:'Tema'">
+                                     <div class="btn-group" role="group" style="margin-bottom:8px">
+                                      <a class="btn campoAgregado" ng-click="EditarTema(tema)" ng-class="{contornoAzul:(tema.TemaActividadId != '-1')}" style="font-size:10pt">{{tema.Tema}}</a>
+                                      <a class="btn campoAgregadoQuitar" ng-class="{contornoAzul:(tema.TemaActividadId != '-1')}" style="font-size:10pt" ng-click="QuitarTema(tema)"><span class="fa fa-times-circle"></span></a>
+                                    </div>
+                                 </span>
+                             </div>
+                             
+                             <!-- Buscar Tema --
                              <div class="input-group">
                                 <input type="text" required class="entrada form-control" name="tema" ng-model="buscarTema" placeholder="Tema de la actividad" ng-maxlength="300" data-toggle="dropdown" id="nuevoTema" autocomplete="off" onblur="angular.element(this).scope().AgregarTemaBlur()"/>
                                 <span class="input-group-btn">
                                     <a class="btn close cerrarModal"  ng-click="buscarTema = ''" type="button"><span class="fa fa-times-circle"></span></a>
                                 </span>
-                            </div>
+                            </div>-->
 
-                             <!-- lista de temas -->
+                             <!-- lista de temas 
                              <div class="dropdown-menu modalAgregarDropdown" ng-show="buscarTema.length > 0">
 
                                 <table  class="table table-responsive">
@@ -574,7 +576,7 @@
 
                                     </tbody>
                                 </table>
-                            </div>
+                            </div>-->
 
                         </div>
                     </div>
@@ -582,11 +584,33 @@
                 
                 <!-- Notas -->
                 <div ng-show="tabModal == 'Nota'">
+                   <br><br>
+                   <!-- Titulo -->
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 etiquetaDropdownList" >
+                            
+
+                             <div class="input-group">
+                               
+                                <div class="entrada2">
+                                    <input type="text" required class="entrada form-control" name="titulo" ng-model="nuevaNota.Titulo"  ng-maxlength="300" autocomplete="off"/>
+                                     <label class="">Título</label><br>
+                                 </div>
+                                <span class="input-group-btn">
+                                    <a class="btn close cerrarModal"  ng-click="nuevaNota.Titulo = ''" type="button"><span class="fa fa-times-circle"></span></a>
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    
                     <div class="row">
                         <div class="col-sm-12">
                              <div class="">
                                 <label class="etiquetaNormal">Notas</label>
-                                <textarea required type="text"  class="form-control contenidoArea" style="font-size:12pt; min-height: 300px !important" name="contenido" ng-model="nuevaNota.Notas" maxlength="3000"></textarea>
+                                <textarea required type="text"  class="form-control contenidoArea" style="font-size:12pt; min-height: 300px !important" name="contenido" ng-model="nuevaNota.Notas" maxlength="5000"></textarea>
                             </div>
                         </div>
                     </div>
@@ -709,36 +733,6 @@
             <br>
             </form> 
             
-        </div>
-    </div>
-    
-    <!-- mensaje -->
-    <div class="modal fade sombraDivModal" id="mensajeNota">
-        <br>    <br>   <br>
-        <div class="modal-dialog modal-sm modalPrincipal">
-           
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="text-center textoError">
-                        <span class=" fa fa-times-circle-o fa-3x"></span><br>
-                        <span>¡Error!</span>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-xs-12">
-                     <div ng-repeat="error in mensajeError">
-                        <span>{{error}}</span>
-                    </div>
-                </div>
-            </div>
-            <br><br>
-         
-            <div class="row">
-                <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button> 
-            </div>
-
         </div>
     </div>
     
@@ -1005,6 +999,64 @@
         </div>
     </div>
     
+    <!----------- Agregar Concepto ------------>
+    <div class="modal fade sombraDivModal" id="modalConcepto" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal">
+         <form name="concepto">
+                <!--<div class="row">
+
+                    <div class="col-xs-12">
+
+                      <div class="btn-group-vertical pull-right" role="group" >
+                            <a class="btn botonFinModal"  data-dismiss="modal" aria-label="Close" ng-click="CancelarAgregarConcepto()"><span class="fa fa-times"></span></a>
+                            <a focus class="btn botonFinModal" onclick="angular.element(this).scope().TerminarDefinicionConcepto()" ><span class="fa fa-check"></span></a>
+                        </div>
+
+                    </div>
+                </div>-->
+                <br>
+
+                <div class="row">
+                   <div class="col-xs-12">
+                       <span style="font-size:14pt"> 
+                           <b>"{{buscarConcepto}}"</b> se utilizará en las búsquedas como si fuera una sola palabra.<br>
+                           ¿Deseas crear esta etiqueta?
+                       </span>
+                   </div>
+                </div>
+
+                <br>
+                
+                
+                <!--<div class="row">
+                   <div class="col-xs-12">
+                       <b>Definición:</b><br>
+                       <textarea required type="text"  class="form-control contenidoArea" style="font-size:12pt; min-height: 150px !important" name="definicion" maxlength="255" ng-model="definicionConcepto"></textarea>
+                   </div>
+                </div><br> -->     
+
+                <!---- botones de operacion -->
+                <div class="row">
+                    <div class="col-xs-6">
+                        <a class="btn botonFinModal btn-block" data-dismiss="modal" aria-label="Close" >Cancelar</a>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <a focus class="btn botonFinModal btn-block" onclick="angular.element(this).scope().TerminarDefinicionConcepto()">OK</a>
+                    </div>
+                </div>
+                <br>
+                 <div class="row">
+                     <div class="col-xs-12 advertenciaModal">
+                         <span class="fa fa-warning"></span> Este mensaje es temporal
+                     </div>
+                 </div>
+            </form>
+
+        </div>
+    </div>    
+    
     <!---------- VerImagen ---------------->
     <div class="modal fade sombraDivModal" id="verImagen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <br>    <br>   <br>
@@ -1080,6 +1132,36 @@
                 <div class="col-xs-6">
                     <a focus class="btn botonFinModal btn-block" ng-click="AgregarImagenes()" >TERMINAR</a>
                 </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- mensaje -->
+    <div class="modal fade sombraDivModal" id="mensajeNota">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal">
+           
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="text-center textoError">
+                        <span class=" fa fa-times-circle-o fa-3x"></span><br>
+                        <span>¡Error!</span>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-xs-12">
+                     <div ng-repeat="error in mensajeError">
+                        <span>{{error}}</span>
+                    </div>
+                </div>
+            </div>
+            <br><br>
+         
+            <div class="row">
+                <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button> 
             </div>
 
         </div>

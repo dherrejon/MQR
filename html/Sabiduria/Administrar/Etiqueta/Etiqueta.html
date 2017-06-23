@@ -102,7 +102,7 @@
                     <div class="col-xs-4 col-sm-2">
                         <div class="btn-group-vertical pull-right" role="group" >
                             <a class="btn botonFinModal"  ng-click="CerrarEtiquetaModal()"><span class="fa fa-times"></span></a>
-                            <a focus class="btn botonFinModal" id="terminarEtiqueta" ng-click="TerminarEtiqueta(etiquetaForma.etiqueta.$invalid)"><span class="fa fa-check"></span></a>
+                            <a focus class="btn botonFinModal" id="terminarEtiqueta" ng-click="TerminarEtiqueta()"><span class="fa fa-check"></span></a>
                         </div>
                     </div>
                 </div>
@@ -112,7 +112,7 @@
                     <div class="col-sm-12">
                         <div class="input-group">
                             <div class="entrada2">
-                                <input type="text" ng-pattern="erEtiqueta" required class="{{claseEtiqueta.nombre}} form-control" name="etiqueta" ng-model="nuevaEtiqueta.Nombre" ng-maxlength="120"/>
+                                <input type="text" required class="{{claseEtiqueta.nombre}} form-control" name="etiqueta" ng-model="nuevaEtiqueta.Nombre" ng-maxlength="300"/>
                                 <label>Etiqueta</label>
                             </div>
                             <span class="input-group-btn">
@@ -137,7 +137,7 @@
                     </div>
 
                     <div class="col-xs-6">
-                        <a focus class="btn botonFinModal btn-block" ng-click="TerminarEtiqueta(etiquetaForma.etiqueta.$invalid)">TERMINAR</a>
+                        <a focus class="btn botonFinModal btn-block" ng-click="TerminarEtiqueta()">TERMINAR</a>
                     </div>
                 </div>
             <br>

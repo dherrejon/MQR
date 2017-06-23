@@ -551,13 +551,17 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             $scope.ActivarDesactivarEtiqueta([]);
             $scope.IniciarDiario(fecha);
             
+            $scope.inicioDiario = jQuery.extend({}, $scope.nuevoDiario);
         }
         else if(operacion == "Editar")
         {
-            $scope.nuevoDiario = $scope.SetDiario(objeto);   
+            $scope.nuevoDiario = $scope.SetDiario(objeto);
+            
             $scope.FechaDefinida = false;
             $scope.ActivarDesactivarTema($scope.nuevoDiario.Tema);
             $scope.ActivarDesactivarEtiqueta($scope.nuevoDiario.Etiqueta);
+            
+            $scope.inicioDiario = jQuery.extend({}, $scope.nuevoDiario);
             
             document.getElementById("fechaDiario").value = $scope.nuevoDiario.Fecha;
         }
@@ -677,7 +681,14 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
     //----------- Cerrar
     $scope.CerrarDiario = function()
     {
-        $('#cerrarDiario').modal('toggle');
+        if(JSON.stringify($scope.inicioDiario) === JSON.stringify($scope.nuevoDiario))
+        {
+            $('#modalDiario').modal('toggle');
+        }
+        else
+        {
+            $('#cerrarDiario').modal('toggle');
+        }
     };
     
     $scope.ConfirmarCerrarDiario = function()
@@ -762,20 +773,40 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
             }
             else
             {
-                var etiqueta = new Etiqueta();
-                etiqueta.Nombre = $scope.buscarEtiqueta;
-                etiqueta.EtiquetaId = "-1";
-                $scope.buscarEtiqueta = "";
-                
-                $scope.nuevoDiario.Etiqueta.push(etiqueta);
-                $scope.$apply();
+                if($rootScope.erEtiqueta.test($scope.buscarEtiqueta))
+                {
+                    $scope.EsNuevaEtiqueta();
+                }
+                else
+                {
+                    if(parseInt($scope.usuarioLogeado.EtiquetaMsn) <= 5)
+                    {
+                        $scope.CrearConcepto();  
+                    }
+                    else
+                    {
+                        $scope.EsNuevaEtiqueta();
+                    }
+                }
             }
         }
     };
     
+    $scope.EsNuevaEtiqueta = function()
+    {
+        var etiqueta = new Etiqueta();
+        etiqueta.Nombre = $scope.buscarEtiqueta;
+        etiqueta.EtiquetaId = "-1";
+        $scope.buscarEtiqueta = "";
+
+        $scope.nuevoDiario.Etiqueta.push(etiqueta);
+
+        $scope.$apply();
+    };
+    
     $scope.ValidarEtiquetaAgregado = function()
     {
-        if($rootScope.erEtiqueta.test($scope.buscarEtiqueta))
+        if($rootScope.erEtiqueta.test($scope.buscarEtiqueta) || $rootScope.erTema.test($scope.buscarEtiqueta))
         {
             for(var k=0; k<$scope.etiqueta.length; k++)
             {
@@ -821,6 +852,18 @@ app.controller("DiarioController", function($scope, $window, $http, $rootScope, 
         
         
         return true;
+    };
+    
+    /*----------------- Crear concepto -------------*/
+    $scope.CrearConcepto = function()
+    {
+        $('#modalConcepto').modal('toggle');
+    };
+    
+    $scope.TerminarDefinicionConcepto = function()
+    {
+        $scope.EsNuevaEtiqueta();
+        $("#modalConcepto").modal("toggle");
     };
     
     $scope.QuitarEtiqueta = function(etiqueta)

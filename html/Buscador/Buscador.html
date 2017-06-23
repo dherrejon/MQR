@@ -209,9 +209,9 @@
                 <div class="row" ng-if="(verApp.diario && appFiltro == 'Todo') || appFiltro == 'Diario'"> <!-- ng-if="agrupar == 'Titulo'" -->
                     <a ng-repeat="diario in diario | orderBy:'-Fecha' "  class="btn appElemento {{GetClaseDiario(diario.FechaFormato)}}" ng-click="GetDiarioPorId(diario.DiarioId)"> <!-- ng-if="(fecha.Diario | filter:FiltrarDiario).length > 0" -->
                         <!-- indicador -->
-                        <!--<span class="col-xs-12"  style="white-space: normal; max-width: 90%; overflow: hidden;" ng-if="campoBuscar == 'Conceptos'">
+                        <b class="col-xs-12"  style="white-space: normal; max-width: 90%; overflow: hidden;" ng-if="campoBuscar == 'Conceptos'">
                             {{diario.FechaFormato}}
-                        </span>-->
+                        </b>
                         
                         <div class="col-xs-12" ><!-- ng-if="campoBuscar == 'Fecha'" -->
                             <p class="textoDetalleBarra" data-ng-bind-html="diario.NotasHTML" ></p>

@@ -45,7 +45,7 @@ function GetBuscador()
                     WHERE e.EtiquetaId IN ".$whereEtiqueta." GROUP BY e.NotaId HAVING count(*) = ".$numEtiqueta."
                     ) x ON x.NotaId = n.NotaId";
         
-        $sqlDiario = "SELECT  d.DiarioId, d.Notas FROM Diario d
+        $sqlDiario = "SELECT  d.DiarioId, d.Notas, d.Fecha FROM Diario d
                     INNER JOIN (
                     
                     SELECT e.DiarioId FROM EtiquetaDiarioVista e   
@@ -72,7 +72,7 @@ function GetBuscador()
                         SELECT e.NotaId FROM EtiquetaNotaVista e WHERE e.EtiquetaId in ".$whereEtiqueta." GROUP BY e.NotaId HAVING count(*) = ".$numEtiqueta."
                     ) x ON x.NotaId = n.NotaId";
             
-            $sqlDiario = "SELECT d.DiarioId, d.Notas  FROM Diario d 
+            $sqlDiario = "SELECT d.DiarioId, d.Notas, d.Fecha  FROM Diario d 
                     INNER JOIN (
                         SELECT e.DiarioId FROM EtiquetaDiarioVista e WHERE e.EtiquetaId in ".$whereEtiqueta." GROUP BY e.DiarioId HAVING count(*) = ".$numEtiqueta."
                     ) x ON x.DiarioId = d.DiarioId";
@@ -92,7 +92,7 @@ function GetBuscador()
                         SELECT t.NotaId FROM TemaNotaVista t WHERE t.TemaActividadId in ".$whereTema." GROUP BY t.NotaId HAVING count(*) = ".$numTema."
                     ) x ON x.NotaId = n.NotaId";
             
-            $sqlDiario = "SELECT  d.DiarioId, d.Notas FROM Diario d
+            $sqlDiario = "SELECT  d.DiarioId, d.Notas, d.Fecha FROM Diario d
                     INNER JOIN (
                         SELECT t.DiarioId FROM TemaDiarioVista t WHERE t.TemaActividadId in ".$whereTema." GROUP BY t.DiarioId HAVING count(*) = ".$numTema."
                     ) x ON x.DiarioId = d.DiarioId";
@@ -108,7 +108,7 @@ function GetBuscador()
     {
         $sql = "SELECT n.NotaId, n.Titulo FROM Nota n WHERE UsuarioId = '".$filtro->usuarioId ."' AND Fecha = '". $filtro->fecha."'";
         
-        $sqlDiario = "SELECT d.DiarioId, d.Notas FROM Diario d WHERE UsuarioId = '".$filtro->usuarioId ."' AND  Fecha = '". $filtro->fecha."'";
+        $sqlDiario = "SELECT d.DiarioId, d.Notas, d.Fecha FROM Diario d WHERE UsuarioId = '".$filtro->usuarioId ."' AND  Fecha = '". $filtro->fecha."'";
         
         $sqlActividad = "SELECT a.ActividadId, a.Nombre FROM Actividad a
                         

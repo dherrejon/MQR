@@ -46,7 +46,7 @@ function SetDiario(data)
     
     diario.FechaFormato = TransformarFecha(data.Fecha);
     
-    if(data.Notas !== null)
+    if(data.Notas !== null && data.Notas !== undefined)
     {
          diario.NotasHTML = data.Notas.replace(/\r?\n/g, "<br>");
     }

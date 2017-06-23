@@ -58,7 +58,6 @@ function SetEventoActividad(data)
     evento.Actividad = data.Actividad;
     evento.Costo = data.Costo;
     evento.Cantidad = data.Cantidad;
-    
     evento.FechaFormato = TransformarFecha(data.Fecha);
     
     if(data.Notas !== null)

@@ -10,6 +10,7 @@ class Usuario   //clase usuario
         this.Password = "";
         this.Permiso = [];
         this.Aplicacion = "";
+        this.EtiquetaMsn = "";
     }
 }
 
@@ -126,6 +127,7 @@ function SetUsuario(data)
     usuario.Nombre = data[0].Nombre;
     usuario.Apellidos = data[0].Apellidos;
     usuario.Correo = data[0].Correo;
+    usuario.EtiquetaMsn = data[0].EtiquetaMsn;
     usuario.SesionIniciada = true;
     
     for(var k=0; k<data.length; k++)

@@ -168,7 +168,7 @@ app.run(function($rootScope, $location, $window, $http, CONFIG, $q, datosUsuario
     $rootScope.erPassword = /^(\w){6}(\w)*$/;   //expresion regular para la contraseña
     $rootScope.erNombreUsuario = /^(\w|ñ){3}(\w|ñ)*$/;   //expresion regular para el nombre de usurio
     $rootScope.erNumeroEntero = /^([0-9]){0,5}$/;   //número entero
-    $rootScope.erTema = /^\S+\s(\S+\s?)+$/;   //expresion regular para los apellido y el nombre de una etiqueta
+    $rootScope.erTema = /^\S+\s(\S+\s?){1,5}$/;   //expresion regular para los apellido y el nombre de una etiqueta
     
     
     $rootScope.ChecarSesion = function(token)           //verifica el esatdo de la sesión

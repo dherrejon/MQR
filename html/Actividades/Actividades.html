@@ -580,16 +580,10 @@
                      
                      <div class="col-sm-12" id="etiquetaPanel">
                         <label class="etiquetaNormal">Etiquetas</label><br>
-                         <!--lista de etiquetas Seleccionados -->
-                         <span ng-repeat="etiqueta in nuevaActividad.Etiqueta | orderBy:'Nombre'">
-                             <div class="btn-group" role="group" style="margin-bottom:8px">
-                              <a class="btn campoAgregado" ng-class="{contornoAzul:(etiqueta.EtiquetaId != '-1')}" style="font-size:10pt" ng-click="EditarEtiqueta(etiqueta)">{{etiqueta.Nombre}}</a>
-                              <a class="btn campoAgregadoQuitar" ng-class="{contornoAzul:(etiqueta.EtiquetaId != '-1')}" style="font-size:10pt" ng-click="QuitarEtiqueta(etiqueta)"><span class="fa fa-times-circle"></span></a>
-                            </div>
-                         </span>
+                         
                          <!-- Buscar Etiqueta -->
                          <div class="input-group">
-                            <input type="text" required class="entrada form-control" name="etiqueta" ng-model="buscarEtiqueta" placeholder="Etiqueta" ng-maxlength="120"  data-toggle="dropdown" id="nuevaEtiqueta" autocomplete="off"/>
+                            <input type="text" required class="entrada form-control" name="etiqueta" ng-model="buscarEtiqueta" placeholder="Etiqueta" ng-maxlength="300"  data-toggle="dropdown" id="nuevaEtiqueta" autocomplete="off"/>
                             <span class="input-group-btn">
                                 <a class="btn close cerrarModal"  ng-click="LimpiarBuscar(4)" type="button"><span class="fa fa-times-circle"></span></a>
                             </span>
@@ -613,18 +607,42 @@
                 <br>
                 
                 <!-- Temas -->
-                <div class="row">
+                <div class="row" >
+                     <div class="col-xs-12">
+                       
+                        <div ng-if="nuevaActividad.Etiqueta.length > 0">
+                             <b>Etiquetas</b><br>
+                            <!--lista de etiquetas Seleccionados -->
+                             <span ng-repeat="etiqueta in nuevaActividad.Etiqueta | orderBy:'Nombre'">
+                                 <div class="btn-group" role="group" style="margin-bottom:8px">
+                                  <a class="btn campoAgregado" ng-class="{contornoAzul:(etiqueta.EtiquetaId != '-1')}" style="font-size:10pt" ng-click="EditarEtiqueta(etiqueta)">{{etiqueta.Nombre}}</a>
+                                  <a class="btn campoAgregadoQuitar" ng-class="{contornoAzul:(etiqueta.EtiquetaId != '-1')}" style="font-size:10pt" ng-click="QuitarEtiqueta(etiqueta)"><span class="fa fa-times-circle"></span></a>
+                                </div>
+                             </span>  
+                         </div>
+                         
+                        <div ng-if="nuevaActividad.Tema.length > 0">
+                             <b>Temas</b><br>
+                            <!--lista de etiquetas Seleccionados -->
+                             <span ng-repeat="tema in nuevaActividad.Tema | orderBy:'Tema'">
+                                 <div class="btn-group" role="group" style="margin-bottom:8px">
+                                  <a class="btn campoAgregado" ng-click="EditarTema(tema)" ng-class="{contornoAzul:(tema.TemaActividadId != '-1')}" style="font-size:10pt">{{tema.Tema}}</a>
+                                  <a class="btn campoAgregadoQuitar" ng-class="{contornoAzul:(tema.TemaActividadId != '-1')}" style="font-size:10pt" ng-click="QuitarTema(tema)"><span class="fa fa-times-circle"></span></a>
+                                </div>
+                             </span>  
+                         </div>                     
+                     </div>
                      
-                     <div class="col-sm-12" id="temaPanel">
+                     <!--<div class="col-sm-12" id="temaPanel">
                         <label class="etiquetaNormal">Temas</label><br>
-                         <!--lista de temas Seleccionados -->
+                         <!--lista de temas Seleccionados --
                          <span ng-repeat="tema in nuevaActividad.Tema | orderBy:'Tema'">
                              <div class="btn-group" role="group" style="margin-bottom:8px">
                               <a class="btn campoAgregado" ng-click="EditarTema(tema)" ng-class="{contornoAzul:(tema.TemaActividadId != '-1')}" style="font-size:10pt">{{tema.Tema}}</a>
                               <a class="btn campoAgregadoQuitar" ng-class="{contornoAzul:(tema.TemaActividadId != '-1')}" style="font-size:10pt" ng-click="QuitarTema(tema)"><span class="fa fa-times-circle"></span></a>
                             </div>
                          </span>
-                         <!-- Buscar Artista -->
+                         <!-- Buscar Artista --
                          <div class="input-group">
                             <input type="text" required class="entrada form-control" name="tema" ng-model="buscarTema" placeholder="Tema de la actividad" ng-maxlength="300"  data-toggle="dropdown" id="nuevoTema" autocomplete="off"/>
                             <span class="input-group-btn">
@@ -632,7 +650,7 @@
                             </span>
                         </div>
                          
-                         <!-- lista de temas -->
+                         <!-- lista de temas --
                          <div class="dropdown-menu modalAgregarDropdown" ng-show="buscarTema.length > 0">
                             
                             <table  class="table table-responsive">
@@ -645,7 +663,7 @@
                             </table>
                         </div>
                       
-                    </div>
+                    </div>-->
                 </div>
                 
                 
@@ -665,6 +683,45 @@
             
         </div>
     </div>
+    
+    <!----------- Agregar Concepto ------------>
+    <div class="modal fade sombraDivModal" id="modalConcepto" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
+        <br>    <br>   <br>
+        <div class="modal-dialog modal-sm modalPrincipal">
+         <form name="concepto">
+                <br>
+
+                <div class="row">
+                   <div class="col-xs-12">
+                       <span style="font-size:14pt"> 
+                           <b>"{{buscarEtiqueta}}"</b> se utilizará en las búsquedas como si fuera una sola palabra.<br>
+                           ¿Deseas crear esta etiqueta?
+                       </span>
+                   </div>
+                </div>
+
+                <br>
+                
+                <!---- botones de operacion -->
+                <div class="row">
+                    <div class="col-xs-6">
+                        <a class="btn botonFinModal btn-block" data-dismiss="modal" aria-label="Close" >Cancelar</a>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <a focus class="btn botonFinModal btn-block" onclick="angular.element(this).scope().TerminarDefinicionConcepto()">OK</a>
+                    </div>
+                </div>
+                <br>
+                 <div class="row">
+                     <div class="col-xs-12 advertenciaModal">
+                         <span class="fa fa-warning"></span> Este mensaje es temporal
+                     </div>
+                 </div>
+            </form>
+
+        </div>
+    </div>   
     
     <!-- mensaje -->
     <div class="modal fade sombraDivModal" id="mensajeActividad">

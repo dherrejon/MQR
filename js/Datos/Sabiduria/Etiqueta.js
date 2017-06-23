@@ -6,7 +6,6 @@ class Etiqueta
     {
         this.EtiquetaId = "";
         this.Nombre = "";
-        this.Activo = true;
     }
 }
 
@@ -42,7 +41,6 @@ function SetEtiqueta(data)
     
     etiqueta.EtiquetaId = data.EtiquetaId;
     etiqueta.Nombre = data.Nombre;
-    etiqueta.Activo = CambiarIntABool(data.Activo);
     
     return etiqueta;
 }

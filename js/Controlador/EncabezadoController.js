@@ -46,11 +46,6 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
                 $scope.HabilitarOpcionesBarraNavegacionNotas();
                 break;
                 
-            case "Mis Conocimientos":
-                $scope.barraNavegacion = EncabezadoConocimiento;
-                $scope.HabilitarOpcionesBarraNavegacionConocimiento();
-                break;
-                
             case "Mi Buscador": 
                 $scope.barraNavegacion = EncabezadoBuscador;
                 break;
@@ -255,25 +250,6 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         }
     };
     
-    $scope.HabilitarOpcionesBarraNavegacionConocimiento = function()
-    {
-        $scope.LimpiarBarraNavegacionConocimiento();
-
-        for(var k=0; k<$scope.usuario.Permiso.length; k++)
-        {
-            if($scope.usuario.Permiso[k] == "ConocimientoAcc")
-            {
-                $scope.barraNavegacion.opcion[0].show = true;
-                $scope.barraNavegacion.opcion[1].show = true;
-            }
-            
-            if($scope.usuario.Permiso[k] == "AdmUsuarios")
-            {
-                $scope.permisoUsuario = true;
-            }
-        }
-    };
-    
     $scope.LimpiarBarraNavegacionInformacion = function()
     {
         $scope.barraNavegacion.opcion[0].show = false;
@@ -314,13 +290,6 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         $scope.permisoUsuario = false;
     };
     
-    $scope.LimpiarBarraNavegacionConocimiento = function()
-    {
-        $scope.barraNavegacion.opcion[0].show = false;
-        $scope.barraNavegacion.opcion[1].show = false;
-        
-        $scope.permisoUsuario = false;
-    };
     
     /*------------------------------Cambiar Contraseña--------------------------------------------*/
     $scope.CambiarPassword = function()
@@ -501,7 +470,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
             {
                 if($scope.usuario.Permiso[k] == "SabiduriaCon" || $scope.usuario.Permiso[k] == "SabiduriaAdm")
                 {
-                    $rootScope.apps[6].habilitada = true;
+                    $rootScope.apps[5].habilitada = true;
                 }
                 if($scope.usuario.Permiso[k] == "ActividadesCon" || $scope.usuario.Permiso[k] == "ActividadesAdm")
                 {
@@ -509,11 +478,11 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
                 }
                 if($scope.usuario.Permiso[k] == "CancioneroCon" || $scope.usuario.Permiso[k] == "CancioneroAdm")
                 {
-                    $rootScope.apps[5].habilitada = true;
+                    $rootScope.apps[4].habilitada = true;
                 }
                 if($scope.usuario.Permiso[k] == "DiarioCon")
                 {
-                    $rootScope.apps[4].habilitada = true;
+                    $rootScope.apps[3].habilitada = true;
                 }
                 if($scope.usuario.Permiso[k] == "DiarioCon" || $scope.usuario.Permiso[k] == "ActividadesCon" || $scope.usuario.Permiso[k] == "ActividadesAdm" || $scope.usuario.Permiso[k] == "NotasAcc" || $scope.usuario.Permiso[k] == "ConocimientoAcc")
                 {
@@ -521,16 +490,13 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
                 }
                 if($scope.usuario.Permiso[k] == "NotasAcc")
                 {
-                    $rootScope.apps[7].habilitada = true;
+                    $rootScope.apps[6].habilitada = true;
                 }
                 if($scope.usuario.Permiso[k] == "CancioneroCon" || $scope.usuario.Permiso[k] == "CancioneroAdm" || $scope.usuario.Permiso[k] == "SabiduriaCon" || $scope.usuario.Permiso[k] == "SabiduriaAdm")
                 {
-                    $rootScope.apps[8].habilitada = true;
+                    $rootScope.apps[7].habilitada = true;
                 }
-                if($scope.usuario.Permiso[k] == "ConocimientoAcc")
-                {
-                    $rootScope.apps[3].habilitada = true;
-                }
+
                 if($scope.usuario.Permiso[k] == "BucadorAcc")
                 {
                     $rootScope.apps[2].habilitada = true;
@@ -656,22 +622,6 @@ var EncabezadoNotas =
     titulo:"Mis Notas", 
     opcion: [ 
                     { texto:"Inicio", tipo:"link", referencia:"#Notas", show: false},
-                    { texto:"Administrar", tipo:"dropdown", show: false,
-                                            elemento:
-                                            [
-                                                //{texto:"Usuarios", referencia:"#Usuario", funcion:"", show:false},
-                                                {texto:"Etiquetas", referencia:"#Etiqueta", funcion:"", show:true},
-                                                {texto:"Temas", referencia:"#TemaActividad", funcion:"", show:true}
-                                            ]},
-                    
-              ]                       
-};
-
-var EncabezadoConocimiento =
-{ 
-    titulo:"Mis Conocimientos", 
-    opcion: [ 
-                    { texto:"Inicio", tipo:"link", referencia:"#Conocimiento", show: false},
                     { texto:"Administrar", tipo:"dropdown", show: false,
                                             elemento:
                                             [

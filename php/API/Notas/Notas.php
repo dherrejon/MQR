@@ -801,7 +801,7 @@ function EditarNota()
         {
             if($nota->Tema[$k]->TemaActividadId == "-1")
             {
-                $sql = "INSERT INTO TemaActividad (UsuarioId, Tema) VALUES (:UsuarioId, :Tema)";
+                $sql = "INSERT INTO TemaActividad (UsuarioId, Tema, Definicion) VALUES (:UsuarioId, :Tema)";
                 
                 try 
                 {

@@ -33,6 +33,7 @@ function SetUsuario2(data)
     usuario.Nombre = data.Nombre;
     usuario.Apellidos = data.Apellidos;
     usuario.Correo = data.Correo;
+    usuario.EtiquetaMsn = data.EtiquetaMsn;
     
     return usuario;
 }

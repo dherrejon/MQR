@@ -53,6 +53,24 @@
     color: #d2e4fb;
 }
 
+.botonAzul, .botonAzul:focus, .botonAzul:active
+{
+    background: #1859b2;
+    color: white;
+    border-radius: 0px;
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
+.botonAzul:hover
+{
+    color: #d2e4fb;
+    
+    outline: none !important;
+    box-shadow: none;
+}
+
 /*------ Imagenes ----------*/
 .files input 
 {
@@ -200,4 +218,16 @@
 .imgFototecaSel
 {
     cursor: pointer;
+}
+
+/*--- Otras clases ---*/
+.advertenciaModal
+{
+    color: black;
+    background:  #f0ad4e  !important;
+    width: 100%;
+    bottom: 0 !important;
+    left: 0 !important;
+    position: fixed;
+    text-align: center;
 }

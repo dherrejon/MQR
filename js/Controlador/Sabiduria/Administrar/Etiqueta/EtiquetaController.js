@@ -122,9 +122,9 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
     });
     
     /*----------------- Terminar agregar-editar etiqueta --------------------*/
-    $scope.TerminarEtiqueta = function(nombreInvalido)
+    $scope.TerminarEtiqueta = function()
     {
-        if(!$scope.ValidarDatos(nombreInvalido))
+        if(!$scope.ValidarDatos())
         {
             $('#mensajeEtiqueta').modal('toggle');
             return;
@@ -205,18 +205,18 @@ app.controller("EtiquetaController", function($scope, $window, $http, $rootScope
         });
     };
     
-    $scope.ValidarDatos = function(nombreInvalido)
+    $scope.ValidarDatos = function()
     {
         $scope.mensajeError = [];
         
-        if(nombreInvalido)
+        if(($rootScope.erEtiqueta.test($scope.nuevaEtiqueta.Nombre) || $rootScope.erTema.test($scope.nuevaEtiqueta.Nombre)))
         {
-            $scope.claseEtiqueta.nombre = "entradaError";
-            $scope.mensajeError[$scope.mensajeError.length] = "*Escribe una etiqueta válida.";
+            $scope.claseEtiqueta.nombre = "entrada";
         }
         else
         {
-             $scope.claseEtiqueta.nombre = "entrada";
+             $scope.claseEtiqueta.nombre = "entradaError";
+             $scope.mensajeError[$scope.mensajeError.length] = "*Escribe una etiqueta válida.";
         }
         
         if($scope.mensajeError.length > 0)

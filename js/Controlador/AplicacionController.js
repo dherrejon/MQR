@@ -83,7 +83,7 @@ var aplicaciones = [
 
                         {texto:"Mis Actividades", habilitada:false, paginaPrincipal:"/Actividades",   icono:"fa fa-calendar", grupo:"Life@Bit", isGrupo:false},
                         {texto:"Mi Buscador", habilitada:false, paginaPrincipal:"/Buscador",   icono:"fa fa-search", grupo:"Life@Bit", isGrupo:false},
-                        {texto:"Mis Conocimientos", habilitada:false, paginaPrincipal:"/Conocimiento", icono:"fa fa-book", grupo:"Life@Bit", isGrupo:false},
+
                         {texto:"Mi Diario", habilitada:false, paginaPrincipal:"/Diario", icono:"fa fa-clock-o", grupo:"Life@Bit", isGrupo:false},
 
                         {texto:"GuitaraBit", habilitada:false, paginaPrincipal:"/Cancionero", icono:"fa fa-music", grupo:"MQRSYS", isGrupo:false},

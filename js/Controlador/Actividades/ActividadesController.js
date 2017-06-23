@@ -381,7 +381,6 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     $scope.FitroActividad = function(info)
     {        
         var cumple = false;
-        
         if($scope.filtroFecha.Fecha.length > 0)
         {
             for(var k=0; k<info.Fecha.length; k++)
@@ -921,6 +920,8 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             $scope.ActivarDesactivarTema(actividad.Tema);
             $scope.ActivarDesactivarEtiqueta(actividad.Etiqueta);
         }
+        
+        $scope.inicioActividad = jQuery.extend({}, $scope.nuevaActividad);
     
         $('#modalActividad').modal('toggle');
     };
@@ -1048,8 +1049,16 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     
     $scope.CerrarActividad = function()
     {
-        $('#cerrarActividad').modal('toggle');
-        $scope.cerrarVentana = "actividad";
+        if(JSON.stringify($scope.inicioActividad) === JSON.stringify($scope.nuevaActividad))
+        {
+            $('#modalActividad').modal('toggle');
+        }
+        else
+        {
+            $('#cerrarActividad').modal('toggle');
+            $scope.cerrarVentana = "actividad";
+        }
+       
     };
     
     $scope.ConfirmarCerrarActividad = function()
@@ -1248,20 +1257,40 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             }
             else
             {
-                var etiqueta = new Etiqueta();
-                etiqueta.Nombre = $scope.buscarEtiqueta;
-                etiqueta.EtiquetaId = "-1";
-                $scope.buscarEtiqueta = "";
-                
-                $scope.nuevaActividad.Etiqueta.push(etiqueta);
-                $scope.$apply();
+                if($rootScope.erEtiqueta.test($scope.buscarEtiqueta))
+                {
+                    $scope.EsNuevaEtiqueta();
+                }
+                else
+                {
+                    if(parseInt($scope.usuarioLogeado.EtiquetaMsn) <= 5)
+                    {
+                        $scope.CrearConcepto();  
+                    }
+                    else
+                    {
+                        $scope.EsNuevaEtiqueta();
+                    }
+                }
             }
         }
     };
     
+    $scope.EsNuevaEtiqueta = function()
+    {
+        var etiqueta = new Etiqueta();
+        etiqueta.Nombre = $scope.buscarEtiqueta;
+        etiqueta.EtiquetaId = "-1";
+        $scope.buscarEtiqueta = "";
+
+        $scope.nuevaActividad.Etiqueta.push(etiqueta);
+
+        $scope.$apply();
+    };
+    
     $scope.ValidarEtiquetaAgregado = function()
     {
-        if($rootScope.erEtiqueta.test($scope.buscarEtiqueta))
+        if($rootScope.erEtiqueta.test($scope.buscarEtiqueta) || $rootScope.erTema.test($scope.buscarEtiqueta))
         {
             for(var k=0; k<$scope.etiqueta.length; k++)
             {
@@ -1307,6 +1336,19 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
         
         
         return true;
+    };
+    
+    /*----------------- Crear concepto -------------*/
+    $scope.CrearConcepto = function()
+    {
+        $('#modalConcepto').modal('toggle');
+    };
+    
+    
+    $scope.TerminarDefinicionConcepto = function()
+    {
+        $scope.EsNuevaEtiqueta();
+        $("#modalConcepto").modal("toggle");
     };
     
     $scope.QuitarEtiqueta = function(etiqueta)
@@ -2089,6 +2131,8 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
             document.getElementById("fechaEvento").value = $scope.nuevoEvento.Fecha;
         }
         
+        $scope.inicioEvento = jQuery.extend({}, $scope.nuevoEvento);
+        
         $('#modalEvento').modal('toggle');
     };
     
@@ -2107,8 +2151,15 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
     
     $scope.CerrarRegistrarEvento = function()
     {
-        $('#cerrarActividad').modal('toggle');
-        $scope.cerrarVentana = "evento";
+        if(JSON.stringify($scope.inicioEvento) === JSON.stringify($scope.nuevoEvento))
+        {
+            $('#modalEvento').modal('toggle');
+        }
+        else
+        {
+            $('#cerrarActividad').modal('toggle');
+            $scope.cerrarVentana = "evento";
+        }
     };
     
     //_-------- Fecha -------------------
@@ -2426,16 +2477,16 @@ app.controller("ActividadesController", function($scope, $window, $http, $rootSc
                         for(var i=0; i<$scope.eventoActividad.length; i++)
                         {
                             //Validar si la fecha del evento actual existe en otros eventos
-                            if(k!=i && $scope.eventoActividad[k].Fecha == $scope.eventoActividad[i].Fecha)
+                            if(k!=i && fechaEliminar == $scope.eventoActividad[i].Fecha)
                             {
                                 quitarFecha = false;
-                                if(!quitarFecha)
+                                if(!agregarFecha)
                                 {
                                     break;
                                 }
                             }
                             //Validar que la nueva fecha no exita en otros 
-                            if($scope.eventoActividad[i].Fecha == evento.Fecha)
+                            if(k!=i && $scope.eventoActividad[i].Fecha == fechaEliminar)
                             {
                                 agregarFecha = false;
                                 if(!quitarFecha)
