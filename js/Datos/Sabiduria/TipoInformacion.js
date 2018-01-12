@@ -7,56 +7,56 @@ class TipoInformacion
     }
 }
 
-function GetTipoInformacion($http, $q, CONFIG)     
+function GetTipoInformacion($http, $q, CONFIG)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetTipoInformacion',
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            var tipoInformacion = []; 
-            for(var k=0; k<data.length; k++)
+            var tipoInformacion = [];
+            for(var k=0; k<response.data.length; k++)
             {
                 tipoInformacion[k] = new TipoInformacion();
-                tipoInformacion[k] = SetTipoInformacion(data[k]);
+                tipoInformacion[k] = SetTipoInformacion(response.data[k]);
             }
-    
-            q.resolve(tipoInformacion);  
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+            q.resolve(tipoInformacion);
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
 function SetTipoInformacion(data)
 {
     var tipoInformacion = new TipoInformacion();
-    
+
     tipoInformacion.TipoInformacionId = data.TipoInformacionId;
     tipoInformacion.Nombre = data.Nombre;
-    
+
     return tipoInformacion;
 }
 
 function AgregarTipoInformacion($http, CONFIG, $q, tipo)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/AgregarTipoInformacion',
           data: tipo
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
@@ -64,20 +64,17 @@ function EditarTipoInformacion($http, CONFIG, $q, tipo)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'PUT',
           url: CONFIG.APIURL + '/EditarTipoInformacion',
           data: tipo
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);    
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
-
-
-  

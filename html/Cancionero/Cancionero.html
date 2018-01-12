@@ -1,143 +1,148 @@
 <div ng-controller="CancioneroController as cancionero" class="container-fluid" style="margin-top:57px;">
 
-    <div class="row">
-        <!-- canciones -->
-        <div class="col-sm-3 ">
-            
-            <!-- buscar -->
-            <div class="row operacionApp" style="padding-top:5px; padding-bottom:5px">
-                
-                <div class="col-xs-12">
-                    <div class="input-group">
-                        <input autofocus type="text" class="buscarTexto form-control" ng-model="buscarCancionero" placeholder="¿Qué canción deseas interpretar?" id="buscarCancion">
-                        <span class="input-group-btn">
-                            <a class="btn limpiarTextoBoton"  ng-click="LimpiarBuscar(1)" type="button"><span class="fa fa-times-circle"></span></a>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row panelOpcionesCancionero" ng-show="!(anchoPantalla <= 767 && buscarCancionero.length == 0)">
-                <a class="btn cancionA" ng-class="ObtenerClaseCancion(cancion)" ng-repeat="cancion in cancion | filter:BuscarCancion | orderBy:'Titulo'" ng-click="VerDetalles(cancion)">
-                    
-                    <span class="col-xs-12" style="max-width:100%; overflow-x:hidden">{{cancion.Titulo}}</span>
-                    
-                    <div class="col-xs-12" style="overflow-x: hidden;">
-                        <span  ng-repeat="artista in cancion.Artista | orderBy:'Nombre'">
-                            <span class="textoArtista" ng-if="$last">{{artista.Nombre}}</span>
-                            <span class="textoArtista" ng-if="!$last">{{artista.Nombre}},</span>
-                        </span>
-                    </div>
-                        
-                </a>
-            </div>
-            
+  <div class="row">
+    <!-- canciones -->
+    <div class="col-sm-3 ">
+
+      <!-- buscar -->
+      <div class="row operacionApp" style="padding-top:5px; padding-bottom:5px">
+
+        <div class="col-xs-12">
+          <div class="input-group">
+            <input autofocus type="text" class="buscarTexto form-control" ng-model="buscarCancionero" placeholder="¿Qué canción deseas interpretar?" id="buscarCancion">
+            <span class="input-group-btn">
+              <a class="btn limpiarTextoBoton"  ng-click="LimpiarBuscar(1)" type="button"><span class="fa fa-times-circle"></span></a>
+            </span>
+          </div>
         </div>
-        
-        <!-- Vista cancionero -->
-        <div class="col-sm-9" ng-if="detalle.Titulo.length > 0">
-            <br>
-            <div class="row">
-                <div class="col-xs-12" style="z-index: 1">
-                    <span class="dropdown pull-right">
 
-                        <a href="" class=" botonTablaOperacion text-center"  data-toggle="dropdown">
-                           <span style="font-size:16pt" class="fa fa-users"></span>
-                       </a>
+      </div>
 
-                        <ul class="dropdown-menu dropdown-menu-right dropdownInfo">
+      <div class="row panelOpcionesCancionero" ng-show="!(anchoPantalla <= 767 && buscarCancionero.length == 0)">
 
-                            <div  class="row ">
-                                <div class="col-xs-12"> 
-                                    <li  class="dropdown-header tituloFitro"><b>Interpretes</b></li>
-                                </div>
-                            </div>
-                            <!--<li role="separator" class="divider"></li>-->
+        <a class="btn cancionA" ng-class="ObtenerClaseCancion(cancion)" ng-click="VerDetalles(cancion)" ng-repeat="cancion in cancion | filter:BuscarCancion | orderBy:'Titulo'">
 
-                            <li style="width: auto">
-                                <form role="infoEtoiqueta">
-                                    <div  style="margin-top: 10px"></div>
+          <span class="col-xs-12" style="max-width:100%; overflow-x:hidden">{{cancion.Titulo}}</span>
 
-                                    <div class="panel  panelFiltro" style="border-radius: 0px; padding: 2px important;">
-                                        <div class="row">
-                                            <div class="col-xs-12">
-                                                <ul>
-                                                    <li ng-repeat="artista in detalle.Artista | orderBy:'Nombre'">
-                                                        <span>{{artista.Nombre}}</span>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
+          <div class="col-xs-12" style="overflow-x: hidden;">
+            <span  ng-repeat="artista in cancion.Artista | orderBy:'Nombre'">
+              <span class="textoArtista" ng-if="$last">{{artista.Nombre}}</span>
+              <span class="textoArtista" ng-if="!$last">{{artista.Nombre}},</span>
+            </span>
+          </div>
 
-                                    </div>
-                                </form>
-                            </li>
+        </a>
+
+      </div>
+
+    </div>
+
+    <!-- Vista cancionero -->
+    <div class="col-sm-9" ng-if="detalle.Titulo.length > 0">
+      <br>
+      <div class="row">
+        <div class="col-xs-12" style="z-index: 1;">
+          <span class="dropdown pull-right">
+
+            <a href="" class="botonTablaOperacion" style="margin-right:20px" ng-click="RecomendarCancion()">
+              <span style="font-size:16pt" class="fa fa-share-alt"></span>
+            </a>
+
+            <a href="" class=" botonTablaOperacion text-center"  data-toggle="dropdown">
+              <span style="font-size:16pt" class="fa fa-users"></span>
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-right dropdownInfo">
+
+              <div  class="row ">
+                <div class="col-xs-12">
+                  <li  class="dropdown-header tituloFitro"><b>Interpretes</b></li>
+                </div>
+              </div>
+              <!--<li role="separator" class="divider"></li>-->
+
+              <li style="width: auto">
+                <form role="infoEtoiqueta">
+                  <div  style="margin-top: 10px"></div>
+
+                  <div class="panel  panelFiltro" style="border-radius: 0px; padding: 2px important;">
+                    <div class="row">
+                      <div class="col-xs-12">
+                        <ul>
+                          <li ng-repeat="artista in detalle.Artista | orderBy:'Nombre'">
+                            <span>{{artista.Nombre}}</span>
+                          </li>
                         </ul>
-                    </span>
-                </div>
-            </div>
-            
-            <div class="row" >
-                <div class="col-xs-10 col-xs-offset-1 tituloCancion" style="margin-top:-30px !important; position:block z-index:-3">
-                    <b>{{detalle.Titulo}}</b>
-                </div>
-            </div>
-            <!--<div class="row">
-                <div class="col-xs-12">
-                    <span ng-repeat="artista in detalle.Artista | orderBy:'Nombre'">
-                        <span class="textoArtista" ng-if="$last">{{artista.Nombre}}</span>
-                        <span class="textoArtista" ng-if="!$last">{{artista.Nombre}},</span>
-                    </span>
-                </div>
-            </div>-->
-            
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="sepadorDetalles"></div>
-                </div>
-            </div>
-            <!--<hr class="sepadorDetalles" ng-if="detalle.Titulo.length > 0">-->
-            
-            <div class="row" ng-if="detalle.Titulo.length > 0">
-                <div class="col-xs-12">
-                    <button class="btn pull-right expandirImagen" ng-click="VisualizarImagen(detalle.Cancionero)" data-toggle="modal" data-target="#verImagen"><span class="fa fa-arrows-alt"></span></button>
-                </div>
-            </div>
-            
-            <div class="row" ng-if="detalle.Titulo.length > 0 && detalle.Cancionero.length > 0">
-                <div class="col-xs-12 panelDetalleCancion">
-                    <img   class="img-responsive center-block" ng-src="data:image/PNG;base64,{{detalle.Cancionero}}"/>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-    
-    <!-- -------------------------------- Modales ----------------------------------------------------------------------- -->
+                      </div>
+                    </div>
 
-    <!---------- VerImagen ---------------->
-    <div class="modal fade modalCancionero" id="verImagen">
-        <div class=" modalImagenCancionero ">
-          <div class="row">
-                <div class="col-xs-12 tituloCancion" style="font-size:14pt !important">
-                    <b>{{detalle.Titulo}}</b>
-                    <button class="btn close cerrarModal" style="font-size:14pt !important" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">Salir</span></button>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-xs-12">
-                    <img  class="img-responsive center-block visualizarImagenCompleta" ng-src="data:image/PNG;base64,{{verImagen.imagen}}"/>
-                </div>
-            </div>
-            
-            
-            <br>
-            
+                  </div>
+                </form>
+              </li>
+            </ul>
+          </span>
         </div>
-    </div>
-    
-    
+      </div>
+
+      <div class="row" style="padding-right:80px;">
+        <div class="col-xs-10 col-xs-offset-1 tituloCancion" style="margin-top:-30px !important; position:block z-index:-3">
+          <b>{{detalle.Titulo}}</b>
+        </div>
+      </div>
+      <!--<div class="row">
+      <div class="col-xs-12">
+      <span ng-repeat="artista in detalle.Artista | orderBy:'Nombre'">
+      <span class="textoArtista" ng-if="$last">{{artista.Nombre}}</span>
+      <span class="textoArtista" ng-if="!$last">{{artista.Nombre}},</span>
+    </span>
+  </div>
+</div>-->
+
+<div class="row">
+  <div class="col-xs-12">
+    <div class="sepadorDetalles"></div>
+  </div>
+</div>
+<!--<hr class="sepadorDetalles" ng-if="detalle.Titulo.length > 0">-->
+
+<div class="row" ng-if="detalle.Titulo.length > 0">
+  <div class="col-xs-12">
+    <button class="btn pull-right expandirImagen" ng-click="VisualizarImagen(detalle.Cancionero)" data-toggle="modal" data-target="#verImagen"><span class="fa fa-arrows-alt"></span></button>
+  </div>
 </div>
 
-    
+<div class="row" ng-if="detalle.Titulo.length > 0 && detalle.Cancionero.length > 0">
+  <div class="col-xs-12 panelDetalleCancion">
+    <img   class="img-responsive center-block" ng-src="data:image/PNG;base64,{{detalle.Cancionero}}"/>
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- -------------------------------- Modales ----------------------------------------------------------------------- -->
+
+<!---------- VerImagen ---------------->
+<div class="modal fade modalCancionero" id="verImagen">
+  <div class=" modalImagenCancionero ">
+    <div class="row">
+      <div class="col-xs-12 tituloCancion" style="font-size:14pt !important">
+        <b>{{detalle.Titulo}}</b>
+        <button class="btn close cerrarModal" style="font-size:14pt !important" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">Salir</span></button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12">
+        <img  class="img-responsive center-block visualizarImagenCompleta" ng-src="data:image/PNG;base64,{{verImagen.imagen}}"/>
+      </div>
+    </div>
+
+
+    <br>
+
+  </div>
+</div>
+
+
+</div>

@@ -8,63 +8,63 @@ class Artista
     }
 }
 
-function GetArtista($http, $q, CONFIG, usuarioId)     
+function GetArtista($http, $q, CONFIG, usuarioId)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetArtista/' + usuarioId,
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exito")
+            if(response.data[0].Estatus == "Exito")
             {
-                var artista = []; 
-                for(var k=0; k<data[1].Artista.length; k++)
+                var artista = [];
+                for(var k=0; k<response.data[1].Artista.length; k++)
                 {
-                    artista[k] = SetArtista(data[1].Artista[k]);
+                    artista[k] = SetArtista(response.data[1].Artista[k]);
                 }
-                q.resolve(artista); 
+                q.resolve(artista);
             }
             else
             {
                 q.resolve([]);
             }
-             
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
 function SetArtista(data)
 {
     var artista = new Artista();
-    
+
     artista.ArtistaId = data.ArtistaId;
     artista.Nombre = data.Nombre;
     artista.UsuarioId = data.UsuarioId;
-    
+
     return artista;
 }
 
 function AgregarArtista($http, CONFIG, $q, artista)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/AgregarArtista',
           data: artista
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
@@ -72,18 +72,18 @@ function EditarArtista($http, CONFIG, $q, artista)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'PUT',
           url: CONFIG.APIURL + '/EditarArtista',
           data: artista
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);    
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
@@ -91,20 +91,17 @@ function BorrarArtista($http, CONFIG, $q, id)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'DELETE',
           url: CONFIG.APIURL + '/BorrarArtista',
           data: id
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);    
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
-
-
-  

@@ -1,31 +1,31 @@
-function GetUsuarios($http, $q, CONFIG)     
+function GetUsuarios($http, $q, CONFIG)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetUsuarios',
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            var usuario = []; 
-            for(var k=0; k<data.length; k++)
+            var usuario = [];
+            for(var k=0; k<response.data.length; k++)
             {
                 usuario[k] = new Usuario();
-                usuario[k] = SetUsuario2(data[k]);
+                usuario[k] = SetUsuario2(response.data[k]);
             }
-    
-            q.resolve(usuario);  
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+            q.resolve(usuario);
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
 function SetUsuario2(data)
 {
     var usuario = new Usuario();
-    
+
     usuario.UsuarioId = data.UsuarioId;
     usuario.NombreUsuario = data.NombreUsuario;
     usuario.Password = "";
@@ -34,26 +34,26 @@ function SetUsuario2(data)
     usuario.Apellidos = data.Apellidos;
     usuario.Correo = data.Correo;
     usuario.EtiquetaMsn = data.EtiquetaMsn;
-    
+
     return usuario;
 }
 
 function AgregarUsuario($http, CONFIG, $q, usuario)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/AgregarUsuario',
           data: usuario
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
@@ -61,82 +61,79 @@ function EditarUsuario($http, CONFIG, $q, usuario)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'PUT',
           url: CONFIG.APIURL + '/EditarUsuario',
           data: usuario
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);    
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
-function ActivarDesactivarUsuario($http, $q, CONFIG, usuario) 
+function ActivarDesactivarUsuario($http, $q, CONFIG, usuario)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/ActivarDesactivarUsuario',
           data: usuario
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data); 
-        }).error(function(data, Estatus){
-            q.resolve(Estatus);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
-    
+     });
+
     return q.promise;
 }
 
 /*------------ permisos ----------------*/
-function GetPermiso($http, $q, CONFIG)     
+function GetPermiso($http, $q, CONFIG)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetPermiso',
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exitoso")
+            if(response.data[0].Estatus == "Exitoso")
             {
-                q.resolve(data[1].Permiso); 
+                q.resolve(response.data[1].Permiso);
             }
             else
             {
-                q.resolve([]); 
+                q.resolve([]);
             }
-             
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
-function GetPermisoUsuario($http, $q, CONFIG, id)     
+function GetPermisoUsuario($http, $q, CONFIG, id)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetPermisoUsuario',
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);  
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
-
-
-  

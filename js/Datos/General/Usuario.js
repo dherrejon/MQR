@@ -16,28 +16,28 @@ class Usuario   //clase usuario
 
 
 //iniciar sesion
-function IniciarSesion($http, usuario, $q, CONFIG, md5)     
+function IniciarSesion($http, usuario, $q, CONFIG, md5)
 {
     var q = $q.defer();
-    
+
     usuario.clave = md5.createHash( usuario.password );
 
-    $http({      
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/Login',
           data: usuario
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Iniciado")
+            if(response.data[0].Estatus == "Iniciado")
             {
-                usuario = SetUsuario(data[1].Usuario);
+                usuario = SetUsuario(response.data[1].Usuario);
                 usuario.Aplicacion = "";
                 q.resolve(usuario);
             }
-            else if(data[0].Estatus == "SesionInicada")
+            else if(response.data[0].Estatus == "SesionInicada")
             {
-                q.resolve(data[0].Estatus);
+                q.resolve(response.data[0].Estatus);
             }
             else
             {
@@ -46,14 +46,14 @@ function IniciarSesion($http, usuario, $q, CONFIG, md5)
                 usuario.SesionIniciada = false;
                 q.resolve(usuario);
             }
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
 //Verificar el estado de la sesion
-function SesionIniciada($http, $q, CONFIG)          
+function SesionIniciada($http, $q, CONFIG)
 {
     var q = $q.defer();
     var usuario = new Usuario();
@@ -63,30 +63,30 @@ function SesionIniciada($http, $q, CONFIG)
             method: 'GET',
             url: CONFIG.APIURL + '/GetEstadoSesion'
 
-        }).success(function(data){
-            if( data[0].Estatus)
+        }).then(function(response){
+            if( response.data[0].Estatus)
             {
-                usuario = new Usuario(); 
-                usuario = SetUsuario(data[1].Usuario);
-                usuario.Aplicacion = data[0].Aplicacion;
+                usuario = new Usuario();
+                usuario = SetUsuario(response.data[1].Usuario);
+                usuario.Aplicacion = response.data[0].Aplicacion;
             }
             else
             {
-                usuario = new Usuario(); 
+                usuario = new Usuario();
                 usuario.SesionIniciada = false;
             }
 
             q.resolve(usuario);
 
-        }).error(function(data, Estatus){
-             alert("Ha fallado la petición, no se ha podido obtener el estado de sesion. Estado HTTP:"+Estatus);
+        }, function(response){
+             alert("Ha fallado la petición, no se ha podido obtener el estado de sesion. Estado HTTP:"+response.status);
     });
 
     return q.promise;
 }
 
 //cerrar sesion
-function CerrarSesion($http, $rootScope, $q, CONFIG)            
+function CerrarSesion($http, $rootScope, $q, CONFIG)
 {
     var q = $q.defer();
 
@@ -95,20 +95,20 @@ function CerrarSesion($http, $rootScope, $q, CONFIG)
           method: 'GET',
           url: CONFIG.APIURL + '/CerrarSesion'
 
-     }).success(function(data, status, headers, config){
+     }).then(function(response){
 
-           if( data[0].Estatus )
+           if( response.data[0].Estatus )
            {
               q.resolve(true);
            }
            else
            {
               q.resolve(false);
-           } 
+           }
 
-     }).error(function(data, status, headers, config){
+     }, function(response){
 
-           alert("Ha fallado la petición. Estado HTTP:"+status);
+           alert("Ha fallado la petición. Estado HTTP:"+response.status);
 
      });
 
@@ -116,10 +116,10 @@ function CerrarSesion($http, $rootScope, $q, CONFIG)
 }
 
  //Indicar los datos del usuario, periles y permisos
-function SetUsuario(data)              
+function SetUsuario(data)
 {
     var usuario = new Usuario();
-    
+
     usuario.UsuarioId = data[0].UsuarioId;
     usuario.NombreUsuario = data[0].NombreUsuario;
     usuario.Password = "";
@@ -129,7 +129,7 @@ function SetUsuario(data)
     usuario.Correo = data[0].Correo;
     usuario.EtiquetaMsn = data[0].EtiquetaMsn;
     usuario.SesionIniciada = true;
-    
+
     for(var k=0; k<data.length; k++)
     {
         usuario.Permiso[k] = data[k].Clave;
@@ -138,7 +138,7 @@ function SetUsuario(data)
 }
 
 //Poner el perfil seleccionado por el usuario en session
-function SetAplicacion(aplicacion, $http, CONFIG)       
+function SetAplicacion(aplicacion, $http, CONFIG)
 {
     var datos = [];
     datos[0] = aplicacion;
@@ -148,12 +148,10 @@ function SetAplicacion(aplicacion, $http, CONFIG)
           url: CONFIG.APIURL + '/SetAplicacion',
           data: datos
 
-     }).success(function(data){
+     }).then(function(response){
 
-           
 
-     }).error(function(data){
-
+     }, function(response){
 
      });
 }
@@ -163,18 +161,18 @@ function CambiarPasswordPorUsuario($http, CONFIG, $q, usuario)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'PUT',
           url: CONFIG.APIURL + '/CambiarPasswordPorUsuario',
           data: usuario
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data[0].Estatus);   
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data[0].Estatus);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
@@ -182,37 +180,37 @@ function RecuperarPassword($http, CONFIG, $q, usuario)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'PUT',
           url: CONFIG.APIURL + '/RecuperarPassword',
           data: usuario
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data[0].Estatus);   
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data[0].Estatus);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
 function ValidarRecuperarPassword($http, $q, CONFIG, solicitud)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/ValidarRecuperarPassword',
           data: solicitud
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);   
-        }).error(function(data){
-            q.resolve(data);
-     }); 
-    
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.data);
+     });
+
     return q.promise;
 }
 
@@ -220,14 +218,14 @@ function ReiniciarPassword($http, CONFIG, $q, usuario)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'PUT',
           url: CONFIG.APIURL + '/ReiniciarPassword',
           data: usuario
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exitoso") 
+            if(response.data[0].Estatus == "Exitoso")
             {
                 q.resolve("Exitoso");
             }
@@ -235,11 +233,11 @@ function ReiniciarPassword($http, CONFIG, $q, usuario)
             {
                 q.resolve("Fallido");
             }
-            
-        }).error(function(data, status){
-            q.resolve(status);
 
-     }); 
+        }, function(response){
+            q.resolve(response.status);
+
+     });
     return q.promise;
 }
 

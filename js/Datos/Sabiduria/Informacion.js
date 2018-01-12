@@ -12,55 +12,55 @@ class Informacion
         this.Observacion = "";
         this.Archivo = "";
         this.Etiqueta = [];
-        
+
         this.NombreArchivo = [];
         this.ExtensionArchivo = [];
-        
-        //-------- Origen Informacion 
+
+        //-------- Origen Informacion
         this.OrigenInformacion.OrigenInformacionId = "1";
         this.OrigenInformacion.Nombre = "Texto";
     }
 }
 
-function GetInformacion($http, $q, CONFIG)     
+function GetInformacion($http, $q, CONFIG)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetInformacion',
 
-      }).success(function(data)
+      }).then(function(response)
         {
             var informacion = [];
-            if(data[0].Estatus == "Exito")
+            if(response.data[0].Estatus == "Exito")
             {
-                for(var k=0; k<data[1].Informacion.length; k++)
+                for(var k=0; k<response.data[1].Informacion.length; k++)
                 {
                     informacion[k] = new Informacion();
-                    informacion[k] = SetInformacion(data[1].Informacion[k]);
+                    informacion[k] = SetInformacion(response.data[1].Informacion[k]);
                 }
             }
-    
-            q.resolve(informacion);  
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+            q.resolve(informacion);
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
 function SetInformacion(data)
 {
     var informacion = new Informacion();
-    
+
     informacion.InformacionId = data.InformacionId;
-    
+
     informacion.Observacion = data.Observacion;
     informacion.Seccion = data.Seccion;
     informacion.Titulo = data.Titulo;
-    
+
     informacion.ContenidoOriginal = data.Contenido;
-    
+
     if(data.Contenido != null)
     {
         informacion.Contenido = data.Contenido.replace(/\r?\n/g, "<br>");
@@ -69,7 +69,7 @@ function SetInformacion(data)
     {
         informacion.Contenido = "";
     }
-    
+
     if(data.Observacion != null)
     {
         informacion.ObservacionHTML = data.Observacion.replace(/\r?\n/g, "<br>");
@@ -78,61 +78,61 @@ function SetInformacion(data)
     {
         informacion.ObservacionHTML = "";
     }
-    
+
     informacion.Fuente.FuenteId = data.FuenteId;
     informacion.Fuente.Nombre = data.NombreFuente;
     informacion.Fuente.TipoFuente.TipoFuenteId = data.TipoFuenteId;
     informacion.Fuente.TipoFuente.Nombre = data.NombreTipoFuente;
-    
+
     informacion.TipoInformacion.TipoInformacionId = data.TipoInformacionId;
     informacion.TipoInformacion.Nombre = data.NombreTipoInformacion;
-    
+
     informacion.OrigenInformacion.OrigenInformacionId = data.OrigenInformacionId;
-    
+
     return informacion;
 }
 
 function AgregarInformacion($http, CONFIG, $q, informacion)
 {
     var q = $q.defer();
-    
+
     ChecarNulos(informacion, "Agregar");
-    
+
     var fd = new FormData();
-    
+
     if(informacion.OrigenInformacion.OrigenInformacionId == "2" || informacion.OrigenInformacion.OrigenInformacionId == "3" && informacion.ArchivoSeleccionado)
     {
         var file = informacion.Archivo;
         fd.append('file', file);
     }
-    
+
     fd.append('informacion', JSON.stringify(informacion));
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/AgregarInformacion',
           data: fd,
-          headers: 
+          headers:
           {
-            "Content-type": undefined 
+            "Content-type": undefined
           }
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exitoso")
+            if(response.data[0].Estatus == "Exitoso")
             {
-                q.resolve(data);
+                q.resolve(response.data);
             }
             else
             {
-                q.resolve(data);
+                q.resolve(response.data);
             }
-            
-            
-        }).error(function(data, status){
-            q.resolve(status);
 
-     }); 
+
+        }, function(response){
+            q.resolve(response.status);
+
+     });
     return q.promise;
 }
 
@@ -140,40 +140,40 @@ function EditarInformacion($http, CONFIG, $q, informacion)
 {
     var q = $q.defer();
     ChecarNulos(informacion, "Editar");
-    
+
     var fd = new FormData();
-    
+
     if((informacion.OrigenInformacion.OrigenInformacionId == "2" || informacion.OrigenInformacion.OrigenInformacionId == "3") && informacion.ArchivoSeleccionado)
     {
         var file = informacion.Archivo;
         fd.append('file', file);
     }
-    
+
     fd.append('informacion', JSON.stringify(informacion));
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/EditarInformacion',
           data: fd,
-          headers: 
+          headers:
           {
-            "Content-type": undefined 
+            "Content-type": undefined
           }
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exitoso")
+            if(response.data[0].Estatus == "Exitoso")
             {
-                q.resolve(data);
+                q.resolve(response.data);
             }
             else
             {
-                q.resolve(data);
-            }  
-        }).error(function(data, status){
-            q.resolve(status);
+                q.resolve(response.data);
+            }
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
@@ -186,14 +186,14 @@ function ChecarNulos(data, operacion)
         {
             data.Fuente.FuenteId = null;
         }
-        
+
         if(data.TipoInformacion.TipoInformacionId.length == 0)
         {
             data.TipoInformacion.TipoInformacionId = null;
         }
     }
     else if(operacion == "Editar")
-    {   
+    {
         if(data.Fuente.FuenteId == null)
         {
             data.Fuente.FuenteId = "null";
@@ -202,13 +202,13 @@ function ChecarNulos(data, operacion)
         {
             data.Fuente.FuenteId = "null";
         }
-        
+
         if(data.TipoInformacion.TipoInformacionId.length == 0)
         {
             data.TipoInformacion.TipoInformacionId = null;
         }
     }
-        
+
 }
 
 //------------------ Origen Informacion --------------------
@@ -224,120 +224,116 @@ class OrigenInformacion
 function GetOrigenInformacion()
 {
     var origen = [];
-    
+
     origen[0] = new OrigenInformacion();
     origen[0].OrigenInformacionId = "1";
     origen[0].Nombre = "Texto";
-    
+
     origen[1] = new OrigenInformacion();
     origen[1].OrigenInformacionId = "2";
     origen[1].Nombre = "Imagen";
-    
+
     origen[2] = new OrigenInformacion();
     origen[2].OrigenInformacionId = "3";
     origen[2].Nombre = "Archivo";
-    
+
     return origen;
 }
 
 /*--------------------- Datos de la informacion ----------------------*/
-function GetInformacionEtiqueta($http, $q, CONFIG, id)     
+function GetInformacionEtiqueta($http, $q, CONFIG, id)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetInformacionEtiqueta/'+id,
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exito")
+            if(response.data[0].Estatus == "Exito")
             {
-                q.resolve(data[1].Etiqueta);  
+                q.resolve(response.data[1].Etiqueta);
             }
             else
             {
-                q.resolve([]); 
+                q.resolve([]);
             }
-            
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
 
-function GetEtiquetasInformacion($http, $q, CONFIG)     
+function GetEtiquetasInformacion($http, $q, CONFIG)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetEtiquetasInformacion'
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exito")
+            if(response.data[0].Estatus == "Exito")
             {
-                q.resolve(data[1].Etiqueta);  
+                q.resolve(response.data[1].Etiqueta);
             }
             else
             {
-                q.resolve([]); 
+                q.resolve([]);
             }
-            
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
-function GetTemaInformacion($http, $q, CONFIG)     
+function GetTemaInformacion($http, $q, CONFIG)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetTemaInformacion'
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exito")
+            if(response.data[0].Estatus == "Exito")
             {
-                q.resolve(data[1].Tema);  
+                q.resolve(response.data[1].Tema);
             }
             else
             {
-                q.resolve([]); 
+                q.resolve([]);
             }
-            
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
-function GetArchivoInformacion($http, $q, CONFIG, id)     
+function GetArchivoInformacion($http, $q, CONFIG, id)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetArchivoInformacion/'+id,
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exito")
+            if(response.data[0].Estatus == "Exito")
             {
-                q.resolve(data[1].Archivo[0]);  
+                q.resolve(response.data[1].Archivo[0]);
             }
             else
             {
-                q.resolve([]);      
+                q.resolve([]);
             }
-            
-        }).error(function(data, status){
+
+        }, function(response){
             q.resolve([]);
-     }); 
+     });
     return q.promise;
 }
-
-
-
-  

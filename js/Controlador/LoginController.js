@@ -1,20 +1,20 @@
-app.controller("LoginController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
-{   
+app.controller("LoginController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, Notificaciones)
+{
     $scope.mensajeError = "";
     $scope.mensajeErrorPassword = "";
     $scope.usuarioLogin = {correo:"", password:""};
-    
+
     $scope.usuario = datosUsuario.getUsuario();
     /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
     $scope.$on('cambioUsuario',function()
     {
-        $scope.usuario =  datosUsuario.getUsuario();    
+        $scope.usuario =  datosUsuario.getUsuario();
         if($scope.usuario.SesionIniciada)
         {
             $rootScope.IrPaginaPrincipal();
         }
     });
-    
+
     $scope.IniciarSesion = function(usuarioInvalido, passwordInvalido)
     {
         if(!$scope.ValidarDatos(usuarioInvalido, passwordInvalido))
@@ -35,10 +35,11 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
 
                 //$scope.usuario = data;
                 if(data.SesionIniciada)
-                {   
+                {
                     $window.location = "#Aplicacion";
                     $scope.messageError = "";
                     datosUsuario.enviarUsuario(data);
+                    Notificaciones.conectar();
                 }
                 else if(!data.SesionIniciada)
                 {
@@ -54,31 +55,31 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
                 }
 
 
-            }).catch(function(error){
+            }, function(error){
                 $scope.usuarioLogin = {correo:"", password:""};
                  $scope.mensajeError = error;
                 $('#mensajeLoginError').modal('toggle');
             });
         }
     };
-    
+
     $scope.ValidarDatos = function(usuarioInvalido, passwordInvalido)
     {
         if(usuarioInvalido) //verifica que los campos de nombre de usuario y de password contengan datos
         {
-            $scope.mensajeError = "*Debes escribir un usuario"; 
+            $scope.mensajeError = "*Debes escribir un usuario";
             return false;
         }
-        
+
         if(passwordInvalido)
         {
-            $scope.mensajeError = "*Debes escribir una contraseña"; 
+            $scope.mensajeError = "*Debes escribir una contraseña";
             return false;
         }
-        
+
         return true;
     };
-    
+
     if($scope.usuario !== null)
     {
         if($scope.usuario.SesionIniciada)
@@ -86,7 +87,7 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
             $scope.IrPaginaPrincipal();
         }
     }
-    
+
     //------------------- Recuperar contraseña ----------------------
     $scope.RecuperarPassword = function(usuarioInvalido)
     {
@@ -96,10 +97,10 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
             $scope.mensajeErrorPassword = "*Escribe un usuario válido.";
             return;
         }
-        
+
         var usuario = new Object();
         usuario.Correo = $scope.usuarioLogin.correo;
-        
+
         RecuperarPassword($http, CONFIG, $q, usuario).then(function(data)
         {
             if(data == "Exitoso")
@@ -125,12 +126,12 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
             return;
         });
     };
-    
+
     $scope.CerrarRecuperarPasswordForma = function()
     {
         $scope.mensajeError = "";
     };
-    
+
     $scope.LimpiarBuscar = function(buscar)
     {
         switch(buscar)
@@ -141,12 +142,12 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
             case 2:
                 $scope.usuarioLogin.password = "";
                 break;
-            default: 
+            default:
                 break;
         }
-        
+
     };
-    
+
     //Presionar enter para login
     $('#loginPanel').keydown(function(e)
     {
@@ -162,4 +163,3 @@ app.controller("LoginController", function($scope, $window, $http, $rootScope, m
     });
 
 });
-

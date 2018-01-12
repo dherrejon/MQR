@@ -1,387 +1,1023 @@
 <div ng-controller="EncabezadoControlador as encabezado" ng-show="usuario.SesionIniciada">
-   
-    <div class="container-fluid">
-        
-        <div class="row">
-            <div class="col-xs-12">
-                <!-- Alertas -->
-                <div class="alertaMensaje" id="alertaExitoso">
-                    <div class="alert alertaExtito">
-                        <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
-                        <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
-                        <strong style="display: inline-block;">{{mensaje}}</strong>
-                    </div>
-                </div>
-            </div>
+
+  <div class="container-fluid">
+
+    <div class="row">
+      <div class="col-xs-12">
+        <!-- Alertas -->
+        <div class="alertaMensaje" id="alertaExitoso">
+          <div class="alert alertaExtito">
+            <!--<button type="button" class="close" data-dismiss="alert">x</button>-->
+            <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
+            <strong style="display: inline-block;">{{mensaje}}</strong>
+          </div>
         </div>
-        
-        <div class="row">
-            <div class="col-xs-12" style="z-index:9">
-
-                <nav class="encabezadoUsuario navbar  navbar-fixed-top">
-                    <div style="padding-left:15px; padding-right:20px">
-
-                        <div class="navbar-header">
-
-                            <button id="buttonCollapse" type="button" class="barraNavegacionBoton navbar-toggle" data-toggle="collapse" data-target="#navbarCollapse">
-                              <span class="barraNavegacionHamburguesa icon-bar"></span>
-                              <span class="barraNavegacionHamburguesa icon-bar"></span>
-                              <span class="barraNavegacionHamburguesa icon-bar"></span>
-                            </button>
-
-                            <span class="encabezadoTitulo pull-left">
-                                <span>{{barraNavegacion.titulo}}</span>
-                            </span>
-
-                        </div>
-
-                         <!-- Collect the nav links, forms, and other content for toggling -->
-                        <div  class="collapse navbar-collapse" id="navbarCollapse">
-                                
-                            <ul class="nav navbar-nav navbar-right hidden-xs">
-                                   
-                               <li ng-if="opcion.show && opcion.tipo=='link' && opcion.show" ng-repeat="opcion in barraNavegacion.opcion">
-                                    <!-- menú principal -->
-                                    <a href="{{opcion.referencia}}">
-                                        <span>{{opcion.texto}}</span>
-
-                                    </a>
-                                </li>
-
-                                <li ng-if="opcion.show && opcion.tipo=='dropdown' && opcion.show" ng-repeat="opcion in barraNavegacion.opcion"  class="dropdown " ng-mouseenter="MouseEnterarElemento($index);" ng-mouseleave="MouseSalirElemento($index);" id="{{opcion.texto}}">
-                                    <!-- menú principal -->
-                                    <a class="claseSeccion" ng-click="MouseClickOpcion(opcion, 'opc')">
-                                        <span>{{opcion.texto}}</span>
-
-                                    </a>
-
-                                    <!-- módulos desplegados en dropdown list -->
-                                    <ul class="dropdown-menu barraNavegacionDropdown">
-
-                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0 && elemento.show">
-                                            <a  href="{{elemento.referencia}}" class="dropdownOpcion" ng-click="MouseClickElemento(opcion.texto, null);">
-                                                <span>{{elemento.texto}}</span>
-                                            </a>
-                                        </li>
-
-                                        <!--<li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length > 0">
-                                            <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento(opcion, elemento.funcion);">
-                                                <span>{{elemento.texto}}</span>
-                                            </a>
-                                        </li>-->
-
-                                    </ul>
-
-                                </li>
-                        
-                               
-                               <!-- app -->
-                                <li class="dropdown " ng-mouseenter="MouseEnterarElementoPredeterminado('app');" ng-mouseleave="MouseSalirElementoPredeterminado('app');" id="app" ng-show="usuario.Aplicacion != 'Aplicaciones'">
-                                    <a class="claseSeccion" ng-click="MouseClickOpcion('app', 'pre')">
-                                        <span>App</span>
-                                        <span class="fa fa-caret-down"></span>
-                                    </a>
-
-
-                                    <ul class="dropdown-menu barraNavegacionDropdown">
-                                        
-                                        <li>
-                                          <a  href="#Aplicacion" class="dropdownOpcion" ng-click="IniciarApp('Aplicaciones')">
-                                            <span class="fa fa-home"></span>
-                                            <span>Bienvenida</span>
-                                          </a>
-                                        </li>
-
-                                        <li ng-repeat="app in apps |orderBy:['grupo']" ng-show="app.habilitada" ng-class="{dropdownsubmenu: app.isGrupo}">
-                                            <!-- Inicio -->
-                                            <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)" ng-if="!app.isGrupo && app.grupo == 'Inicio'">
-                                                <span ng-class="app.icono"></span>
-                                                <span>{{app.texto}}</span>
-                                            </a>
-                                            
-                                            <!-- dropdownlist -->
-                                            <a href="" class="dropdownOpcion" ng-if="app.isGrupo">
-                                                <span class="fa fa-caret-left"></span > {{app.texto}}
-                                            </a>
-                                            <ul class="dropdown-menu dropdown-menu-right">
-                                                <li ng-repeat="app2 in apps" ng-if="app2.grupo == app.texto">
-                                                    <a ng-if="app2.habilitada" href="" class="dropdownOpcion" ng-click="IniciarApp(app2)"> 
-                                                        <span ng-class="app2.icono"></span>
-                                                        <span>{{app2.texto}}</span>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-
-                                    </ul>
-
-                                </li>
-                                
-                                <!-- usuario -->
-                                <li   class="dropdown " ng-mouseenter="MouseEnterarElementoPredeterminado('usuario');" ng-mouseleave="MouseSalirElementoPredeterminado('usuario');" id="usuario">
-                                    <a class="claseSeccion" ng-click="MouseClickOpcion('usuario', 'pre')">
-                                        <span class="fa fa-user"></span>
-                                        <span> {{usuario.NombreUsuario}}</span>
-                                    </a>
-
-
-                                    <ul class="dropdown-menu barraNavegacionDropdown">
-                                        
-                                        <li  ng-if="permisoUsuario">
-                                            <a  href="#Usuario" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', null);">
-                                                <span>Administrar Usuarios</span>
-                                            </a>
-                                        </li>
-
-                                        <li>
-                                            <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CambiarPassword');">
-                                                <span>Cambiar Contraseña</span>
-                                            </a>
-                                        </li>
-                                        
-                                        <li>
-                                            <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CerrarSesion');">
-                                                <span>Cerrar Sesión</span>
-                                            </a>
-                                        </li>
-                                    
-                                    </ul>
-
-                                </li>
-                            </ul>
-                            
-                            <!-- barra de navegación en móviles (xs)-->
-                            <ul class="nav navbar-nav hidden-sm hidden-lg hidden-md">
-
-                               <li ng-repeat="opcion in barraNavegacion.opcion"  ng-if="opcion.show && opcion.tipo=='link'">
-                                    <a  class="text-center" href="{{opcion.referencia}}" ng-click="CerrarBarraNavegacion()">
-                                        <span>{{opcion.texto}}</span>
-                                   </a>
-                                </li>
-
-                                <li ng-repeat="opcion in barraNavegacion.opcion" class="dropdown" ng-if="opcion.show && opcion.tipo=='dropdown'">
-
-                                    <a class="dropdown-toggle  text-center" data-toggle="dropdown">
-                                        <span>{{opcion.texto}}</span>
-                                        <span class="caret"></span>
-                                    </a>
-
-                                    <ul class="dropdown-menu barraNavegacionDropdown">
-                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0 && elemento.show">
-                                            <a href="{{elemento.referencia}}" class="dropdownOpcion text-center" ng-click="CerrarBarraNavegacion()">
-                                                <span>{{elemento.texto}}</span>
-                                            </a>
-                                        </li>
-
-                                        <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length > 0 && elemento.show">
-                                            <a  href="" class="dropdownOpcion text-center" ng-click="MouseClickElemento(opcion, elemento.funcion);">
-                                                <span>{{elemento.texto}}</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                
-                                <!-- app -->
-                                <li ng-show="usuario.Aplicacion != 'Aplicaciones'">
-
-                                    <a class="dropdown-toggle  text-center" data-toggle="dropdown">
-                                        <span>App</span>
-                                        <span class="caret"></span>
-                                    </a>
-
-                                    <ul class="dropdown-menu barraNavegacionDropdown">
-                                      
-                                      <li>
-                                          <a  href="#Aplicacion" class="dropdownOpcion" ng-click="IniciarApp('Aplicaciones')">
-                                            <span class="fa fa-home"></span>
-                                            <span>Bienvenida</span>
-                                          </a>
-                                      </li>
-                                       
-                                       <li ng-repeat="app in apps |orderBy:['grupo']" ng-show="app.habilitada" ng-class="{dropdownsubmenu: app.isGrupo}">
-                                            <!-- Inicio -->
-                                            <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)" ng-if="!app.isGrupo && app.grupo == 'Inicio'">
-                                                <span ng-class="app.icono"></span>
-                                                <span>{{app.texto}}</span>
-                                            </a>
-                                            
-                                            <!-- dropdownlist -->
-                                            <a href="" data-toggle="dropdown" class="dropdown-toggle dropdownOpcion" ng-if="app.isGrupo" id="{{app.texto}}">
-                                                <b>{{app.texto}}</b> <span class="fa fa-caret-right"></span >
-                                            </a>   
-                                            <ul class="dropdown-menu dropdown-menu-right" role="{{app.texto}}" aria-labelledby="{{elemento.texto}}"  ng-if="app.isGrupo" style="display: block !important;">
-                                                <li ng-repeat="app2 in apps" ng-if="app2.grupo == app.texto">
-                                                    <a ng-if="app2.habilitada" href="" class="dropdownOpcion dropdownOpcion2level" ng-click="IniciarApp(app2)"> 
-                                                        <span ng-class="app2.icono"></span>
-                                                        <span>{{app2.texto}}</span>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>                                        
-                                    </ul>
-                                </li>                
-                                
-                                <!-- Usuario -->
-                                <li>
-
-                                    <a class="dropdown-toggle  text-center" data-toggle="dropdown">
-                                        <span class="fa fa-user"></span>
-                                        <span> {{usuario.NombreUsuario}}</span>
-                                    </a>
-
-                                    <ul class="dropdown-menu barraNavegacionDropdown">
-                                        
-                                        <li  ng-if="permisoUsuario">
-                                            <a  href="#Usuario" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', null);">
-                                                <span>Administrar Usuarios</span>
-                                            </a>
-                                        </li>
-
-                                        <li>
-                                            <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CambiarPassword');">
-                                                <span>Cambiar Contraseña</span>
-                                            </a>
-                                        </li>
-                                        
-                                        <li>
-                                            <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CerrarSesion');">
-                                                <span>Cerrar Sesión</span>
-                                            </a>
-                                        </li>
-
-                                    </ul>
-                                </li>
-                                
-                            </ul>
-                            
-                        </div>
-
-                    </div>
-                </nav>
-                 
-            </div>
-        </div>
+      </div>
     </div>
-    
-    <!----------------------- Modales ----------------------------------->
-    <div class="modal fade" id="CambiarPasswordModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
+
+    <div class="row">
+      <div class="col-xs-12" style="z-index:9">
+
+        <nav class="encabezadoUsuario navbar  navbar-fixed-top">
+          <div style="padding-left:15px; padding-right:20px">
+
+            <div class="navbar-header">
+
+              <button id="buttonCollapse" type="button" class="barraNavegacionBoton navbar-toggle" data-toggle="collapse" data-target="#navbarCollapse">
+                <span class="barraNavegacionHamburguesa icon-bar"></span>
+                <span class="barraNavegacionHamburguesa icon-bar"></span>
+                <span class="barraNavegacionHamburguesa icon-bar"></span>
+              </button>
+
+              <!-- Notificaciones -->
+              <a href="" class="pull-right xs-btn-notificaciones visible-xs" ng-if="'inicial'!==lista_notificaciones.estado"  ng-click="MostrarModalNotificaciones()">
+                <span>
+                  <i class="fa fa-bell fa-2x" aria-hidden="true"></i>
+                </span>
+                <span class="badge badge-notificaciones" ng-if="lista_notificaciones.noleidas>0">
+                  {{lista_notificaciones.noleidas}}
+                </span>
+              </a>
+
+
+              <span class="encabezadoTitulo pull-left">
+                <span>{{barraNavegacion.titulo}}</span>
+              </span>
+
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div  class="collapse navbar-collapse" id="navbarCollapse">
+
+              <ul class="nav navbar-nav navbar-right hidden-xs">
+
+                <li ng-if="opcion.show && opcion.tipo=='link' && opcion.show" ng-repeat="opcion in barraNavegacion.opcion">
+                  <!-- menú principal -->
+                  <a href="{{opcion.referencia}}">
+                    <span>{{opcion.texto}}</span>
+                  </a>
+                </li>
+
+                <li ng-if="opcion.show && opcion.tipo=='dropdown' && opcion.show" ng-repeat="opcion in barraNavegacion.opcion"  class="dropdown " ng-mouseenter="MouseEnterarElemento($index);" ng-mouseleave="MouseSalirElemento($index);" id="{{opcion.texto}}">
+                  <!-- menú principal -->
+                  <a class="claseSeccion" ng-click="MouseClickOpcion(opcion, 'opc')">
+                    <span>{{opcion.texto}}</span>
+
+                  </a>
+
+                  <!-- módulos desplegados en dropdown list -->
+                  <ul class="dropdown-menu barraNavegacionDropdown">
+
+                    <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0 && elemento.show">
+                      <a  href="{{elemento.referencia}}" class="dropdownOpcion" ng-click="MouseClickElemento(opcion.texto, null);">
+                        <span>{{elemento.texto}}</span>
+                      </a>
+                    </li>
+
+                    <!--<li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length > 0">
+                    <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento(opcion, elemento.funcion);">
+                    <span>{{elemento.texto}}</span>
+                  </a>
+                </li>-->
+
+              </ul>
+
+            </li>
+
+
+            <!-- app -->
+            <li class="dropdown " ng-mouseenter="MouseEnterarElementoPredeterminado('app');" ng-mouseleave="MouseSalirElementoPredeterminado('app');" id="app" ng-show="usuario.Aplicacion != 'Aplicaciones'">
+              <a class="claseSeccion" ng-click="MouseClickOpcion('app', 'pre')">
+                <span>App</span>
+                <span class="fa fa-caret-down"></span>
+              </a>
+
+
+              <ul class="dropdown-menu barraNavegacionDropdown">
+
+                <li>
+                  <a  href="#Aplicacion" class="dropdownOpcion" ng-click="IniciarApp('Aplicaciones')">
+                    <span class="fa fa-home"></span>
+                    <span>Bienvenida</span>
+                  </a>
+                </li>
+
+                <li ng-repeat="app in apps |orderBy:['grupo']" ng-show="app.habilitada" ng-class="{dropdownsubmenu: app.isGrupo}">
+                  <!-- Inicio -->
+                  <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)" ng-if="!app.isGrupo && app.grupo == 'Inicio'">
+                    <span ng-class="app.icono"></span>
+                    <span>{{app.texto}}</span>
+                  </a>
+
+                  <!-- dropdownlist -->
+                  <a href="" class="dropdownOpcion" ng-if="app.isGrupo">
+                    <span class="fa fa-caret-left"></span > {{app.texto}}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <li ng-repeat="app2 in apps" ng-if="app2.grupo == app.texto">
+                        <a ng-if="app2.habilitada" href="" class="dropdownOpcion" ng-click="IniciarApp(app2)">
+                          <span ng-class="app2.icono"></span>
+                          <span>{{app2.texto}}</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+
+                </ul>
+
+              </li>
+
+              <!-- Notificaciones -->
+              <li ng-if="'inicial'!==lista_notificaciones.estado">
+                <a href="" ng-click="MostrarModalNotificaciones()">
+                  <span>
+                    <i class="fa fa-bell" aria-hidden="true"></i>
+                  </span>
+                  <span class="badge badge-notificaciones" style="margin-bottom: 10px;" ng-if="lista_notificaciones.noleidas>0">
+                    {{lista_notificaciones.noleidas}}
+                  </span>
+                </a>
+              </li>
+
+              <!-- usuario -->
+              <li   class="dropdown " ng-mouseenter="MouseEnterarElementoPredeterminado('usuario');" ng-mouseleave="MouseSalirElementoPredeterminado('usuario');" id="usuario">
+
+                <a class="claseSeccion" ng-click="MouseClickOpcion('usuario', 'pre')">
+                  <span class="fa fa-user"></span>
+                  <span> {{usuario.NombreUsuario}}</span>
+                </a>
+
+
+                <ul class="dropdown-menu barraNavegacionDropdown">
+
+                  <li class="dropdownsubmenu">
+                    <a href="" class="dropdownOpcion">
+                      <span class="fa fa-caret-left"></span >&nbsp;&nbsp;Amistad
+                      </a>
+                      <ul class="dropdown-menu dropdown-menu-right">
+                        <li>
+                          <a href="" class="dropdownOpcion" ng-click="MostrarMdlSolicitudAmistad()">
+                            <span>Solicitudes de amistad</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a href="" class="dropdownOpcion"  data-toggle="modal" ng-click="MostrarModalAmigos()">
+                            <span>Lista de amigos</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
+
+                    <li  ng-if="permisoUsuario">
+                      <a  href="#Usuario" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', null);">
+                        <span>Administrar Usuarios</span>
+                      </a>
+                    </li>
+
+                    <li>
+                      <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CambiarPassword');">
+                        <span>Cambiar Contraseña</span>
+                      </a>
+                    </li>
+
+                    <li>
+                      <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CerrarSesion');">
+                        <span>Cerrar Sesión</span>
+                      </a>
+                    </li>
+
+                  </ul>
+
+                </li>
+
+              </ul>
+
+
+              <!-- barra de navegación en móviles (xs)-->
+              <ul class="nav navbar-nav hidden-sm hidden-lg hidden-md">
+
+                <li ng-repeat="opcion in barraNavegacion.opcion"  ng-if="opcion.show && opcion.tipo=='link'">
+                  <a  class="text-center" href="{{opcion.referencia}}" ng-click="CerrarBarraNavegacion()">
+                    <span>{{opcion.texto}}</span>
+                  </a>
+                </li>
+
+                <li ng-repeat="opcion in barraNavegacion.opcion" class="dropdown" ng-if="opcion.show && opcion.tipo=='dropdown'">
+
+                  <a class="dropdown-toggle  text-center" data-toggle="dropdown">
+                    <span>{{opcion.texto}}</span>
+                    <span class="caret"></span>
+                  </a>
+
+                  <ul class="dropdown-menu barraNavegacionDropdown">
+                    <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length == 0 && elemento.show">
+                      <a href="{{elemento.referencia}}" class="dropdownOpcion text-center" ng-click="CerrarBarraNavegacion()">
+                        <span>{{elemento.texto}}</span>
+                      </a>
+                    </li>
+
+                    <li ng-repeat="elemento in opcion.elemento | orderBy:'texto'" ng-if="elemento.funcion.length > 0 && elemento.show">
+                      <a  href="" class="dropdownOpcion text-center" ng-click="MouseClickElemento(opcion, elemento.funcion);">
+                        <span>{{elemento.texto}}</span>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+
+                <!-- app -->
+                <li ng-show="usuario.Aplicacion != 'Aplicaciones'">
+
+                  <a class="dropdown-toggle  text-center" data-toggle="dropdown">
+                    <span>App</span>
+                    <span class="caret"></span>
+                  </a>
+
+                  <ul class="dropdown-menu barraNavegacionDropdown">
+
+                    <li>
+                      <a  href="#Aplicacion" class="dropdownOpcion" ng-click="IniciarApp('Aplicaciones')">
+                        <span class="fa fa-home"></span>
+                        <span>Bienvenida</span>
+                      </a>
+                    </li>
+
+                    <li ng-repeat="app in apps |orderBy:['grupo']" ng-show="app.habilitada" ng-class="{dropdownsubmenu: app.isGrupo}">
+                      <!-- Inicio -->
+                      <a  href="" class="dropdownOpcion" ng-click="IniciarApp(app)" ng-if="!app.isGrupo && app.grupo == 'Inicio'">
+                        <span ng-class="app.icono"></span>
+                        <span>{{app.texto}}</span>
+                      </a>
+
+                      <!-- dropdownlist -->
+                      <a href="" data-toggle="dropdown" class="dropdown-toggle dropdownOpcion" ng-if="app.isGrupo" id="{{app.texto}}">
+                        <b>{{app.texto}}</b> <span class="fa fa-caret-right"></span >
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right" role="{{app.texto}}" aria-labelledby="{{elemento.texto}}"  ng-if="app.isGrupo" style="display: block !important;">
+                          <li ng-repeat="app2 in apps" ng-if="app2.grupo == app.texto">
+                            <a ng-if="app2.habilitada" href="" class="dropdownOpcion dropdownOpcion2level" ng-click="IniciarApp(app2)">
+                              <span ng-class="app2.icono"></span>
+                              <span>{{app2.texto}}</span>
+                            </a>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+
+                  <!-- Usuario -->
+                  <li>
+
+                    <a class="dropdown-toggle  text-center" data-toggle="dropdown">
+                      <span class="fa fa-user"></span>
+                      <span> {{usuario.NombreUsuario}}</span>
+                    </a>
+
+                    <ul class="dropdown-menu barraNavegacionDropdown">
+
+                      <li class="dropdownsubmenu">
+                        <a href="" class="dropdownOpcion">
+                          Amistad&nbsp;&nbsp;<span class="fa fa-caret-down"></span >
+                          </a>
+                          <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+                              <a href="" class="dropdownOpcion dropdownOpcion2level"  ng-click="MostrarMdlSolicitudAmistad();CerrarBarraNavegacion()">
+                                <span>Solicitudes de amistad</span>
+                              </a>
+                            </li>
+                            <li>
+                              <a href="" class="dropdownOpcion dropdownOpcion2level"  data-toggle="modal" ng-click="MostrarModalAmigos();CerrarBarraNavegacion();">
+                                <span>Lista de amigos</span>
+                              </a>
+                            </li>
+                          </ul>
+                        </li>
+
+                        <li  ng-if="permisoUsuario">
+                          <a  href="#Usuario" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', null);">
+                            <span>Administrar Usuarios</span>
+                          </a>
+                        </li>
+
+                        <li>
+                          <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CambiarPassword');">
+                            <span>Cambiar Contraseña</span>
+                          </a>
+                        </li>
+
+                        <li>
+                          <a  href="" class="dropdownOpcion" ng-click="MouseClickElemento('usuario', 'CerrarSesion');">
+                            <span>Cerrar Sesión</span>
+                          </a>
+                        </li>
+
+                      </ul>
+                    </li>
+
+                  </ul>
+
+                </div>
+
+              </div>
+            </nav>
+
+          </div>
+        </div>
+      </div>
+
+      <!----------------------- Modales ----------------------------------->
+      <div class="modal fade" id="CambiarPasswordModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="static">
         <br>    <br>   <br>
         <div class="modal-dialog modalPrincipal">
-           
-            <div class="row">
-                <div class="col-xs-12">
-                    <a class="btn close cerrarModal" ng-click="CerrarCambiarPasswordForma()"><span aria-hidden="true">&times;</span></a>
-                    <span class="tituloModal">Cambiar Contraseña</span>
-                </div>
-            </div>
-            <br><br><br>
-            
-            <form name="passwordForma">
-                <div class="row">
-                    <div class="col-sm-6">
-                       <div class="entrada2">
-                            <input type="password" required ng-pattern="erPassword" class="{{clasePassword.nuevo}} form-control" name="nuevo" ng-model="nuevoPassword.nuevo" ng-maxlength="150"/>
-                            <label>Nueva Contraseña</label>
-                        </div>
-                     </div>
-                     
-                     <br class="hidden-sm hidden-md hidden-lg"><br class="hidden-sm hidden-md hidden-lg">
-                     <div class="col-sm-6">
-                       <div class="entrada2">
-                            <input type="password" required class="{{clasePassword.repetir}} form-control" name="repetir" ng-model="nuevoPassword.repetir" ng-maxlength="150"/>
-                            <label>Repetir Contraseña</label>
-                        </div>
-                   </div>          
-                </div>
-                <br><br>
-                <div class="row">
-                    <div class="col-sm-6">
-                       <div class="entrada2">
-                            <input type="password" required class="{{clasePassword.actual}} form-control" name="actual" ng-model="nuevoPassword.actual" ng-maxlength="150"/>
-                            <label>Contraseña Actual</label>
-                        </div>
-                     </div>          
-                </div>
-                <br>
-                <!-------- mensaje de error ---->
-                <!--<div class="row">
-                    <div class="col-xs-12">
-                        <div ng-repeat="error in mensajeError">
-                            <span class="textoError">{{error}}</span>
-                        </div>
-                    </div>
-                </div>-->
-                <br>
-                <!---- botones de operacion -->
-                <div class="row">
-                    <div class="col-xs-6">
-                        <a class="btn botonFinModal btn-block" ng-click="CerrarCambiarPasswordForma()">CANCELAR</a>
-                    </div>
 
-                    <div class="col-xs-6">
-                        <a focus class="btn botonFinModal btn-block" ng-click="GuardarPassword(passwordForma.nuevo.$invalid)">TERMINAR</a>
-                    </div>
-                </div>
-            <br>
-            </form> 
-            
-        </div>
-    </div>
-    
-    <!-- cerrar -->
-    <div class="modal fade sombraDivModal" id="cerrarCambiarPassword">
-        <br>    <br>   <br>
-        <div class="modal-dialog modal-sm modalPrincipal text-center">
-           
+          <div class="row">
+            <div class="col-xs-12">
+              <a class="btn close cerrarModal" ng-click="CerrarCambiarPasswordForma()"><span aria-hidden="true">&times;</span></a>
+              <span class="tituloModal">Cambiar Contraseña</span>
+            </div>
+          </div>
+          <br><br><br>
+
+          <form name="passwordForma">
             <div class="row">
-                <div class="col-xs-12">
-                    <span style="font-size:14pt">¿Estas seguro de salir sin guardar los cambios?</span>
+              <div class="col-sm-6">
+                <div class="entrada2">
+                  <input type="password" required ng-pattern="erPassword" class="{{clasePassword.nuevo}} form-control" name="nuevo" ng-model="nuevoPassword.nuevo" ng-maxlength="150"/>
+                  <label>Nueva Contraseña</label>
                 </div>
+              </div>
+
+              <br class="hidden-sm hidden-md hidden-lg"><br class="hidden-sm hidden-md hidden-lg">
+              <div class="col-sm-6">
+                <div class="entrada2">
+                  <input type="password" required class="{{clasePassword.repetir}} form-control" name="repetir" ng-model="nuevoPassword.repetir" ng-maxlength="150"/>
+                  <label>Repetir Contraseña</label>
+                </div>
+              </div>
             </div>
             <br><br>
             <div class="row">
-                <div class="col-xs-6">
-                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
+              <div class="col-sm-6">
+                <div class="entrada2">
+                  <input type="password" required class="{{clasePassword.actual}} form-control" name="actual" ng-model="nuevoPassword.actual" ng-maxlength="150"/>
+                  <label>Contraseña Actual</label>
                 </div>
-                <div class="col-xs-6">
-                    <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarCerrarCambiarPasswordForma()">Si</button>
-                </div>
-            </div>
-                        
-        </div>
-    </div>
-    
-    <!-- mensaje -->
-    <div class="modal fade sombraDivModal" id="mensajeEncabezado">
-        <br>    <br>   <br>
-        <div class="modal-dialog modal-sm modalPrincipal">
-
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="text-center textoError">
-                        <span class=" fa fa-times-circle-o fa-3x"></span><br>
-                        <span>¡Error!</span>
-                    </div>
-
-                </div>
+              </div>
             </div>
             <br>
-            <div class="row">
-                <div class="col-xs-12">
-                     <div ng-repeat="error in mensajeError">
-                        <span>{{error}}</span>
-                    </div>
-                </div>
-            </div>
-            <br><br>
-
-            <div class="row">
-                <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button> 
-            </div>
-
+            <!-------- mensaje de error ---->
+            <!--<div class="row">
+            <div class="col-xs-12">
+            <div ng-repeat="error in mensajeError">
+            <span class="textoError">{{error}}</span>
+          </div>
         </div>
-    </div>
-    
+      </div>-->
+      <br>
+      <!---- botones de operacion -->
+      <div class="row">
+        <div class="col-xs-6">
+          <a class="btn botonFinModal btn-block" ng-click="CerrarCambiarPasswordForma()">CANCELAR</a>
+        </div>
+
+        <div class="col-xs-6">
+          <a focus class="btn botonFinModal btn-block" ng-click="GuardarPassword(passwordForma.nuevo.$invalid)">TERMINAR</a>
+        </div>
+      </div>
+      <br>
+    </form>
+
+  </div>
 </div>
 
-    
+<!-- cerrar -->
+<div class="modal fade sombraDivModal" id="cerrarCambiarPassword">
+  <br>    <br>   <br>
+  <div class="modal-dialog modal-sm modalPrincipal text-center">
+
+    <div class="row">
+      <div class="col-xs-12">
+        <span style="font-size:14pt">¿Estas seguro de salir sin guardar los cambios?</span>
+      </div>
+    </div>
+    <br><br>
+    <div class="row">
+      <div class="col-xs-6">
+        <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close">No</button>
+      </div>
+      <div class="col-xs-6">
+        <button class="btn botonFinModal" data-dismiss="modal" aria-label="Close" ng-click="ConfirmarCerrarCambiarPasswordForma()">Si</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- mensaje -->
+<div class="modal fade sombraDivModal" id="mensajeEncabezado">
+  <br>    <br>   <br>
+  <div class="modal-dialog modal-sm modalPrincipal">
+
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="text-center textoError">
+          <span class=" fa fa-times-circle-o fa-3x"></span><br>
+          <span>¡Error!</span>
+        </div>
+
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-xs-12">
+        <div ng-repeat="error in mensajeError">
+          <span>{{error}}</span>
+        </div>
+      </div>
+    </div>
+    <br><br>
+
+    <div class="row">
+      <button class="btn botonModalError" data-dismiss="modal" aria-label="Close">Aceptar</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- modal solicitudes amistad -->
+<div id="modalSolicitudesAmistad" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+  <div class="vertical-center">
+    <div class="modal-dialog modal-md">
+
+      <div class="modal-content">
+
+        <div class="modal-header text-center">
+
+          <table style="width:100%;">
+            <tr>
+              <td><h4><b>SOLICITUDES DE AMISTAD</b></h4></td>
+              <td class="wi-icono-cerrar">
+                <button type="button" class="close" ng-click="OcultarMdlSolicitudAmistad()">
+                  <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+          </table>
+
+        </div>
+        <div class="modal-body">
+          <div class="row wi-row opc-solic-amistad">
+            <div class="col-xs-12">
+              <uib-tabset justified="true">
+
+                <uib-tab active="opc_solicitud_amistad[0].activa" deselect="ReiniciarFrmSolicitudAmistad()">
+
+                  <uib-tab-heading>
+                    <span class="encabezado-tab-solc"><b>NUEVA</b></span>
+                  </uib-tab-heading>
+
+                  <br>
+                  <br>
+
+                  <div class="row wi-row">
+                    <form class="form-horizontal" role="form" name="nueva_solicitud_amistad.frm" autocomplete="off" novalidate>
+                      <div class="row wi-row">
+
+                        <div class="col-xs-12 col-sm-9">
+
+                          <div class="input-group a-grupo-entrada">
+
+                            <span class="input-group-addon addon-icono-entrada">
+                              <i class="fa fa-user fa-lg" aria-hidden="true"></i>
+                            </span>
+
+                            <input id="nt_correo" type="text" class="form-control a-entrada" name="nt_correo" ng-model="nueva_solicitud_amistad.correo" placeholder="Buscar usuario por correo electrónico" ng-trim="false" ng-minlength="7" ng-keyup="EventoTecladoCampoNtCorreo($event)" ng-blur="EnviarFrmSolicitudAmistad()" required autocomplete="off">
+
+                            <span class="input-group-addon a-limpiar-texto" ng-if="wiMostrarBtnLimpiarTexto(nueva_solicitud_amistad.correo, nueva_solicitud_amistad.frm.nt_correo)" ng-click="LimpiarCampoNtCorreo();">
+                              <i class="fa fa-times-circle fa-lg" aria-hidden="true"></i>
+                            </span>
+
+                          </div>
+
+                          <div class="error-messages" ng-messages="nueva_solicitud_amistad.frm.nt_correo.$error" ng-if="wiInteractuarCampo(nueva_solicitud_amistad.frm_enviado, nueva_solicitud_amistad.frm.nt_correo)" style="margin-left:40px;" role="alert">
+                            <div ng-message="required">Completa este campo</div>
+                          </div>
+
+                          <div class="error-messages" ng-messages="nueva_solicitud_amistad.frm.nt_correo.$error" ng-if="nueva_solicitud_amistad.frm_enviado" style="margin-left:40px;" role="alert">
+                            <div ng-message="minlength">Ingresa un correo de al menos 7 caracteres de longitud</div>
+                          </div>
+
+                          <br>
+
+                        </div>
+
+
+                        <div class="col-xs-12 col-sm-3">
+                          <button type="submit" class="btn btn-block btn-xs btn-submitir" ng-click="EnviarFrmSolicitudAmistad()" ng-disabled="btn_amistad_deshabilitado">
+                            BUSCAR
+                          </button>
+                        </div>
+
+                      </div>
+
+                    </form>
+
+                  </div>
+
+                  <div class="row wi-row" ng-if="nueva_solicitud_amistad.resultado">
+                    <br>
+                    <div class="col-xs-12 text-center">
+                      <div class="col-xs-12 datos-busqueda-usuario text-center">
+                        <b style="font-size:12pt;" ng-switch="nueva_solicitud_amistad.resultado.estado">
+                          <span ng-switch-when="noenviada">
+                            {{nueva_solicitud_amistad.resultado.Nombre}} {{nueva_solicitud_amistad.resultado.Apellidos}}
+                          </span>
+                          <span ng-switch-when="aceptada">
+                            El usuario {{nueva_solicitud_amistad.resultado.Nombre}} {{nueva_solicitud_amistad.resultado.Apellidos}} ya se encuentra en tu lista de amigos.
+                          </span>
+                          <span ng-switch-when="enviada">
+                            Ya fue enviada una solicitud de amistad al usuario {{nueva_solicitud_amistad.resultado.Nombre}} {{nueva_solicitud_amistad.resultado.Apellidos}}
+                          </span>
+                          <span ng-switch-when="recibida">
+                            El usuario {{nueva_solicitud_amistad.resultado.Nombre}} {{nueva_solicitud_amistad.resultado.Apellidos}} ya te envió una solicitud de amistad
+                          </span>
+                          <span ng-switch-when="noexiste">
+                            No se encontro un usuario que coincida con el correo electrónico ingresado
+                          </span>
+                        </b>
+                      </div>
+                      <br>
+                      <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="EnviarSolicitudAmistad()" ng-if="!nueva_solicitud_amistad.resultado.Me && 'noenviada'===nueva_solicitud_amistad.resultado.estado" ng-disabled="btn_amistad_deshabilitado">
+                        ENVIAR SOLICITUD
+                      </button>
+                      <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="AceptarSolicitudAmistad(null, nueva_solicitud_amistad.resultado.AmistadId, nueva_solicitud_amistad.resultado.UsuarioIdRemitente)" ng-if="'recibida'===nueva_solicitud_amistad.resultado.estado" ng-disabled="btn_amistad_deshabilitado">
+                        CONFIRMAR SOLICITUD
+                      </button>
+                    </div>
+                  </div>
+
+                  <br>
+
+                </uib-tab>
+
+                <uib-tab active="opc_solicitud_amistad[1].activa" select="ConsultarSolicitudesAmistadEviadas()" deselect="LimpiarListaSolicitudes()">
+
+                  <uib-tab-heading>
+                    <span class="encabezado-tab-solc"><b>ENVIADAS</b></span>
+                  </uib-tab-heading>
+
+                  <br>
+                  <br>
+
+                  <div class="wi-row row" ng-if="solicitudes_amistad_enviadas.datos.length > 0">
+
+                    <div class="col-xs-12">
+                      <div class="input-group a-grupo-entrada">
+
+                        <span class="input-group-addon addon-icono-entrada">
+                          <i class="fa fa-user fa-lg" aria-hidden="true"></i>
+                        </span>
+
+                        <input id="entrada_busq_enviadas" type="text" class="form-control a-entrada" name="entrada_busq_enviadas" ng-model="solicitudes.busqueda" placeholder="Buscar solicitud por nombre o correo electrónico" required>
+
+                        <span class="input-group-addon a-limpiar-texto" ng-if="solicitudes.busqueda.length>0" ng-click="solicitudes.busqueda='';enfocarCampo('entrada_busq_enviadas');">
+                          <i class="fa fa-times-circle fa-lg" aria-hidden="true"></i>
+                        </span>
+                        <!-- <span class="a-nombre-entrada">Buscar solicitud</span> -->
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div class="row wi-row" ng-switch="(solicitudes_amistad_enviadas.datos | filter: BuscarSolicitudAmistadEnviada(solicitudes.busqueda)).length > 0">
+
+                    <div class="col-xs-12 contenedor-elem-solic-amistad" ng-switch-when="true">
+                      <div class="col-xs-12 elemento-solicitud-amistad" ng-repeat="e in solicitudes_amistad_enviadas.datos | filter: BuscarSolicitudAmistadEnviada(solicitudes.busqueda) | orderBy: '-SolicitudId'">
+                        <div class="col-xs-12 text-center nombre-solicitud-amistad">
+                          <b>{{e.NombreUsuarioDestinatario}} {{e.ApellidosUsuarioDestinatario}}</b>
+                        </div>
+                        <div class="col-xs-12 text-center correo-solicitud-amistad">
+                          {{e.CorreoDestinatario}}
+                        </div>
+                        <div class="col-xs-12">
+                          <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="CancelarSolicitudAmistad(e, false)" ng-disabled="btn_amistad_deshabilitado">Cancelar</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 text-center" ng-switch-when="false">
+
+                      <div class="col-xs-12 resultado-solicitud-amistad" ng-if="solicitudes_amistad_enviadas.estado && ''===solicitudes.busqueda">
+                        <b>No existen solicitudes de amistad enviadas</b>
+                      </div>
+
+                      <div ng-if="solicitudes_amistad_enviadas.estado && ''!==solicitudes.busqueda">
+                        <br>
+                        <div class="col-xs-12 resultado-solicitud-amistad">
+                          <b>No se encontraron resultados que coincidan con la búsqueda</b>
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <br>
+
+                </uib-tab>
+
+                <uib-tab active="opc_solicitud_amistad[2].activa" select="ConsultarSolicitudesAmistadRecibidas()" deselect="LimpiarListaSolicitudes()">
+
+                  <uib-tab-heading>
+                    <span class="encabezado-tab-solc"><b>RECIBIDAS</b></span>
+                  </uib-tab-heading>
+
+                  <br>
+                  <br>
+
+                  <div class="wi-row row" ng-if="solicitudes_amistad_recibidas.datos.length > 0">
+
+                    <div class="col-xs-12">
+                      <div class="input-group a-grupo-entrada">
+                        <span class="input-group-addon addon-icono-entrada">
+                          <i class="fa fa-user fa-lg" aria-hidden="true"></i>
+                        </span>
+
+                        <input id="entrada_busq_recibidas" type="text" class="form-control a-entrada" name="entrada_busq_recibidas" ng-model="solicitudes.busqueda" placeholder="Buscar solicitud por nombre o correo electrónico" required>
+
+                        <span class="input-group-addon a-limpiar-texto" ng-if="solicitudes.busqueda.length>0" ng-click="solicitudes.busqueda='';enfocarCampo('entrada_busq_recibidas');">
+                          <i class="fa fa-times-circle fa-lg" aria-hidden="true"></i>
+                        </span>
+                        <!-- <span class="a-nombre-entrada">Buscar solicitud</span> -->
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div class="row wi-row" ng-switch="(solicitudes_amistad_recibidas.datos | filter: BuscarSolicitudAmistadRecibida(solicitudes.busqueda)).length > 0">
+
+                    <div class="col-xs-12 contenedor-elem-solic-amistad" ng-switch-when="true">
+                      <div class="col-xs-12 elemento-solicitud-amistad" ng-repeat="e in solicitudes_amistad_recibidas.datos | filter: BuscarSolicitudAmistadRecibida(solicitudes.busqueda) | orderBy: '-SolicitudId'">
+                        <div class="col-xs-12 text-center nombre-solicitud-amistad">
+                          <b>{{e.NombreUsuarioRemitente}} {{e.ApellidosUsuarioRemitente}}</b>
+                        </div>
+                        <div class="col-xs-12 text-center correo-solicitud-amistad">
+                          {{e.CorreoRemitente}}
+                        </div>
+                        <div class="col-xs-12 col-sm-6" style="padding-top:15px;">
+                          <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="CancelarSolicitudAmistad(e, true)" ng-disabled="btn_amistad_deshabilitado">Rechazar</button>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-6" style="padding-top:15px;">
+                          <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="AceptarSolicitudAmistad(e, e.SolicitudId, e.UsuarioIdRemitente)" ng-disabled="btn_amistad_deshabilitado">Confirmar</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 text-center" ng-switch-when="false">
+
+                      <div class="col-xs-12 resultado-solicitud-amistad" ng-if="solicitudes_amistad_recibidas.estado && ''===solicitudes.busqueda">
+                        <b>No existen solicitudes de amistad recibidas</b>
+                      </div>
+
+                      <div ng-if="solicitudes_amistad_recibidas.estado && ''!==solicitudes.busqueda">
+                        <br>
+                        <div class="col-xs-12 resultado-solicitud-amistad">
+                          <b>No se encontraron resultados que coincidan con la búsqueda</b>
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <br>
+
+                </uib-tab>
+
+              </uib-tabset>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="row wi-row">
+            <div class="col-sm-12">
+              <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="OcultarMdlSolicitudAmistad()">CERRAR</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- modal lista de amigos -->
+<div id="modalListaAmigos" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+  <div class="vertical-center">
+    <div class="modal-dialog modal-md">
+
+      <div class="modal-content">
+
+        <div class="modal-header text-center">
+
+          <table style="width:100%;">
+            <tr>
+              <td><h4><b>AMIGOS</b></h4></td>
+              <td class="wi-icono-cerrar">
+                <button type="button" class="close" ng-click="OcultarModalAmigos()">
+                  <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+          </table>
+
+        </div>
+        <div class="modal-body">
+          <div class="row wi-row opc-solic-amistad">
+            <div class="col-xs-12">
+
+              <div class="wi-row row" ng-if="lista_amigos.datos.length > 0">
+
+                <div class="col-xs-12">
+                  <div class="input-group a-grupo-entrada">
+
+                    <span class="input-group-addon addon-icono-entrada">
+                      <i class="fa fa-user fa-lg" aria-hidden="true"></i>
+                    </span>
+
+                    <input id="entrada_busq_amigos" type="text" class="form-control a-entrada" name="entrada_busq_amigos" placeholder="Buscar amigo por nombre o correo electrónico" ng-model="lista_amigos.busqueda" required>
+
+                    <span class="input-group-addon a-limpiar-texto" ng-if="lista_amigos.busqueda.length>0" ng-click="lista_amigos.busqueda='';enfocarCampo('entrada_busq_amigos');">
+                      <i class="fa fa-times-circle fa-lg" aria-hidden="true"></i>
+                    </span>
+
+                    <!-- <span class="a-nombre-entrada">Buscar amigo</span> -->
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="row wi-row" ng-switch="(lista_amigos.datos | filter: BuscarAmigo(lista_amigos.busqueda)).length > 0">
+
+                <div class="col-xs-12 contenedor-elem-solic-amistad" ng-switch-when="true">
+                  <div class="col-xs-12 elemento-solicitud-amistad" ng-repeat="e in lista_amigos.datos | filter: BuscarAmigo(lista_amigos.busqueda) | orderBy: ['NombreUsuario','ApellidosUsuario']">
+                    <div class="col-xs-12 text-center nombre-solicitud-amistad">
+                      <b>{{e.NombreUsuario}} {{e.ApellidosUsuario}}</b>
+                    </div>
+                    <div class="col-xs-12 text-center correo-solicitud-amistad">
+                      {{e.CorreoUsuario}}
+                    </div>
+                    <div class="col-xs-12">
+                      <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="EliminarAmigo(e)" ng-disabled="btn_amistad_deshabilitado">Eliminar</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-xs-12 text-center" ng-switch-when="false">
+
+                  <div class="col-xs-12 resultado-solicitud-amistad" ng-if="lista_amigos.estado && ''===lista_amigos.busqueda">
+                    <b>No existen amigos en su lista</b>
+                  </div>
+
+                  <div ng-if="lista_amigos.estado && ''!==lista_amigos.busqueda">
+                    <br>
+                    <div class="col-xs-12 resultado-solicitud-amistad">
+                      <b>No se encontraron resultados que coincidan con la búsqueda</b>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="row wi-row">
+            <div class="col-sm-12">
+              <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="OcultarModalAmigos()">CERRAR</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- modal lista de notificaciones -->
+<div id="modalListaNotificaciones" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+  <div class="vertical-center">
+    <div class="modal-dialog modal-md">
+
+      <div class="modal-content">
+
+        <div class="modal-header text-center">
+
+          <table style="width:100%;">
+            <tr>
+              <td><h4><b>NOTIFICACIONES</b></h4></td>
+              <td class="wi-icono-cerrar">
+                <button type="button" class="close" ng-click="OcultarModalNotificaciones()">
+                  <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+          </table>
+
+        </div>
+        <div class="modal-body">
+          <div class="row wi-row">
+            <div class="col-xs-12">
+
+              <div class="row wi-row" ng-switch="lista_notificaciones.estado">
+
+                <div id="contenedor_lista_notificaciones" class="col-xs-12 contenedor-lista-notificaciones" ng-switch-when="cargada">
+
+                  <div class="col-xs-12 elemento-notificacion" ng-class="{true:'elemento-notificacion-noleida'}[e.NoLeida>0]" ng-repeat="e in lista_notificaciones.datos | orderBy: '-Fecha'">
+                    <table style="width:100%;">
+                      <tr>
+                        <td class="opc-notificacion text-center">
+                          <div class="btn-group" style="width:100%;">
+                            <button type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <i class="fa fa-ellipsis-v fa-2x" aria-hidden="true"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li ng-click="EliminarNotificacion(e)">
+                                <a href="">
+                                  <i class="fa fa-trash fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Eliminar
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                        </td>
+                        <td ng-click="OcultarModalNotificaciones();MostrarAccionNotificacion(e)" style="cursor: pointer;">
+                          <div class="col-xs-12 text-left remitente-notificacion">
+                            <b>{{e.NombreRemitente}}</b>
+                          </div>
+                          <div class="col-xs-12 text-left msj-notificacion">
+                            <span>{{e.Mensaje}}</span>
+                          </div>
+                          <div class="col-xs-12 text-right fecha-notificacion">
+                            <span>{{e.FechaHora}}</span>
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+
+                  <div class="col-xs-12 text-center estado-notificaciones" ng-if="lista_notificaciones.datos.length===0">
+                    <b>No tienes notificaciones</b>
+                  </div>
+
+                  <button type="button" class="btn btn-block btn-xs btn-submitir" ng-if="lista_notificaciones.obtener_mas" ng-disabled="btn_notificaciones_deshabilitado" ng-click="ObtenerMasNotificaciones()">Mostrar más</button>
+
+                </div>
+
+                <div class="col-xs-12 text-center estado-notificaciones" ng-switch-when="cargando">
+                  <b>Cargando...</b>
+                </div>
+
+                <div class="col-xs-12 text-center estado-notificaciones" ng-switch-when="error">
+                  <b>No se pudieron obtener las notificaciones</b>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="row wi-row">
+            <div class="col-sm-12">
+              <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="OcultarModalNotificaciones()">CERRAR</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- modal enviar recurso -->
+<div id="modalEnviarRecurso" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+  <div class="vertical-center">
+    <div class="modal-dialog modal-md">
+
+      <div class="modal-content">
+
+        <div class="modal-header text-center">
+
+          <table style="width:100%;">
+            <tr>
+              <td><h4><b>{{enviar_recurso.titulo}}</b></h4></td>
+              <td class="wi-icono-cerrar">
+                <button type="button" class="close" ng-click="OcultarModalEnviarRecurso()">
+                  <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+          </table>
+
+        </div>
+        <div class="modal-body">
+          <div class="row wi-row opc-solic-amistad">
+            <div class="col-xs-12">
+
+              <div class="wi-row row" ng-if="lista_amigos.datos.length > 0">
+
+                <div class="col-xs-12">
+                  <div class="input-group a-grupo-entrada">
+                    <span class="input-group-addon addon-icono-entrada">
+                      <i class="fa fa-user fa-lg" aria-hidden="true"></i>
+                    </span>
+
+                    <input id="entrada_busq_amigos_recurso" type="text" class="form-control a-entrada" name="entrada_busq_amigos_recurso" placeholder="Buscar amigo por nombre o correo electrónico" ng-model="enviar_recurso.busqueda" required>
+
+                    <span class="input-group-addon a-limpiar-texto" ng-if="enviar_recurso.busqueda.length>0" ng-click="enviar_recurso.busqueda='';enfocarCampo('entrada_busq_amigos_recurso');">
+                      <i class="fa fa-times-circle fa-lg" aria-hidden="true"></i>
+                    </span>
+                    <!-- <span class="a-nombre-entrada">Buscar amigo</span> -->
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="row wi-row" ng-switch="(lista_amigos.datos | filter: BuscarAmigo(enviar_recurso.busqueda)).length > 0">
+
+                <div class="col-xs-12 contenedor-elem-solic-amistad" ng-switch-when="true">
+                  <div class="col-xs-12 elemento-solicitud-amistad" ng-class="{true:'amigo-seleccionado'}[e.Seleccion]" ng-repeat="e in lista_amigos.datos | filter: BuscarAmigo(enviar_recurso.busqueda) | orderBy: ['NombreUsuario','ApellidosUsuario']">
+                    <table style="width:100%;">
+                      <tbody>
+                        <tr>
+                          <td style="width:74px;padding:0 15px;">
+                            <div>
+                              <div class="checkbox">
+                                <label>
+                                  <input id="destinario_recurso_{{e.AmigoId}}" ng-model="e.Seleccion" type="checkbox" ng-click="OpcionDestinario(e)">
+                                  <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                </label>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div class="col-xs-12 text-center nombre-solicitud-amistad">
+                              <b>{{e.NombreUsuario}} {{e.ApellidosUsuario}}</b>
+                            </div>
+                            <div class="col-xs-12 text-center">
+                              {{e.CorreoUsuario}}
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="col-xs-12 text-center" ng-switch-when="false">
+
+                  <div class="col-xs-12 resultado-solicitud-amistad" ng-if="lista_amigos.estado && ''===enviar_recurso.busqueda">
+                    <b>No existen amigos en su lista</b>
+                  </div>
+
+                  <div ng-if="lista_amigos.estado && ''!==enviar_recurso.busqueda">
+                    <br>
+                    <div class="col-xs-12 resultado-solicitud-amistad">
+                      <b>No se encontraron resultados que coincidan con la búsqueda</b>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" ng-switch="lista_amigos.datos.length > 0">
+          <div class="row wi-row" ng-if="false">
+            <div class="col-sm-12">
+              <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="OcultarModalEnviarRecurso()">CERRAR</button>
+            </div>
+          </div>
+          <div class="row wi-row" ng-if="true">
+            <div class="col-sm-6" style="padding-top:15px;">
+              <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="OcultarModalEnviarRecurso()">CANCELAR</button>
+            </div>
+            <div class="col-sm-6" style="padding-top:15px;">
+              <button type="button" class="btn btn-block btn-xs btn-submitir" ng-disabled="btn_notificaciones_deshabilitado || 0===enviar_recurso.destinatario.length" ng-click="EnviarRecurso()">TERMINAR</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>

@@ -7,56 +7,56 @@ class Tema
     }
 }
 
-function GetTema($http, $q, CONFIG)     
+function GetTema($http, $q, CONFIG)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetTema',
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            var tema = []; 
-            for(var k=0; k<data.length; k++)
+            var tema = [];
+            for(var k=0; k<response.data.length; k++)
             {
                 tema[k] = new Tema();
-                tema[k] = SetTema(data[k]);
+                tema[k] = SetTema(response.data[k]);
             }
-    
-            q.resolve(tema);  
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+            q.resolve(tema);
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
 function SetTema(data)
 {
     var tema = new Tema();
-    
+
     tema.TemaId = data.TemaId;
     tema.Nombre = data.Nombre;
-    
+
     return tema;
 }
 
 function AgregarTema($http, CONFIG, $q, tema)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/AgregarTema',
           data: tema
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
@@ -64,21 +64,17 @@ function EditarTema($http, CONFIG, $q, tema)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'PUT',
           url: CONFIG.APIURL + '/EditarTema',
           data: tema
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);    
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
-
-
-
-  

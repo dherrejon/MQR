@@ -11,38 +11,38 @@ class Prefijo
 }
 
 //obtiene los tipos de módulos
-function GetPrefijo($http, $q, CONFIG)     
+function GetPrefijo($http, $q, CONFIG)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetPrefijo',
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            var prefijo = []; 
-            for(var k=0; k<data.length; k++)
+            var prefijo = [];
+            for(var k=0; k<response.data.length; k++)
             {
                 prefijo[k] = new Prefijo();
-                prefijo[k] = SetPrefijo(data[k]);
+                prefijo[k] = SetPrefijo(response.data[k]);
             }
-    
-            q.resolve(prefijo);  
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+            q.resolve(prefijo);
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
 function SetPrefijo(data)
 {
     var prefijo = new Prefijo();
-    
+
     prefijo.PrefijoId = data.PrefijoId;
     prefijo.Nombre = data.Nombre;
     prefijo.Abreviacion = data.Abreviacion;
-    
+
     return prefijo;
 }
 
@@ -50,41 +50,38 @@ function SetPrefijo(data)
 function AgregarPrefijo($http, CONFIG, $q, prefijo)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/AgregarPrefijo',
           data: prefijo
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
 function EditarPrefijo($http, CONFIG, $q, prefijo)
 {
     var q = $q.defer();
-    
 
-    $http({      
+
+    $http({
           method: 'PUT',
           url: CONFIG.APIURL + '/EditarPrefijo',
           data: prefijo
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);    
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
-
-
-  

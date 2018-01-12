@@ -13,62 +13,62 @@ class Fuente
     }
 }
 
-function GetFuente($http, $q, CONFIG)     
+function GetFuente($http, $q, CONFIG)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetFuente',
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            var fuente = []; 
-            for(var k=0; k<data.length; k++)
+            var fuente = [];
+            for(var k=0; k<response.data.length; k++)
             {
                 fuente[k] = new Fuente();
-                fuente[k] = SetFuente(data[k]);
+                fuente[k] = SetFuente(response.data[k]);
             }
-    
-            q.resolve(fuente);  
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+            q.resolve(fuente);
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
 function SetFuente(data)
 {
     var fuente = new Fuente();
-    
+
     fuente.FuenteId = data.FuenteId;
     fuente.Nombre = data.Nombre;
     fuente.Frase = data.Frase;
     fuente.Posicion = data.Posicion;
     fuente.Nota = data.Nota;
-    
+
     fuente.TipoFuente.TipoFuenteId = data.TipoFuenteId;
     fuente.TipoFuente.Nombre = data.NombreTipoFuente;
-    
+
     return fuente;
 }
 
 function AgregarFuente($http, CONFIG, $q, fuente)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/AgregarFuente',
           data: fuente
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
@@ -77,77 +77,74 @@ function EditarFuente($http, CONFIG, $q, fuente)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'PUT',
           url: CONFIG.APIURL + '/EditarFuente',
           data: fuente
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);    
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
 /*------------ datos de la fuente----------------*/
-function GetFuenteAutor($http, $q, CONFIG, id)     
+function GetFuenteAutor($http, $q, CONFIG, id)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetFuenteAutor/'+id,
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);  
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
-function GetFuenteEtiqueta($http, $q, CONFIG, id)     
+function GetFuenteEtiqueta($http, $q, CONFIG, id)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetFuenteEtiqueta',
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);  
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
-function GetAutoresFuente($http, $q, CONFIG)     
+function GetAutoresFuente($http, $q, CONFIG)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetAutoresFuente'
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exito")
+            if(response.data[0].Estatus == "Exito")
             {
-                q.resolve(data[1].Autor);  
+                q.resolve(response.data[1].Autor);
             }
             else
             {
-                q.resolve([]); 
+                q.resolve([]);
             }
-            
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
-
-
-  

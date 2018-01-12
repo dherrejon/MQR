@@ -9,16 +9,16 @@ function GetUsuarios()
 
     $sql = "SELECT UsuarioId, Nombre, Apellidos, NombreUsuario, Correo, Activo FROM Usuario";
 
-    try 
+    try
     {
         $db = getConnection();
         $stmt = $db->query($sql);
         $response = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        
-        echo json_encode($response);  
-    } 
-    catch(PDOException $e) 
+
+        echo json_encode($response);
+    }
+    catch(PDOException $e)
     {
         //echo($e);
         echo '[ { "Estatus": "Fallo" } ]';
@@ -32,20 +32,20 @@ function AgregarUsuario()
     $request = \Slim\Slim::getInstance()->request();
     $usuario = json_decode($request->getBody());
     global $app;
-    
+
     $caracter = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     $numero = strlen($caracter) - 1;
     $password = substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1);
     $password64 = md5($password);
-    
-    $sql = "INSERT INTO Usuario(Nombre, Apellidos, NombreUsuario, Correo, Password, Activo) 
+
+    $sql = "INSERT INTO Usuario(Nombre, Apellidos, NombreUsuario, Correo, Password, Activo)
             VALUES( :Nombre, :Apellidos, :NombreUsuario, :Correo, :Password, 1)";
-    try 
+    try
     {
         $db = getConnection();
         $db->beginTransaction();
         $stmt = $db->prepare($sql);
-        
+
         $stmt->bindParam("Nombre", $usuario->Nombre);
         $stmt->bindParam("Apellidos", $usuario->Apellidos);
         $stmt->bindParam("NombreUsuario", $usuario->NombreUsuario);
@@ -54,8 +54,8 @@ function AgregarUsuario()
 
         $stmt->execute();
         $usuarioId = $db->lastInsertId();
-    } 
-    catch(PDOException $e) 
+    }
+    catch(PDOException $e)
     {
         echo $e;
         echo '[{"Estatus": "Fallido"}]';
@@ -63,12 +63,12 @@ function AgregarUsuario()
         $app->status(409);
         $app->stop();
     }
-    
+
     $countPermiso = count($usuario->Permiso);
-    if($countPermiso>0)  
+    if($countPermiso>0)
     {
         $sql = "INSERT INTO PermisoPorUsuario (UsuarioId, PermisoId) VALUES";
-        
+
         for($k=0; $k<$countPermiso; $k++)
         {
             if($usuario->Permiso[$k]->Usuario)
@@ -79,17 +79,17 @@ function AgregarUsuario()
 
         $sql = rtrim($sql,",");
 
-        try 
+        try
         {
             $stmt = $db->prepare($sql);
             $stmt->execute();
 
             $db->commit();
-            $db = null; 
+            $db = null;
 
             echo '[{"Estatus": "Exitoso"}]';
-        } 
-        catch(PDOException $e) 
+        }
+        catch(PDOException $e)
         {
             echo '[{"Estatus": "Fallido"}]';
             echo $sql;
@@ -102,11 +102,11 @@ function AgregarUsuario()
     else
     {
         $db->commit();
-        $db = null; 
+        $db = null;
 
         echo '[{"Estatus": "Exitoso"}]';
     }
-    
+
     //Enviar Correo
     $to= $usuario->Correo;
     $subject_message = "Bienvenido al Sistema MQR.";
@@ -129,34 +129,34 @@ function EditarUsuario()
     global $app;
     $request = \Slim\Slim::getInstance()->request();
     $usuario = json_decode($request->getBody());
-   
+
     $sql = "UPDATE Usuario SET Nombre='".$usuario->Nombre."', Apellidos='".$usuario->Apellidos."', NombreUsuario='".$usuario->NombreUsuario."', Correo='".$usuario->Correo."' WHERE UsuarioId=".$usuario->UsuarioId;
-    
-    try 
+
+    try
     {
         $db = getConnection();
         $db->beginTransaction();
         $stmt = $db->prepare($sql);
-        
+
         $stmt->execute();
     }
-    catch(PDOException $e) 
-    {    
+    catch(PDOException $e)
+    {
         echo '[{"Estatus": "Fallido"}]';
         echo $sql;
         $db->rollBack();
         $app->status(409);
         $app->stop();
     }
-    
+
     $sql = "DELETE FROM PermisoPorUsuario WHERE UsuarioId=".$usuario->UsuarioId;
-    try 
+    try
     {
-        $stmt = $db->prepare($sql); 
-        $stmt->execute(); 
-        
-    } 
-    catch(PDOException $e) 
+        $stmt = $db->prepare($sql);
+        $stmt->execute();
+
+    }
+    catch(PDOException $e)
     {
         echo '[ { "Estatus": "Fallo" } ]';
         echo $e;
@@ -164,12 +164,12 @@ function EditarUsuario()
         $app->status(409);
         $app->stop();
     }
-    
+
     $countPermiso = count($usuario->Permiso);
-    if($countPermiso>0)  
+    if($countPermiso>0)
     {
         $sql = "INSERT INTO PermisoPorUsuario (UsuarioId, PermisoId) VALUES";
-        
+
         for($k=0; $k<$countPermiso; $k++)
         {
             if($usuario->Permiso[$k]->Usuario)
@@ -180,17 +180,17 @@ function EditarUsuario()
 
         $sql = rtrim($sql,",");
 
-        try 
+        try
         {
             $stmt = $db->prepare($sql);
             $stmt->execute();
 
             $db->commit();
-            $db = null; 
+            $db = null;
 
             echo '[{"Estatus": "Exitoso"}]';
-        } 
-        catch(PDOException $e) 
+        }
+        catch(PDOException $e)
         {
             echo '[{"Estatus": "Fallido"}]';
             echo $sql;
@@ -203,7 +203,7 @@ function EditarUsuario()
     else
     {
         $db->commit();
-        $db = null; 
+        $db = null;
 
         echo '[{"Estatus": "Exitoso"}]';
     }
@@ -214,19 +214,19 @@ function ActivarDesactivarUsuario()
     global $app;
     $request = \Slim\Slim::getInstance()->request();
     $datos = json_decode($request->getBody());
-    try 
+    try
     {
         $db = getConnection();
-        
+
         $sql = "UPDATE Usuario SET Activo = ".$datos[0]." WHERE UsuarioId = ".$datos[1]."";
         $stmt = $db->prepare($sql);
         $stmt->execute();
-    
+
         $db = null;
-        
+
         echo '[{"Estatus": "Exito"}]';
     }
-    catch(PDOException $e) 
+    catch(PDOException $e)
     {
         echo '[{"Estatus":"Fallo"}]';
         //echo ($sql);
@@ -234,6 +234,46 @@ function ActivarDesactivarUsuario()
         $app->stop();
     }
 }
+
+
+function ObtenerDatosUsuario() {
+
+    global $app;
+    $parametros = $app->request()->params();
+
+    $sql = "SELECT UsuarioId, Nombre, Apellidos, NombreUsuario FROM Usuario WHERE Correo = :correo";
+    $db = null;
+
+    try
+    {
+      $db = getConnection();
+
+      $sentencia = $db->prepare($sql);
+      $sentencia->bindParam(':correo', $parametros['correo']);
+      $sentencia->execute();
+      $respuesta = $sentencia->fetchAll(PDO::FETCH_OBJ);
+      $db = null;
+
+      if (count($respuesta)) {
+        if ($respuesta[0]->UsuarioId == $_SESSION['UsuarioId']) {
+          $respuesta[0]->Me =  true;
+        }
+        else {
+          $respuesta[0]->Me =  false;
+        }
+      }
+
+      echo json_encode($respuesta);
+    }
+    catch(PDOException $e)
+    {
+      $db=null;
+      $app->status(409);
+      $app->stop();
+    }
+
+}
+
 
 function GetPermisoUsuario()
 {
@@ -244,16 +284,16 @@ function GetPermisoUsuario()
 
     $sql = "SELECT p.PermisoId, p.UsuarioId FROM PermisoPorUsuario p";
 
-    try 
+    try
     {
         $db = getConnection();
         $stmt = $db->query($sql);
         $response = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        
-        echo json_encode($response);  
-    } 
-    catch(PDOException $e) 
+
+        echo json_encode($response);
+    }
+    catch(PDOException $e)
     {
         //echo($e);
         echo '[ { "Estatus": "Fallo" } ]';
@@ -269,7 +309,7 @@ function RecuperarPassword()
     global $app;
     $request = \Slim\Slim::getInstance()->request();
     $usuario = json_decode($request->getBody());
-   
+
     $db;
     $stmt;
     $response;
@@ -277,20 +317,20 @@ function RecuperarPassword()
     $solicitud;
     $codigo;
     $sql = "SELECT UsuarioId, Correo FROM Usuario WHERE Correo= '".$usuario->Correo."' AND Activo = 1";
-    
-    try 
+
+    try
     {
         $db = getConnection();
         $stmt = $db->query($sql);
-        $response = $stmt->fetchAll(PDO::FETCH_OBJ);  
-    } 
-    catch(PDOException $e) 
+        $response = $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    catch(PDOException $e)
     {
         echo '[ { "Estatus": "Fallo" } ]';
         //$app->status(409);
         $app->stop();
     }
-    
+
     $count = count($response);
     if($count != 1)
     {
@@ -299,17 +339,17 @@ function RecuperarPassword()
         $app->stop();
     }
     else
-    {   
+    {
         $sql = "SELECT SolicitudRecuperarPasswordId FROM SolicitudRecuperarPassword  WHERE FechaCaducidad > NOW() AND UsuarioId = ".$response[0]->UsuarioId;
 
-        try 
+        try
         {
             $db = getConnection();
             $stmt = $db->query($sql);
             $solicitud = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-        } 
-        catch(PDOException $e) 
+        }
+        catch(PDOException $e)
         {
             echo '[ { "Estatus": "Fallo" } ]';
             //$app->status(409);
@@ -321,19 +361,19 @@ function RecuperarPassword()
         $codigo = substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1).substr($caracter, rand(0, $numero), 1);
         $sql = "INSERT INTO SolicitudRecuperarPassword(UsuarioId, Codigo, Fecha, FechaCaducidad) VALUES(".$response[0]->UsuarioId.",'".$codigo."', NOW(), adddate(NOW(), INTERVAL 2 HOUR))";
 
-        try 
+        try
         {
             $db->beginTransaction();
             $stmt = $db->prepare($sql);
             $stmt->execute();
 
-        } catch(PDOException $e) 
+        } catch(PDOException $e)
         {
             echo $e;
             echo '[{"Estatus": "Fallido"}]';
             $db->rollBack();
             $app->status(409);
-            $app->stop();   
+            $app->stop();
         }
 
         $countSolicitud = count($solicitud);
@@ -343,13 +383,13 @@ function RecuperarPassword()
             {
                 $sql = "UPDATE SolicitudRecuperarPassword SET ESTATUS= 'Usado' WHERE SolicitudRecuperarPasswordId=".$solicitud[$k]->SolicitudRecuperarPasswordId;
 
-                try 
+                try
                 {
                     $stmt = $db->prepare($sql);
                     $stmt->execute();
 
                 }
-                catch(PDOException $e) 
+                catch(PDOException $e)
                 {
                     $db->rollBack();
                     echo '[{"Estatus":"Fallo"}]';
@@ -366,9 +406,9 @@ function RecuperarPassword()
             $db->commit();
             $db = null;
             echo '[ { "Estatus": "Exitoso" } ]';
-        } 
+        }
     }
-    
+
     $to= $response[0]->Correo;
     $subject_message = "Recuperar contraseña";
     $body_message = "Accede al enlace especificado para que puedas reiniciar tu " .utf8_decode("contraseña");
@@ -377,7 +417,7 @@ function RecuperarPassword()
 
     $header = "De: Sistemas MQR K\r\n";
 
-    $bool = mail($to,$subject_message,$body_message,$header);  
+    $bool = mail($to,$subject_message,$body_message,$header);
 }
 
 function ValidarRecuperarPassword()
@@ -387,20 +427,20 @@ function ValidarRecuperarPassword()
 
     $request = \Slim\Slim::getInstance()->request();
     $solicitud = json_decode($request->getBody());
-    
-    
+
+
     $sql = "SELECT SolicitudRecuperarPasswordId FROM SolicitudRecuperarPassword WHERE FechaCaducidad > NOW() AND Estatus IS NULL AND UsuarioId = ".$solicitud->UsuarioId." AND Codigo = '".$solicitud->Codigo."'";
-    
-    try 
+
+    try
     {
         $db = getConnection();
         $stmt = $db->query($sql);
         $response = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        
-        echo '[ { "Estatus": "Exitoso"}, {"Solicitud":'.json_encode($response).'} ]';  
-    } 
-    catch(PDOException $e) 
+
+        echo '[ { "Estatus": "Exitoso"}, {"Solicitud":'.json_encode($response).'} ]';
+    }
+    catch(PDOException $e)
     {
         //echo $e;
         echo '[ { "Estatus": "Fallo" } ]';
@@ -414,19 +454,19 @@ function ReiniciarPassword()
     global $app;
     $request = \Slim\Slim::getInstance()->request();
     $usuario = json_decode($request->getBody());
-   
+
     $sql = "UPDATE Usuario SET Password='".$usuario->Password."' WHERE UsuarioId=".$usuario->UsuarioId."";
     $db;
     $stmt;
-    
-    try 
+
+    try
     {
         $db = getConnection();
         $db->beginTransaction();
         $stmt = $db->prepare($sql);
         $stmt->execute();
     }
-    catch(PDOException $e) 
+    catch(PDOException $e)
     {
         echo ($e);
         $db->rollBack();
@@ -434,9 +474,9 @@ function ReiniciarPassword()
         $app->status(409);
         $app->stop();
     }
-    
+
     $sql = "UPDATE SolicitudRecuperarPassword SET Estatus='Usado' WHERE SolicitudRecuperarPasswordId=".$usuario->SolicitudRecuperarPasswordId."";
-    try 
+    try
     {
         $stmt = $db->prepare($sql);
         $stmt->execute();
@@ -444,7 +484,7 @@ function ReiniciarPassword()
         $db = null;
         echo '[{"Estatus":"Exitoso"}]';
     }
-    catch(PDOException $e) 
+    catch(PDOException $e)
     {
         echo ($e);
         $db->rollBack();
@@ -459,26 +499,26 @@ function CambiarPasswordPorUsuario()
     global $app;
     $request = \Slim\Slim::getInstance()->request();
     $usuario = json_decode($request->getBody());
-    
+
     $db;
     $stmt;
     $response;
     $sql = "SELECT COUNT(*) as count FROM Usuario WHERE UsuarioId='".$usuario[0]."' AND Password = '".$usuario[1]."'";
-    
-    try 
+
+    try
     {
         $db = getConnection();
         $stmt = $db->query($sql);
         $response = $stmt->fetchAll(PDO::FETCH_OBJ);
-    } 
-    catch(PDOException $e) 
+    }
+    catch(PDOException $e)
     {
         //echo $e;
         echo '[ { "Estatus": "Fallo" } ]';
         //$app->status(409);
         $app->stop();
     }
-    
+
     if($response[0]->count != "1")
     {
         echo '[ { "Estatus": "ErrorPassword" } ]';
@@ -486,10 +526,10 @@ function CambiarPasswordPorUsuario()
         $app->stop();
     }
     else
-    {   
+    {
         $sql = "UPDATE Usuario SET Password='".$usuario[2]."' WHERE UsuarioId=".$usuario[0]."";
 
-        try 
+        try
         {
             $stmt = $db->prepare($sql);
             $stmt->execute();
@@ -497,7 +537,7 @@ function CambiarPasswordPorUsuario()
             //if($stmt->rowCount() == 1)
             echo '[{"Estatus":"Exitoso"}]';
         }
-        catch(PDOException $e) 
+        catch(PDOException $e)
         {
             echo ($e);
             echo '[{"Estatus":"Fallo"}]';
@@ -517,18 +557,18 @@ function GetPermiso()
 
     $sql = "SELECT PermisoId, Nombre, AplicacionId, Clave, NombreAplicacion FROM PermisoVista";
 
-    try 
+    try
     {
         $db = getConnection();
         $stmt = $db->query($sql);
         $response = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
-        
+
         echo '[ { "Estatus": "Exitoso"}, {"Permiso":'.json_encode($response).'} ]';
-        
-        //echo json_encode($response);  
-    } 
-    catch(PDOException $e) 
+
+        //echo json_encode($response);
+    }
+    catch(PDOException $e)
     {
         //echo($e);
         echo '[ { "Estatus": "Fallo" } ]';

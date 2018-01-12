@@ -1,393 +1,343 @@
 <?php
 
-    require 'Slim/Slim.php';
-    require 'configuration.php';
+session_start();
 
-    require 'General/Sesion.php';
-    require 'General/Usuario.php';
+require 'Slim/Slim.php';
+require 'configuration.php';
 
-    require 'Sabiduria/Administrar/Etiqueta.php';
-    require 'Sabiduria/Administrar/Fuente.php';
-    require 'Sabiduria/Administrar/TipoFuente.php';
-    require 'Sabiduria/Administrar/Prefijo.php';
-    require 'Sabiduria/Administrar/Autor.php';
-    require 'Sabiduria/Administrar/Tema.php';
-    require 'Sabiduria/Administrar/TipoInformacion.php';
-    require 'Sabiduria/Administrar/Informacion.php';
+require_once 'Zend/Mail.php';
+require_once 'Zend/Mail/Protocol/Imap.php';
+require_once 'Zend/Mail/Storage/Imap.php';
+require_once 'Zend/Mail/Transport/Smtp.php';
 
-    require 'Cancionero/Artista.php';
-    require 'Cancionero/Cancion.php';
+require_once 'Notificaciones/notificaciones.php';
 
-    require 'Actividades/Frecuencia.php';
-    require 'Actividades/TemaActividad.php';
-    require 'Actividades/Actividad.php';
-    require 'Actividades/PersonaActividad.php';
-    require 'Actividades/Lugar.php';
-    require 'Actividades/Ciudad.php';
-    require 'Actividades/Unidad.php';
-    require 'Actividades/Divisa.php';
-    require 'Actividades/EventoActividad.php';
+require 'General/Sesion.php';
+require 'General/Usuario.php';
 
-    require 'Diario/Diario.php';
+require 'Sabiduria/Administrar/Etiqueta.php';
+require 'Sabiduria/Administrar/Fuente.php';
+require 'Sabiduria/Administrar/TipoFuente.php';
+require 'Sabiduria/Administrar/Prefijo.php';
+require 'Sabiduria/Administrar/Autor.php';
+require 'Sabiduria/Administrar/Tema.php';
+require 'Sabiduria/Administrar/TipoInformacion.php';
+require 'Sabiduria/Administrar/Informacion.php';
 
-    require 'Notas/Notas.php';
+require 'Cancionero/Artista.php';
+require 'Cancionero/Cancion.php';
 
-    require 'Conocimiento/Conocimiento.php';
+require_once 'Webmail/cuentas.php';
+require_once 'Amistad/amistad.php';
 
-    require 'Buscador/Buscador.php';
+/*-----Seguridad-----*/
+require 'PHP-JWT/Authentication/JWT.php';
+require 'PHP-JWT/Exceptions/SignatureInvalidException.php';
+require 'PHP-JWT/Exceptions/BeforeValidException.php';
+require 'PHP-JWT/Exceptions/ExpiredException.php';
 
-    require 'Imagen/Imagen.php';
+$host = $_SERVER['SERVER_NAME'];
 
-    /*-----Seguridad-----*/
-    require 'PHP-JWT/Authentication/JWT.php';
-    require 'PHP-JWT/Exceptions/SignatureInvalidException.php';
-    require 'PHP-JWT/Exceptions/BeforeValidException.php';
-    require 'PHP-JWT/Exceptions/ExpiredException.php';
+\Slim\Slim::registerAutoloader();
+$app = new \Slim\Slim();
 
-    $host = $_SERVER['SERVER_NAME'];
+date_default_timezone_set($time_zone);
 
-    \Slim\Slim::registerAutoloader();
-    $app = new \Slim\Slim();
+//-------------------------------------------------Seguridad------------------------------------------
+$seguridad = function() use ($key, $host)
+{
 
-    date_default_timezone_set($time_zone);
+  $app = \Slim\Slim::getInstance();
 
-    session_start();
+  $jwt = $app->request->headers->get('X-Api-Key');
 
-    //-------------------------------------------------Seguridad------------------------------------------
-    $seguridad = function() use ($key, $host) 
+  if( null != $jwt )
+  {
+    try
+    {
+      $app->response->headers->set('X-Origin-Response', $host);
+      $jwtDecoded = JWT::decode($jwt, $key, array('HS256'));
+    }
+    catch ( SignatureInvalidException $excepcionSE )
+    {
+      $app->status(401);
+      $app->stop();
+    }
+    catch ( BeforeValidException $excepcionBE )
+    {
+      $app->status(401);
+      $app->stop();
+    }
+    catch ( ExpiredException $excepcionEE )
     {
 
-        $app = \Slim\Slim::getInstance();
+      try{
+        $app->response->headers->set('X-Api-Key', generateToken(false));
+      }
+      catch ( DomainException $excepcion )
+      {
+        $app->status(401);
+        $app->stop();
+      }
 
-        $jwt = $app->request->headers->get('X-Api-Key');
-
-        if( null != $jwt )
-        {
-             try
-             {
-                    $app->response->headers->set('X-Origin-Response', $host); 
-                    $jwtDecoded = JWT::decode($jwt, $key, array('HS256'));
-             }
-             catch ( SignatureInvalidException $excepcionSE )
-             {
-                    $app->status(401);
-                    $app->stop();
-             }
-             catch ( BeforeValidException $excepcionBE )
-             {
-                    $app->status(401);
-                    $app->stop();
-             }
-             catch ( ExpiredException $excepcionEE )
-             {
-
-                    try{
-                            $app->response->headers->set('X-Api-Key', generateToken(false)); 
-                    }
-                    catch ( DomainException $excepcion )
-                    {
-                            $app->status(401);
-                            $app->stop();
-                    }
-
-             }
-             catch ( DomainException $excepcionDE )
-             {
-                    $app->status(401);
-                    $app->stop();
-             }
-             catch ( UnexpectedValueException $excepcionUE )
-             {
-                    $app->status(401);
-                    $app->stop();               
-             }
-        }
-        else
-        {
-            $app->status(401);
-            $app->stop();
-        }        
-    };
-
-    //------------------------------------ Inicio de sesion ------------------------------------------------
-    function generateToken($expired)
+    }
+    catch ( DomainException $excepcionDE )
     {
-        global $key;
-        global $host;
-        global $app;
-        global $token_expiration_time;
-        $state;
-        
-        if(!$expired)
-        {
-            if ( isset( $_SESSION['MQR'] ) )
-                $state = true;
-            else
-                $state = false;
-        }
-        else
-            $state = 'expired';
-            
-        try{
-                $newPayload = array(
-                    "state" => $state,
-                    "iat" => time(),
-                    "exp" => strtotime($token_expiration_time)
-                );
+      $app->status(401);
+      $app->stop();
+    }
+    catch ( UnexpectedValueException $excepcionUE )
+    {
+      $app->status(401);
+      $app->stop();
+    }
+  }
+  else
+  {
+    $app->status(401);
+    $app->stop();
+  }
+};
 
-                $newJWT = JWT::encode($newPayload, $key);
+//------------------------------------ Inicio de sesion ------------------------------------------------
+function generateToken($expired)
+{
+  global $key;
+  global $host;
+  global $app;
+  global $token_expiration_time;
+  $state;
+  $usuario = null;
 
-                return $newJWT;
-        }
-        catch ( DomainException $excepcion )
-        {
-                $app->status(401);
-                $app->stop();
-        }
+  if(!$expired)
+  {
+    if ( isset( $_SESSION['MQR'] ) ){
+      $state = true;
+      $usuario = $_SESSION['UsuarioId'];
+    }
+    else{
+      $state = false;
+      $usuario = null;
+    }
+  }
+  else{
+    $state = 'expired';
+  }
+
+
+  try{
+
+    if (null==$usuario) {
+      $newPayload = array(
+        "state" => $state,
+        "iat" => time(),
+        "exp" => strtotime($token_expiration_time)
+      );
+    }
+    else {
+      $newPayload = array(
+        "state" => $state,
+        "usr" => $usuario,
+        "iat" => time(),
+        "exp" => strtotime($token_expiration_time)
+      );
     }
 
-    function quitarSesion()
+    $newJWT = JWT::encode($newPayload, $key);
+
+    return $newJWT;
+  }
+  catch ( DomainException $excepcion )
+  {
+    $app->status(401);
+    $app->stop();
+  }
+}
+
+function quitarSesion()
+{
+
+  if( isset( $_SESSION['MQR'] ) )
+  {
+
+    if ( ini_get("session.use_cookies") )
     {
-        
-        if( isset( $_SESSION['MQR'] ) )
-        {
-            
-            if ( ini_get("session.use_cookies") ) 
-            {
-            
-                $params = session_get_cookie_params();
-                setcookie(session_name(), 
-                                      '', 
-                          time() - 42000,
-                         $params["path"], 
-                       $params["domain"],
-                       $params["secure"], 
-                    $params["httponly"]);
-                
-            }
-            
-            session_unset();
-            session_destroy();
-            
-        }
+
+      $params = session_get_cookie_params();
+      setcookie(session_name(),
+      '',
+      time() - 42000,
+      $params["path"],
+      $params["domain"],
+      $params["secure"],
+      $params["httponly"]);
+
     }
 
-    $ChecarSesion = function() use ($session_expiration_time)
+    session_unset();
+    session_destroy();
+
+  }
+}
+
+$ChecarSesion = function() use ($session_expiration_time)
+{
+
+  $app = \Slim\Slim::getInstance();
+
+  if( isset( $_SESSION['MQR'] ) )
+  {
+
+    if( ( $_SESSION['timeout'] - time() ) < 0 )
     {
-        
-        $app = \Slim\Slim::getInstance();
-        
-        if( isset( $_SESSION['MQR'] ) ) 
-        {
+      quitarSesion();
 
-            if( ( $_SESSION['timeout'] - time() ) < 0 )
-            {
-                quitarSesion();
-                
-                $app->response->headers->set('X-Api-Key', generateToken(true));
-            }
-            else
-            {
-                $_SESSION['timeout'] = strtotime( $session_expiration_time );   
-            }
-                
-        }        
-    };
+      $app->response->headers->set('X-Api-Key', generateToken(true));
+    }
+    else
+    {
+      $_SESSION['timeout'] = strtotime( $session_expiration_time );
+    }
 
-    /*-----------Sesion-------------*/
-    $app->post('/Login', $seguridad, 'Login');
-    $app->get('/GetEstadoSesion', $seguridad, $ChecarSesion, 'GetEstadoSesion');
-    $app->get('/CerrarSesion', $seguridad, 'CerrarSesion');
-    $app->put('/SetAplicacion', $seguridad, 'SetAplicacion');
+  }
+};
 
-    /*----------------------Usuario ----------------------*/
-    $app->get('/GetUsuarios', $seguridad, $ChecarSesion, 'GetUsuarios');
-    $app->post('/AgregarUsuario', $seguridad, $ChecarSesion, 'AgregarUsuario');
-    $app->put('/EditarUsuario', $seguridad, $ChecarSesion, 'EditarUsuario');
-    $app->post('/ActivarDesactivarUsuario', $seguridad, $ChecarSesion, 'ActivarDesactivarUsuario');
-    
-    $app->get('/GetPermiso', $seguridad, $ChecarSesion, 'GetPermiso');
-    
-    $app->get('/GetPermisoUsuario', $seguridad, $ChecarSesion, 'GetPermisoUsuario');
-    $app->put('/CambiarPasswordPorUsuario', $seguridad, $ChecarSesion, 'CambiarPasswordPorUsuario');
+/*-----------Sesion-------------*/
+$app->post('/Login', $seguridad, 'Login');
+$app->get('/GetEstadoSesion', $seguridad, $ChecarSesion, 'GetEstadoSesion');
+$app->get('/CerrarSesion', $seguridad, 'CerrarSesion');
+$app->put('/SetAplicacion', $seguridad, 'SetAplicacion');
 
-    $app->put('/RecuperarPassword', $seguridad, $ChecarSesion, 'RecuperarPassword');
-    $app->post('/ValidarRecuperarPassword', $seguridad, $ChecarSesion, 'ValidarRecuperarPassword');
-    $app->put('/ReiniciarPassword', $seguridad, $ChecarSesion, 'ReiniciarPassword');
+/*----------------------Usuario ----------------------*/
+$app->get('/GetUsuarios', $seguridad, $ChecarSesion, 'GetUsuarios');
+$app->post('/AgregarUsuario', $seguridad, $ChecarSesion, 'AgregarUsuario');
+$app->put('/EditarUsuario', $seguridad, $ChecarSesion, 'EditarUsuario');
+$app->post('/ActivarDesactivarUsuario', $seguridad, $ChecarSesion, 'ActivarDesactivarUsuario');
+$app->get('/ObtenerDatosUsuario', $seguridad, $ChecarSesion, 'ObtenerDatosUsuario');
 
-    /*----------------------- Etiqueta ------------------------------------------*/
-    $app->get('/GetEtiqueta/:id', $seguridad, $ChecarSesion, 'GetEtiqueta');
-    $app->post('/AgregarEtiqueta', $seguridad, $ChecarSesion, 'AgregarEtiqueta');
-    $app->put('/EditarEtiqueta', $seguridad, $ChecarSesion, 'EditarEtiqueta');
-    $app->post('/ActivarDesactivarEtiqueta', $seguridad, $ChecarSesion, 'ActivarDesactivarEtiqueta');
-    $app->delete('/BorrarEtiqueta', $seguridad, $ChecarSesion, 'BorrarEtiqueta');
+$app->get('/GetPermiso', $seguridad, $ChecarSesion, 'GetPermiso');
 
-    /*----------------------- Prefijo ------------------------------------------*/
-    $app->get('/GetAutor', $seguridad, $ChecarSesion, 'GetAutor');
-    $app->post('/AgregarAutor', $seguridad, $ChecarSesion, 'AgregarAutor');
-    $app->put('/EditarAutor', $seguridad, $ChecarSesion, 'EditarAutor');
+$app->get('/GetPermisoUsuario', $seguridad, $ChecarSesion, 'GetPermisoUsuario');
+$app->put('/CambiarPasswordPorUsuario', $seguridad, $ChecarSesion, 'CambiarPasswordPorUsuario');
 
-    /*----------------------- Prefijo ------------------------------------------*/
-    $app->get('/GetPrefijo', $seguridad, $ChecarSesion, 'GetPrefijo');
-    $app->post('/AgregarPrefijo', $seguridad, $ChecarSesion, 'AgregarPrefijo');
-    $app->put('/EditarPrefijo', $seguridad, $ChecarSesion, 'EditarPrefijo');
+$app->put('/RecuperarPassword', $seguridad, $ChecarSesion, 'RecuperarPassword');
+$app->post('/ValidarRecuperarPassword', $seguridad, $ChecarSesion, 'ValidarRecuperarPassword');
+$app->put('/ReiniciarPassword', $seguridad, $ChecarSesion, 'ReiniciarPassword');
 
-    /*-----------------------  TipoFuente ------------------------------------------*/
-    $app->get('/GetTipoFuente', $seguridad, $ChecarSesion, 'GetTipoFuente');
-    $app->post('/AgregarTipoFuente', $seguridad, $ChecarSesion, 'AgregarTipoFuente');
-    $app->put('/EditarTipoFuente', $seguridad, $ChecarSesion, 'EditarTipoFuente');
+/*----------------------- Etiqueta ------------------------------------------*/
+$app->get('/GetEtiqueta/:id', $seguridad, $ChecarSesion, 'GetEtiqueta');
+$app->post('/AgregarEtiqueta', $seguridad, $ChecarSesion, 'AgregarEtiqueta');
+$app->put('/EditarEtiqueta', $seguridad, $ChecarSesion, 'EditarEtiqueta');
+$app->post('/ActivarDesactivarEtiqueta', $seguridad, $ChecarSesion, 'ActivarDesactivarEtiqueta');
+$app->delete('/BorrarEtiqueta', $seguridad, $ChecarSesion, 'BorrarEtiqueta');
 
-    /*-----------------------  Fuente ------------------------------------------*/
-    $app->get('/GetFuente', $seguridad, $ChecarSesion, 'GetFuente');
-    $app->post('/AgregarFuente', $seguridad, $ChecarSesion, 'AgregarFuente');
-    $app->put('/EditarFuente', $seguridad, $ChecarSesion, 'EditarFuente');
+/*----------------------- Prefijo ------------------------------------------*/
+$app->get('/GetAutor', $seguridad, $ChecarSesion, 'GetAutor');
+$app->post('/AgregarAutor', $seguridad, $ChecarSesion, 'AgregarAutor');
+$app->put('/EditarAutor', $seguridad, $ChecarSesion, 'EditarAutor');
 
-    $app->get('/GetFuenteAutor/:id', $seguridad, $ChecarSesion, 'GetFuenteAutor');
-    $app->get('/GetFuenteEtiqueta', $seguridad, $ChecarSesion, 'GetFuenteEtiqueta');
+/*----------------------- Prefijo ------------------------------------------*/
+$app->get('/GetPrefijo', $seguridad, $ChecarSesion, 'GetPrefijo');
+$app->post('/AgregarPrefijo', $seguridad, $ChecarSesion, 'AgregarPrefijo');
+$app->put('/EditarPrefijo', $seguridad, $ChecarSesion, 'EditarPrefijo');
 
-    /*-----------------------  Tema ------------------------------------------*/
-    $app->get('/GetTema', $seguridad, $ChecarSesion, 'GetTema');
-    $app->post('/AgregarTema', $seguridad, $ChecarSesion, 'AgregarTema');
-    $app->put('/EditarTema', $seguridad, $ChecarSesion, 'EditarTema');
+/*-----------------------  TipoFuente ------------------------------------------*/
+$app->get('/GetTipoFuente', $seguridad, $ChecarSesion, 'GetTipoFuente');
+$app->post('/AgregarTipoFuente', $seguridad, $ChecarSesion, 'AgregarTipoFuente');
+$app->put('/EditarTipoFuente', $seguridad, $ChecarSesion, 'EditarTipoFuente');
 
-    /*-----------------------  Tipo Informacion ------------------------------------------*/
-    $app->get('/GetTipoInformacion', $seguridad, $ChecarSesion, 'GetTipoInformacion');
-    $app->post('/AgregarTipoInformacion', $seguridad, $ChecarSesion, 'AgregarTipoInformacion');
-    $app->put('/EditarTipoInformacion', $seguridad, $ChecarSesion, 'EditarTipoInformacion');
+/*-----------------------  Fuente ------------------------------------------*/
+$app->get('/GetFuente', $seguridad, $ChecarSesion, 'GetFuente');
+$app->post('/AgregarFuente', $seguridad, $ChecarSesion, 'AgregarFuente');
+$app->put('/EditarFuente', $seguridad, $ChecarSesion, 'EditarFuente');
 
-    /*-----------------------  Información ------------------------------------------*/
-    $app->get('/GetInformacion', $seguridad, $ChecarSesion, 'GetInformacion');
-    $app->post('/AgregarInformacion', $seguridad, $ChecarSesion, 'AgregarInformacion');
-    $app->post('/EditarInformacion', $seguridad, $ChecarSesion, 'EditarInformacion');
-    $app->get('/GetInformacionEtiqueta/:id', $seguridad, $ChecarSesion, 'GetInformacionEtiqueta');
-    
-    $app->get('/GetEtiquetasInformacion', $seguridad, $ChecarSesion, 'GetEtiquetasInformacion');
-    $app->get('/GetTemaInformacion', $seguridad, $ChecarSesion, 'GetTemaInformacion');
-    $app->get('/GetAutoresFuente', $seguridad, $ChecarSesion, 'GetAutoresFuente');
-    $app->get('/GetArchivoInformacion/:id', $seguridad, $ChecarSesion, 'GetArchivoInformacion');
-    
-    //---------------------------------------------------------------------------------------------------------------Cancionero
-    
-    /*-----------------------  Artista ------------------------------------------*/
-    $app->get('/GetArtista/:id', $seguridad, $ChecarSesion, 'GetArtista');
-    $app->post('/AgregarArtista', $seguridad, $ChecarSesion, 'AgregarArtista');
-    $app->put('/EditarArtista', $seguridad, $ChecarSesion, 'EditarArtista');
-    $app->delete('/BorrarArtista', $seguridad, $ChecarSesion, 'BorrarArtista');
+$app->get('/GetFuenteAutor/:id', $seguridad, $ChecarSesion, 'GetFuenteAutor');
+$app->get('/GetFuenteEtiqueta', $seguridad, $ChecarSesion, 'GetFuenteEtiqueta');
 
-    /*-----------------------  Cancion ------------------------------------------*/
-    $app->get('/GetCancion/:id', $seguridad, $ChecarSesion, 'GetCancion');
-    $app->get('/GetCancionTodas', $seguridad, $ChecarSesion, 'GetCancionTodas');
-    $app->post('/AgregarCancion', $seguridad, $ChecarSesion, 'AgregarCancion');
-    $app->post('/EditarCancion', $seguridad, $ChecarSesion, 'EditarCancion');
-    $app->delete('/BorrarCancion', $seguridad, $ChecarSesion, 'BorrarCancion');
-    
-    $app->get('/GetArtistaPorCancionTodos', $seguridad, $ChecarSesion, 'GetArtistaPorCancionTodos');
-    $app->get('/GetArtistaPorCancion/:id', $seguridad, $ChecarSesion, 'GetArtistaPorCancion');
-    $app->get('/GetCancionero/:id', $seguridad, $ChecarSesion, 'GetCancionero');
+/*-----------------------  Tema ------------------------------------------*/
+$app->get('/GetTema', $seguridad, $ChecarSesion, 'GetTema');
+$app->post('/AgregarTema', $seguridad, $ChecarSesion, 'AgregarTema');
+$app->put('/EditarTema', $seguridad, $ChecarSesion, 'EditarTema');
 
-    //---------------------------------------------------------------------------------------------------------------Actividades
-    
-    /*-----------------------  Frecuencia ------------------------------------------*/
-    $app->get('/GetFrecuencia/:id', $seguridad, $ChecarSesion, 'GetFrecuencia');
-    $app->post('/AgregarFrecuencia', $seguridad, $ChecarSesion, 'AgregarFrecuencia');
-    $app->put('/EditarFrecuencia', $seguridad, $ChecarSesion, 'EditarFrecuencia');
-    $app->delete('/BorrarFrecuencia', $seguridad, $ChecarSesion, 'BorrarFrecuencia');
+/*-----------------------  Tipo Informacion ------------------------------------------*/
+$app->get('/GetTipoInformacion', $seguridad, $ChecarSesion, 'GetTipoInformacion');
+$app->post('/AgregarTipoInformacion', $seguridad, $ChecarSesion, 'AgregarTipoInformacion');
+$app->put('/EditarTipoInformacion', $seguridad, $ChecarSesion, 'EditarTipoInformacion');
 
-    /*-----------------------  Tema Actividad ------------------------------------------*/
-    $app->get('/GetTemaActividad/:id', $seguridad, $ChecarSesion, 'GetTemaActividad');
-    $app->post('/AgregarTemaActividad', $seguridad, $ChecarSesion, 'AgregarTemaActividad');
-    $app->put('/EditarTemaActividad', $seguridad, $ChecarSesion, 'EditarTemaActividad');
-    $app->delete('/BorrarTemaActividad', $seguridad, $ChecarSesion, 'BorrarTemaActividad');
+/*-----------------------  Información ------------------------------------------*/
+$app->get('/GetInformacion', $seguridad, $ChecarSesion, 'GetInformacion');
+$app->post('/AgregarInformacion', $seguridad, $ChecarSesion, 'AgregarInformacion');
+$app->post('/EditarInformacion', $seguridad, $ChecarSesion, 'EditarInformacion');
+$app->get('/GetInformacionEtiqueta/:id', $seguridad, $ChecarSesion, 'GetInformacionEtiqueta');
 
-    /*-----------------------  Persona ------------------------------------------*/
-    $app->get('/GetPersonaActividad/:id', $seguridad, $ChecarSesion, 'GetPersonaActividad');
-    $app->post('/AgregarPersonaActividad', $seguridad, $ChecarSesion, 'AgregarPersonaActividad');
-    $app->put('/EditarPersonaActividad', $seguridad, $ChecarSesion, 'EditarPersonaActividad');
-    $app->delete('/BorrarPersonaActividad', $seguridad, $ChecarSesion, 'BorrarPersonaActividad');
+$app->get('/GetEtiquetasInformacion', $seguridad, $ChecarSesion, 'GetEtiquetasInformacion');
+$app->get('/GetTemaInformacion', $seguridad, $ChecarSesion, 'GetTemaInformacion');
+$app->get('/GetAutoresFuente', $seguridad, $ChecarSesion, 'GetAutoresFuente');
+$app->get('/GetArchivoInformacion/:id', $seguridad, $ChecarSesion, 'GetArchivoInformacion');
 
-    /*-----------------------  Lugar ------------------------------------------*/
-    $app->get('/GetLugar/:id', $seguridad, $ChecarSesion, 'GetLugar');
-    $app->post('/AgregarLugar', $seguridad, $ChecarSesion, 'AgregarLugar');
-    $app->put('/EditarLugar', $seguridad, $ChecarSesion, 'EditarLugar');
-    $app->delete('/BorrarLugar', $seguridad, $ChecarSesion, 'BorrarLugar');
+//---------------------------------------------------------------------------------------------------------------Cancionero
 
-    /*-----------------------  Ciudad ------------------------------------------*/
-    $app->get('/GetCiudad/:id', $seguridad, $ChecarSesion, 'GetCiudad');
-    $app->post('/AgregarCiudad', $seguridad, $ChecarSesion, 'AgregarCiudad');
-    $app->put('/EditarCiudad', $seguridad, $ChecarSesion, 'EditarCiudad');
-    $app->delete('/BorrarCiudad', $seguridad, $ChecarSesion, 'BorrarCiudad');
+/*-----------------------  Artista ------------------------------------------*/
+$app->get('/GetArtista/:id', $seguridad, $ChecarSesion, 'GetArtista');
+$app->post('/AgregarArtista', $seguridad, $ChecarSesion, 'AgregarArtista');
+$app->put('/EditarArtista', $seguridad, $ChecarSesion, 'EditarArtista');
+$app->delete('/BorrarArtista', $seguridad, $ChecarSesion, 'BorrarArtista');
 
-    /*-----------------------  Unidad ------------------------------------------*/
-    $app->get('/GetUnidad/:id', $seguridad, $ChecarSesion, 'GetUnidad');
-    $app->post('/AgregarUnidad', $seguridad, $ChecarSesion, 'AgregarUnidad');
-    $app->put('/EditarUnidad', $seguridad, $ChecarSesion, 'EditarUnidad');
-    $app->delete('/BorrarUnidad', $seguridad, $ChecarSesion, 'BorrarUnidad');
+/*-----------------------  Cancion ------------------------------------------*/
+$app->get('/GetCancion/:id', $seguridad, $ChecarSesion, 'GetCancion');
+$app->get('/GetCancionTodas', $seguridad, $ChecarSesion, 'GetCancionTodas');
+$app->post('/AgregarCancion', $seguridad, $ChecarSesion, 'AgregarCancion');
+$app->post('/EditarCancion', $seguridad, $ChecarSesion, 'EditarCancion');
+$app->delete('/BorrarCancion', $seguridad, $ChecarSesion, 'BorrarCancion');
 
-    /*-----------------------  Divisa ------------------------------------------*/
-    $app->get('/GetDivisa/:id', $seguridad, $ChecarSesion, 'GetDivisa');
-    $app->post('/AgregarDivisa', $seguridad, $ChecarSesion, 'AgregarDivisa');
-    $app->put('/EditarDivisa', $seguridad, $ChecarSesion, 'EditarDivisa');
-    $app->delete('/BorrarDivisa', $seguridad, $ChecarSesion, 'BorrarDivisa');
+$app->get('/GetArtistaPorCancionTodos', $seguridad, $ChecarSesion, 'GetArtistaPorCancionTodos');
+$app->get('/GetArtistaPorCancion/:id', $seguridad, $ChecarSesion, 'GetArtistaPorCancion');
+$app->get('/GetCancionero/:id', $seguridad, $ChecarSesion, 'GetCancionero');
 
-    /*-----------------------  Actividad ------------------------------------------*/
-    $app->get('/GetActividad/:id', $seguridad, $ChecarSesion, 'GetActividad');
-    $app->post('/AgregarActividad', $seguridad, $ChecarSesion, 'AgregarActividad');
-    $app->put('/EditarActividad', $seguridad, $ChecarSesion, 'EditarActividad');
-    $app->delete('/BorrarActividad', $seguridad, $ChecarSesion, 'BorrarActividad');
+/*-----------------------  Webmail ------------------------------------------*/
+$app->get('/RedireccionarServidorWebmail', $seguridad, $ChecarSesion, 'RedireccionarServidorWebmail');
+$app->get('/', 'CapturarRespuestaServidorWebmail');
+$app->get('/ObtenerRegistroErroresWebmail', $seguridad, $ChecarSesion, 'ObtenerRegistroErroresWebmail');
+$app->get('/ObtenerCuentasWebmail', $seguridad, $ChecarSesion, 'ObtenerCuentasWebmail');
+$app->get('/ObtenerContactosPorCuentaWebmail', $seguridad, $ChecarSesion, 'ObtenerContactosPorCuentaWebmail');
+$app->get('/ObtenerFoldersPorCuentaWebmail', $seguridad, $ChecarSesion, 'ObtenerFoldersPorCuentaWebmail');
+$app->get('/ObtenerEstadoFoldersPorCuentaWebmail', $seguridad, $ChecarSesion, 'ObtenerEstadoFoldersPorCuentaWebmail');
+$app->get('/ObtenerMensajesPorFolderWebmail', $seguridad, $ChecarSesion, 'ObtenerMensajesPorFolderWebmail');
+$app->get('/ObtenerContenidoMensajeWebmail', $seguridad, $ChecarSesion, 'ObtenerContenidoMensajeWebmail');
+$app->get('/DescargarArchivoAdjuntoWebmail', 'DescargarArchivoAdjuntoWebmail');
 
-    $app->get('/GetEtiquetaPorActividad/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorActividad');
-    $app->get('/GetTemaPorActividad/:id', $seguridad, $ChecarSesion, 'GetTemaPorActividad');
-    $app->get('/GetFechaActividad/:id', $seguridad, $ChecarSesion, 'GetFechaActividad');
+$app->get('/ObtenerIdArchivoAdjuntoWebmail', $seguridad, $ChecarSesion, 'ObtenerIdArchivoAdjuntoWebmail');
+$app->post('/AlmacenarArchivoAdjuntoWebmail', $seguridad, $ChecarSesion, 'AlmacenarArchivoAdjuntoWebmail');
+$app->delete('/EliminarArchivoAdjuntoWebmail', $seguridad, $ChecarSesion, 'EliminarArchivoAdjuntoWebmail');
+$app->post('/EnviarMensajeWebmail', $seguridad, $ChecarSesion, 'EnviarMensajeWebmail');
+$app->delete('/EliminarMensajeWebmail', $seguridad, $ChecarSesion, 'EliminarMensajeWebmail');
+$app->put('/MoverMensajeWebmail', $seguridad, $ChecarSesion, 'MoverMensajeWebmail');
 
-    /*-----------------------  Evento Actividad ------------------------------------------*/
-    $app->get('/GetEventoActividad/:id', $seguridad, $ChecarSesion, 'GetEventoActividad');
-    $app->post('/AgregarEventoActividad', $seguridad, $ChecarSesion, 'AgregarEventoActividad');
-    $app->put('/EditarEventoActividad', $seguridad, $ChecarSesion, 'EditarEventoActividad');
-    $app->delete('/BorrarEventoActividad', $seguridad, $ChecarSesion, 'BorrarEventoActividad');
-
-    $app->get('/GetPersonaEventoActividad/:id', $seguridad, $ChecarSesion, 'GetPersonaEventoActividad');
-
-    
-
-    //---------------------------------------------------------------------------------------------------------------Diario
-
-    /*-----------------------  Diario ------------------------------------------*/
-    $app->get('/GetDiario/:id', $seguridad, $ChecarSesion, 'GetDiario');
-    $app->post('/AgregarDiario', $seguridad, $ChecarSesion, 'AgregarDiario');
-    $app->put('/EditarDiario', $seguridad, $ChecarSesion, 'EditarDiario');
-    $app->delete('/BorrarDiario', $seguridad, $ChecarSesion, 'BorrarDiario');
-
-    $app->get('/GetEtiquetaPorDiario/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorDiario');
-    $app->get('/GetTemaPorDiario/:id', $seguridad, $ChecarSesion, 'GetTemaPorDiario');
-
-    //---------------------------------------------------------------------------------------------------------------Notas
-
-    /*-----------------------  Notas ------------------------------------------*/
-    $app->get('/GetNotas/:id', $seguridad, $ChecarSesion, 'GetNotas');
-    $app->post('/GetNotasPorId', $seguridad, $ChecarSesion, 'GetNotasPorId');
-    $app->post('/AgregarNota', $seguridad, $ChecarSesion, 'AgregarNota');
-    $app->post('/EditarNota', $seguridad, $ChecarSesion, 'EditarNota');
-    $app->delete('/BorrarNota', $seguridad, $ChecarSesion, 'BorrarNota');
-
-    $app->get('/GetEtiquetaPorNota/:id', $seguridad, $ChecarSesion, 'GetEtiquetaPorNota');
-    $app->get('/GetTemaPorNota/:id', $seguridad, $ChecarSesion, 'GetTemaPorNota');
-    $app->post('/GetNotasFiltro', $seguridad, $ChecarSesion, 'GetNotasFiltro');
-
-    //---------------------------------------------------------------------------------------------------------------Buscador
-
-    /*-----------------------  Notas ------------------------------------------*/
-    $app->post('/GetBuscador', $seguridad, $ChecarSesion, 'GetBuscador');
-
-    $app->post('/GetDiarioPorId', $seguridad, $ChecarSesion, 'GetDiarioPorId');
-    $app->post('/GetActividadPorId', $seguridad, $ChecarSesion, 'GetActividadPorId');
-    
-
-    //---------------------------------------------------------------------------------------------------------------Imagenes  
-    /*-----------------------  Imagenes ------------------------------------------*/
-    $app->post('/GetGaleriaFotos', $seguridad, $ChecarSesion, 'GetGaleriaFotos');
+$app->get('/ObtenerConfiguracionCuentaWebmail', $seguridad, $ChecarSesion, 'ObtenerConfiguracionCuentaWebmail');
+$app->put('/ActualizarConfiguracionCuentaWebmail', $seguridad, $ChecarSesion, 'ActualizarConfiguracionCuentaWebmail');
+$app->post('/AlmacenarCredencialesCorreoWebmail', $seguridad, $ChecarSesion, 'AlmacenarCredencialesCorreoWebmail');
+$app->delete('/EliminarCuentaWebmail', $seguridad, $ChecarSesion, 'EliminarCuentaWebmail');
 
 
-    $app->run(); 
+/*-----------------------  Amistad ------------------------------------------*/
+$app->post('/EnviarSolicitudAmistad', $seguridad, $ChecarSesion, 'EnviarSolicitudAmistad');
+$app->get('/ConsultarSolicitudAmistad', $seguridad, $ChecarSesion, 'ConsultarSolicitudAmistad');
+$app->get('/ObtenerSolicitudesEnviadas', $seguridad, $ChecarSesion, 'ObtenerSolicitudesEnviadas');
+$app->get('/ObtenerSolicitudesRecibidas', $seguridad, $ChecarSesion, 'ObtenerSolicitudesRecibidas');
+$app->get('/ObtenerSolicitudRecibida', $seguridad, $ChecarSesion, 'ObtenerSolicitudRecibida');
+$app->get('/ObtenerListaAmigos', $seguridad, $ChecarSesion, 'ObtenerListaAmigos');
+$app->get('/ObtenerDatosAmigo', $seguridad, $ChecarSesion, 'ObtenerDatosAmigo');
+$app->put('/AceptarSolicitudAmistad', $seguridad, $ChecarSesion, 'AceptarSolicitudAmistad');
+$app->delete('/CancelarSolicitudAmistad', $seguridad, $ChecarSesion, 'CancelarSolicitudAmistad');
+$app->delete('/EliminarAmigo', $seguridad, $ChecarSesion, 'EliminarAmigo');
+
+/*-----------------------  Notificaciones ------------------------------------------*/
+$app->get('/ObtenerNotificacionesPorUsuario', $seguridad, $ChecarSesion, 'ObtenerNotificacionesPorUsuario');
+$app->post('/EnviarRecurso', $seguridad, $ChecarSesion, 'EnviarRecurso');
+$app->put('/MarcarNotificacionLeida', $seguridad, $ChecarSesion, 'MarcarNotificacionLeida');
+$app->delete('/EliminarNotificacion', $seguridad, $ChecarSesion, 'EliminarNotificacion');
+
+$app->run();
 
 
 ?>

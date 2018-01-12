@@ -6,15 +6,15 @@ class Cancion
         this.Titulo = "";
         this.Cancionero = "";
         this.NombreArchivo = "";
-        
+
         this.Artista = [];
     }
 }
 
-function GetCancion($http, $q, CONFIG, usuarioId)     
+function GetCancion($http, $q, CONFIG, usuarioId)
 {
     var q = $q.defer();
-    
+
     var servicio = "";
     if(usuarioId == "todos")
     {
@@ -25,129 +25,129 @@ function GetCancion($http, $q, CONFIG, usuarioId)
         servicio = "/GetCancion/" + usuarioId;
     }
 
-    $http({      
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + servicio,
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            
-            if(data[0].Estatus == "Exito")
+
+            if(response.data[0].Estatus == "Exito")
             {
-                var cancion = []; 
-                
-                for(var k=0; k<data[1].Cancion.length; k++)
+                var cancion = [];
+
+                for(var k=0; k<response.data[1].Cancion.length; k++)
                 {
                     cancion[k] = new Cancion();
-                    cancion[k] = SetCancion(data[1].Cancion[k]);
+                    cancion[k] = SetCancion(response.data[1].Cancion[k]);
                 }
-                
-                q.resolve(cancion); 
+
+                q.resolve(cancion);
             }
             else
             {
-                q.resolve([]); 
+                q.resolve([]);
             }
-             
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
 function SetCancion(data)
 {
     var cancion = new Cancion();
-    
+
     cancion.CancionId = data.CancionId;
     cancion.Titulo = data.Titulo;
     //cancion.Cancionero = data.Cancionero;
     //cancion.NombreArchivo = data.NombreArchivo;
-    
+
     return cancion;
 }
 
 function AgregarCancion($http, CONFIG, $q, cancion)
 {
    var q = $q.defer();
-    
+
     var fd = new FormData();
-    
+
     if(cancion.ArchivoSeleccionado)
     {
         var file = cancion.Cancionero;
         fd.append('file', file);
     }
-    
+
     fd.append('cancion', JSON.stringify(cancion));
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/AgregarCancion',
           data: fd,
-          headers: 
+          headers:
           {
-            "Content-type": undefined 
+            "Content-type": undefined
           }
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exitoso")
+            if(response.data[0].Estatus == "Exitoso")
             {
-                q.resolve(data);
+                q.resolve(response.data);
             }
             else
             {
-                q.resolve(data);
+                q.resolve(response.data);
             }
-            
-            
-        }).error(function(data, status){
-            q.resolve(status);
 
-     }); 
+
+        }, function(response){
+            q.resolve(response.status);
+
+     });
     return q.promise;
 }
 
 function EditarCancion($http, CONFIG, $q, cancion)
 {
-    
+
     var q = $q.defer();
-    
-    
+
+
     var fd = new FormData();
-    
+
     if(cancion.ArchivoSeleccionado)
     {
         var file = cancion.Cancionero;
         fd.append('file', file);
     }
-    
+
     fd.append('cancion', JSON.stringify(cancion));
 
-    $http({      
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/EditarCancion',
           data: fd,
-          headers: 
+          headers:
           {
-            "Content-type": undefined 
+            "Content-type": undefined
           }
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exitoso")
+            if(response.data[0].Estatus == "Exitoso")
             {
-                q.resolve(data);
+                q.resolve(response.data);
             }
             else
             {
-                q.resolve(data);
-            }  
-        }).error(function(data, status){
-            q.resolve(status);
+                q.resolve(response.data);
+            }
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
@@ -155,52 +155,52 @@ function BorrarCancion($http, CONFIG, $q, id)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'DELETE',
           url: CONFIG.APIURL + '/BorrarCancion',
           data: id
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);    
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
 //---------------- Datos cancion
-function GetCancionero($http, $q, CONFIG, id)     
+function GetCancionero($http, $q, CONFIG, id)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetCancionero/'+id,
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exito")
+            if(response.data[0].Estatus == "Exito")
             {
-                q.resolve(data[1].Cancionero[0]);  
+                q.resolve(response.data[1].Cancionero[0]);
             }
             else
             {
-                q.resolve([]);      
+                q.resolve([]);
             }
-            
-        }).error(function(data, status){
+
+        }, function(response){
             q.resolve([]);
-     }); 
+     });
     return q.promise;
 }
 
-function GetArtistaPorCancion($http, $q, CONFIG, id)     
+function GetArtistaPorCancion($http, $q, CONFIG, id)
 {
     var q = $q.defer();
-    
+
     var servicio = "";
-    
+
     if(id == "todos")
     {
         servicio = "/GetArtistaPorCancionTodos";
@@ -209,27 +209,23 @@ function GetArtistaPorCancion($http, $q, CONFIG, id)
     {
         servicio = "/GetArtistaPorCancion/" + id;
     }
-    
-    $http({      
+
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + servicio,
-      }).success(function(data)
+      }).then(function(response)
         {
-            if(data[0].Estatus == "Exito")
+            if(response.data[0].Estatus == "Exito")
             {
-                q.resolve(data[1].Artista);  
+                q.resolve(response.data[1].Artista);
             }
             else
             {
-                q.resolve([]);      
+                q.resolve([]);
             }
-            
-        }).error(function(data, status){
+
+        }, function(response){
             q.resolve([]);
-     }); 
+     });
     return q.promise;
 }
-
-
-
-  

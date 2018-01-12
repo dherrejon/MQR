@@ -7,56 +7,56 @@ class TipoFuente
     }
 }
 
-function GetTipoFuente($http, $q, CONFIG)     
+function GetTipoFuente($http, $q, CONFIG)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetTipoFuente',
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            var tipoFuente = []; 
-            for(var k=0; k<data.length; k++)
+            var tipoFuente = [];
+            for(var k=0; k<response.data.length; k++)
             {
                 tipoFuente[k] = new TipoFuente();
-                tipoFuente[k] = SetTipoFuente(data[k]);
+                tipoFuente[k] = SetTipoFuente(response.data[k]);
             }
-    
-            q.resolve(tipoFuente);  
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+            q.resolve(tipoFuente);
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
 function SetTipoFuente(data)
 {
     var tipoFuente = new TipoFuente();
-    
+
     tipoFuente.TipoFuenteId = data.TipoFuenteId;
     tipoFuente.Nombre = data.Nombre;
-    
+
     return tipoFuente;
 }
 
 function AgregarTipoFuente($http, CONFIG, $q, tipo)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/AgregarTipoFuente',
           data: tipo
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
@@ -65,21 +65,17 @@ function EditarTipoFuente($http, CONFIG, $q, tipo)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'PUT',
           url: CONFIG.APIURL + '/EditarTipoFuente',
           data: tipo
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);    
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
-
-
-
-  

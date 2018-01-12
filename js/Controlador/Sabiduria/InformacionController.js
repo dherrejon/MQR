@@ -1,22 +1,24 @@
-app.controller("InformacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce)
-{   
+app.controller("InformacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce, $timeout)
+{
     $scope.titulo = "Informacion";
-    
+
     $scope.permiso = false;
 
     $scope.informacion = [];
-    
+
     $scope.buscarInformacion = "";
     $scope.buscarEtiqueta = "";
     $scope.buscarTema = "";
     $scope.buscarConcepto = "";
-    
-    
-    
+
+
+
     $scope.campoBuscar = "Conceptos";
     $scope.verFiltro = true;
     $scope.filtro = {tema:[], etiqueta: [], origen: {texto:false, imagen:false, archivo:false}};
-    
+
+    $scope.evt_seleccionar_info = false;
+
     $scope.ValidarPermiso = function()
     {
         for(var k=0; k<$scope.usuarioLogeado.Permiso.length; k++)
@@ -28,8 +30,8 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             }
         }
     };
-    
-    $scope.GetInformacion = function()              
+
+    $scope.GetInformacion = function()
     {
         GetInformacion($http, $q, CONFIG).then(function(data)
         {
@@ -38,17 +40,17 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 data[k].Contenido = $sce.trustAsHtml(data[k].Contenido);
                 data[k].ObservacionHTML = $sce.trustAsHtml(data[k].ObservacionHTML);
             }
-            
+
             $scope.informacion = data;
-            
+
             $scope.GetEtiquetasInformacion();
         }).catch(function(error)
         {
             alert(error);
         });
     };
-    
-    $scope.GetEtiquetasInformacion = function()              
+
+    $scope.GetEtiquetasInformacion = function()
     {
         GetEtiquetasInformacion($http, $q, CONFIG).then(function(data)
         {
@@ -60,8 +62,8 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             alert(error);
         });
     };
-    
-    $scope.GetTemaInformacion = function()              
+
+    $scope.GetTemaInformacion = function()
     {
         GetTemaInformacion($http, $q, CONFIG).then(function(data)
         {
@@ -73,7 +75,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             alert(error);
         });
     };
-    
+
     $scope.SetEtiquetaInformacion = function()
     {
         var sqlBase = "Select EtiquetaId, Nombre From ? WHERE InformacionId = '";
@@ -84,44 +86,46 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             //etiqueta
             sql = sqlBase + $scope.informacion[k].InformacionId + "'";
             $scope.informacion[k].Etiqueta = alasql(sql,[$scope.etiquetasInformacion]);
-            
+
             //tema
             sql = sqlBaseTema +  $scope.informacion[k].InformacionId + "'";
             $scope.informacion[k].Tema = alasql(sql,[$scope.temaInformacion]);
         }
-        
+
         var sql = "SELECT DISTINCT EtiquetaId, Nombre FROM ?";
         $scope.etiquetaF = alasql(sql, [$scope.etiquetasInformacion]);
-        
+
         var sql = "SELECT DISTINCT TemaId, Nombre FROM ?";
         $scope.temaF = alasql(sql, [$scope.temaInformacion]);
-        
+
         for(var k=0; k<$scope.temaF.length; k++)
         {
             $scope.temaF[k].mostrar = true;
         }
-        
+
         for(var k=0; k<$scope.etiquetaF.length; k++)
         {
             $scope.etiquetaF[k].mostrar = true;
         }
+
+        $rootScope.$broadcast('controlador_informacion_cargado',{});
     };
-    
-    $scope.GetArchivoInformacion = function(informacion)              
+
+    $scope.GetArchivoInformacion = function(informacion)
     {
         GetArchivoInformacion($http, $q, CONFIG, informacion.InformacionId).then(function(data)
         {
             informacion.Archivo = data.Archivo;
             informacion.NombreArchivo = data.NombreArchivo;
             informacion.ExtensionArchivo = data.ExtensionArchivo;
-        
+
         }).catch(function(error)
         {
             alert(error);
         });
     };
-    
-    
+
+
     /*------------ General -------------------*/
     $scope.CambiarCampoBuscar = function(campo)
     {
@@ -131,12 +135,12 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             //$scope.buscarEtiqueta = "";
             //$scope.buscarTema = "";
             $scope.buscarConcepto = "";
-            
+
             $scope.campoBuscar = campo;
-        
+
         }
     };
-    
+
     $scope.LimpiarBuscar = function()
     {
         //$scope.buscarTema = "";
@@ -144,32 +148,32 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
         $scope.buscarInformacion = "";
         $scope.buscarConcepto = "";
     };
-    
+
     //------------- Detalles --------------------
     $scope.verDetalle  =function(info)
     {
         $scope.detalle = info;
         $scope.verMasDetalle = false;
-        
+
         if(info.OrigenInformacion.OrigenInformacionId != "1")
         {
             $scope.GetArchivoInformacion(info);
         }
-        
+
         $('#DetalleInformacion').modal('toggle');
     };
-    
+
     $scope.CambiarMasDetalles = function()
     {
         $scope.verMasDetalle = !$scope.verMasDetalle;
     };
-    
+
     $scope.VerPDF = function(informacion)
     {
         var url = 'data:application/PDF;base64,' + informacion.Archivo;
         window.open(url, '_blank');
     };
-    
+
     /*----- filtro -------------*/
     $scope.FiltroInformacion = function(info)
     {
@@ -179,20 +183,20 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             {
                 return false;
             }
-            
+
             if($scope.filtro.origen.imagen && info.OrigenInformacion.OrigenInformacionId != '2')
             {
                 return false;
             }
-            
+
             if($scope.filtro.origen.texto && info.OrigenInformacion.OrigenInformacionId != '1')
             {
                 return false;
             }
         }
-        
+
         var cumple = false;
-        
+
         if($scope.filtro.tema.length > 0)
         {
             for(var i=0; i<$scope.filtro.tema.length; i++)
@@ -210,10 +214,10 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 if(!cumple)
                 {
                     return false;
-                } 
+                }
             }
         }
-        
+
         if($scope.filtro.etiqueta.length > 0)
         {
             for(var i=0; i<$scope.filtro.etiqueta.length; i++)
@@ -231,20 +235,20 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 if(!cumple)
                 {
                     return false;
-                } 
+                }
             }
         }
-        
+
         return true;
     };
-    
+
     $scope.CambiarFiltroOrigen = function(filtro, valor)
     {
         if(valor)
         {
             switch(filtro)
             {
-                case 1: 
+                case 1:
                     $scope.filtro.origen.texto = !$scope.filtro.origen.texto;
                     break;
                 case 2:
@@ -253,7 +257,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 case 3:
                     $scope.filtro.origen.archivo = !$scope.filtro.origen.archivo;
                     break;
-                default: 
+                default:
                     break;
             }
         }
@@ -261,7 +265,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
         {
             switch(filtro)
             {
-                case 1: 
+                case 1:
                     $scope.filtro.origen.texto = !$scope.filtro.origen.texto;
                     $scope.filtro.origen.imagen = false;
                     $scope.filtro.origen.archivo = false;
@@ -276,12 +280,12 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                     $scope.filtro.origen.texto = false;
                     $scope.filtro.origen.imagen = false;
                     break;
-                default: 
+                default:
                     break;
             }
         }
     };
-    
+
     $scope.FiltroInformacionContenido = function(info)
     {
         if($scope.buscarInformacion !== null && $scope.buscarInformacion !== null)
@@ -290,7 +294,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             {
                 var contenido = info.ContenidoOriginal.toLowerCase().indexOf($scope.buscarInformacion.toLocaleLowerCase());
                 var titulo = info.Titulo.toLowerCase().indexOf($scope.buscarInformacion.toLocaleLowerCase());
-                
+
                 if(contenido > -1 || titulo > -1)
                 {
                     return true;
@@ -306,59 +310,59 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             return true;
         }
     };
-    
+
     $scope.SetFiltroEtiqueta = function(etiqueta)
     {
         etiqueta.mostrar = false;
         $scope.filtro.etiqueta.push(etiqueta.EtiquetaId);
-            
+
         //$scope.buscarEtiqueta = "";
         $scope.buscarConcepto = "";
-        
+
         $scope.GetEtiquetasFiltradas();
         document.getElementById('buscarConcepto').focus();
         //document.getElementById('bucarEtiqueta').focus();
     };
-    
+
     $scope.SetFiltroTema = function(tema)
     {
         tema.mostrar = false;
         $scope.filtro.tema.push(tema.TemaId);
-        
+
         //$scope.buscarTema = "";
         $scope.buscarConcepto = "";
-        
+
         $scope.GetTemasFiltrados();
         document.getElementById('buscarConcepto').focus();
         //document.getElementById('bucarTema').focus();
     };
-    
+
     $scope.LimpiarFiltro = function()
     {
         $scope.filtro = {tema:[], etiqueta: [], origen: {texto:false, imagen:false, archivo:false}};
-        
+
         for(var k=0; k<$scope.etiquetaF.length; k++)
         {
             $scope.etiquetaF[k].mostrar = true;
         }
-        
+
         for(var k=0; k<$scope.temaF.length; k++)
         {
             $scope.temaF[k].mostrar = true;
         }
-        
+
         $scope.verFiltro = true;
-        
+
         //$scope.buscarEtiqueta = "";
         //$scope.buscarTema = "";
         $scope.buscarConcepto = "";
     };
-    
+
     $scope.CambiarVerFiltro = function()
     {
         $scope.verFiltro = !$scope.verFiltro;
     };
-    
+
     //------ etiqueta ------
     $scope.FiltrarBuscarEtiqueta = function(etiqueta, buscar)
     {
@@ -391,12 +395,12 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             }
         }
     };
-    
+
     $scope.BuscarEtiquetaFiltro = function(etiqueta)
     {
         return $scope.FiltrarBuscarEtiqueta(etiqueta, $scope.buscarConcepto);
     };
-    
+
     /*$('#bucarEtiqueta').keydown(function(e)
     {
         switch(e.which) {
@@ -409,14 +413,14 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
         }
         e.preventDefault(); // prevent the default action (scroll / move caret)
     });*/
-    
-    
+
+
     $('#buscarConcepto').keydown(function(e)
     {
         switch(e.which) {
             case 13:
                 var index = $scope.buscarConcepto.indexOf(" ");
-               
+
                 if(index == -1)
                 {
                     $scope.buscarEtiqueta = $scope.buscarConcepto;
@@ -427,7 +431,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                     $scope.buscarTema = $scope.buscarConcepto;
                     $scope.AgregarTemaFiltro();
                 }
-               
+
                 break;
 
             default:
@@ -435,7 +439,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
         }
         e.preventDefault(); // prevent the default action (scroll / move caret)
     });
-    
+
     $scope.AgregarEtiquetaFiltro = function()
     {
         for(var k=0; k<$scope.etiquetaF.length; k++)
@@ -449,14 +453,14 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 else
                 {
                     $scope.buscarConcepto = "";
-                    
+
                 }
                 $scope.$apply();
             }
         }
     };
-    
-    
+
+
     $scope.QuitarTemaFiltro = function(tema)
     {
         for(var k=0; k<$scope.temaF.length; k++)
@@ -467,7 +471,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 break;
             }
         }
-        
+
         for(var k=0; k<$scope.filtro.tema.length; k++)
         {
             if($scope.filtro.tema[k] == tema.TemaId)
@@ -476,7 +480,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 break;
             }
         }
-        
+
         for(var k=0; k<$scope.temaFiltrado.length; k++)
         {
             if($scope.temaFiltrado[k].TemaId == tema.TemaId)
@@ -486,7 +490,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             }
         }
     };
-    
+
     $scope.QuitaretiqeutaFiltro = function(etiqueta)
     {
         for(var k=0; k<$scope.etiquetaF.length; k++)
@@ -497,7 +501,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 break;
             }
         }
-        
+
         for(var k=0; k<$scope.filtro.etiqueta.length; k++)
         {
             if($scope.filtro.etiqueta[k] == etiqueta.EtiquetaId)
@@ -506,7 +510,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 break;
             }
         }
-        
+
         for(var k=0; k<$scope.etiquetaFiltrada.length; k++)
         {
             if($scope.etiquetaFiltrada[k].EtiquetaId == etiqueta.EtiquetaId)
@@ -516,24 +520,24 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             }
         }
     };
-    
+
     $scope.GetEtiquetasFiltradas = function()
     {
-        
+
         var sql = "SELECT Nombre, EtiquetaId FROM ? WHERE mostrar = false";
-        
+
         $scope.etiquetaFiltrada = alasql(sql, [$scope.etiquetaF]);
     };
-    
+
     $scope.GetTemasFiltrados = function()
     {
-        
+
         var sql = "SELECT Nombre, TemaId From ? WHERE mostrar = false";
-        
+
         $scope.temaFiltrado = alasql(sql, [$scope.temaF]);
     };
-    
-    
+
+
     //------ Tema --------
     $scope.FiltrarBuscarTema = function(tema, buscar)
     {
@@ -573,12 +577,12 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             }
         }
     };
-    
+
     $scope.BuscarTemaFiltro = function(tema)
     {
         return $scope.FiltrarBuscarTema(tema, $scope.buscarConcepto);
     };
-    
+
     /*$('#bucarTema').keydown(function(e)
     {
         switch(e.which) {
@@ -592,7 +596,7 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
         e.preventDefault(); // prevent the default action (scroll / move caret)
     });*/
 
-    
+
     $scope.AgregarTemaFiltro = function()
     {
         for(var k=0; k<$scope.temaF.length; k++)
@@ -606,13 +610,72 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
                 else
                 {
                     $scope.buscarConcepto = "";
-                    
+
                 }
                 $scope.$apply();
             }
         }
     };
-    
+
+
+    // Compartir información
+    $scope.RecomendarInformacion = function (elemento) {
+
+      $rootScope.$broadcast(
+        'mostrar_modal_enviar_recurso',
+        {
+          titulo:'Recomendar la información "'+elemento.Titulo+'" a:',
+          tipo:'informacion',
+          operacion:'recomendacion',
+          elemento_id: elemento.InformacionId,
+          nombre_recurso: elemento.Titulo
+        }
+      );
+
+    };
+
+
+    // if(!$rootScope.$$listenerCount['seleccionar_informacion_recomendada']){
+
+      $rootScope.$on('seleccionar_informacion_recomendada', function (evento, datos) {
+
+        if (!$scope.evt_seleccionar_info) {
+
+          $scope.evt_seleccionar_info = true;
+
+          var indice = -1;
+
+          $scope.CambiarCampoBuscar('Contenido');
+
+          $timeout(function () {
+
+            for (var i = 0; i < $scope.informacion.length; i++) {
+
+              if ($scope.informacion[i].InformacionId === datos.ElementoId) {
+                $scope.buscarInformacion = $scope.informacion[i].Titulo;
+                indice = i;
+                break;
+              }
+
+            }
+
+            $timeout(function () {
+
+              if (-1!==indice) {
+                $scope.verDetalle($scope.informacion[indice]);
+              }
+
+            }, 0);
+
+          }, 0);
+
+        }
+
+      });
+
+    // }
+
+
     /*----------------------- Usuario logeado --------------------------*/
     $scope.InicializarControlador = function()
     {
@@ -633,9 +696,9 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             $rootScope.IrPaginaPrincipal();
         }
     };
-    
-    $scope.usuarioLogeado =  datosUsuario.getUsuario(); 
-    
+
+    $scope.usuarioLogeado =  datosUsuario.getUsuario();
+
     //verifica que haya un usuario logeado
     if($scope.usuarioLogeado !== null)
     {
@@ -648,12 +711,12 @@ app.controller("InformacionController", function($scope, $window, $http, $rootSc
             $scope.InicializarControlador();
         }
     }
-    
+
     //destecta cuando los datos del usuario cambian
     $scope.$on('cambioUsuario',function()
     {
         $scope.usuarioLogeado =  datosUsuario.getUsuario();
-    
+
         if(!$scope.usuarioLogeado.SesionIniciada)
         {
             $location.path('/Login');

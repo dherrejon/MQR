@@ -1,0 +1,901 @@
+<div class="row wi-row" ng-controller="controladorWebmail">
+<div id="wi_padding_encabezado" class="row wi-row"></div>
+  <div class="wi-fondo-navbar"></div>
+
+  <script type="text/ng-template" id="plantilla_cuentas_webmail">
+    <div>
+
+      <div class="panel-heading" ng-class="{true:'wi-enc-cuenta-abierto', false:'wi-enc-cuenta-cerrado'}[isOpen]">
+        <h4 class="panel-title" style="color:#081E3B;">
+          <a href tabindex="0" class="accordion-toggle" style="text-decoration:none; outline: none;" uib-accordion-transclude="heading">
+            <span uib-accordion-header ng-class="{'text-muted': isDisabled}">
+              {{heading}}
+            </span>
+          </a>
+        </h4>
+      </div>
+
+      <div class="panel-collapse collapse" uib-collapse="!isOpen">
+        <div class="panel-body wi-cont-cuenta" ng-transclude></div>
+      </div>
+
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="plantilla_folders_webmail">
+
+    <table ng-class="{'wi-folder-sel':(f.id==wi_seleccion_actual.folder.id), 'wi-subfolder-tabla':(f.nivel>0), 'wi-folder-tabla':(0==f.nivel)}">
+      <tr>
+        <td ng-if="f.subfolders" class="wi-abrir-cerrar-folder" ng-click="wiAbrirCerrarFolder(f)">
+          <i class="glyphicon" ng-class="{true:'glyphicon-chevron-down', false:'glyphicon-chevron-right'}[f.abierto]"></i>
+        </td>
+        <td ng-click="wiSeleccionarFolder(indC, f)">
+          <a href="" ng-class="{'wi-subfolder-nombre':(f.nivel>0), 'wi-folder-nombre':(0==f.nivel)}">
+            {{f.nombre}}
+          </a>
+        </td>
+        <td class="wi-icono-alerta" style="padding-right:5px;" ng-click="wiSeleccionarFolder(indC, f)" ng-if="f.mensajes_novistos>0">
+          <span>{{f.mensajes_novistos}}</span>
+        </td>
+      </tr>
+    </table>
+
+    <div ng-if="f.subfolders">
+      <div class="row wi-row wi-subfolder" ng-repeat="(indF, f) in f.folders" ng-include="'plantilla_folders_webmail'" ng-show="f.mostrar">
+      </div>
+    </div>
+
+  </script>
+
+  <script type="text/ng-template" id="mensajes_error_webmail">
+    <div ng-message="required">
+      Completa este campo
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="plantilla_contactos_webmail">
+    <a class="wi-elemento-contacto">
+      <table style="cursor:pointer;">
+        <tr>
+          <td>
+            <i class="fa fa-user fa-lg" aria-hidden="true" style="color:#1859B2; padding-right:10px;"></i>
+          </td>
+          <td>
+            <span ng-bind-html="match.model.correo | uibTypeaheadHighlight:query"></span>
+          </td>
+        </tr>
+      </table>
+    </a>
+  </script>
+
+  <button class="btn wi-btn-escribir-msj" ng-if="wi_cuentas.length>0 && wi_mostrar_btn_msj" ng-click="wiMostrarModalMensaje('nuevo')">
+    <i class="fa fa-pencil-square-o fa-3x" aria-hidden="true"></i>
+  </button>
+
+  <div class="col-sm-3 wi-panel-izq">
+
+    <table class="wi-enc-panel-cuentas">
+      <tr>
+        <td class="wi-barra-nav-xs" ng-if="(wi_seleccion_actual.ind_cuenta>-1)">
+          <button type="button" class="btn btn-default" ng-click="wiMostrarOcultarPanelCuentas()">
+            <i class="fa fa-bars fa-2x" aria-hidden="true"></i>
+          </button>
+        </td>
+        <td class="text-center"><h4><b>CUENTAS DE CORREO</b></h4></td>
+        <td style="width:41px;">
+          <button class="btn pull-right" ng-click="wiMostrarModalAgregarCuentas()"><i class="fa fa-plus fa-lg" aria-hidden="true"></i></button>
+        </td>
+      </tr>
+    </table>
+
+    <div id="wi_cont_panel_cuentas" class="row wi-row wi-cont-panel-cuentas" ng-style="wi_css.cont_panel_cuentas">
+
+      <uib-accordion close-others="false">
+        <div uib-accordion-group class="panel-default" is-open="c.abierto" ng-repeat="(indC, c) in wi_cuentas" template-url="plantilla_cuentas_webmail">
+
+          <uib-accordion-heading>
+            <table style="width:100%;">
+              <tr>
+
+                <td class="wi-opc-cuenta text-center">
+                  <div class="btn-group" style="width:100%;">
+                    <button type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="fa fa-ellipsis-v fa-2x" aria-hidden="true"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li ng-click="wiActualizarEstadoFoldersPorCuenta(indC, true, false)"><a href=""><i class="fa fa-refresh fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Actualizar</a></li>
+                      <li role="separator" class="divider"></li>
+                      <li ng-click="wiMostrarModalDatosCuenta('actualizacion', c.servidor, c.correo_id, indC)"><a href=""><i class="fa fa-cog fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Configurar</a></li>
+                      <li role="separator" class="divider"></li>
+                      <li ng-click="wiMostrarModalEliminarCuenta(c.correo_id, c.correo, indC)"><a href=""><i class="fa fa-trash fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Eliminar</a></li>
+                    </ul>
+                  </div>
+                </td>
+
+                <td class="wi-nombre-correo" ng-click="wiSeleccionarCuenta(indC)" title="{{c.correo}}">
+                  {{c.correo}}
+                </td>
+
+                <td class="wi-icono-alerta" ng-click="wiSeleccionarCuenta(indC)" ng-if="!c.abierto && c.mensajes_novistos>0">
+                  <span>{{c.mensajes_novistos}}</span>
+                </td>
+
+                <td class="wi-icono-cuenta" ng-click="wiSeleccionarCuenta(indC)">
+                  <i class="glyphicon" ng-class="{true:'glyphicon-chevron-up', false:'glyphicon-chevron-down'}[c.abierto]"></i>
+                </td>
+              </tr>
+            </table>
+          </uib-accordion-heading>
+
+          <div class="row wi-row wi-folder" ng-repeat="(indF, f) in c.folders" ng-include="'plantilla_folders_webmail'"></div>
+
+        </div>
+      </uib-accordion>
+    </div>
+
+  </div>
+
+  <div class="col-sm-9 wi-panel-der">
+
+    <div class="row wi-row wi-area-busqueda-correo" ng-if="(wi_seleccion_actual.ind_cuenta>-1)">
+
+      <div class="row wi-row" style="padding-bottom:8px;">
+
+        <div class="col-xs-12 col-sm-7 wi-cont-cuenta-ruta-actual">
+          <table style="width: 100%">
+            <tbody>
+              <tr>
+                <td class="wi-barra-nav-xs">
+                  <button type="button" class="btn btn-default" ng-click="wiMostrarOcultarPanelCuentas()">
+                    <i class="fa fa-bars fa-2x" aria-hidden="true"></i>
+                  </button>
+                </td>
+                <td style="text-align:left;">
+                  <span class="wi-cuenta-actual">
+                    <b>{{wi_cuentas[wi_seleccion_actual.ind_cuenta].correo}}</b>
+                  </span>
+                  <br>
+                  <ol class="wi-ruta-actual breadcrumb">
+                    <li ng-repeat="r in wi_seleccion_actual.folder.partes_ruta track by $index" class="active">{{r}}</li>
+                  </ol>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+
+        <div class="col-xs-12 col-sm-5 pull-right" style="padding-right:0px;" ng-if="wi_seleccion_actual.folder.seleccionable && wi_seleccion_actual.folder.mensajes.length>0">
+          <div class="row wi-row">
+            <br class="visible-xs">
+
+            <span class="pull-right" ng-if="null==wi_seleccion_actual.mensaje">
+              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.folder.pagina-1<=0) || wi_btn_disabled.mensajes" ng-click="wiObtenerMensajesPorPagina(wi_seleccion_actual.folder.pagina-1, false, true)">
+                <i class="glyphicon glyphicon-chevron-left"></i>
+              </button>
+              <b>{{((wi_seleccion_actual.folder.pagina-1)*50)+1}}</b>
+              <span> - </span>
+              <b>{{((wi_seleccion_actual.folder.pagina-1)*50)+wi_seleccion_actual.folder.mensajes.length}}</b>
+              <span> de </span>
+              <b>{{wi_seleccion_actual.folder.numero_mensajes}}</b>
+              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.folder.pagina+1 > wi_seleccion_actual.folder.paginas) || wi_btn_disabled.mensajes" ng-click="wiObtenerMensajesPorPagina(wi_seleccion_actual.folder.pagina+1, false, true)">
+                <i class="glyphicon glyphicon-chevron-right"></i>
+              </button>
+            </span>
+
+            <span class="pull-right" ng-if="null != wi_seleccion_actual.mensaje">
+              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.mensaje.indice-1 < 0)" ng-click="wiCambiarMensaje(-1)">
+                <i class="glyphicon glyphicon-chevron-left"></i>
+              </button>
+              <b>{{((wi_seleccion_actual.folder.pagina-1)*50)+(wi_seleccion_actual.mensaje.indice+1)}}</b>
+              <span>de</span>
+              <b>{{((wi_seleccion_actual.folder.pagina-1)*50)+wi_seleccion_actual.folder.mensajes.length}}</b>
+              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.mensaje.indice+1 >= wi_seleccion_actual.folder.mensajes.length)" ng-click="wiCambiarMensaje(1)">
+                <i class="glyphicon glyphicon-chevron-right"></i>
+              </button>
+            </span>
+
+          </div>
+        </div>
+
+      </div>
+
+      <form name="wiFormularioBusquedaCorreo" ng-if="wi_seleccion_actual.folder.seleccionable && (wi_seleccion_actual.folder.mensajes.length>0 || wi_busqueda.estado) && !wi_seleccion_actual.mensaje" novalidate>
+        <div class="input-group">
+          <span class="input-group-addon" style="padding:0;">
+            <button type="submit" name="button" class="wi-btn-buscar" ng-click="wiBuscarCorreos()">
+              <i class="fa fa-search fa-lg" aria-hidden="true"></i>
+            </button>
+          </span>
+          <input id="ebc" type="text" class="form-control" ng-class="{true:'wi-entrada-busqueda-correo-cc', false:'wi-entrada-busqueda-correo-sc'}[wi_busqueda.entrada.length>0]" name="entradaB" ng-model="wi_busqueda.entrada" placeholder="Buscar mensajes por asunto" autocomplete="off">
+          <span class="input-group-addon wi-limpiar-texto-busqueda" ng-if="wiMostrarBtnLimpiarTexto(wi_busqueda.entrada, wiFormularioBusquedaCorreo.entradaB)" ng-click="wiLimpiarBusqueda(wi_busqueda.estado)">
+            <i class="fa fa-times-circle fa-lg" aria-hidden="true"></i>
+          </span>
+        </div>
+      </form>
+
+      <div class="row wi-row text-center" style="padding:8px 0 0 0;" ng-if="wi_busqueda.estado && !wi_seleccion_actual.mensaje">
+        <span>
+          Resultados de la búsqueda: <b>{{wi_busqueda.texto}}</b>&nbsp;&nbsp;
+          <span class="wi-limpiar-texto-busqueda" ng-click="wiLimpiarBusqueda(wi_busqueda.estado)">
+            <i class="fa fa-times-circle fa-lg" aria-hidden="true"></i>
+          </span>
+        </span>
+      </div>
+
+    </div>
+
+    <div id="wi_area_mensajes" class="row wi-row wi-area-mensajes" ng-style="wi_css.cont_area_mensajes" ng-if="!wi_seleccion_actual.mensaje">
+
+      <div class="row wi-row wi-no-mensajes" ng-if="null!=wi_indicacion">
+        <h3 ng-if="!wi_modo_tablet || wi_seleccion_actual.ind_cuenta>-1">{{wi_indicacion}}</h3>
+      </div>
+
+      <div class="row wi-row wi-mensaje" ng-repeat="(indM, m) in wi_seleccion_actual.folder.mensajes" ng-click="wiSeleccionarMensaje(m)">
+        <div class="col-sm-3 wi-remitente-destinatario-vp" ng-switch="m.recibido">
+          <span ng-switch-when="true" title="{{m.nombre_remitente}}" ng-class="{'wi-mensaje-novisto':!m.visto}">De: {{m.nombre_remitente}}</span>
+          <span ng-switch-when="false" ng-class="{'wi-mensaje-novisto':!m.visto}">
+            <span title="{{m.nombres_destinatarios[0]}}" ng-if="1==m.nombres_destinatarios.length">Para: {{m.nombres_destinatarios[0]}}</span>
+            <span title="{{m.nombres_destinatarios[0]}}, y {{m.nombres_destinatarios.length-1}} más" ng-if="m.nombres_destinatarios.length>1">Para: {{m.nombres_destinatarios[0]}}, y {{m.nombres_destinatarios.length-1}} más</span>
+          </span>
+        </div>
+        <div class="col-sm-7 wi-asunto-vp">
+          <span title="{{m.asunto}}" ng-class="{'wi-mensaje-novisto':!m.visto}">
+            <span ng-show="m.adjuntos"><i class="fa fa-paperclip fa-lg" aria-hidden="true"></i>&nbsp;</span>
+            {{m.asunto}}
+          </span>
+        </div>
+        <div class="col-sm-2 wi-fecha-vp" ng-class="{'wi-mensaje-novisto':!m.visto}">
+          <span ng-show="fecha_actual!=m.fecha">{{m.fecha}}</span>
+          <span ng-show="fecha_actual==m.fecha">{{m.hora_corta}}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row wi-row wi-area-mensaje" ng-if="wi_seleccion_actual.mensaje">
+
+      <div class="row wi-row wi-opc-mensaje">
+        <div class="col-xs-12">
+
+          <button type="button" class="btn pull-left" title="Regresar" ng-click="wi_seleccion_actual.mensaje=null">
+            <i class="fa fa-long-arrow-left fa-lg" aria-hidden="true"></i>
+            <span class="texto-opc-mensaje">&nbsp;Regresar</span>
+          </button>
+
+
+          <button type="button" class="btn pull-right" title="Expandir / Contraer" ng-click="wiMostrarOcultarAsunto()" ng-switch="mostrar_asunto.estado">
+            <i class="fa fa-chevron-up fa-lg" aria-hidden="true" ng-switch-when="true"></i>
+            <i class="fa fa-chevron-down fa-lg" aria-hidden="true" ng-switch-when="false"></i>
+          </button>
+
+          <button type="button" class="btn pull-right" title="Reenviar" ng-click="wiReenviarMensaje()">
+            <i class="fa fa-share fa-lg" aria-hidden="true"></i>
+            <span class="texto-opc-mensaje">&nbsp;Reenviar</span>
+          </button>
+
+          <button type="button" class="btn pull-right" title="Responder a todos" ng-click="wiResponderMensaje(true)" ng-if="wi_seleccion_actual.mensaje.recibido && wi_seleccion_actual.mensaje.destinatarios_responder">
+            <i class="fa fa-reply-all fa-lg" aria-hidden="true"></i>
+            <span class="texto-opc-mensaje">&nbsp;Responder a todos</span>
+          </button>
+
+          <button type="button" class="btn pull-right" title="Responder" ng-click="wiResponderMensaje(false)" ng-if="wi_seleccion_actual.mensaje.recibido">
+            <i class="fa fa-reply fa-lg" aria-hidden="true"></i>
+            <span class="texto-opc-mensaje">&nbsp;Responder</span>
+          </button>
+
+          <div ng-if="wi_seleccion_actual.folder.es_papelera || wi_seleccion_actual.mensaje.recibido" class="wi-dropdown btn-group pull-right">
+            <button type="button" class="btn" title="Mover a:" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-click="">
+              <i class="fa fa-folder fa-lg" aria-hidden="true"></i>
+              <span class="texto-opc-mensaje">&nbsp;Mover a:</span>
+            </button>
+            <ul class="dropdown-menu">
+              <span class="wi-encabezado-mover text-center"><b>Mover mensaje a:</b></span>
+              <li role="separator" class="divider wi-encabezado-mover"></li>
+
+              <li ng-if="wi_seleccion_actual.mensaje.recibido && !wi_seleccion_actual.folder.es_nodeseado" ng-click="wiMoverMensaje(wi_seleccion_actual.mensaje.id, wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.nodeseado.id, wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.nodeseado.ruta)">
+                <a href="">
+                  <i class="fa fa-folder-open fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;
+                  {{wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.nodeseado.ruta}}
+                </a>
+              </li>
+
+              <li ng-if="(wi_seleccion_actual.folder.es_papelera || wi_seleccion_actual.folder.es_nodeseado) && wi_seleccion_actual.mensaje.recibido" ng-click="wiMoverMensaje(wi_seleccion_actual.mensaje.id, wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.entrada.id, wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.entrada.ruta)">
+                <a href="">
+                  <i class="fa fa-folder-open fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;
+                  {{wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.entrada.ruta}}
+                </a>
+              </li>
+
+              <li ng-if="wi_seleccion_actual.folder.es_papelera && !wi_seleccion_actual.mensaje.recibido" ng-click="wiMoverMensaje(wi_seleccion_actual.mensaje.id, wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.salida.id, wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.salida.ruta)">
+                <a href="">
+                  <i class="fa fa-folder-open fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;
+                  {{wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.salida.ruta}}
+                </a>
+              </li>
+
+            </ul>
+          </div>
+
+          <button type="button" class="btn pull-right" title="Eliminar" ng-click="wiEliminarMensaje(wi_seleccion_actual.mensaje.id)">
+            <i class="fa fa-trash fa-lg" aria-hidden="true"></i>
+            <span class="texto-opc-mensaje">&nbsp;
+              <span ng-if="!wi_seleccion_actual.folder.es_papelera && wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.papelera.id">Eliminar</span>
+              <span ng-if="wi_seleccion_actual.folder.es_papelera || !wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.papelera.id">Eliminar definitivamente</span>
+            </span>
+          </button>
+
+        </div>
+      </div>
+
+      <div ng-show="mostrar_asunto.estado">
+
+        <div class="row wi-row wi-asunto-mensaje">
+          <div class="col-xs-12">
+            <h3>{{wi_seleccion_actual.mensaje.asunto}}</h3>
+          </div>
+        </div>
+
+        <div class="row wi-row wi-info-mensaje">
+          <div class="col-xs-12 col-sm-9">
+            <span class="pull-left" style="width:100%">
+              <b>De: </b>
+              {{wi_seleccion_actual.mensaje.nombre_remitente}} &lt;{{wi_seleccion_actual.mensaje.remitente}}&gt;
+              <br>
+            </span>
+
+            <span class="pull-left" style="width:100%">
+              <b>Para: </b>
+              <span ng-if="wi_seleccion_actual.mensaje.destinatarios.length==1">
+                {{wi_seleccion_actual.mensaje.destinatarios[0]}}
+              </span>
+              <span ng-if="wi_seleccion_actual.mensaje.destinatarios.length>1">
+                <div class="wi-btn-lista-dest btn-group">
+                  <button type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{wi_seleccion_actual.mensaje.destinatarios[0]}}<span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" style="max-height:150px; overflow:auto;">
+                    <li ng-if="!$first" ng-repeat="dest in wi_seleccion_actual.mensaje.destinatarios track by $index">
+                      <a href="">{{dest}}</a>
+                    </li>
+                  </ul>
+                </div>
+              </span>
+            </span>
+
+            <br ng-if="wi_seleccion_actual.mensaje.cc" style="width:100%">
+            <span class="pull-left" ng-if="wi_seleccion_actual.mensaje.cc">
+              <b>Cc: </b>
+              <span ng-if="wi_seleccion_actual.mensaje.cc.length==1">
+                {{wi_seleccion_actual.mensaje.cc[0]}}
+              </span>
+              <span ng-if="wi_seleccion_actual.mensaje.cc.length>1">
+                <div class="wi-btn-lista-dest btn-group">
+                  <button type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{wi_seleccion_actual.mensaje.cc[0]}}<span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" style="max-height:150px; overflow:auto;">
+                    <li ng-if="!$first" ng-repeat="dest in wi_seleccion_actual.mensaje.cc track by $index">
+                      <a href="">{{dest}}</a>
+                    </li>
+                  </ul>
+                </div>
+              </span>
+            </span>
+
+          </div>
+          <div class="col-xs-12 col-sm-3">
+            <span class="pull-right"><b>{{wi_seleccion_actual.mensaje.fecha}}&nbsp;&nbsp;{{wi_seleccion_actual.mensaje.hora}}</b></span>
+          </div>
+        </div>
+
+        <div class="row wi-row wi-contenedor-adjuntos" ng-show="wi_seleccion_actual.mensaje.adjuntos">
+          <div class="col-xs-12 ">
+            <span class="label label-default wi-nombre-adjunto" ng-repeat="(ind_ad, ad) in wi_seleccion_actual.mensaje.contenido.adjunto" ng-click="wiDescargarArchivoAdjunto(ad.id, ad.nombre, ad.tipo)">
+              <i class="{{ad.icono}}" aria-hidden="true"></i> {{ad.nombre}}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="wi_contenedor_iframe" class="row wi-row wi-contenedor-iframe">
+        <iframe class="wi-iframe-mensaje" mensaje-email="wi_seleccion_actual.mensaje.contenido.cuerpo.datos" id="wi_seleccion_actual.mensaje.id" frameborder="0" width="100%" ng-style="wi_css.cont_iframe"></iframe>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div id="wiModalMsgGenerico" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+    <div class="vertical-center">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <br>
+          <div class="row wi-row text-center {{modal_mensaje.clase_icono}}">
+            <i class="{{modal_mensaje.icono}}" aria-hidden="true"></i>
+          </div>
+          <br>
+          <div class="row wi-row text-center">
+            <div class="col-xs-12"><b>{{modal_mensaje.contenido}}</b></div>
+          </div>
+          <br>
+          <div class="row wi-row">
+            <button type="button" class="btn btn-block {{modal_mensaje.clase_boton}}" data-dismiss="modal"><b>ACEPTAR</b></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="wiModalAgregarCuenta" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+    <div class="vertical-center">
+      <div class="modal-dialog modal-md">
+
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <table style="width:100%;">
+              <tr>
+                <td><b>SELECCIONA EL SERVIDOR DE TU CUENTA DE CORREO</b></td>
+                <td class="wi-icono-cerrar">
+                  <button type="button" class="close" ng-click="wi_mostrar_btn_msj = true;" data-dismiss="modal">
+                    <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                  </button>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-body">
+            <div class="row wi-row text-center" ng-repeat="s in wi_servidores_correo">
+              <button type="button" class="wi-icono-servidor" ng-click="wiAutenticarServidor(s.nombre)">
+                <img class="center-block img-responsive" ng-src="{{s.logo}}" alt="{{s.nombre}}">
+              </button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wi_mostrar_btn_msj = true;" data-dismiss="modal">
+              CANCELAR
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="wiModalMensaje" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+    <div class="vertical-center">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <table style="width:100%;">
+              <tr>
+                <td><b ng-switch="wi_nuevo_envio.operacion">
+                  <span ng-switch-when="nuevo">ENVIAR UN NUEVO MENSAJE</span>
+                  <span ng-switch-when="respuesta">RESPONDER MENSAJE</span>
+                  <span ng-switch-when="reenvio">REENVIAR MENSAJE</span>
+                </b></td>
+                <td class="wi-icono-cerrar">
+                  <button type="button" class="close" ng-click="wiOcultarModalMensaje(wiFormularioEnvio)" ng-disabled="wiEstadoBtnCancelarEnvio()">
+                    <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                  </button>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-body">
+            <div class="row wi-row">
+
+              <form class="form-horizontal col-xs-12" role="form" name="wiFormularioEnvio" autocomplete="off" novalidate>
+
+                <div class="row wi-row" ng-if="wi_nuevo_envio.operacion==='nuevo'">
+                  <div class="col-xs-12">
+                    <label class="control-label wi-nombre-entrada-ab" for="wi_remitente">De</label>
+                    <div class="">
+                      <select id="wi_remitente" class="form-control wi-entrada" name="wi_remitente" ng-model="wi_nuevo_envio.remitente" ng-options="opt as opt.correo for opt in wi_cuentas" ng-change="wiCambiarRemitente()"></select>
+                    </div>
+                  </div>
+                </div>
+
+                <br ng-if="wi_nuevo_envio.operacion==='nuevo'">
+                <br ng-if="wi_nuevo_envio.operacion==='nuevo'">
+
+                <div class="row wi-row">
+
+                  <div class="col-xs-12">
+                    <div class="row wi-row">
+                      <span class="wi-nombre-desplazado">Para</span>
+                    </div>
+                    <div class="row wi-row">
+                      <span class="label label-default" ng-class="{true:'wi-correo-registrado', false:'wi-correo-no-registrado'}[d.registrado]" ng-repeat="(ind_dest, d) in wi_nuevo_envio.destinatarios">
+                        {{d.correo}} &nbsp<i class="fa fa-times-circle" aria-hidden="true" ng-click="wiEliminarDestinatario(ind_dest)"></i>
+                      </span>
+                    </div>
+                    <div class="input-group wi-grupo-entrada">
+                      <input id="wi_destinatario" type="text" class="form-control wi-entrada" name="wi_destinatario" placeholder="Agregar correo" ng-model="wi_nuevo_envio.destinatario_ingresado" typeahead-editable="true" typeahead-focus-first="false" typeahead-on-select="wiSeleccionarDestinatario()" typeahead-select-on-blur="false" typeahead-template-url="plantilla_contactos_webmail" uib-typeahead="c as c.correo for c in wi_contactos | filter:{correo:$viewValue} | limitTo:5" typeahead-no-results="wi_no_result_contactos" ng-keyup="wiEventoTeclearDestinatario($event)" ng-blur="wiEventoBlurDestinatario()" ng-maxlength="60" maxlength="60" ng-pattern="wi_regex.correo.patron" ng-required="(0==wi_nuevo_envio.destinatarios.length)">
+
+                      <span class="input-group-addon wi-limpiar-texto" ng-if="wiMostrarBtnLimpiarTexto(wi_nuevo_envio.destinatario_ingresado, wiFormularioEnvio.wi_destinatario)" ng-click="wi_nuevo_envio.destinatario_ingresado='';wi_nuevo_envio.mostrar_destinatario_novalido=false;wiEnfocarCampo('wi_destinatario');">
+                        <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                      </span>
+                    </div>
+
+                    <div class="error-messages pull-right" ng-messages="wiFormularioEnvio.wi_destinatario.$error" ng-if="wiInteractuarCampo(wi_frm_enviado.enviar_mensaje, wiFormularioEnvio.wi_destinatario)" role="alert">
+                      <div ng-messages-include="mensajes_error_webmail"></div>
+                      <div ng-message="maxlength">Usa 60 caracteres como máximo</div>
+                    </div>
+
+                    <div class="error-messages pull-right" ng-messages="wiFormularioEnvio.wi_destinatario.$error" ng-if="wi_nuevo_envio.mostrar_destinatario_novalido" role="alert">
+                      <div ng-message="pattern">{{wi_regex.correo.mensaje}}</div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <br><br>
+
+                <div class="row wi-row">
+                  <div class="col-xs-12">
+
+                    <div class="input-group wi-grupo-entrada">
+                      <input id="wi_asunto" type="text" class="form-control wi-entrada" name="wi_asunto" ng-model="wi_nuevo_envio.asunto" ng-trim="false" ng-maxlength="77" maxlength="77">
+                      <span class="input-group-addon wi-limpiar-texto" ng-if="wiMostrarBtnLimpiarTexto(wi_nuevo_envio.asunto, wiFormularioEnvio.wi_asunto)" ng-click="wi_nuevo_envio.asunto='';wiEnfocarCampo('wi_asunto');">
+                        <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                      </span>
+                      <span class="wi-nombre-entrada">Asunto</span>
+                    </div>
+
+                    <div class="error-messages" ng-messages="wiFormularioEnvio.wi_asunto.$error" ng-if="wiInteractuarCampo(wi_frm_enviado.enviar_mensaje, wiFormularioEnvio.wi_asunto)" role="alert">
+                      <div ng-messages-include="mensajes_error_webmail"></div>
+                      <div ng-message="maxlength">Usa 77 caracteres como máximo</div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <br>
+
+                <div class="row wi-row">
+                  <div class="col-xs-12">
+                    <label class="control-label wi-nombre-entrada-ab" for="wi_mensaje">Mensaje</label>
+                    <div class="">
+                      <!-- <textarea class="form-control wi-text-area" ng-class="{true:'wi-text-area-envio', false:'wi-text-area-noenvio'}[wi_nuevo_envio.operacion==='nuevo']" name="wi_mensaje" rows="6" ng-model="wi_nuevo_envio.cuerpo" ng-trim="false"></textarea> -->
+
+                      <div name="wi_mensaje" ng-class="{true:'wi-text-area-envio', false:'wi-text-area-noenvio'}[wi_nuevo_envio.operacion==='nuevo']" text-angular ng-model="wi_nuevo_envio.cuerpo" ta-text-editor-class="form-control myform1-height" ta-html-editor-class="form-control myform1-height"></div>
+
+                    </div>
+                    <div class="row wi-row wi-mensaje-anterior" ng-if="wi_nuevo_envio.operacion!=='nuevo'">
+                      <br>
+                      <iframe class="wi-iframe-mensaje" mensaje-email="wi_nuevo_envio.mensaje_anterior.contenido.cuerpo.datos" id="wi_nuevo_envio.mensaje_anterior.id" frameborder="0" width="100%"></iframe>
+                      <br>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row wi-row">
+
+                  <div class="col-xs-12 wi-archivo-adjunto" ng-repeat="(ind_a, a) in wi_nuevo_envio.adjuntos" ng-if="!a.cancelado">
+                    <table style="width:100%;">
+                      <tbody>
+                        <tr>
+                          <td class="wi-icono-archivo-adjunto">
+                            <i class="{{a.icono}} fa-2x" aria-hidden="true"></i>
+                          </td>
+                          <td class="wi-nombre-archivo-adjunto" data-toggle="tooltip" data-placement="bottom" title="{{a.nombre}}">
+                            {{a.nombre}}
+                          </td>
+                          <td class="wi-tamano-archivo-adjunto hidden-xs" data-toggle="tooltip" data-placement="bottom" title="{{a.tamano}}" ng-if="null!==a.tamano">
+                            {{a.tamano/1000000}} MB
+                          </td>
+                          <td class="wi-icono-eliminar-adjunto" ng-hide="a.btn_oculto">
+                            <a href="" class="btn btn-default" ng-click="wiEliminarArchivoAdjunto(ind_a)" data-toggle="tooltip" data-placement="bottom" title="Eliminar archivo" ng-disabled="a.btn_deshabilitado"><span class="fa fa-times fa-lg"></span></a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <uib-progressbar class="wi-progreso-carga active" ng-class="{true:'progress-striped'}[!a.carga_completa || ('usuario'==a.peticion.promise.$$state.value)]" value="a.progreso" max="100" animate="true" type="{{a.estilo}}">
+                      <span>{{a.progreso}}%</span>
+                    </uib-progressbar>
+                  </div>
+
+                  <div class="col-xs-12 col-sm-10 wi-total-adjuntos">
+                    <span ng-if="!wi_nuevo_envio.tamano.excedido && wi_nuevo_envio.tamano.total>0">
+                      Se utilizarán {{wi_nuevo_envio.tamano.total/1000000}} MB de {{wi_tamano_max_adjunto[wi_nuevo_envio.remitente.servidor]/1000000}} MB disponibles
+                    </span>
+
+                    <span class="wi-adjuntos-excedido" ng-if="wi_nuevo_envio.tamano.excedido">
+                      Se utilizarán {{wi_nuevo_envio.tamano.total/1000000}} MB de {{wi_tamano_max_adjunto[wi_nuevo_envio.remitente.servidor]/1000000}} MB disponibles. Elimina los archivos necesarios
+                    </span>
+                  </div>
+
+                  <div class="col-xs-12 col-sm-2" ng-hide="wi_nuevo_envio.tamano.excedido" ng-if="wi_nuevo_envio.operacion!=='reenvio'">
+                    <button type="button" class="btn btn-default pull-right wi-btn-adjuntar-archivos" ng-click="wiEventoAdjuntarArchivos()" ng-disabled="wi_btn_disabled.adjuntar_archivos">
+                      <i class="fa fa-paperclip fa-lg" aria-hidden="true"></i>&nbsp;
+                      Adjuntar archivos
+                    </button>
+                  </div>
+
+                  <div class="col-xs-12" ng-if="wi_nuevo_envio.operacion!=='reenvio'">
+                    <input type="file" id="wi_entrada_archivo_enviar" class="hide" autocomplete="false" onchange="angular.element(this).scope().wiAdjuntarArchivos(this)" multiple>
+                  </div>
+
+                </div>
+
+                <br>
+                <br>
+
+                <div class="row wi-row" style="padding-bottom:15px;">
+                  <div class="col-sm-6">
+                    <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wiOcultarModalMensaje(wiFormularioEnvio)" ng-disabled="wiEstadoBtnCancelarEnvio()">
+                      CANCELAR
+                    </button>
+                  </div>
+                  <br class="visible-xs">
+                  <div class="col-sm-6">
+                    <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wiMandarFormularioEnvio(wiFormularioEnvio)" ng-disabled="wi_btn_disabled.frm_envio" ng-switch="wi_nuevo_envio.operacion">
+                      <span ng-switch-when="nuevo">ENVIAR</span>
+                      <span ng-switch-when="respuesta">RESPONDER</span>
+                      <span ng-switch-when="reenvio">REENVIAR</span>
+                    </button>
+                  </div>
+                </div>
+
+              </form>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="wiModalAlertaEliminarCuenta" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+    <div class="vertical-center">
+      <div class="modal-dialog modal-sm">
+
+        <div class="modal-content">
+
+          <div class="modal-body">
+            <div class="row wi-row text-center">
+              <div class="col-xs-12">
+                <span style="font-size:12pt;"><b>{{wi_eliminar_cuenta.mensaje}}</b></span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="row wi-row">
+              <div class="col-sm-6">
+                <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wiOcultarModalEliminarCuenta()">NO</button>
+              </div>
+              <br class="visible-xs">
+              <div class="col-sm-6">
+                <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wiEliminarCuenta()">SI</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="wiModalAlertaAsuntoTexto" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+    <div class="vertical-center">
+      <div class="modal-dialog modal-sm">
+
+        <div class="modal-content">
+
+          <div class="modal-body">
+            <div class="row wi-row text-center">
+              <div class="col-xs-12">
+                <span style="font-size:12pt;"><b>{{wi_mensaje_alerta_asunto_texto}}</b></span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="row wi-row">
+              <div class="col-sm-6">
+                <button type="button" class="btn btn-block wi-btn-formulario" data-dismiss="modal">NO</button>
+              </div>
+              <br class="visible-xs">
+              <div class="col-sm-6">
+                <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wiMandarFormularioEnvio(wiFormularioEnvio)" data-dismiss="modal">SI</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="wiModalDatosCuenta" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+    <div class="vertical-center">
+      <div class="modal-dialog modal-md">
+
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <table style="width:100%;">
+              <tr>
+                <td><b>CONFIGURACIÓN DE LA CUENTA DE CORREO</b></td>
+                <td class="wi-icono-cerrar">
+                  <button type="button" class="close" ng-click="wiOcultarModalDatosCuenta(wiFormularioDatosCuenta)">
+                    <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr ng-if="'actualizacion'==wi_datos_cuenta.operacion">
+                <td class="wi-cuenta-actual"><b>{{wi_datos_cuenta.correo}}</b></td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-body">
+            <br>
+            <div class="row wi-row">
+              <form class="form-horizontal col-xs-12" role="form" name="wiFormularioDatosCuenta" autocomplete="off" novalidate>
+
+                <div class="row wi-row">
+
+                  <div class="row wi-row">
+                    <div class="col-xs-12">
+                      <div class="input-group wi-grupo-entrada">
+                        <input id="wi_nombre" type="text" class="form-control wi-entrada" name="wi_nombre" ng-model="wi_datos_cuenta.nombre" ng-trim="false" ng-maxlength="360" maxlength="360" required>
+                        <span class="input-group-addon wi-limpiar-texto" ng-if="wiMostrarBtnLimpiarTexto(wi_datos_cuenta.nombre, wiFormularioDatosCuenta.wi_nombre)" ng-click="wi_datos_cuenta.nombre='';wiEnfocarCampo('wi_nombre');">
+                          <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                        </span>
+                        <span class="wi-nombre-entrada">Nombre</span>
+                      </div>
+
+                      <div class="error-messages" ng-messages="wiFormularioDatosCuenta.wi_nombre.$error" ng-if="wiInteractuarCampo(wi_frm_enviado.agregar_cuenta, wiFormularioDatosCuenta.wi_nombre)" role="alert">
+                        <div ng-messages-include="mensajes_error_webmail"></div>
+                        <div ng-message="maxlength">Usa 360 caracteres como máximo</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row wi-row" ng-if="'alta'==wi_datos_cuenta.operacion">
+                    <br><br>
+                    <div class="row wi-row">
+                      <div class="col-xs-12">
+                        <div class="input-group wi-grupo-entrada">
+                          <input id="wi_correo" type="text" class="form-control wi-entrada" name="wi_correo" ng-model="wi_datos_cuenta.correo" ng-trim="false" ng-maxlength="64" maxlength="64" ng-pattern="wi_regex.correo.patron" ng-focus="wi_datos_cuenta.focus_correo = false;" ng-blur="wi_datos_cuenta.focus_correo = true;" required>
+                          <span class="input-group-addon wi-limpiar-texto" ng-if="wiMostrarBtnLimpiarTexto(wi_datos_cuenta.correo, wiFormularioDatosCuenta.wi_correo)" ng-click="wi_datos_cuenta.correo='';wiEnfocarCampo('wi_correo');">
+                            <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                          </span>
+                          <span class="wi-nombre-entrada">Correo</span>
+                        </div>
+
+                        <div class="error-messages" ng-messages="wiFormularioDatosCuenta.wi_correo.$error" ng-if="wiInteractuarCampo(wi_frm_enviado.agregar_cuenta, wiFormularioDatosCuenta.wi_correo)" role="alert">
+                          <div ng-messages-include="mensajes_error_webmail"></div>
+                          <div ng-message="maxlength">Usa 64 caracteres como máximo</div>
+                        </div>
+
+                        <div class="error-messages" ng-messages="wiFormularioDatosCuenta.wi_correo.$error" ng-if="wi_frm_enviado.agregar_cuenta && wi_datos_cuenta.focus_correo" role="alert">
+                          <div ng-message="pattern">{{wi_regex.correo.mensaje}}</div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row wi-row" ng-if="'Otro'==wi_datos_cuenta.tipo_servidor || 'Yahoo'==wi_datos_cuenta.tipo_servidor || 'alta'==wi_datos_cuenta.operacion">
+                    <br><br>
+                    <div class="row wi-row">
+                      <div class="col-xs-12">
+                        <div class="input-group wi-grupo-entrada">
+                          <input id="wi_password" type="password" class="form-control wi-entrada" name="wi_password" ng-model="wi_datos_cuenta.password" ng-trim="false" autocomplete="new-password" ng-maxlength="128" maxlength="128" required>
+                          <span class="input-group-addon wi-limpiar-texto" ng-if="wiMostrarBtnLimpiarTexto(wi_datos_cuenta.password, wiFormularioDatosCuenta.wi_password)" ng-click="wi_datos_cuenta.password='';wiEnfocarCampo('wi_password');">
+                            <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                          </span>
+                          <span class="wi-nombre-entrada">Contraseña</span>
+                        </div>
+
+                        <div class="error-messages" ng-messages="wiFormularioDatosCuenta.wi_password.$error" ng-if="wiInteractuarCampo(wi_frm_enviado.agregar_cuenta, wiFormularioDatosCuenta.wi_password)" role="alert">
+                          <div ng-messages-include="mensajes_error_webmail"></div>
+                          <div ng-message="maxlength">Usa 128 caracteres como máximo</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row wi-row" ng-if="2==wi_datos_cuenta.etapa || 'actualizacion'==wi_datos_cuenta.operacion">
+                      <br><br>
+                      <div class="row wi-row">
+                        <div class="col-sm-8">
+                          <div class="input-group wi-grupo-entrada">
+                            <input id="wi_imap" type="text" class="form-control wi-entrada" name="wi_imap" ng-model="wi_datos_cuenta.servidor_imap" ng-trim="false" ng-maxlength="512" maxlength="512" required>
+                            <span class="input-group-addon wi-limpiar-texto" ng-if="wiMostrarBtnLimpiarTexto(wi_datos_cuenta.servidor_imap, wiFormularioDatosCuenta.wi_imap)" ng-click="wi_datos_cuenta.servidor_imap='';wiEnfocarCampo('wi_imap');">
+                              <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                            </span>
+                            <span class="wi-nombre-entrada">Servidor IMAP</span>
+                          </div>
+
+                          <div class="error-messages" ng-messages="wiFormularioDatosCuenta.wi_imap.$error" ng-if="wiInteractuarCampo(wi_frm_enviado.agregar_cuenta, wiFormularioDatosCuenta.wi_imap)" role="alert">
+                            <div ng-messages-include="mensajes_error_webmail"></div>
+                            <div ng-message="maxlength">Usa 512 caracteres como máximo</div>
+                          </div>
+                        </div>
+                        <span class="visible-xs"><br><br></span>
+                        <div class="col-sm-4">
+                          <div class="input-group wi-grupo-entrada">
+                            <input id="wi_puerto_imap" type="text" class="form-control wi-entrada" name="wi_puerto_imap" ng-model="wi_datos_cuenta.puerto_imap" ng-trim="false" ng-maxlength="32" maxlength="32" ng-pattern="wi_regex.numero.patron" required>
+                            <span class="input-group-addon wi-limpiar-texto" ng-if="wiMostrarBtnLimpiarTexto(wi_datos_cuenta.puerto_imap, wiFormularioDatosCuenta.wi_puerto_imap)" ng-click="wi_datos_cuenta.puerto_imap='';wiEnfocarCampo('wi_puerto_imap');">
+                              <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                            </span>
+                            <span class="wi-nombre-entrada">Puerto IMAP</span>
+                          </div>
+
+                          <div class="error-messages" ng-messages="wiFormularioDatosCuenta.wi_puerto_imap.$error" ng-if="wiInteractuarCampo(wi_frm_enviado.agregar_cuenta, wiFormularioDatosCuenta.wi_puerto_imap)" role="alert">
+                            <div ng-messages-include="mensajes_error_webmail"></div>
+                            <div ng-message="maxlength">Usa 32 caracteres como máximo</div>
+                            <div ng-message="pattern">{{wi_regex.numero.mensaje}}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <br><br>
+                      <div class="row wi-row">
+                        <div class="col-sm-8">
+                          <div class="input-group wi-grupo-entrada">
+                            <input id="wi_smtp" type="text" class="form-control wi-entrada" name="wi_smtp" ng-model="wi_datos_cuenta.servidor_smtp" ng-trim="false" ng-maxlength="512" maxlength="512" required>
+                            <span class="input-group-addon wi-limpiar-texto" ng-if="wiMostrarBtnLimpiarTexto(wi_datos_cuenta.servidor_smtp, wiFormularioDatosCuenta.wi_smtp)" ng-click="wi_datos_cuenta.servidor_smtp='';wiEnfocarCampo('wi_smtp');">
+                              <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                            </span>
+                            <span class="wi-nombre-entrada">Servidor SMTP</span>
+                          </div>
+
+                          <div class="error-messages" ng-messages="wiFormularioDatosCuenta.wi_smtp.$error" ng-if="wiInteractuarCampo(wi_frm_enviado.agregar_cuenta, wiFormularioDatosCuenta.wi_smtp)" role="alert">
+                            <div ng-messages-include="mensajes_error_webmail"></div>
+                            <div ng-message="maxlength">Usa 512 caracteres como máximo</div>
+                          </div>
+                        </div>
+                        <span class="visible-xs"><br><br></span>
+                        <div class="col-sm-4">
+                          <div class="input-group wi-grupo-entrada">
+                            <input id="wi_puerto_smtp" type="text" class="form-control wi-entrada" name="wi_puerto_smtp" ng-model="wi_datos_cuenta.puerto_smtp" ng-trim="false" ng-maxlength="32" maxlength="32" ng-pattern="wi_regex.numero.patron" required>
+                            <span class="input-group-addon wi-limpiar-texto" ng-if="wiMostrarBtnLimpiarTexto(wi_datos_cuenta.puerto_smtp, wiFormularioDatosCuenta.wi_puerto_smtp)" ng-click="wi_datos_cuenta.puerto_smtp='';wiEnfocarCampo('wi_puerto_smtp');">
+                              <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                            </span>
+                            <span class="wi-nombre-entrada">Puerto SMTP</span>
+                          </div>
+
+                          <div class="error-messages" ng-messages="wiFormularioDatosCuenta.wi_puerto_smtp.$error" ng-if="wiInteractuarCampo(wi_frm_enviado.agregar_cuenta, wiFormularioDatosCuenta.wi_puerto_smtp)" role="alert">
+                            <div ng-messages-include="mensajes_error_webmail"></div>
+                            <div ng-message="maxlength">Usa 32 caracteres como máximo</div>
+                            <div ng-message="pattern">{{wi_regex.numero.mensaje}}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div class="row wi-row" ng-if="2==wi_datos_cuenta.etapa || 'actualizacion'==wi_datos_cuenta.operacion">
+                  <br>
+                  <div class="row wi-row">
+                    <div class="col-xs-12">
+                      <label class="control-label wi-nombre-entrada-ab" for="wi_tiempo_comprobacion">Comprobar mensajes nuevos</label>
+                      <div class="">
+                        <select id="wi_tiempo_comprobacion" class="form-control wi-entrada" name="wi_tiempo_comprobacion" ng-model="wi_datos_cuenta.tiempo_comprobacion" ng-options="opt as opt.texto for opt in tiempo_comprobacion"></select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <br><br>
+                <div class="row wi-row" style="padding-bottom:15px;">
+                  <div class="col-sm-6">
+                    <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wiOcultarModalDatosCuenta(wiFormularioDatosCuenta)">CANCELAR</button>
+                  </div>
+                  <br class="visible-xs">
+                  <div class="col-sm-6">
+                    <button id="btn_agregar_cuenta" type="submit" class="btn btn-block wi-btn-formulario" ng-click="wiContinuarDatosCuenta(wiFormularioDatosCuenta)" ng-disabled="wi_btn_disabled.agregar_cuenta">CONTINUAR</button>
+                  </div>
+                </div>
+
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

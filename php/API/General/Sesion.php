@@ -9,9 +9,9 @@ function Login()
     $request = \Slim\Slim::getInstance()->request();
     $datosUsuario = json_decode($request->getBody());
 
-    $sql = "SELECT NombreUsuario, Nombre, Apellidos, UsuarioId, Clave, Correo, EtiquetaMsn FROM UsuarioVista WHERE Correo = '".$datosUsuario->correo."' AND Password = '".$datosUsuario->clave."' AND Activo = 1";
-    
-    try 
+    $sql = "SELECT NombreUsuario, Nombre, Apellidos, UsuarioId, Clave, Correo FROM UsuarioVista WHERE Correo = '".$datosUsuario->correo."' AND Password = '".$datosUsuario->clave."' AND Activo = 1";
+
+    try
     {
 
         $db = getConnection();
@@ -23,7 +23,7 @@ function Login()
         {
             if( !isset( $_SESSION['MQR'] ) )
             {
-                foreach ($response as $aux) 
+                foreach ($response as $aux)
                 {
                     $aux->Password = "";
                 }
@@ -32,23 +32,24 @@ function Login()
                 $_SESSION['Aplicacion'] = '';
                 $_SESSION['sitio'] = 'www.mqrSistemas.com';
                 $_SESSION['timeout'] = strtotime( $session_expiration_time );
+                $_SESSION['UsuarioId'] = $response[0]->UsuarioId;
 
                 $rspH = $app->response();
                 $rspH['X-Api-Key'] = generateToken(false);
-                
-                echo '[ { "Estatus": "Iniciado"}, {"Usuario":'.json_encode($response).'} ]'; 
+
+                echo '[ { "Estatus": "Iniciado"}, {"Usuario":'.json_encode($response).'} ]';
             }
             else
             {
                echo '[ { "Estatus": "SesionInicada" } ]';
-            } 
+            }
         }
         else
         {
            echo '[ { "Estatus": "Error" } ]';
         }
-    } 
-    catch(PDOException $e) 
+    }
+    catch(PDOException $e)
     {
         echo($e);
         $app->status(409);
@@ -66,9 +67,9 @@ function GetEstadoSesion()
 
 
     if( isset( $_SESSION['MQR'] ) )
-    { 
+    {
         //echo json_encode($_SESSION['Usuario']);
-        echo '[ { "Estatus": true, "Aplicacion": "'.$_SESSION['Aplicacion'].'"}, {"Usuario":'.json_encode($_SESSION['MQR']).'} ]';        
+        echo '[ { "Estatus": true, "Aplicacion": "'.$_SESSION['Aplicacion'].'"}, {"Usuario":'.json_encode($_SESSION['MQR']).'} ]';
     }
     else
     {
@@ -77,7 +78,7 @@ function GetEstadoSesion()
 }
 
 function CerrarSesion()
-{   
+{
     global $app;
 
     quitarSesion();
@@ -95,7 +96,7 @@ function SetAplicacion()
     global $app;
     $request = \Slim\Slim::getInstance()->request();
     $aplicacion = json_decode($request->getBody());
-    
+
     $_SESSION['Aplicacion'] = $aplicacion[0];
 
     //echo $_SESSION['Aplicacion'];

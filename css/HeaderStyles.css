@@ -6,12 +6,12 @@
 .encabezadoUsuario /*Texto en el encabezado que indica el perfil del usuario*/
 {
     color: white !important;
-    background: #2076ED;
-    
+    background: #088A08;
+
     padding-top: 10px;
     padding-bottom: 5px;
     min-height: 59px;
-    
+
     position: fixed;
     width: 100%;
 }
@@ -27,7 +27,7 @@
     background: transparent;
     border-radius: 0px;
     color: white;
-    
+
     outline: none !important;
     box-shadow: none;
 }
@@ -48,10 +48,10 @@
     color: white !important;
 }
 
-a:link   
-{   
- text-decoration:none;   
-} 
+a:link
+{
+ text-decoration:none;
+}
 
 .barraNavegacionHamburguesa /*Color de las barras en el boton de hamburguesa*/
 {
@@ -67,7 +67,7 @@ a:link
  /*--------------------- Barra de Navegación ----------------------------*/
 
 .encabezadoUsuario .navbar-nav > li > a /*Opciones principales de la barra de navegación*/
-{ 
+{
     background: transparent !important;
     color: white;
     font-size: 14pt;
@@ -77,7 +77,7 @@ a:link
 }
 
 .encabezadoUsuario .navbar-nav > li:hover > a /*en las opciones principales de la barra de navegación*/
-{ 
+{
     color: #d2e4fb;
     cursor: pointer !important;
     border-right: 2px solid #eaaa00;
@@ -103,22 +103,22 @@ a:link
 .barraNavegacionDropdown /*fondo de despliegue de los dropdown list */
 {
     background: white;
-    
+
     border-radius: 0px 0px 3px 3px;
-    
+
     margin-top: -5px !important;
     margin-bottom: 5px !important;
 }
 
 @media (max-width: 767px)
-{    
+{
     .encabezadoUsuario .navbar-nav > li > a /*Modificación de las opcines principales en la barra de navegación*/
     {
         border: solid 2px #2076ED;
         margin: 0px 10px 5px 10px;
         text-align: left;
     }
-    
+
     .encabezadoUsuario .navbar-nav > li:hover > a /*Hover de las opciones principales en la barra de navegación*/
     {
         margin-bottom:3px;
@@ -126,7 +126,7 @@ a:link
         color: #d2e4fb;
         border: 2px solid #eaaa00;
     }
-    
+
     .dropdownOpcion /*Opciones de las dropdown list*/
     {
         margin-left: 15px;
@@ -134,14 +134,14 @@ a:link
         text-align: left;
         border-bottom: 1px solid white;
         color: white !important;
-    } 
-    
+    }
+
     .dropdownOpcion:hover /*Opciones de las dropdown list en hover*/
     {
         background: white !important;
         color: #2076ED !important;
     }
-    
+
     .encabezadoTitulo
     {
         margin-left: 10px;
@@ -149,12 +149,12 @@ a:link
 }
 
 /*------ SubMenu del encabezado -------------------*/
-.dropdownsubmenu 
+.dropdownsubmenu
 {
     position: relative;
 }
 
-.dropdownsubmenu>.dropdown-menu 
+.dropdownsubmenu>.dropdown-menu
 {
     top: 0;
     right: 100%;
@@ -207,3 +207,252 @@ a:link
 
 
 
+/*formulario solicitud amistad*/
+
+.nt-btn-buscar-usr{
+  background-color:transparent;
+  border:none;
+  -moz-border-radius: 0 !important;
+  -webkit-border-radius: 0 !important;
+  border-radius: 0 !important;
+  height:32px;
+  width:40px;
+  outline: none !important;
+}
+
+
+.nt-entrada-busqueda-usr-sc, .nt-entrada-busqueda-usr-sc:focus{
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  border-color: #ddd;
+  -moz-box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  z-index: 0 !important;
+}
+
+.nt-entrada-busqueda-usr-cc, .nt-entrada-busqueda-usr-cc:focus{
+  border-right: none !important;
+  border-color: #ddd;
+  -moz-box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  z-index: 0 !important;
+}
+
+.nt-limpiar-texto-busqueda-usr{
+  background-color: white !important;
+  cursor: pointer;
+}
+
+.datos-busqueda-usuario{
+  background-color: #f4f4f4;
+  padding: 15px;
+}
+
+.resultado-solicitud-amistad, .estado-notificaciones{
+  background-color: #f4f4f4;
+  padding: 15px;
+  font-size: 12pt;
+}
+
+.contenedor-elem-solic-amistad{
+  max-height: 260px;
+  margin-top: 30px;
+  overflow-y: auto;
+}
+
+.contenedor-lista-notificaciones{
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.elemento-solicitud-amistad{
+  border: 2px solid #ddd;
+  padding: 15px 0;
+  margin-bottom: 15px;
+}
+
+.elemento-notificacion{
+  border: 2px solid #ddd;
+  padding: 15px 0;
+  margin-bottom: 15px;
+}
+
+.elemento-notificacion-noleida, .amigo-seleccionado{
+  background-color: #f1f1f1;
+}
+
+.nombre-solicitud-amistad{
+  font-size:12pt;
+}
+
+.correo-solicitud-amistad{
+  margin-bottom: 10px;
+}
+
+.btn-submitir{
+  background-color: transparent;
+  border:2px solid #1859B2;
+  color: #1859B2;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  font-size: 12pt;
+  font-weight: bold;
+}
+
+.btn-submitir:hover{
+  background-color: #1859B2;
+  color: white;
+}
+
+.encabezado-tab-solc {
+  font-size: 12pt;
+}
+
+.opc-solic-amistad .tab-pane {
+  border-width: 0 1px 1px 1px;
+  border-style: solid;
+  border-color: #ddd;
+}
+
+.a-grupo-entrada{
+  width: 100%;
+}
+
+.a-entrada, .a-entrada:focus{
+  background-color: transparent;
+  border-width: 0 0 3px 0;
+  border-style: solid;
+  border-color: #1859B2;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  outline: none !important;
+  box-shadow: none;
+  font-size: 11pt;
+}
+
+.a-nombre-entrada{
+  font-weight: bold;
+  color: #5e5e5e;
+  position: absolute;
+  pointer-events: none;
+  left: 0;
+  top: 8px;
+  font-size: 12pt;
+  -webkit-transition: 0.2s ease all;
+  -moz-transition: 0.2s ease all;
+  -o-transition: 0.2s ease all;
+  transition: 0.2s ease all;
+}
+
+.a-entrada:focus ~ .a-nombre-entrada,
+.a-entrada:not(:focus):valid ~ .a-nombre-entrada{
+  top: -17px;
+  left: 0;
+  font-size: 12pt;
+  color: #1859B2;
+}
+
+
+.addon-icono-entrada{
+  background-color: transparent !important;
+  border-width: 0 0 3px 0;
+  border-color: #006f9c;
+  border-style: solid;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  color: #006f9c;
+}
+
+.a-limpiar-texto{
+  background-color: transparent !important;
+  border-width: 0 0 3px 0;
+  border-color: #006f9c;
+  border-style: solid;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.a-limpiar-texto:hover>i{
+  opacity: 1;
+}
+
+.a-limpiar-texto>i{
+  opacity: 0.6;
+}
+
+.badge-notificaciones{
+  background-color: red !important;
+  color: white !important;
+  margin-left: -10px;
+  /*font-size: 14pt !important;*/
+}
+
+.xs-btn-notificaciones{
+  padding: 3px 5px;
+  color: white !important;
+  margin-right: 10px;
+}
+
+.xs-btn-notificaciones:hover {
+  color: orange !important;
+}
+
+.xs-btn-notificaciones .badge-notificaciones{
+  margin-bottom: 20px;
+}
+
+.alerta-notificacion{
+  background-color: #1859B2;
+  color: white;
+}
+
+
+
+.msj-notificacion, .remitente-notificacion{
+  /*overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;*/
+}
+
+.fecha-notificacion{
+  color: #696969;
+  padding-top: 10px;
+  font-size: 10pt;
+  /*overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;*/
+}
+
+.opc-notificacion{
+  padding-left: 5px;
+  min-width:25px !important;
+  width:25px !important;
+}
+
+.opc-notificacion button{
+  border:none;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: transparent;
+  outline: none !important;
+  -moz-box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+
+@media (max-width: 768px){
+  .opc-solic-amistad .tab-pane {
+    border: 1px solid #ddd;
+  }
+}

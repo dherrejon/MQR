@@ -2,43 +2,61 @@
 
 <html ng-app="MQR">
     <head>
-        <title>Life a Bit</title>
+        <title>MQRSYS</title>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
         <!-- angular-->
-        <script type="text/javascript" src="libs/angular/angular.js"></script>
-        <script type="text/javascript" src="libs/angular/angular-route.min.js"></script>
-        <script type="text/javascript" src="libs/angular/angular-md5.js"></script>
+        <script type="text/javascript" src="libs/angular-1.6.6/angular.min.js"></script>
+        <script type="text/javascript" src="libs/angular-1.6.6/angular-route.min.js"></script>
+        <script type="text/javascript" src="libs/angular-1.6.6/angular-resource.min.js"></script>
+        <script type="text/javascript" src="libs/angular-1.6.6/angular-messages.min.js"></script>
+        <script type="text/javascript" src="libs/angular-1.6.6/angular-animate.min.js"></script>
+        <!-- <script type="text/javascript" src="libs/angular-1.6.6/angular-sanitize.min.js"></script> -->
+        <script type="text/javascript" src="libs/text-angular/textAngular-sanitize.min.js"></script>
+        <script type="text/javascript" src="libs/text-angular/textAngular-rangy.min.js"></script>
+        <script type="text/javascript" src="libs/text-angular/textAngular.min.js"></script>
+
+        <script type="text/javascript" src="libs/angular-1.6.6/angular-md5.js"></script>
         <script type="text/javascript" src="libs/angular-loading-bar/loading-bar.js"></script>
-        
+        <script type="text/javascript" src="libs/ui-bootstrap-tpls-0.14.3/ui-bootstrap-tpls-0.14.3.min.js"></script>
+        <script type="text/javascript" src="libs/ng-toast-2.0.0/ngToast.min.js"></script>
+
         <script type="text/javascript" src="libs/alaSQL/alasql.js"></script>
 
+        <link rel="stylesheet" href="libs/text-angular/textAngular.css">
+
+        <link rel="stylesheet" href="libs/ng-toast-2.0.0/ngToast.min.css">
 
         <!-- jQuery-->
         <script src="libs/jQuery.js"></script>
+        <script src="libs/jquery-ui-1.12.1/jquery-ui.min.js"></script>
         <script src="libs/jquery-base64.min.js"></script>
 
         <!-- Bootstrap-->
-        <link rel="stylesheet" href="libs/bootstrap/css/bootstrap.css">
+        <link rel="stylesheet" href="libs/bootstrap/css/bootstrap.min.css">
         <script src="libs/bootstrap/js/bootstrap.min.js"></script>
-        
+
         <link rel="stylesheet" href="libs/angular-loading-bar/loading-bar.css">
-        
+
         <!-- Date picker -->
         <link rel="stylesheet" href="libs/bootstrap/datepicker/bootstrap-material-datetimepicker.css">
-        
+
         <script type="text/javascript" src="libs/bootstrap/datepicker/moment-with-locales.min.js"></script>
         <script type="text/javascript" src="libs/bootstrap/datepicker/bootstrap-material-datetimepicker.js"></script>
-        
+
+
+        <!-- sokcet.io -->
+        <script type="text/javascript" src="libs/socket.io-2.0.3/socket.io.js"></script>
+
         <!--js-->
         <script src="js/app.js"></script>
         <script src="js/Controlador/LoginController.js"></script>
         <script src="js/Controlador/EncabezadoController.js"></script>
         <script src="js/Controlador/RecuperarPasswordControlador.js"></script>
         <script src="js/Controlador/AplicacionController.js"></script>
-        
-        
+
+
         <!-- Sabiduría -->
         <script src="js/Controlador/Sabiduria/InformacionController.js"></script>
             <!-- Administrar -->
@@ -48,7 +66,7 @@
             <script src="js/Controlador/Sabiduria/Administrar/AdministrarInformacionController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/AdministrarTemaController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/UsuarioController.js"></script>
-            
+
             <script src="js/Controlador/Sabiduria/Administrar/Etiqueta/EtiquetaController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/Autor/AutorController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/Autor/PrefijoController.js"></script>
@@ -57,50 +75,20 @@
             <script src="js/Controlador/Sabiduria/Administrar/Informacion/InformacionController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/Informacion/TipoInformacionController.js"></script>
             <script src="js/Controlador/Sabiduria/Administrar/Tema/TemaController.js"></script>
-        
+
         <!-- Cancionero -->
          <script src="js/Controlador/Cancionero/CancioneroController.js"></script>
             <!-- Administrar -->
             <script src="js/Controlador/Cancionero/Administrar/AdministrarArtistaController.js"></script>
             <script src="js/Controlador/Cancionero/Administrar/AdministrarCancionController.js"></script>
-        
+
             <script src="js/Controlador/Cancionero/Administrar/Artista/ArtistaController.js"></script>
             <script src="js/Controlador/Cancionero/Administrar/Cancion/CancionController.js"></script>
-            
-        <!-- Actividades -->
-         <script src="js/Controlador/Actividades/ActividadesController.js"></script>
-               <!-- Administrar -->
-               <script src="js/Controlador/Actividades/Administrar/AdministrarFrecuenciaController.js"></script>
-               <script src="js/Controlador/Actividades/Administrar/AdministrarTemaActividadController.js"></script>
-               <script src="js/Controlador/Actividades/Administrar/AdministrarPersonaActividadController.js"></script>
-               <script src="js/Controlador/Actividades/Administrar/AdministrarLugarController.js"></script>
-               <script src="js/Controlador/Actividades/Administrar/AdministrarUnidadController.js"></script>
-                
-               <script src="js/Controlador/Actividades/Administrar/Frecuencia/FrecuenciaController.js"></script>
-               <script src="js/Controlador/Actividades/Administrar/TemaActividad/TemaActividadController.js"></script>
-               <script src="js/Controlador/Actividades/Administrar/Persona/PersonaActividadController.js"></script>
-               
-               <script src="js/Controlador/Actividades/Administrar/Lugar/LugarController.js"></script>
-               <script src="js/Controlador/Actividades/Administrar/Ciudad/CiudadController.js"></script>
-               
-               <script src="js/Controlador/Actividades/Administrar/Unidad/DivisaController.js"></script>
-               <script src="js/Controlador/Actividades/Administrar/Unidad/UnidadController.js"></script>
-               
-        <!-- Diario -->
-        <script src="js/Controlador/Diario/DiarioActividadesController.js"></script>
-        
-        <!-- Notas -->
-        <script src="js/Controlador/Notas/NotasController.js"></script>
-        
-        <!-- Conocimiento -->
-        <script src="js/Controlador/Conocimiento/ConocimientoController.js"></script>
-        
-         <!-- Buscador -->
-        <script src="js/Controlador/Buscador/BuscadorController.js"></script>
-        
+
+
         <!-- Datos -->
         <script src="js/Datos/General/Usuario.js"></script>
-        
+
         <!-- Sabiduria -->
         <script src="js/Datos/Sabiduria/Etiqueta.js"></script>
         <script src="js/Datos/Sabiduria/Fuente.js"></script>
@@ -111,35 +99,22 @@
         <script src="js/Datos/Sabiduria/Tema.js"></script>
         <script src="js/Datos/Sabiduria/Usuario.js"></script>
         <script src="js/Datos/Sabiduria/Informacion.js"></script>
-        
+
         <!-- Cancionero -->
         <script src="js/Datos/Cancionero/Artista.js"></script>
         <script src="js/Datos/Cancionero/Cancion.js"></script>
-        
-        <!-- Actividades -->
-        <script src="js/Datos/Actividades/Frecuencia.js"></script>
-        <script src="js/Datos/Actividades/TemaActividad.js"></script>
-        <script src="js/Datos/Actividades/Actividad.js"></script>
-        <script src="js/Datos/Actividades/PersonaActividad.js"></script>
-        <script src="js/Datos/Actividades/Lugar.js"></script>
-        <script src="js/Datos/Actividades/Ciudad.js"></script>
-        <script src="js/Datos/Actividades/Unidades.js"></script>
-        <script src="js/Datos/Actividades/Divisas.js"></script>
-        <script src="js/Datos/Actividades/EventoActividad.js"></script>
-        
-        
-        <!-- Diario -->
-        <script src="js/Datos/Diario/Diario.js"></script>
-        
-        <!-- Notas -->
-        <script src="js/Datos/Notas/Notas.js"></script>
-        
-        <!-- Conocimiento -->
-        <script src="js/Datos/Conocimiento/Conocimiento.js"></script>
-        
-        <!-- Buscador -->
-        <script src="js/Datos/Buscador/Buscador.js"></script>
-        
+
+        <!-- Webmail -->
+        <script src="js/Controlador/Webmail/directivaMensajeEmail.js"></script>
+        <script src="js/Datos/Webmail/webmail.js"></script>
+        <script src="js/Controlador/Webmail/controladorWebmail.js"></script>
+
+        <!-- Amistad -->
+        <script src="js/Datos/Amistad/amistad.js"></script>
+
+        <!-- Notificaciones -->
+        <script src="js/Datos/Notificaciones/notificaciones.js"></script>
+
         <!--css-->
         <link rel="stylesheet" href="css/HeaderStyles.css">
         <link rel="stylesheet" href="css/LoginStyles.css">
@@ -156,11 +131,14 @@
         <link rel="stylesheet" href="css/Notas.css">
         <link rel="stylesheet" href="css/Conocimiento.css">
         <link rel="stylesheet" href="css/Buscador.css">
-        
+
+        <!-- webmail -->
+        <link rel="stylesheet" href="css/inicio-webmail.css">
+
         <!--awesome font-->
         <link rel="stylesheet" href="css/font-awesome.min.css">
         <!--<link type="image/x-icon" href="img/index/favicon/icon.ico" rel="icon" />-->
-        
+
 
     </head>
     <body class="fondoPagina">
@@ -177,5 +155,6 @@
                 <footer ng-include=" 'html/Footer.html' "></footer>
             </div>-->
         </div>
+    <toast></toast>
     </body>
 </html>

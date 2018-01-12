@@ -1,28 +1,28 @@
-app.controller("CancioneroController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location)
-{   
+app.controller("CancioneroController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $timeout)
+{
     $scope.titulo = "Cancionero";
     $scope.buscarCancionero = "";
-    
+
     $scope.permiso = false;
     $scope.cancion = [];
     $scope.detalle = new Cancion();
-    
-    
+
+
     //----------------------------- Catálogos ------------------------------------
-    $scope.GetCancion = function()              
+    $scope.GetCancion = function()
     {
         GetCancion($http, $q, CONFIG, "todos").then(function(data)
         {
             $scope.cancion = data;
             $scope.GetArtistaPorCancion();
-        
+
         }).catch(function(error)
         {
             alert(error);
         });
     };
-    
-    $scope.GetArtistaPorCancion = function()              
+
+    $scope.GetArtistaPorCancion = function()
     {
         GetArtistaPorCancion($http, $q, CONFIG, "todos").then(function(data)
         {
@@ -33,39 +33,42 @@ app.controller("CancioneroController", function($scope, $window, $http, $rootSco
             alert(error);
         });
     };
-    
+
     $scope.SetArtistaCancion = function()
     {
         var sqlBase = "Select ArtistaId, Nombre From ? WHERE CancionId = '";
         var sql = "";
-        
+
         for(var k=0; k<$scope.cancion.length; k++)
         {
             sql = sqlBase;
             sql +=  $scope.cancion[k].CancionId + "'";
-           
+
             $scope.cancion[k].Artista = alasql(sql,[$scope.artistaCancion]);
-        } 
+        }
+
+        $rootScope.$broadcast('controlador_cancion_cargado',{});
+
     };
-        
-    $scope.GetCancionero = function(cancion)              
+
+    $scope.GetCancionero = function(cancion)
     {
         GetCancionero($http, $q, CONFIG, cancion.CancionId).then(function(data)
         {
             cancion.Cancionero = data.Cancionero;
             cancion.NombreArchivo = data.NombreArchivo;
-        
+
         }).catch(function(error)
         {
             alert(error);
         });
     };
-    
+
     //--------------- Detalles --------------------------
     $scope.VerDetalles = function(cancion)
     {
         $scope.detalle = cancion;
-  
+
         if(cancion.Cancionero.length == 0)
         {
             $scope.GetCancionero(cancion);
@@ -81,10 +84,10 @@ app.controller("CancioneroController", function($scope, $window, $http, $rootSco
         }
         else
         {
-            return ""; 
+            return "";
         }
     };
-    
+
     //Ver Imagen
     $scope.VisualizarImagen = function(imagen)
     {
@@ -106,8 +109,8 @@ app.controller("CancioneroController", function($scope, $window, $http, $rootSco
                 break;
         }
     };
-    
-    //---- 
+
+    //----
 
     //Busqueda de caciones
     $scope.BuscarCancion = function(cancion)
@@ -115,8 +118,8 @@ app.controller("CancioneroController", function($scope, $window, $http, $rootSco
         if($scope.buscarCancionero.length > 0)
         {
             var index = cancion.Titulo.toLowerCase().indexOf($scope.buscarCancionero.toLowerCase());
-            
-            
+
+
             if(index < 0)
             {
                 return false;
@@ -144,11 +147,45 @@ app.controller("CancioneroController", function($scope, $window, $http, $rootSco
         {
             return true;
         }
-        
+
     };
-    
+
+    $scope.RecomendarCancion = function () {
+
+      $rootScope.$broadcast(
+        'mostrar_modal_enviar_recurso',
+        {
+          titulo:'Recomendar la canción "'+$scope.detalle.Titulo+'" a:',
+          tipo:'cancion',
+          operacion:'recomendacion',
+          elemento_id: $scope.detalle.CancionId,
+          nombre_recurso: $scope.detalle.Titulo
+        }
+      );
+
+    };
+
+    // if(!$rootScope.$$listenerCount['seleccionar_cancion_recomendada']) {
+
+      $rootScope.$on('seleccionar_cancion_recomendada', function (evento, datos) {
+
+        for (var i = 0; i < $scope.cancion.length; i++) {
+
+          if ($scope.cancion[i].CancionId === datos.ElementoId) {
+            $scope.VerDetalles($scope.cancion[i]);
+            break;
+          }
+
+        }
+
+      });
+
+    // }
+
+
+
     /*----------------------- Usuario logeado --------------------------*/
-    
+
     $scope.ValidarPermiso = function()
     {
         for(var k=0; k<$scope.usuarioLogeado.Permiso.length; k++)
@@ -180,9 +217,9 @@ app.controller("CancioneroController", function($scope, $window, $http, $rootSco
             $rootScope.IrPaginaPrincipal();
         }
     };
-    
-    $scope.usuarioLogeado =  datosUsuario.getUsuario(); 
-    
+
+    $scope.usuarioLogeado =  datosUsuario.getUsuario();
+
     //verifica que haya un usuario logeado
     if($scope.usuarioLogeado !== null)
     {
@@ -195,12 +232,12 @@ app.controller("CancioneroController", function($scope, $window, $http, $rootSco
             $scope.InicializarControlador();
         }
     }
-    
+
     //destecta cuando los datos del usuario cambian
     $scope.$on('cambioUsuario',function()
     {
         $scope.usuarioLogeado =  datosUsuario.getUsuario();
-    
+
         if(!$scope.usuarioLogeado.SesionIniciada)
         {
             $location.path('/Login');

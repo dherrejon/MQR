@@ -10,27 +10,27 @@ class Etiqueta
 }
 
 //obtiene los tipos de módulos
-function GetEtiqueta($http, $q, CONFIG, id)     
+function GetEtiqueta($http, $q, CONFIG, id)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'GET',
           url: CONFIG.APIURL + '/GetEtiqueta/' + id,
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            var etiqueta = []; 
-            for(var k=0; k<data.length; k++)
+            var etiqueta = [];
+            for(var k=0; k<response.data.length; k++)
             {
                 etiqueta[k] = new Etiqueta();
-                etiqueta[k] = SetEtiqueta(data[k]);
+                etiqueta[k] = SetEtiqueta(response.data[k]);
             }
-    
-            q.resolve(etiqueta);  
-        }).error(function(data, status){
-            q.resolve(status);
-     }); 
+
+            q.resolve(etiqueta);
+        }, function(response){
+            q.resolve(response.status);
+     });
     return q.promise;
 }
 
@@ -38,10 +38,10 @@ function GetEtiqueta($http, $q, CONFIG, id)
 function SetEtiqueta(data)
 {
     var etiqueta = new Etiqueta();
-    
+
     etiqueta.EtiquetaId = data.EtiquetaId;
     etiqueta.Nombre = data.Nombre;
-    
+
     return etiqueta;
 }
 
@@ -49,21 +49,21 @@ function SetEtiqueta(data)
 function AgregarEtiqueta($http, CONFIG, $q, etiqueta)
 {
     var q = $q.defer();
-    
+
     etiqueta.Activo = CambiarBoolAInt(etiqueta.Activo);
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/AgregarEtiqueta',
           data: etiqueta
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
@@ -71,41 +71,41 @@ function AgregarEtiqueta($http, CONFIG, $q, etiqueta)
 function EditarEtiqueta($http, CONFIG, $q, etiqueta)
 {
     var q = $q.defer();
-    
+
     etiqueta.Activo = CambiarBoolAInt(etiqueta.Activo);
 
-    $http({      
+    $http({
           method: 'PUT',
           url: CONFIG.APIURL + '/EditarEtiqueta',
           data: etiqueta
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);    
-        }).error(function(data, status){
-            q.resolve(status);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
+     });
     return q.promise;
 }
 
-function ActivarDesactivarEtiqueta($http, $q, CONFIG, etiqueta) 
+function ActivarDesactivarEtiqueta($http, $q, CONFIG, etiqueta)
 {
     var q = $q.defer();
-    
-    $http({      
+
+    $http({
           method: 'POST',
           url: CONFIG.APIURL + '/ActivarDesactivarEtiqueta',
           data: etiqueta
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data); 
-        }).error(function(data, Estatus){
-            q.resolve(Estatus);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
 
-     }); 
-    
+     });
+
     return q.promise;
 }
 
@@ -113,20 +113,17 @@ function BorrarEtiqueta($http, CONFIG, $q, id)
 {
     var q = $q.defer();
 
-    $http({      
+    $http({
           method: 'DELETE',
           url: CONFIG.APIURL + '/BorrarEtiqueta',
           data: id
 
-      }).success(function(data)
+      }).then(function(response)
         {
-            q.resolve(data);    
-        }).error(function(data, status){
-            q.resolve([{Estatus:status}]);
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve([{Estatus:response.status}]);
 
-     }); 
+     });
     return q.promise;
 }
-
-
-  
