@@ -176,6 +176,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
       $scope.wi_contactos = respuesta;
     }, function (respuesta) {
+      // ngToast.dismiss();
       // ngToast.create({className: 'danger', content: "<b>No se pudieron obtener los contactos asociados a la cuenta '"+$scope.wi_nuevo_envio.remitente.correo+"'. Error: "+respuesta.status+".</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
     });
   }
@@ -283,6 +284,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
           }
 
           if (respuesta.mensaje_error) {
+            ngToast.dismiss();
             ngToast.create({className: 'danger', content: '<b>'+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
           }
 
@@ -290,6 +292,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         else {
           $scope.wi_indicacion = "SELECCIONA UNA CARPETA";
 
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: '<b>No se pudieron obtener los mensajes. '+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
         }
 
@@ -297,6 +300,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
         $scope.wi_indicacion = "SELECCIONA UNA CARPETA";
 
+        ngToast.dismiss();
         ngToast.create({className: 'danger', content: '<b>No se pudieron obtener los mensajes. Error '+respuesta.status+'</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
 
         $scope.wi_seleccion_actual.folder.peticion = null;
@@ -414,11 +418,13 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         }
         else
         {
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: '<b>'+respuesta.mensaje_error+'.</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
         }
 
       },function(respuesta) {
         $('#wiModalAgregarCuenta').modal('hide');
+        ngToast.dismiss();
         ngToast.create({className: 'danger', content: '<b>No se pudo continuar con la operación. Error '+respuesta.status+'.</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
       });
     }
@@ -485,6 +491,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
             }
 
             if (respuesta.mensaje_error) {
+              ngToast.dismiss();
               ngToast.create({className: 'danger', content: '<b>'+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:7000, dismissButton:true, dismissOnClick:true});
             }
 
@@ -497,6 +504,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
               $scope.wi_indicacion = "SELECCIONA UNA CUENTA DE CORREO";
             }
 
+            ngToast.dismiss();
             ngToast.create({className: 'danger', content: '<b>Error: '+respuesta.mensaje_error+' Si el problema continúa, elimina la cuenta y registrala nuevamente.</b>', dismissOnTimeout:true, timeout:7000, dismissButton:true, dismissOnClick:true});
 
           }
@@ -509,6 +517,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
               $scope.wi_indicacion = "SELECCIONA UNA CUENTA DE CORREO";
             }
 
+            ngToast.dismiss();
             ngToast.create({className: 'danger', content: '<b>Error: '+respuesta.status+'. Intenta más tarde.</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
 
             $scope.wi_cuentas[respuesta.data.indice].peticion = null;
@@ -615,6 +624,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
             }
 
             if (respuesta.mensaje_error) {
+              ngToast.dismiss();
               ngToast.create({className: 'danger', content: '<b>'+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
             }
 
@@ -622,6 +632,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
           else {
             $scope.wi_indicacion = "SELECCIONA UNA CARPETA";
 
+            ngToast.dismiss();
             ngToast.create({className: 'danger', content: '<b>No se pudieron obtener los mensajes. '+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
           }
 
@@ -629,6 +640,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
           $scope.wi_indicacion = "SELECCIONA UNA CARPETA";
 
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: '<b>No se pudieron obtener los mensajes. Error '+respuesta.status+'</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
 
           obj_folder.peticion = null;
@@ -740,6 +752,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
             mensaje.contenido = null;
             $scope.wi_seleccion_actual.mensaje = null;
             $scope.wi_indicacion = null;
+            ngToast.dismiss();
             ngToast.create({className: 'danger', content: '<b>No se pudo obteber el contenido del mensaje. '+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
           }
 
@@ -748,6 +761,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
           mensaje.contenido = null;
           $scope.wi_seleccion_actual.mensaje = null;
           $scope.wi_indicacion = null;
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: '<b>No se pudo obteber el contenido del mensaje. Error '+respuesta.status+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
 
           $scope.wi_seleccion_actual.folder.peticion = null;
@@ -804,14 +818,17 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
           }
           $scope.wi_seleccion_actual.mensaje = null;
           $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_seleccion_actual.ind_cuenta, true, false);
+          ngToast.dismiss();
           ngToast.create({className: 'success', content: '<b>'+notificacion+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
         }
         else {
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: '<b>No se pudo eliminar el mensaje. '+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
         }
 
       }, function(respuesta){
 
+        ngToast.dismiss();
         ngToast.create({className: 'danger', content: '<b>No se pudo eliminar el mensaje. Error '+respuesta.status+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
 
         $scope.wi_seleccion_actual.folder.peticion = null;
@@ -849,14 +866,17 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
           }
           $scope.wi_seleccion_actual.mensaje = null;
           $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_seleccion_actual.ind_cuenta, true, false);
+          ngToast.dismiss();
           ngToast.create({className: 'success', content: '<b>El mensaje se ha movido a la carpeta: '+destino_ruta+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
         }
         else {
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: '<b>No se pudo mover el mensaje. '+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
         }
 
       }, function(respuesta){
 
+        ngToast.dismiss();
         ngToast.create({className: 'danger', content: '<b>No se pudo mover el mensaje. Error '+respuesta.status+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
 
         $scope.wi_seleccion_actual.folder.peticion = null;
@@ -1217,6 +1237,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
               $scope.wi_nuevo_envio.tamano.excedido = false;
             }
           } else {
+            ngToast.dismiss();
             ngToast.create({className: 'danger', content: "<b>El archivo '"+$scope.wi_nuevo_envio.adjuntos[indice].nombre+"' no se pudo eliminar. " +respuesta.mensaje_error+".</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
           }
 
@@ -1228,6 +1249,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
         if (!ocultar_modal) {
 
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: "<b>El archivo '"+$scope.wi_nuevo_envio.adjuntos[indice].nombre+"' no se pudo eliminar. Error: "+respuesta.status+".</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
 
           $scope.wi_nuevo_envio.adjuntos[indice].btn_deshabilitado = false;
@@ -1267,6 +1289,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
       if (tamano.excedido) {
 
+        ngToast.dismiss();
         ngToast.create({className: 'warning', content: "<b>Los archivos no se han adjuntado porque se supera el limite de "+$scope.wi_tamano_max_adjunto[$scope.wi_nuevo_envio.remitente.servidor]/1000000+" MB.</b>", dismissOnTimeout:true, timeout:7000, dismissButton:true, dismissOnClick:true});
 
         $("#wi_entrada_archivo_enviar").val('');
@@ -1339,6 +1362,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
                 } else {
 
+                  ngToast.dismiss();
                   ngToast.create({className: 'danger', content: "<b>El archivo '"+$scope.wi_nuevo_envio.adjuntos[respuesta.indice].nombre+"' no se pudo adjuntar. " +respuesta.mensaje_error+".</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
 
                   $scope.wiEliminarArchivoAdjunto(respuesta.indice);
@@ -1348,6 +1372,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
               }, function (respuesta) {
 
                 if ('usuario'!==$scope.wi_nuevo_envio.adjuntos[respuesta.data.indice].peticion.promise.$$state.value) {
+                  ngToast.dismiss();
                   ngToast.create({className: 'danger', content: "<b>El archivo '"+$scope.wi_nuevo_envio.adjuntos[respuesta.data.indice].nombre+"' no se pudo adjuntar. Error: " +respuesta.status+".</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
 
                   $scope.wiEliminarArchivoAdjunto(respuesta.data.indice);
@@ -1360,12 +1385,14 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
             }
             else {
+              ngToast.dismiss();
               ngToast.create({className: 'danger', content: "<b>El archivo '"+$scope.wi_nuevo_envio.adjuntos[respuesta.indice].nombre+"' no se pudo adjuntar. " +respuesta.mensaje_error+".</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
 
               $scope.wiEliminarArchivoAdjunto(respuesta.indice);
             }
 
           }, function (respuesta) {
+            ngToast.dismiss();
             ngToast.create({className: 'danger', content: "<b>El archivo '"+$scope.wi_nuevo_envio.adjuntos[respuesta.data.indice].nombre+"' no se pudo adjuntar. Error: " +respuesta.status+".</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
 
             $scope.wiEliminarArchivoAdjunto(respuesta.data.indice);
@@ -1373,6 +1400,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
 
         } else {
+          ngToast.dismiss();
           ngToast.create({className: 'warning', content: "<b>El archivo '"+tmp.nombre+"' no se pudo adjuntar porque ya existe uno con el mismo nombre</b>", dismissOnTimeout:true, timeout:7000, dismissButton:true, dismissOnClick:true});
         }
 
@@ -1453,6 +1481,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
     for (i = 0; i < $scope.wi_nuevo_envio.adjuntos.length; i++) {
       if ( !$scope.wi_nuevo_envio.adjuntos[i].cancelado && !$scope.wi_nuevo_envio.adjuntos[i].carga_completa) {
         error = true;
+        ngToast.dismiss();
         ngToast.create({className: 'warning', content: "<b>Por favor espera a que los archivos adjuntos terminen de cargarse</b>", dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
         break;
       }
@@ -1540,19 +1569,23 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
       if (respuesta.estado) {
 
         if (respuesta.mensaje_error) {
+          ngToast.dismiss();
           ngToast.create({className: 'warning', content: "<b>"+respuesta.mensaje_error+"</b>", dismissOnTimeout:true, timeout:30000, dismissButton:true, dismissOnClick:true});
         }
         else {
+          ngToast.dismiss();
           ngToast.create({className: 'success', content: '<b>El mensaje se ha enviado correctamente</b>', dismissOnTimeout:true, timeout:30000, dismissButton:true, dismissOnClick:true});
         }
 
       }
       else {
+        ngToast.dismiss();
         ngToast.create({className: 'danger', content: '<b>El mensaje no pudo ser enviado. '+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:30000, dismissButton:true, dismissOnClick:true});
       }
 
 
     }, function (respuesta) {
+      ngToast.dismiss();
       ngToast.create({className: 'danger', content: '<b>El mensaje no pudo ser enviado. Error: '+respuesta.status+'</b>', dismissOnTimeout:true, timeout:30000, dismissButton:true, dismissOnClick:true});
 
       $('#wiModalMensaje').modal('hide');
@@ -1603,9 +1636,11 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
           $('#wiModalDatosCuenta').modal('show');
         }
         else {
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: "<b>No se pudieron obtener los datos de la confugración. "+respuesta.mensaje_error+"</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
         }
       }, function (respuesta) {
+        ngToast.dismiss();
         ngToast.create({className: 'danger', content: "<b>No se pudieron obtener los datos de la confugración. Error: "+respuesta.status+"</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
       });
 
@@ -1676,10 +1711,12 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
           $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_cuentas.length-1, false, true);
           // $route.reload();
 
+          ngToast.dismiss();
           ngToast.create({className: 'success', content: '<b>La cuenta '+datos.correo+' se ha agregado correctamente.</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
         }
         else {
           $scope.wi_btn_disabled.agregar_cuenta = false;
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: '<b>'+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:30000, dismissButton:true, dismissOnClick:true});
         }
       }, function (respuesta) {
@@ -1688,6 +1725,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         $scope.wi_btn_disabled.agregar_cuenta = false;
         wiLimpiarFormularioDatosCuenta(formulario);
 
+        ngToast.dismiss();
         ngToast.create({className: 'danger', content: '<b>La configuración de la cuenta no pudo ser guardada. Error: '+respuesta.status+'</b>', dismissOnTimeout:true, timeout:30000, dismissButton:true, dismissOnClick:true});
       });
 
@@ -1715,10 +1753,12 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
           wiLimpiarFormularioDatosCuenta(formulario);
 
           // $route.reload();
+          ngToast.dismiss();
           ngToast.create({className: 'success', content: '<b>La configuración se ha actualizado correctamente.</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
         }
         else {
           $scope.wi_btn_disabled.agregar_cuenta = false;
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: '<b>La configuración no pudo ser actualizada. '+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:30000, dismissButton:true, dismissOnClick:true});
         }
       }, function (respuesta) {
@@ -1727,6 +1767,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         $scope.wi_btn_disabled.agregar_cuenta = false;
         wiLimpiarFormularioDatosCuenta(formulario);
 
+        ngToast.dismiss();
         ngToast.create({className: 'danger', content: '<b>La configuración no pudo ser actualizada. Error: '+respuesta.status+'</b>', dismissOnTimeout:true, timeout:30000, dismissButton:true, dismissOnClick:true});
       });
 
@@ -1786,7 +1827,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
         }
 
-
+        ngToast.dismiss();
         ngToast.create({className: 'success', content: "<b>La cuenta de correo "+$scope.wi_eliminar_cuenta.correo+", se ha eliminado correctamente</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
 
         if (0===$scope.wi_cuentas.length) {
@@ -1795,12 +1836,14 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
       }
       else {
+        ngToast.dismiss();
         ngToast.create({className: 'danger', content: "<b>"+respuesta.mensaje_error+"</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
       }
 
       $scope.wiOcultarModalEliminarCuenta();
 
     }, function (respuesta) {
+      ngToast.dismiss();
       ngToast.create({className: 'danger', content: "<b>La cuenta de correo "+$scope.wi_eliminar_cuenta.correo+", no se pudo eliminar. Error: "+respuesta.status+"</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
 
       $scope.wiOcultarModalEliminarCuenta();
@@ -1859,6 +1902,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         }
 
         if (respuesta.mensaje_error) {
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: '<b>'+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
         }
 
@@ -1875,6 +1919,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
           $scope.wiObtenerMensajesPorPagina(respuesta.paginas, ignorar_carga, cancelar_peticion);
         }
         else if (!ignorar_carga) {
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: '<b>No se pudieron obtener los mensajes. '+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
         }
 
@@ -1887,6 +1932,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         if (
           'usuario'!==respuesta.config.timeout.$$state.value && !ignorar_carga
         ) {
+          ngToast.dismiss();
           ngToast.create({className: 'danger', content: '<b>No se pudieron obtener los mensajes. Error '+respuesta.status+'</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
         }
         $scope.wi_seleccion_actual.folder.peticion = null;
@@ -2047,6 +2093,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
           if (''!==respuesta.error) {
             error_registro = true;
+            ngToast.dismiss();
             ngToast.create({className: 'danger', content: '<b>ERROR: '+respuesta.error+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
           }
 
@@ -2080,6 +2127,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
             $scope.wi_indicacion = "No se pudieron obtener las cuentas registradas. Error "+respuesta.status;
 
             if ($rootScope.wi_modo_tablet) {
+              ngToast.dismiss();
               ngToast.create({className: 'danger', content: '<b>'+$scope.wi_indicacion+'</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
             }
 
@@ -2091,6 +2139,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
           $scope.wi_indicacion = "No se pudo continuar con la operación. Error "+respuesta.status;
 
           if ($rootScope.wi_modo_tablet) {
+            ngToast.dismiss();
             ngToast.create({className: 'danger', content: '<b>'+$scope.wi_indicacion+'</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
           }
           // $scope.modal_mensaje = {icono:'fa fa-exclamation-triangle fa-2x', clase_icono:'wi-a-icono-alerta', contenido:'No se pudo continuar con la operación. Intenta más tarde.', clase_boton:'wi-a-btn-alerta'};
