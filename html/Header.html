@@ -512,7 +512,7 @@
 
 
                         <div class="col-xs-12 col-sm-3">
-                          <button type="submit" class="btn btn-block btn-xs btn-submitir" ng-click="EnviarFrmSolicitudAmistad()" ng-disabled="btn_amistad_deshabilitado">
+                          <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="EnviarFrmSolicitudAmistad()" ng-disabled="btn_amistad_deshabilitado">
                             BUSCAR
                           </button>
                         </div>
@@ -1016,6 +1016,39 @@
         </div>
 
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- modal confirmacion eliminar recurso-->
+<div id="modalEliminarRecurso" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+  <div class="vertical-center">
+    <div class="modal-dialog modal-sm">
+
+      <div class="modal-content">
+
+        <div class="modal-body">
+          <div class="row wi-row text-center">
+            <div class="col-xs-12">
+              <span style="font-size:12pt;"><b>{{eliminar_recurso.mensaje}}</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <div class="row wi-row">
+            <div class="col-sm-6">
+              <button type="button" id="btn_eliminar_no" class="btn btn-block btn-xs btn-submitir">NO</button>
+            </div>
+            <br class="visible-xs">
+            <div class="col-sm-6">
+              <button type="button"  id="btn_eliminar_si" class="btn btn-block btn-xs btn-submitir">SI</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   </div>
 </div>

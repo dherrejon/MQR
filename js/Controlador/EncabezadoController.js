@@ -61,6 +61,11 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
   $scope.cancion_recomendada = null;
   $scope.informacion_recomendada = null;
 
+  $scope.eliminar_recurso = {
+    mensaje:'',
+    funcion:null
+  };
+
   $scope.nuevoPassword = {nuevo:"", repetir:"", actual:""};
   $scope.clasePassword = {nuevo:"entrada", repetir:"entrada", actual:"entrada"};
 
@@ -1095,32 +1100,52 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
 
     var indice = -1;
 
-    Amistad.eliminarAmigo({solicitud_id: elemento.SolicitudId, destinatario_id:elemento.AmigoId}).then( function (respuesta) {
+    $scope.ModalConfirmacionEliminarRecurso(
 
-      ngToast.dismiss();
+      function(confirmado){
 
-      if (respuesta.estado) {
+        if(confirmado){
 
-        indice = $scope.lista_amigos.datos.indexOf(elemento);
+          Amistad.eliminarAmigo({solicitud_id: elemento.SolicitudId, destinatario_id:elemento.AmigoId}).then( function (respuesta) {
 
-        if (-1!==indice) {
-          $scope.lista_amigos.datos.splice(indice, 1);
+            ngToast.dismiss();
+
+            if (respuesta.estado) {
+
+              indice = $scope.lista_amigos.datos.indexOf(elemento);
+
+              if (-1!==indice) {
+                $scope.lista_amigos.datos.splice(indice, 1);
+              }
+
+            }
+
+            ngToast.create({className: respuesta.clase, content: "<b>"+respuesta.mensaje+"</b>", dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
+
+            $scope.btn_amistad_deshabilitado = false;
+
+          }, function (respuesta) {
+
+            $scope.btn_amistad_deshabilitado = false;
+
+            ngToast.dismiss();
+            ngToast.create({className: 'danger', content: '<b>No se pudo eliminar el amigo de tu lista. Error '+respuesta.status+'.</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
+
+          });
+
+        }
+        else{
+
+          $timeout(function () {
+            $scope.btn_amistad_deshabilitado = false;
+            $scope.$apply();
+          }, 0);
+
         }
 
-      }
-
-      ngToast.create({className: respuesta.clase, content: "<b>"+respuesta.mensaje+"</b>", dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
-
-      $scope.btn_amistad_deshabilitado = false;
-
-    }, function (respuesta) {
-
-      $scope.btn_amistad_deshabilitado = false;
-
-      ngToast.dismiss();
-      ngToast.create({className: 'danger', content: '<b>No se pudo eliminar el amigo de tu lista. Error '+respuesta.status+'.</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
-
-    });
+      },
+      "¿Deseas eliminar de tu lista de amigos a "+elemento.NombreUsuario+" "+elemento.ApellidosUsuario+"?"
+    );
 
   };
 
@@ -1149,47 +1174,67 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
 
     $scope.btn_notificaciones_deshabilitado = true;
 
-    Notificaciones.eliminarNotificacion({notificacion_id: elemento.NotificacionId}).then( function (respuesta) {
+    $scope.ModalConfirmacionEliminarRecurso(
 
-      ngToast.dismiss();
+      function(confirmado){
 
-      if (respuesta.estado) {
+        if(confirmado){
 
-        indice = $rootScope.lista_notificaciones.datos.indexOf(elemento);
+          Notificaciones.eliminarNotificacion({notificacion_id: elemento.NotificacionId}).then( function (respuesta) {
 
-        if (-1!==indice) {
+            ngToast.dismiss();
 
-          error = false;
+            if (respuesta.estado) {
 
-          if ('1'===elemento.NoLeida) {
-            $rootScope.lista_notificaciones.noleidas -= 1;
-          }
+              indice = $rootScope.lista_notificaciones.datos.indexOf(elemento);
 
-          $rootScope.lista_notificaciones.datos.splice(indice, 1);
-          ngToast.create({className: 'success', content: "<b>La notificación se ha elimindo correctamente</b>", dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
+              if (-1!==indice) {
+
+                error = false;
+
+                if ('1'===elemento.NoLeida) {
+                  $rootScope.lista_notificaciones.noleidas -= 1;
+                }
+
+                $rootScope.lista_notificaciones.datos.splice(indice, 1);
+                ngToast.create({className: 'success', content: "<b>La notificación se ha elimindo correctamente</b>", dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
+
+              }
+
+              if (0 === $rootScope.lista_notificaciones.datos.length) {
+                $scope.ObtenerMasNotificaciones();
+              }
+
+            }
+
+            if (error) {
+              ngToast.create({className: 'danger', content: '<b>No se pudo eliminar la notificación.</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
+            }
+
+            $scope.btn_notificaciones_deshabilitado = false;
+
+          }, function (respuesta) {
+
+            $scope.btn_notificaciones_deshabilitado = false;
+
+            ngToast.dismiss();
+            ngToast.create({className: 'danger', content: '<b>No se pudo eliminar la notificación. Error '+respuesta.status+'.</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
+
+          });
+
+        }
+        else{
+
+          $timeout(function () {
+            $scope.btn_notificaciones_deshabilitado = false;
+            $scope.$apply();
+          }, 0);
 
         }
 
-        if (0 === $rootScope.lista_notificaciones.datos.length) {
-          $scope.ObtenerMasNotificaciones();
-        }
-
-      }
-
-      if (error) {
-        ngToast.create({className: 'danger', content: '<b>No se pudo eliminar la notificación.</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
-      }
-
-      $scope.btn_notificaciones_deshabilitado = false;
-
-    }, function (respuesta) {
-
-      $scope.btn_notificaciones_deshabilitado = false;
-
-      ngToast.dismiss();
-      ngToast.create({className: 'danger', content: '<b>No se pudo eliminar la notificación. Error '+respuesta.status+'.</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
-
-    });
+      },
+      "¿Deseas eliminar la notificación?"
+    );
 
   };
 
@@ -1568,6 +1613,37 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     });
 
   }
+
+
+  // Confirmacion de eliminar recurso
+
+  $scope.ModalConfirmacionEliminarRecurso = function (callback, texto_mensaje) {
+
+    $scope.eliminar_recurso = {
+      mensaje:texto_mensaje
+    };
+
+    $('#modalEliminarRecurso').modal('show');
+
+    $("#btn_eliminar_si").unbind('click').click( function(){
+      callback(true);
+      $('#modalEliminarRecurso').modal('hide');
+      $scope.eliminar_recurso = {
+        mensaje:''
+      };
+    });
+
+    $("#btn_eliminar_no").unbind('click').click( function(){
+      callback(false);
+      $('#modalEliminarRecurso').modal('hide');
+      $scope.eliminar_recurso = {
+        mensaje:''
+      };
+    });
+
+  };
+
+
 
   /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
   $scope.usuario =  datosUsuario.getUsuario();
