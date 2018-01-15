@@ -410,8 +410,6 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
     if (servidor!=='Otro' && servidor!=='Yahoo') {
       Webmail.redireccionarServidor(servidor).then(function(respuesta){
 
-        $('#wiModalAgregarCuenta').modal('hide');
-
         if (respuesta.estado)
         {
           $window.location.href = respuesta.uri;
@@ -423,7 +421,6 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         }
 
       },function(respuesta) {
-        $('#wiModalAgregarCuenta').modal('hide');
         ngToast.dismiss();
         ngToast.create({className: 'danger', content: '<b>No se pudo continuar con la operación. Error '+respuesta.status+'.</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
       });
@@ -1602,6 +1599,11 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
     $scope.wi_mostrar_btn_msj = true;
     wiLimpiarFormularioDatosCuenta(formulario);
 
+    if (0===$scope.wi_cuentas.length) {
+      $scope.wiMostrarModalAgregarCuentas();
+      $scope.wi_indicacion = "REGISTRA UNA CUENTA DE CORREO";
+    }
+
   };
 
   $scope.wiMostrarModalDatosCuenta = function(operacion, tipo_servidor, correo_id=null, indice=null) {
@@ -1793,6 +1795,12 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
     $scope.wi_eliminar_cuenta.correo = null;
     $scope.wi_eliminar_cuenta.mensaje = null;
     $('#wiModalAlertaEliminarCuenta').modal('hide');
+
+    if (0===$scope.wi_cuentas.length) {
+      $scope.wiMostrarModalAgregarCuentas();
+      $scope.wi_indicacion = "REGISTRA UNA CUENTA DE CORREO";
+    }
+    
   };
 
   $scope.wiEliminarCuenta = function () {
@@ -2089,10 +2097,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
       {
         Webmail.obtenerRegistroErrores().then(function(respuesta) {
 
-          var error_registro = false;
-
           if (''!==respuesta.error) {
-            error_registro = true;
             ngToast.dismiss();
             ngToast.create({className: 'danger', content: '<b>ERROR: '+respuesta.error+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
           }
@@ -2103,26 +2108,24 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
             if (0===$scope.wi_cuentas.length)
             {
-
-              if (!error_registro) {
-                $scope.wiMostrarModalAgregarCuentas();
-              }
-
+              $scope.wiMostrarModalAgregarCuentas();
               $scope.wi_indicacion = "REGISTRA UNA CUENTA DE CORREO";
-
             }
             else
             {
-
               $scope.wi_nuevo_envio.remitente = $scope.wi_cuentas[0];
               $scope.wi_indicacion = "SELECCIONA UNA CUENTA DE CORREO";
 
               wiActualizarEstadoFolders();
               $window.sessionStorage.setItem('id_actualizacion_webmail', setInterval(wiActualizarEstadoFolders, 300000));
-
             }
 
           },function(respuesta) {
+
+            if (0===$scope.wi_cuentas.length)
+            {
+              $scope.wiMostrarModalAgregarCuentas();
+            }
 
             $scope.wi_indicacion = "No se pudieron obtener las cuentas registradas. Error "+respuesta.status;
 
@@ -2135,6 +2138,11 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
 
         }, function (respuesta) {
+
+          if (0===$scope.wi_cuentas.length)
+          {
+            $scope.wiMostrarModalAgregarCuentas();
+          }
 
           $scope.wi_indicacion = "No se pudo continuar con la operación. Error "+respuesta.status;
 

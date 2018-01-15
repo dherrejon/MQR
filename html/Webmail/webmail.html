@@ -437,7 +437,7 @@
             <table style="width:100%;">
               <tr>
                 <td><b>SELECCIONA EL SERVIDOR DE TU CUENTA DE CORREO</b></td>
-                <td class="wi-icono-cerrar">
+                <td class="wi-icono-cerrar" ng-if="wi_cuentas.length>0">
                   <button type="button" class="close" ng-click="wi_mostrar_btn_msj = true;" data-dismiss="modal">
                     <i class="fa fa-times fa-lg" aria-hidden="true"></i>
                   </button>
@@ -453,7 +453,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wi_mostrar_btn_msj = true;" data-dismiss="modal">
+            <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wi_mostrar_btn_msj = true;" data-dismiss="modal" ng-if="wi_cuentas.length>0">
               CANCELAR
             </button>
           </div>
