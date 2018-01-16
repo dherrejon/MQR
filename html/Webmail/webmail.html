@@ -722,7 +722,7 @@
                   </button>
                 </td>
               </tr>
-              <tr ng-if="'actualizacion'==wi_datos_cuenta.operacion">
+              <tr ng-if="'actualizacion'==wi_datos_cuenta.operacion || wi_datos_cuenta.etapa>1">
                 <td class="wi-cuenta-actual"><b>{{wi_datos_cuenta.correo}}</b></td>
               </tr>
             </table>
@@ -734,7 +734,7 @@
 
                 <div class="row wi-row">
 
-                  <div class="row wi-row">
+                  <div class="row wi-row" ng-if="1==wi_datos_cuenta.etapa">
                     <div class="col-xs-12">
                       <div class="input-group wi-grupo-entrada">
                         <input id="wi_nombre" type="text" class="form-control wi-entrada" name="wi_nombre" ng-model="wi_datos_cuenta.nombre" ng-trim="false" ng-maxlength="360" maxlength="360" required>
@@ -750,7 +750,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="row wi-row" ng-if="'alta'==wi_datos_cuenta.operacion">
+                  <div class="row wi-row" ng-if="'alta'==wi_datos_cuenta.operacion && 1==wi_datos_cuenta.etapa">
                     <br><br>
                     <div class="row wi-row">
                       <div class="col-xs-12">
@@ -776,8 +776,8 @@
                   </div>
 
                   <div class="row wi-row" ng-if="'Otro'==wi_datos_cuenta.tipo_servidor || 'Yahoo'==wi_datos_cuenta.tipo_servidor || 'alta'==wi_datos_cuenta.operacion">
-                    <br><br>
-                    <div class="row wi-row">
+                    <div class="row wi-row" ng-if="1==wi_datos_cuenta.etapa">
+                      <br><br>
                       <div class="col-xs-12">
                         <div class="input-group wi-grupo-entrada">
                           <input id="wi_password" type="password" class="form-control wi-entrada" name="wi_password" ng-model="wi_datos_cuenta.password" ng-trim="false" autocomplete="new-password" ng-maxlength="128" maxlength="128" required>
@@ -793,8 +793,8 @@
                         </div>
                       </div>
                     </div>
-                    <div class="row wi-row" ng-if="2==wi_datos_cuenta.etapa || 'actualizacion'==wi_datos_cuenta.operacion">
-                      <br><br>
+                    <div class="row wi-row" ng-if="2==wi_datos_cuenta.etapa">
+                      <!-- <br><br> -->
                       <div class="row wi-row">
                         <div class="col-sm-8">
                           <div class="input-group wi-grupo-entrada">
@@ -866,7 +866,7 @@
 
                 </div>
 
-                <div class="row wi-row" ng-if="2==wi_datos_cuenta.etapa || 'actualizacion'==wi_datos_cuenta.operacion">
+                <div class="row wi-row" ng-if="2==wi_datos_cuenta.etapa || ('actualizacion'==wi_datos_cuenta.operacion && ('Otro'!=wi_datos_cuenta.tipo_servidor && 'Yahoo'!=wi_datos_cuenta.tipo_servidor))">
                   <br>
                   <div class="row wi-row">
                     <div class="col-xs-12">
@@ -881,11 +881,15 @@
                 <br><br>
                 <div class="row wi-row" style="padding-bottom:15px;">
                   <div class="col-sm-6">
-                    <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wiOcultarModalDatosCuenta(wiFormularioDatosCuenta)">CANCELAR</button>
+                    <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wiOcultarModalDatosCuenta(wiFormularioDatosCuenta)" ng-if="1===wi_datos_cuenta.etapa">CANCELAR</button>
+                    <button type="button" class="btn btn-block wi-btn-formulario" ng-click="wi_datos_cuenta.etapa=1;" ng-if="2===wi_datos_cuenta.etapa">&lt;&lt;&nbsp;ANTERIOR</button>
                   </div>
                   <br class="visible-xs">
                   <div class="col-sm-6">
-                    <button id="btn_agregar_cuenta" type="submit" class="btn btn-block wi-btn-formulario" ng-click="wiContinuarDatosCuenta(wiFormularioDatosCuenta)" ng-disabled="wi_btn_disabled.agregar_cuenta">CONTINUAR</button>
+                    <button id="btn_agregar_cuenta" type="submit" class="btn btn-block wi-btn-formulario" ng-click="wiContinuarDatosCuenta(wiFormularioDatosCuenta)" ng-disabled="wi_btn_disabled.agregar_cuenta">
+                      <span ng-if="1===wi_datos_cuenta.etapa && ('Otro'==wi_datos_cuenta.tipo_servidor || 'Yahoo'==wi_datos_cuenta.tipo_servidor)">SIGUIENTE&nbsp;&gt;&gt;</span>
+                      <span ng-if="2===wi_datos_cuenta.etapa || ('actualizacion'==wi_datos_cuenta.operacion && ('Otro'!=wi_datos_cuenta.tipo_servidor && 'Yahoo'!=wi_datos_cuenta.tipo_servidor))">ENVIAR</span>
+                    </button>
                   </div>
                 </div>
 

@@ -1639,14 +1639,15 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         }
         else {
           ngToast.dismiss();
-          ngToast.create({className: 'danger', content: "<b>No se pudieron obtener los datos de la confugración. "+respuesta.mensaje_error+"</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+          ngToast.create({className: 'danger', content: "<b>No se pudieron obtener los datos de la configuración. "+respuesta.mensaje_error+"</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
         }
       }, function (respuesta) {
         ngToast.dismiss();
-        ngToast.create({className: 'danger', content: "<b>No se pudieron obtener los datos de la confugración. Error: "+respuesta.status+"</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+        ngToast.create({className: 'danger', content: "<b>No se pudieron obtener los datos de la configuración. Error: "+respuesta.status+"</b>", dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
       });
 
-    } else {
+    }
+    else {
       $scope.wi_datos_cuenta.operacion = operacion;
       $scope.wi_datos_cuenta.tipo_servidor = tipo_servidor;
       $('#wiModalDatosCuenta').modal('show');
@@ -1666,7 +1667,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
       return false;
     }
 
-    if ('actualizacion'!==$scope.wi_datos_cuenta.operacion && 1===$scope.wi_datos_cuenta.etapa) {
+    if (1===$scope.wi_datos_cuenta.etapa && ('Otro'===$scope.wi_datos_cuenta.tipo_servidor || 'Yahoo'===$scope.wi_datos_cuenta.tipo_servidor)) {
       $scope.wi_datos_cuenta.etapa = 2;
       $scope.wi_btn_disabled.agregar_cuenta = false;
       $scope.wi_frm_enviado.agregar_cuenta = false;
@@ -1800,7 +1801,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
       $scope.wiMostrarModalAgregarCuentas();
       $scope.wi_indicacion = "REGISTRA UNA CUENTA DE CORREO";
     }
-    
+
   };
 
   $scope.wiEliminarCuenta = function () {
