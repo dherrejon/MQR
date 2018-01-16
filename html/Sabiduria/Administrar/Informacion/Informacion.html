@@ -480,6 +480,8 @@
                     <div class="col-xs-12">
                         <b   style="white-space: normal; overflow: hidden; font-size:12pt" >
 
+                           <span ng-if="'0'===informacion.Hecho" class="fa fa-circle-o"></span>
+                           <span ng-if="'1'===informacion.Hecho" class="fa fa-check-circle-o"></span>
                            <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='1'" class="fa fa-commenting-o"></span>
                            <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='2'" class="fa fa-file-image-o"></span>
                            <span ng-if="informacion.OrigenInformacion.OrigenInformacionId =='3'" class="fa fa-file-text-o"></span>
@@ -682,6 +684,16 @@
                         <span ng-if="operacion == 'Editar'" class="tituloModal">Editar Información</span>
                     </div>
                 </div>
+
+                <div class="col-sm-offset-6 col-sm-6" style="margin-top: 1px">
+
+                  <a class="btn btn-block btnEstatusEvento" style="margin-top: 5px" ng-class="{ Hecho : nuevaInformacion.Hecho == '1'}" ng-click="CambiarEstadoHecho()">
+                    <span class="fa {{nuevaInformacion.Hecho == '1' ? 'fa-check-circle-o' : 'fa-circle-o'}} Hecho" style="font-size: 14pt"></span>
+                    <span>{{nuevaInformacion.Hecho == '1' ? 'Hecho' : 'No Hecho'}}</span>
+                  </a>
+
+                </div>
+
                 <br><br><br>
 
                 <!-- Título -->
@@ -1103,6 +1115,39 @@
             <span class="fa fa-check-circle-o fa-2x textIconoExito" style="font-size:16pt"></span>
             <strong style="display: inline-block;">{{mensaje}}</strong>
         </div>
+    </div>
+
+    <!-- modal confirmacion cambiar a no hecho-->
+    <div id="modalConfirmacionCambiarNoHecho" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+      <div class="vertical-center">
+        <div class="modal-dialog modal-sm">
+
+          <div class="modal-content">
+
+            <div class="modal-body">
+              <div class="row wi-row text-center">
+                <div class="col-xs-12">
+                  <span style="font-size:12pt;"><b>¿Estas seguro de cambiar el estado a NO hecho?</b></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <div class="row wi-row">
+                <div class="col-sm-6">
+                  <button type="button" id="btn_cambiar_no" class="btn btn-block btn-xs btn-submitir">NO</button>
+                </div>
+                <br class="visible-xs">
+                <div class="col-sm-6">
+                  <button type="button"  id="btn_cambiar_si" class="btn btn-block btn-xs btn-submitir">SI</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
     </div>
 
 </div>

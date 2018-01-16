@@ -88,6 +88,7 @@ function SetInformacion(data)
     informacion.TipoInformacion.Nombre = data.NombreTipoInformacion;
 
     informacion.OrigenInformacion.OrigenInformacionId = data.OrigenInformacionId;
+    informacion.Hecho = data.Hecho;
 
     return informacion;
 }

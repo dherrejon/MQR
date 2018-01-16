@@ -1,4 +1,4 @@
-app.controller("AdministrarInformacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce, TIPOINFORMACION, FUENTE)
+app.controller("AdministrarInformacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce, TIPOINFORMACION, FUENTE, $timeout)
 {
    $scope.titulo = "Informacion";
 
@@ -820,6 +820,7 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
     {
         var informacion = new Informacion();
 
+        informacion.Hecho = data.Hecho;
         informacion.InformacionId = data.InformacionId;
         informacion.Contenido = data.ContenidoOriginal;
         informacion.ContenidoOriginal = data.ContenidoOriginal;
@@ -899,6 +900,42 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
                 }
             }
         }
+    };
+
+    $scope.ModalConfirmacionCambiarNoHecho = function (callback) {
+
+      $('#modalConfirmacionCambiarNoHecho').modal('show');
+
+      $("#btn_cambiar_si").unbind('click').click( function(){
+        callback(true);
+        $('#modalConfirmacionCambiarNoHecho').modal('hide');
+      });
+
+      $("#btn_cambiar_no").unbind('click').click( function(){
+        callback(false);
+        $('#modalConfirmacionCambiarNoHecho').modal('hide');
+      });
+
+    };
+
+    $scope.CambiarEstadoHecho = function () {
+
+      if ('1'===$scope.nuevaInformacion.Hecho) {
+        $scope.ModalConfirmacionCambiarNoHecho(
+          function(confirmado){
+            if(confirmado){
+              $timeout(function () {
+                $scope.nuevaInformacion.Hecho = ($scope.nuevaInformacion.Hecho === '1')?'0':'1';
+                $scope.$apply();
+              }, 0);
+            }
+          }
+        );
+      }
+      else {
+        $scope.nuevaInformacion.Hecho = ($scope.nuevaInformacion.Hecho === '1')?'0':'1';
+      }
+
     };
 
     $scope.CambiarFuente = function(fuente)
