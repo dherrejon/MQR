@@ -12,6 +12,7 @@ class Informacion
         this.Observacion = "";
         this.Archivo = "";
         this.Etiqueta = [];
+        this.Hecho = '0';
 
         this.NombreArchivo = [];
         this.ExtensionArchivo = [];

@@ -73,7 +73,7 @@ function AgregarInformacion()
         $stmt->bindParam("Contenido", $informacion->Contenido);
         $stmt->bindParam("Seccion", $informacion->Seccion);
         $stmt->bindParam("Observacion", $informacion->Observacion);
-				$stmt->bindParam("Hecho", $informacion->Hecho*1);
+				$stmt->bindParam("Hecho", $informacion->Hecho);
 
         $stmt->execute();
 
