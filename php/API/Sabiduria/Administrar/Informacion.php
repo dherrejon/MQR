@@ -212,6 +212,52 @@ function AgregarInformacion()
     }
 }
 
+function EliminarInformacion()
+{
+
+  global $app;
+  $parametros = json_decode($app->request()->getBody());
+  $respuesta = new stdClass();
+
+  $db=null;
+
+  try {
+
+    $db = getConnection();
+    $db->beginTransaction();
+
+    $sql = "DELETE FROM EtiquetaPorInformacion WHERE InformacionId = :informacion_id";
+    $sentencia = $db->prepare($sql);
+    $sentencia->bindParam(':informacion_id', $parametros->informacion_id);
+    $sentencia->execute();
+
+    $sql = "DELETE FROM TemaPorInformacion WHERE InformacionId = :informacion_id";
+    $sentencia = $db->prepare($sql);
+    $sentencia->bindParam(':informacion_id', $parametros->informacion_id);
+    $sentencia->execute();
+
+    $sql = "DELETE FROM Informacion WHERE InformacionId = :informacion_id";
+    $sentencia = $db->prepare($sql);
+    $sentencia->bindParam(':informacion_id', $parametros->informacion_id);
+    $sentencia->execute();
+
+    $db->commit();
+    $db = null;
+
+    $respuesta->estado = true;
+
+    echo json_encode($respuesta);
+
+  } catch(PDOException $e) {
+    $db->rollBack();
+    $db = null;
+    $app->status(409);
+    $app->stop();
+  }
+
+
+}
+
 function EditarInformacion()
 {
     global $app;

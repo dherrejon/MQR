@@ -267,6 +267,7 @@ $app->put('/EditarTipoInformacion', $seguridad, $ChecarSesion, 'EditarTipoInform
 /*-----------------------  Información ------------------------------------------*/
 $app->get('/GetInformacion', $seguridad, $ChecarSesion, 'GetInformacion');
 $app->post('/AgregarInformacion', $seguridad, $ChecarSesion, 'AgregarInformacion');
+$app->delete('/EliminarInformacion', $seguridad, $ChecarSesion, 'EliminarInformacion');
 $app->post('/EditarInformacion', $seguridad, $ChecarSesion, 'EditarInformacion');
 $app->get('/GetInformacionEtiqueta/:id', $seguridad, $ChecarSesion, 'GetInformacionEtiqueta');
 

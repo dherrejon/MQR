@@ -50,6 +50,25 @@ function GetInformacion($http, $q, CONFIG)
     return q.promise;
 }
 
+
+function EliminarInformacion($http, $q, CONFIG, datos)
+{
+    var q = $q.defer();
+
+    $http({
+          method: 'DELETE',
+          url: CONFIG.APIURL + '/EliminarInformacion',
+          data: datos
+      }).then(function(response)
+        {
+            q.resolve(response.data);
+        }, function(response){
+            q.resolve(response.status);
+     });
+     
+    return q.promise;
+}
+
 function SetInformacion(data)
 {
     var informacion = new Informacion();

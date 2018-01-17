@@ -475,7 +475,7 @@
             <!-- Informacion -->
             <div class="row" > <!-- ng-show="filtro.etiqueta.length > 0 || filtro.tema.length > 0 || buscarInformacion.length > 0" -->
 
-                <div class="btn itemBarraLateral" style="cursor: default" ng-class="GetClaseActividad(actividad.ActividadId)" ng-repeat="informacion in informacion| orderBy:ordenarInformacion | filter:FiltroInformacionContenido | filter:FiltroInformacion">
+                <div class="btn itemBarraLateral" style="cursor: default" ng-class="GetClaseActividad(actividad.ActividadId)" ng-repeat="informacion in informacion| orderBy:['Hecho', ordenarInformacion] | filter:FiltroInformacionContenido | filter:FiltroInformacion">
 
                     <div class="col-xs-12">
                         <b   style="white-space: normal; overflow: hidden; font-size:12pt" >
@@ -499,6 +499,11 @@
                              <!-- Editar información -->
                              <a class="operacionEvento" ng-click="AbrirInformacion('Editar', informacion)">
                                  <span class="fa fa-pencil"></span>
+                             </a>
+
+                             <!-- Eliminar información -->
+                             <a class="operacionEvento" ng-click="EliminarInformacion(informacion)">
+                                 <span class="fa fa-trash"></span>
                              </a>
 
                              <!-- Compartir -->
@@ -1127,7 +1132,7 @@
             <div class="modal-body">
               <div class="row wi-row text-center">
                 <div class="col-xs-12">
-                  <span style="font-size:12pt;"><b>¿Estas seguro de cambiar el estado a NO hecho?</b></span>
+                  <span style="font-size:12pt;"><b>¿Estás seguro de cambiar el estado a NO hecho?</b></span>
                 </div>
               </div>
             </div>
@@ -1140,6 +1145,40 @@
                 <br class="visible-xs">
                 <div class="col-sm-6">
                   <button type="button"  id="btn_cambiar_si" class="btn btn-block btn-xs btn-submitir">SI</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <!-- modal confirmar eliminacion de informacion-->
+    <div id="modalEliminarInformacion" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+      <div class="vertical-center">
+        <div class="modal-dialog modal-sm">
+
+          <div class="modal-content">
+
+            <div class="modal-body">
+              <div class="row wi-row text-center">
+                <div class="col-xs-12">
+                  <span style="font-size:12pt;"><b>¿Estás seguro de eliminar la información?</b></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <div class="row wi-row">
+                <div class="col-sm-6">
+                  <button type="button" id="btn_eliminar_info_no" class="btn btn-block btn-xs btn-submitir">NO</button>
+                </div>
+                <br class="visible-xs">
+                <div class="col-sm-6">
+                  <button type="button" id="btn_eliminar_info_si" class="btn btn-block btn-xs btn-submitir">SI</button>
                 </div>
               </div>
             </div>

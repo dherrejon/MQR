@@ -1,4 +1,4 @@
-app.controller("AdministrarInformacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce, TIPOINFORMACION, FUENTE, $timeout)
+app.controller("AdministrarInformacionController", function($scope, $window, $http, $rootScope, md5, $q, CONFIG, datosUsuario, $location, $sce, TIPOINFORMACION, FUENTE, $timeout, ngToast)
 {
    $scope.titulo = "Informacion";
 
@@ -1687,6 +1687,65 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
         }
     };
 
+    $scope.ModalConfirmacionEliminarInformacion = function (callback) {
+
+      $('#modalEliminarInformacion').modal('show');
+
+      $("#btn_eliminar_info_si").unbind('click').click( function(){
+        callback(true);
+        $('#modalEliminarInformacion').modal('hide');
+      });
+
+      $("#btn_eliminar_info_no").unbind('click').click( function(){
+        callback(false);
+        $('#modalEliminarInformacion').modal('hide');
+      });
+
+    };
+
+    $scope.EliminarInformacion = function(elemento)
+    {
+
+      $scope.ModalConfirmacionEliminarInformacion(
+
+        function(confirmado){
+
+          if(confirmado) {
+
+            ngToast.dismiss();
+
+            EliminarInformacion($http, $q, CONFIG, {informacion_id: elemento.InformacionId}).then(function(data)
+            {
+
+              if (data.estado) {
+
+                var indice = $scope.informacion.indexOf(elemento);
+
+                if (-1!==indice) {
+                  $scope.informacion.splice(indice, 1);
+                }
+
+                ngToast.create({className: 'success', content: "<b>El registro de información se ha eliminado correctamente</b>", dismissOnTimeout:true, timeout:3000, dismissButton:true, dismissOnClick:true});
+
+              }
+              else {
+
+                ngToast.create({className: 'danger', content: "<b>No se pudo eliminar el registro de información seleccionado.</b>", dismissOnTimeout:true, timeout:3000, dismissButton:true, dismissOnClick:true});
+
+              }
+
+            }).catch(function(error)
+            {
+              ngToast.create({className: 'danger', content: "<b>No se pudo eliminar el registro de información seleccionado. Error: "+error+".</b>", dismissOnTimeout:true, timeout:3000, dismissButton:true, dismissOnClick:true});
+            });
+
+          }
+
+        }
+
+      );
+
+    };
 
     // Recomendar información
     $scope.RecomendarInformacion = function (elemento) {
