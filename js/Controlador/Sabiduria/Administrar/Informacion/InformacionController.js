@@ -22,6 +22,8 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
     $scope.verFiltro = true;
     $scope.filtro = {tema:[], etiqueta: [], origen: {texto:false, imagen:false, archivo:false}, tipoInformacion:[], fuente:[]};
 
+    $scope.titulo_informacion_eliminar = '';
+
     $scope.ValidarPermiso = function()
     {
         for(var k=0; k<$scope.usuarioLogeado.Permiso.length; k++)
@@ -1694,17 +1696,21 @@ app.controller("AdministrarInformacionController", function($scope, $window, $ht
       $("#btn_eliminar_info_si").unbind('click').click( function(){
         callback(true);
         $('#modalEliminarInformacion').modal('hide');
+        $scope.titulo_informacion_eliminar = '';
       });
 
       $("#btn_eliminar_info_no").unbind('click').click( function(){
         callback(false);
         $('#modalEliminarInformacion').modal('hide');
+        $scope.titulo_informacion_eliminar = '';
       });
 
     };
 
     $scope.EliminarInformacion = function(elemento)
     {
+
+      $scope.titulo_informacion_eliminar = elemento.Titulo;
 
       $scope.ModalConfirmacionEliminarInformacion(
 
