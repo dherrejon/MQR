@@ -382,6 +382,8 @@ function obtenerMensajes($imap, $ruta_folder, $correo, $pagina, $busqueda) {
 
       $mensajes_filtrados[$m]->contenido = null;
 
+      $mensajes_filtrados[$m]->seleccionado = false;
+
       array_push($respuesta->mensajes, $mensajes_filtrados[$m]);
     }
     catch (Exception $e) {
@@ -730,6 +732,76 @@ function moverMensaje($imap, $ruta_folder, $mensaje_id, $destino_id) {
   $numero_mensaje = $buzon->getNumberByUniqueId($mensaje_id);
 
   $buzon->moveMessage($numero_mensaje, urldecode($destino_id));
+
+}
+
+function marcarMensajesComoLeidos($imap, $ruta_folder, $mensajes_id) {
+
+  $buzon = new Zend_Mail_Storage_Imap($imap);
+  $buzon->selectFolder(urldecode($ruta_folder));
+  $respuesta = new stdClass();
+  $respuesta->correctos = array();
+  $respuesta->incorrectos = array();
+
+  for ($i=0; $i < count($mensajes_id); $i++) {
+
+    try {
+
+      $numero_mensaje = $buzon->getNumberByUniqueId($mensajes_id[$i]);
+      $mensaje = $buzon->getMessage($numero_mensaje);
+
+      if (!$mensaje->hasFlag(Zend_Mail_Storage::FLAG_SEEN)) {
+        foreach (new RecursiveIteratorIterator($mensaje) as $parte) {
+          break;
+        }
+      }
+
+      array_push($respuesta->correctos, $mensajes_id[$i]);
+
+    } catch (Exception $e) {
+
+      array_push($respuesta->incorrectos, $mensajes_id[$i]);
+
+    }
+
+  }
+
+  return $respuesta;
+
+}
+
+function eliminarMensajes($imap, $ruta_folder, $mensajes_id, $papelera_id) {
+
+  $buzon = new Zend_Mail_Storage_Imap($imap);
+  $buzon->selectFolder(urldecode($ruta_folder));
+  $respuesta = new stdClass();
+  $respuesta->correctos = array();
+  $respuesta->incorrectos = array();
+
+  for ($i=0; $i < count($mensajes_id); $i++) {
+
+    try {
+
+      $numero_mensaje = $buzon->getNumberByUniqueId($mensajes_id[$i]);
+
+      if (null==$papelera_id) {
+        $buzon->removeMessage($numero_mensaje);
+      }
+      else {
+        $buzon->moveMessage($numero_mensaje, urldecode($papelera_id));
+      }
+
+      array_push($respuesta->correctos, $mensajes_id[$i]);
+
+    } catch (Exception $e) {
+
+      array_push($respuesta->incorrectos, $mensajes_id[$i]);
+
+    }
+
+  }
+
+  return $respuesta;
 
 }
 

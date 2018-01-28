@@ -1,8 +1,8 @@
 app.controller('controladorWebmail', controladorWebmail);
 
-controladorWebmail.$inject = ['$rootScope', '$scope', 'Webmail', '$window', 'ngToast', '$timeout', '$q', '$route', '$filter', 'datosUsuario', '$location'];
+controladorWebmail.$inject = ['$rootScope', '$scope', 'Webmail', '$window', 'ngToast', '$timeout', '$q', '$route', '$filter', 'datosUsuario', '$location', 'CONFIG', '$http'];
 
-function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $timeout, $q, $route, $filter, datosUsuario, $location){
+function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $timeout, $q, $route, $filter, datosUsuario, $location, CONFIG, $http){
 
   if($window.sessionStorage.getItem('id_actualizacion_webmail') !== null)
   {
@@ -108,6 +108,23 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
     mensajes: false
   };
 
+  $scope.wi_todos_mensajes = {
+    seleccionados: false
+  };
+
+  $scope.wi_mensajes_seleccionados = {
+    lista:[]
+  };
+
+  $scope.eliminar_mensaje = {
+    mensaje:''
+  };
+
+  $scope.marcar_mensaje_deshabilitado = false;
+
+  $scope.opc_opr_grupo_deshabilitado = false;
+
+
   function wiLimpiarFormularioDatosCuenta(formulario) {
 
     $scope.wi_datos_cuenta = {
@@ -181,6 +198,229 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
     });
   }
 
+  $scope.irAMenuAplicaciones = function () {
+    $location.path('/Aplicacion');
+    datosUsuario.setAplicacion("Aplicaciones");
+    SetAplicacion("Aplicaciones", $http, CONFIG);
+  };
+
+  $scope.wiMarcarMensaje = function (id_mensaje, estado_seleccion) {
+
+    var indice = -1;
+
+    if (estado_seleccion) {
+      $scope.wi_mensajes_seleccionados.lista.push(id_mensaje);
+      if ($scope.wi_mensajes_seleccionados.lista.length===$scope.wi_seleccion_actual.folder.mensajes.length) {
+        $scope.wi_todos_mensajes.seleccionados = true;
+      }
+    }
+    else {
+
+      indice = $scope.wi_mensajes_seleccionados.lista.indexOf(id_mensaje);
+
+      if (-1!==indice) {
+        $scope.wi_mensajes_seleccionados.lista.splice(indice, 1);
+        if ($scope.wi_todos_mensajes.seleccionados) {
+          $scope.wi_todos_mensajes.seleccionados = false;
+        }
+      }
+
+    }
+
+  };
+
+  $scope.wiMarcarMensajes = function () {
+
+    $scope.marcar_mensaje_deshabilitado = true;
+    var i = 0;
+
+    for (i = 0; i < $scope.wi_seleccion_actual.folder.mensajes.length; i++) {
+      $scope.wi_seleccion_actual.folder.mensajes[i].seleccionado = $scope.wi_todos_mensajes.seleccionados;
+    }
+
+    if ($scope.wi_todos_mensajes.seleccionados) {
+      for (i = 0; i < $scope.wi_seleccion_actual.folder.mensajes.length; i++) {
+        $scope.wi_mensajes_seleccionados.lista.push($scope.wi_seleccion_actual.folder.mensajes[i].id);
+      }
+    }
+    else {
+      $scope.wi_mensajes_seleccionados.lista = [];
+    }
+
+    $scope.marcar_mensaje_deshabilitado = false;
+
+  };
+
+  $scope.wiMarcarMensajesComoLeidos = function () {
+
+    if (null !== $scope.wi_seleccion_actual.folder.peticion) {
+      $scope.wi_seleccion_actual.folder.peticion.resolve('usuario');
+      $scope.wi_seleccion_actual.folder.peticion = null;
+    }
+
+    $scope.wi_seleccion_actual.folder.peticion = $q.defer();
+
+    var datos = {
+      correo_id: $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].correo_id,
+      ruta_folder: $scope.wi_seleccion_actual.folder.ruta,
+      mensajes_id: $scope.wi_mensajes_seleccionados.lista
+    };
+
+    var notificacion = {
+      contenido: '',
+      clase: ''
+    };
+
+    var indice = -1;
+
+    var m = 0;
+
+    Webmail.marcarMensajesComoLeidos(datos).then(function(respuesta){
+
+      ngToast.dismiss();
+
+      if (respuesta.estado)
+      {
+
+        $scope.wi_mensajes_seleccionados.lista = [];
+
+        for (m = 0; (m < $scope.wi_seleccion_actual.folder.mensajes.length) && (respuesta.ids.correctos.length > 0); m++) {
+
+          indice = respuesta.ids.correctos.indexOf($scope.wi_seleccion_actual.folder.mensajes[m].id);
+
+          if (-1!==indice) {
+            $scope.wi_seleccion_actual.folder.mensajes[m].visto = true;
+            $scope.wi_seleccion_actual.folder.mensajes[m].seleccionado = false;
+            respuesta.ids.correctos.splice(indice, 1);
+          }
+
+        }
+
+        if (0===respuesta.ids.incorrectos.length) {
+          notificacion.clase = 'success';
+          notificacion.contenido = 'Los mensajes se han marcado correctamente como leídos';
+        }
+        else {
+          $scope.wi_mensajes_seleccionados.lista = angular.copy(respuesta.ids.incorrectos);
+          notificacion.clase = 'warning';
+          notificacion.contenido = 'Los mensajes que continuan seleccionados no se pudieron marcar como leídos';
+        }
+
+        if ($scope.wi_seleccion_actual.folder.mensajes.length!==$scope.wi_mensajes_seleccionados.lista.length) {
+          $scope.wi_todos_mensajes.seleccionados = false;
+        }
+
+
+        ngToast.create({className: notificacion.clase, content: '<b>'+notificacion.contenido+'.</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+
+        $scope.wi_seleccion_actual.folder.peticion = null;
+
+        $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_seleccion_actual.ind_cuenta, true, true, false, null);
+
+      }
+      else
+      {
+        ngToast.create({className: 'danger', content: '<b>'+respuesta.mensaje_error+'.</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+
+        $scope.wi_seleccion_actual.folder.peticion = null;
+      }
+
+    },function(respuesta) {
+      ngToast.dismiss();
+      ngToast.create({className: 'danger', content: '<b>No se pudo continuar con la operación. Error '+respuesta.status+'.</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+
+      $scope.wi_seleccion_actual.folder.peticion = null;
+    });
+
+  };
+
+  $scope.wiEliminarMensajes = function () {
+
+    var datos = {
+      correo_id: $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].correo_id,
+      ruta_folder: $scope.wi_seleccion_actual.folder.ruta,
+      mensajes_id: $scope.wi_mensajes_seleccionados.lista,
+      papelera_id: null
+    };
+
+    var notificacion = {
+      contenido: '',
+      clase: ''
+    };
+
+    var indice = -1;
+    var eliminacion_definitivamente = false;
+
+    if ($scope.wi_seleccion_actual.folder.hasOwnProperty('es_papelera')) {
+      eliminacion_definitivamente = true;
+    }
+    else {
+      datos.papelera_id = $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].folders_especiales.papelera.id;
+    }
+
+    $scope.ModalConfirmacionEliminarMensaje(
+
+      function(confirmado){
+
+        if(confirmado){
+
+          if (null !== $scope.wi_seleccion_actual.folder.peticion) {
+            $scope.wi_seleccion_actual.folder.peticion.resolve('usuario');
+            $scope.wi_seleccion_actual.folder.peticion = null;
+          }
+
+          $scope.wi_seleccion_actual.folder.peticion = $q.defer();
+
+          Webmail.eliminarMensajes(datos).then(function(respuesta){
+
+            ngToast.dismiss();
+
+            if (respuesta.estado)
+            {
+
+              $scope.wi_seleccion_actual.folder.peticion = null;
+
+              if (0===respuesta.ids.incorrectos.length) {
+                notificacion.clase = 'success';
+                notificacion.contenido = (eliminacion_definitivamente) ? 'Los mensajes se han eliminado definitivamente' : 'Los mensajes se han enviado a la papelera';
+              }
+              else {
+                notificacion.clase = 'warning';
+                notificacion.contenido = 'Los mensajes que continuan seleccionados no se pudieron eliminar';
+              }
+
+              $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_seleccion_actual.ind_cuenta, true, false, true, notificacion);
+
+            }
+            else
+            {
+              ngToast.create({className: 'danger', content: '<b>'+respuesta.mensaje_error+'.</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+
+              $scope.wi_seleccion_actual.folder.peticion = null;
+            }
+
+          },function(respuesta) {
+            ngToast.dismiss();
+            ngToast.create({className: 'danger', content: '<b>No se pudo continuar con la operación. Error '+respuesta.status+'.</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+
+            $scope.wi_seleccion_actual.folder.peticion = null;
+          });
+
+        }
+        else{
+
+          $timeout(function () {
+            $scope.$apply();
+          }, 0);
+
+        }
+
+      },
+      (eliminacion_definitivamente)?"¿Deseas eliminar definitivamente los mensajes seleccionados?" : "¿Deseas enviar a la papelera los mensajes seleccionados?"
+    );
+
+  };
+
   $scope.wiMostrarOcultarAsunto = function () {
     $scope.mostrar_asunto.estado = !$scope.mostrar_asunto.estado;
     $timeout(function () {
@@ -249,6 +489,9 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
       $scope.wi_seleccion_actual.folder.peticion = $q.defer();
 
+      $scope.wi_todos_mensajes.seleccionados = false;
+      $scope.wi_mensajes_seleccionados.lista = [];
+
       Webmail.obtenerMensajesPorFolder(
         $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].correo_id,
         ('Outlook'!==$scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].servidor)?$scope.wi_seleccion_actual.folder.ruta:$scope.wi_seleccion_actual.folder.id,
@@ -312,11 +555,16 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
   };
 
   $scope.wiLimpiarBusqueda = function(estado_busqueda) {
+
+    $scope.wi_todos_mensajes.seleccionados = false;
+    $scope.wi_mensajes_seleccionados.lista = [];
+
     $scope.wi_busqueda = {
       entrada:'',
       estado: false,
       texto:''
     };
+
     $rootScope.wiEnfocarCampo('ebc');
 
     if (estado_busqueda) {
@@ -548,6 +796,9 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
     if (!$scope.wi_btn_disabled.mensajes) {
 
+      $scope.wi_todos_mensajes.seleccionados = false;
+      $scope.wi_mensajes_seleccionados.lista = [];
+
       $scope.wi_busqueda = {
         entrada:'',
         estado: false,
@@ -563,7 +814,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         }
       }
 
-      $scope.wi_seleccion_actual={ind_cuenta:-1, folder:null, mensaje:null};
+      $scope.wi_seleccion_actual = {ind_cuenta:-1, folder:null, mensaje:null};
 
       $scope.wi_indicacion = "CARGANDO...";
 
@@ -740,7 +991,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
             }, 0);
 
             if (!mensaje.visto) {
-              $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_seleccion_actual.ind_cuenta, false, true);
+              $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_seleccion_actual.ind_cuenta, false, true, false, null);
               mensaje.visto = true;
             }
 
@@ -783,13 +1034,6 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
     var papelera_id = null;
     if (!$scope.wi_btn_disabled.mensajes) {
 
-      if (null !== $scope.wi_seleccion_actual.folder.peticion) {
-        $scope.wi_seleccion_actual.folder.peticion.resolve('usuario');
-        $scope.wi_seleccion_actual.folder.peticion = null;
-      }
-
-      $scope.wi_seleccion_actual.folder.peticion = $q.defer();
-
       if ($scope.wi_seleccion_actual.folder.hasOwnProperty('es_papelera')) {
         notificacion = "El mensaje se ha eliminado definitivamente";
       }
@@ -798,39 +1042,65 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         papelera_id = $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].folders_especiales.papelera.id;
       }
 
-      Webmail.eliminarMensaje(
-        $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].correo_id,
-        $scope.wi_seleccion_actual.folder.ruta,
-        mensaje_id,
-        papelera_id
-      ).then(function (respuesta) {
+      $scope.ModalConfirmacionEliminarMensaje(
 
-        $scope.wi_seleccion_actual.folder.peticion = null;
+        function(confirmado){
 
-        if (respuesta.estado) {
-          for (var i = 0; i < $scope.wi_seleccion_actual.folder.mensajes.length; i++) {
-            if ($scope.wi_seleccion_actual.folder.mensajes[i].id===mensaje_id) {
-              $scope.wi_seleccion_actual.folder.mensajes.splice(i,1);
+          if(confirmado){
+
+            if (null !== $scope.wi_seleccion_actual.folder.peticion) {
+              $scope.wi_seleccion_actual.folder.peticion.resolve('usuario');
+              $scope.wi_seleccion_actual.folder.peticion = null;
             }
+
+            $scope.wi_seleccion_actual.folder.peticion = $q.defer();
+
+            Webmail.eliminarMensaje(
+              $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].correo_id,
+              $scope.wi_seleccion_actual.folder.ruta,
+              mensaje_id,
+              papelera_id
+            ).then(function (respuesta) {
+
+              $scope.wi_seleccion_actual.folder.peticion = null;
+
+              if (respuesta.estado) {
+                for (var i = 0; i < $scope.wi_seleccion_actual.folder.mensajes.length; i++) {
+                  if ($scope.wi_seleccion_actual.folder.mensajes[i].id===mensaje_id) {
+                    $scope.wi_seleccion_actual.folder.mensajes.splice(i,1);
+                  }
+                }
+                $scope.wi_seleccion_actual.mensaje = null;
+                ngToast.dismiss();
+                $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_seleccion_actual.ind_cuenta, true, false, true, {clase:'success', contenido:notificacion});
+              }
+              else {
+                ngToast.dismiss();
+                ngToast.create({className: 'danger', content: '<b>No se pudo eliminar el mensaje. '+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+              }
+
+            }, function(respuesta){
+
+              ngToast.dismiss();
+              ngToast.create({className: 'danger', content: '<b>No se pudo eliminar el mensaje. Error '+respuesta.status+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+
+              $scope.wi_seleccion_actual.folder.peticion = null;
+
+            });
+
           }
-          $scope.wi_seleccion_actual.mensaje = null;
-          $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_seleccion_actual.ind_cuenta, true, false);
-          ngToast.dismiss();
-          ngToast.create({className: 'success', content: '<b>'+notificacion+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
-        }
-        else {
-          ngToast.dismiss();
-          ngToast.create({className: 'danger', content: '<b>No se pudo eliminar el mensaje. '+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
-        }
+          else{
 
-      }, function(respuesta){
+            $timeout(function () {
+              $scope.$apply();
+            }, 0);
 
-        ngToast.dismiss();
-        ngToast.create({className: 'danger', content: '<b>No se pudo eliminar el mensaje. Error '+respuesta.status+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+          }
 
-        $scope.wi_seleccion_actual.folder.peticion = null;
+        },
+        (null===papelera_id)?"¿Deseas eliminar definitivamente el mensaje seleccionado?" : "¿Deseas enviar a la papelera el mensaje seleccionado?"
+      );
 
-      });
     }
 
   };
@@ -856,15 +1126,18 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         $scope.wi_seleccion_actual.folder.peticion = null;
 
         if (respuesta.estado) {
+
           for (var i = 0; i < $scope.wi_seleccion_actual.folder.mensajes.length; i++) {
             if ($scope.wi_seleccion_actual.folder.mensajes[i].id===mensaje_id) {
               $scope.wi_seleccion_actual.folder.mensajes.splice(i,1);
+              break;
             }
           }
+
           $scope.wi_seleccion_actual.mensaje = null;
-          $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_seleccion_actual.ind_cuenta, true, false);
           ngToast.dismiss();
-          ngToast.create({className: 'success', content: '<b>El mensaje se ha movido a la carpeta: '+destino_ruta+'</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+          $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_seleccion_actual.ind_cuenta, true, false, true, {clase:'success', contenido:'El mensaje se ha movido a la carpeta: '+destino_ruta});
+
         }
         else {
           ngToast.dismiss();
@@ -1711,7 +1984,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
             tiempo_comprobacion: datos.tiempo_comprobacion
           });
 
-          $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_cuentas.length-1, false, true);
+          $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_cuentas.length-1, false, true, false, null);
           // $route.reload();
 
           ngToast.dismiss();
@@ -1751,7 +2024,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
           $scope.wi_cuentas[$scope.wi_datos_cuenta.indice].tiempo_comprobacion = datos.tiempo_comprobacion;
 
-          $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_datos_cuenta.indice, false, true);
+          $scope.wiActualizarEstadoFoldersPorCuenta($scope.wi_datos_cuenta.indice, false, true, true, null);
 
           wiLimpiarFormularioDatosCuenta(formulario);
 
@@ -1860,7 +2133,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
   };
 
-  $scope.wiObtenerMensajesPorPagina = function (pagina, ignorar_carga, cancelar_peticion) {
+  $scope.wiObtenerMensajesPorPagina = function (pagina, ignorar_carga, cancelar_peticion, es_actualizacion, notificacion) {
 
     if (null!==$scope.wi_seleccion_actual.folder.peticion) {
 
@@ -1876,6 +2149,13 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
     $scope.wi_seleccion_actual.folder.peticion = $q.defer();
 
     $scope.wi_btn_disabled.mensajes = false;
+    $scope.marcar_mensaje_deshabilitado = true;
+    $scope.opc_opr_grupo_deshabilitado = true;
+
+    if (!es_actualizacion) {
+      $scope.wi_todos_mensajes.seleccionados = false;
+      $scope.wi_mensajes_seleccionados.lista = [];
+    }
 
     Webmail.obtenerMensajesPorFolder(
       $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].correo_id,
@@ -1892,6 +2172,10 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
       if (respuesta.estado) {
 
+        if (null!==notificacion) {
+          ngToast.create({className: notificacion.clase, content: '<b>'+notificacion.contenido+'.</b>', dismissOnTimeout:true, timeout:5000, dismissButton:true, dismissOnClick:true});
+        }
+
         $scope.wi_seleccion_actual.folder.pagina = pagina;
         $scope.wi_seleccion_actual.folder.mensajes = respuesta.mensajes;
         $scope.wi_seleccion_actual.folder.mensajes_novistos = respuesta.mensajes_novistos;
@@ -1907,7 +2191,33 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
         }
 
         if (respuesta.mensajes.length>0) {
+
           $scope.wiOrdenarMensajes(-1, 'fecha_unix');
+
+          if (es_actualizacion && $scope.wi_mensajes_seleccionados.lista.length>0) {
+
+            var indice_m = -1;
+            var cp_lista_seleccionados = angular.copy($scope.wi_mensajes_seleccionados.lista);
+            var n_seleccionados = 0;
+
+            $scope.wi_mensajes_seleccionados.lista = [];
+
+            for (var m = 0; m < $scope.wi_seleccion_actual.folder.mensajes.length; m++) {
+
+              indice_m = cp_lista_seleccionados.indexOf($scope.wi_seleccion_actual.folder.mensajes[m].id);
+
+              if (-1!==indice_m) {
+                $scope.wi_seleccion_actual.folder.mensajes[m].seleccionado = true;
+                $scope.wi_mensajes_seleccionados.lista.push($scope.wi_seleccion_actual.folder.mensajes[m].id);
+                n_seleccionados ++;
+              }
+
+            }
+
+            $scope.wi_todos_mensajes.seleccionados = (n_seleccionados === $scope.wi_seleccion_actual.folder.mensajes.length) ? true : false;
+
+          }
+
         }
 
         if (respuesta.mensaje_error) {
@@ -1925,7 +2235,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
       else {
 
         if (respuesta.hasOwnProperty('paginas')) {
-          $scope.wiObtenerMensajesPorPagina(respuesta.paginas, ignorar_carga, cancelar_peticion);
+          $scope.wiObtenerMensajesPorPagina(respuesta.paginas, ignorar_carga, cancelar_peticion, false, notificacion);
         }
         else if (!ignorar_carga) {
           ngToast.dismiss();
@@ -1935,8 +2245,14 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
       }
 
       $scope.wi_btn_disabled.mensajes = false;
+      $scope.marcar_mensaje_deshabilitado = false;
+      $scope.opc_opr_grupo_deshabilitado = false;
 
     }, function(respuesta){
+
+      $scope.marcar_mensaje_deshabilitado = false;
+      $scope.opc_opr_grupo_deshabilitado = false;
+
       if (null!==$scope.wi_seleccion_actual.folder) {
         if (
           'usuario'!==respuesta.config.timeout.$$state.value && !ignorar_carga
@@ -1964,7 +2280,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
     }
   }
 
-  $scope.wiActualizarEstadoFoldersPorCuenta = function (ind_cuenta, cancelar_peticion, ignorar_carga){
+  $scope.wiActualizarEstadoFoldersPorCuenta = function (ind_cuenta, cancelar_peticion, ignorar_carga, obtener_mensajes, notificacion){
 
     if (null !== $scope.wi_cuentas[ind_cuenta].peticion) {
 
@@ -2007,12 +2323,14 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
             if (
               respuesta.estado_folders.hasOwnProperty($scope.wi_seleccion_actual.folder.id) &&
               $scope.wi_seleccion_actual.folder.seleccionable &&
-              null===$scope.wi_seleccion_actual.mensaje && !$scope.wi_busqueda.estado
+              null===$scope.wi_seleccion_actual.mensaje && !$scope.wi_busqueda.estado && obtener_mensajes
             ) {
               $scope.wiObtenerMensajesPorPagina(
                 $scope.wi_seleccion_actual.folder.pagina,
                 ignorar_carga,
-                cancelar_peticion
+                cancelar_peticion,
+                true,
+                notificacion
               );
             }
           }
@@ -2059,11 +2377,39 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
   };
 
+
+  $scope.ModalConfirmacionEliminarMensaje = function (callback, texto_mensaje) {
+
+    $scope.eliminar_mensaje = {
+      mensaje:texto_mensaje
+    };
+
+    $('#modalEliminarMensaje').modal('show');
+
+    $("#btn_eliminar_mensajes_si").unbind('click').click( function(){
+      callback(true);
+      $('#modalEliminarMensaje').modal('hide');
+      $scope.eliminar_mensaje = {
+        mensaje:''
+      };
+    });
+
+    $("#btn_eliminar_mensajes_no").unbind('click').click( function(){
+      callback(false);
+      $('#modalEliminarMensaje').modal('hide');
+      $scope.eliminar_mensaje = {
+        mensaje:''
+      };
+    });
+
+  };
+
+
   function wiActualizarEstadoFolders() {
 
     for (var c = 0; c < $scope.wi_cuentas.length; c++) {
       if (0===(wi_tiempo_transcurrido % $scope.wi_cuentas[c].tiempo_comprobacion)) {
-        $scope.wiActualizarEstadoFoldersPorCuenta(c, false, true);
+        $scope.wiActualizarEstadoFoldersPorCuenta(c, false, true, true, null);
       }
     }
 

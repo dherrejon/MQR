@@ -22,7 +22,9 @@ function Webmail ($http, $q, CONFIG) {
     almacenarCredencialesCorreo: almacenarCredencialesCorreo,
     eliminarCuenta: eliminarCuenta,
     eliminarMensaje: eliminarMensaje,
-    moverMensaje: moverMensaje
+    moverMensaje: moverMensaje,
+    marcarMensajesComoLeidos: marcarMensajesComoLeidos,
+    eliminarMensajes: eliminarMensajes
   };
 
   function redireccionarServidor (servidor) {
@@ -408,6 +410,48 @@ function Webmail ($http, $q, CONFIG) {
       method: 'PUT',
       url: CONFIG.APIURL + '/MoverMensajeWebmail',
       data: {correo_id:correo_id, ruta_folder:ruta_folder, mensaje_id:mensaje_id, destino_id:destino_id}
+    }).then(function successCallback(response) {
+
+      defered.resolve(response.data);
+
+    }, function errorCallback(response) {
+      defered.reject(response);
+    });
+
+    return promise;
+  }
+
+  function marcarMensajesComoLeidos(datos) {
+
+    var defered = $q.defer();
+    var promise = defered.promise;
+
+    $http({
+      method: 'POST',
+      url: CONFIG.APIURL + '/MarcarMensajesComoLeidosWebmail',
+      data:datos
+    }).then(function successCallback(response) {
+
+      defered.resolve(response.data);
+
+    }, function errorCallback(response) {
+
+      defered.reject(response);
+
+    });
+
+    return promise;
+
+  }
+
+  function eliminarMensajes(datos) {
+    var defered = $q.defer();
+    var promise = defered.promise;
+
+    $http({
+      method: 'DELETE',
+      url: CONFIG.APIURL + '/EliminarMensajesWebmail',
+      data: datos
     }).then(function successCallback(response) {
 
       defered.resolve(response.data);

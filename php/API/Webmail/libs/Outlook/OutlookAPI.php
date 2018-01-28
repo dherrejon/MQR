@@ -348,6 +348,8 @@ function obtenerMensajesOutlook($folder_id, $correo, $token_acceso, $pagina, $bu
 
       $tmp->contenido = null;
 
+      $tmp->seleccionado = false;
+
       if (strtolower($tmp->remitente) == strtolower($correo)) {
 
         for ($d=0; $d < count($tmp->destinatarios); $d++) {
@@ -624,5 +626,83 @@ function moverMensajeOutlook($mensaje_id, $correo, $token_acceso, $destino_id) {
   }
 
 }
+
+
+function marcarMensajesComoLeidosOutlook($mensajes_id, $correo, $token_acceso) {
+
+  $respuesta = new stdClass();
+  $respuesta->correctos = array();
+  $respuesta->incorrectos = array();
+
+  $leido = new stdClass();
+  $leido->IsRead = true;
+  $parametros = json_encode($leido);
+
+  for ($i=0; $i < count($mensajes_id); $i++) {
+
+    try {
+
+      $respuesta_api = peticionOutlookAPI($token_acceso, $correo, 'PATCH', OUTLOOK_API_URL."/me/messages/".$mensajes_id[$i], $parametros);
+
+      if ($respuesta_api->estado) {
+        array_push($respuesta->correctos, $mensajes_id[$i]);
+      }
+      else {
+        throw new Exception($respuesta_api->mensaje_error);
+      }
+
+    } catch (Exception $e) {
+
+      array_push($respuesta->incorrectos, $mensajes_id[$i]);
+
+    }
+
+  }
+
+  return $respuesta;
+
+}
+
+
+function eliminarMensajesOutlook($mensajes_id, $correo, $token_acceso, $papelera_id) {
+
+  $respuesta = new stdClass();
+  $respuesta->correctos = array();
+  $respuesta->incorrectos = array();
+
+  $destino = new stdClass();
+  $destino->DestinationId = "DeletedItems";
+  $parametros = json_encode($destino);
+
+  for ($i=0; $i < count($mensajes_id); $i++) {
+
+    try {
+
+      if (null==$papelera_id) {
+        $respuesta_api = peticionOutlookAPI($token_acceso, $correo, 'DELETE', OUTLOOK_API_URL."/me/messages/".$mensajes_id[$i]);
+      }
+      else {
+        $respuesta_api = peticionOutlookAPI($token_acceso, $correo, 'POST', OUTLOOK_API_URL."/me/messages/".$mensajes_id[$i]."/move", $parametros);
+      }
+
+      if ($respuesta_api->estado) {
+        array_push($respuesta->correctos, $mensajes_id[$i]);
+      }
+      else {
+        throw new Exception($respuesta_api->mensaje_error);
+      }
+
+    } catch (Exception $e) {
+
+      array_push($respuesta->incorrectos, $mensajes_id[$i]);
+
+    }
+
+  }
+
+  return $respuesta;
+
+}
+
 
 ?>

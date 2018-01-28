@@ -1836,4 +1836,168 @@ function MoverMensajeWebmail() {
   echo json_encode($respuesta);
 }
 
+function MarcarMensajesComoLeidosWebmail() {
+  global $app;
+  $respuesta = new stdClass();
+  $parametros = json_decode($app->request()->getBody());
+  $cuenta = obtenerCredencialesCuentaWebmail($parametros->correo_id);
+
+  if (1!=count($cuenta)) {
+    $respuesta->estado = false;
+    $respuesta->mensaje_error = "Error al realizar la petición de los datos del correo.";
+    echo json_encode($respuesta);
+    $app->stop();
+    return;
+  }
+
+  switch ($cuenta[0]->servidor) {
+    case 'Gmail':
+    $respuesta = iniciarSesionImapGmail(
+      $parametros->correo_id,
+      $cuenta[0]->correo,
+      $cuenta[0]->token_acceso,
+      $cuenta[0]->token_renovacion,
+      $cuenta[0]->expiracion,
+      $cuenta[0]->tiempo_registro
+    );
+
+    if ($respuesta->estado) {
+      try {
+        $respuesta->ids = marcarMensajesComoLeidos($respuesta->imap, $parametros->ruta_folder, $parametros->mensajes_id);
+      } catch (Exception $e) {
+        $respuesta->estado = false;
+        $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+      }
+      unset($respuesta->imap);
+    }
+    break;
+
+    case 'Outlook':
+    $respuesta = revisarEstadoOutlookToken(
+      $parametros->correo_id,
+      $cuenta[0]->token_acceso,
+      $cuenta[0]->token_renovacion,
+      $cuenta[0]->expiracion,
+      $cuenta[0]->tiempo_registro
+    );
+
+    if ($respuesta->estado) {
+      try {
+        $respuesta->ids = marcarMensajesComoLeidosOutlook($parametros->mensajes_id, $cuenta[0]->correo, $respuesta->token_acceso);
+      } catch (Exception $e) {
+        $respuesta->estado = false;
+        $respuesta->mensaje_error = "Error: ".$e->getMessage();
+      }
+      unset($respuesta->token_acceso);
+    }
+    break;
+
+    case 'Otro':
+    $respuesta = iniciarSesionImap(
+      $cuenta[0]->correo,
+      $cuenta[0]->password,
+      $cuenta[0]->servidor_imap,
+      $cuenta[0]->puerto_imap
+    );
+
+    if ($respuesta->estado) {
+      try {
+        $respuesta->ids = marcarMensajesComoLeidos($respuesta->imap, $parametros->ruta_folder, $parametros->mensajes_id);
+      } catch (Exception $e) {
+        $respuesta->estado = false;
+        $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+      }
+      unset($respuesta->imap);
+    }
+    break;
+
+    default:
+    break;
+  }
+
+  echo json_encode($respuesta);
+}
+
+function EliminarMensajesWebmail() {
+  global $app;
+  $respuesta = new stdClass();
+  $parametros = json_decode($app->request()->getBody());
+  $cuenta = obtenerCredencialesCuentaWebmail($parametros->correo_id);
+
+  if (1!=count($cuenta)) {
+    $respuesta->estado = false;
+    $respuesta->mensaje_error = "Error al realizar la petición de los datos del correo.";
+    echo json_encode($respuesta);
+    $app->stop();
+    return;
+  }
+
+  switch ($cuenta[0]->servidor) {
+    case 'Gmail':
+    $respuesta = iniciarSesionImapGmail(
+      $parametros->correo_id,
+      $cuenta[0]->correo,
+      $cuenta[0]->token_acceso,
+      $cuenta[0]->token_renovacion,
+      $cuenta[0]->expiracion,
+      $cuenta[0]->tiempo_registro
+    );
+
+    if ($respuesta->estado) {
+      try {
+        $respuesta->ids = eliminarMensajes($respuesta->imap, $parametros->ruta_folder, $parametros->mensajes_id, $parametros->papelera_id);
+      } catch (Exception $e) {
+        $respuesta->estado = false;
+        $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+      }
+      unset($respuesta->imap);
+    }
+    break;
+
+    case 'Outlook':
+    $respuesta = revisarEstadoOutlookToken(
+      $parametros->correo_id,
+      $cuenta[0]->token_acceso,
+      $cuenta[0]->token_renovacion,
+      $cuenta[0]->expiracion,
+      $cuenta[0]->tiempo_registro
+    );
+
+    if ($respuesta->estado) {
+      try {
+        $respuesta->ids = eliminarMensajesOutlook($parametros->mensajes_id, $cuenta[0]->correo, $respuesta->token_acceso, $parametros->papelera_id);
+      } catch (Exception $e) {
+        $respuesta->estado = false;
+        $respuesta->mensaje_error = "Error: ".$e->getMessage();
+      }
+      unset($respuesta->token_acceso);
+    }
+    break;
+
+    case 'Otro':
+    $respuesta = iniciarSesionImap(
+      $cuenta[0]->correo,
+      $cuenta[0]->password,
+      $cuenta[0]->servidor_imap,
+      $cuenta[0]->puerto_imap
+    );
+
+    if ($respuesta->estado) {
+      try {
+        $respuesta->ids = eliminarMensajes($respuesta->imap, $parametros->ruta_folder, $parametros->mensajes_id, $parametros->papelera_id);
+      } catch (Exception $e) {
+        $respuesta->estado = false;
+        $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+      }
+      unset($respuesta->imap);
+    }
+    break;
+
+    default:
+    break;
+  }
+
+  echo json_encode($respuesta);
+}
+
 ?>

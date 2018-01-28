@@ -104,16 +104,12 @@
   text-align:center;
 }
 
-.wi-icono-alerta span{
-  color: white;
-  font-weight: bold;
-  padding: 3px 7px;
-  -moz-border-radius: 50%;
-  -webkit-border-radius: 50%;
-  border-radius: 50%;
-  background-color: #1859B2;
-  font-size: 11pts;
+.badge-mensajes{
+  background-color: #1859B2 !important;
+  color: white !important;
+  font-size: 11pt !important;
 }
+
 
 .wi-cont-cuenta{
   border: 0 2px 2px 2px !important;
@@ -372,11 +368,18 @@
   padding: 10px;
   background-color: #fafafa;
   font-size:12pt;
-  cursor: pointer;
+  /*cursor: pointer;*/
   border: 2px solid #B3B3B3;
 }
 
-
+.wi-wrapper-mensaje{
+  margin:0;
+  padding:0;
+  display:table;
+  table-layout: fixed;
+  width:100%;
+  max-width:100%;
+}
 
 
 .wi-modal .modal-content{
@@ -532,6 +535,18 @@
 
   margin: 10px 2px;
 
+  background-color: #ddd;
+}
+
+.wi-btn-opr-grupo{
+  -moz-border-radius: 0 !important;
+  -webkit-border-radius: 0 !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  -moz-box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  margin: 0px 2px;
   background-color: #ddd;
 }
 
@@ -883,6 +898,11 @@
     padding: 6px 12px;
 }
 
+.ir-a-inicio {
+  color: #1859B2;
+  opacity: 1 !important;
+}
+
 
 
 @media (max-width: 950px){
@@ -933,5 +953,11 @@
   }
   .wi-encabezado-mover{
     display: block;
+  }
+}
+
+@media (max-width: 401px){
+  .texto-opc-seleccion{
+    display: none;
   }
 }

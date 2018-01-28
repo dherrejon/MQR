@@ -35,7 +35,7 @@
           </a>
         </td>
         <td class="wi-icono-alerta" style="padding-right:5px;" ng-click="wiSeleccionarFolder(indC, f)" ng-if="f.mensajes_novistos>0">
-          <span>{{f.mensajes_novistos}}</span>
+          <span class="badge badge-mensajes">{{f.mensajes_novistos}}</span>
         </td>
       </tr>
     </table>
@@ -103,7 +103,7 @@
                       <i class="fa fa-ellipsis-v fa-2x" aria-hidden="true"></i>
                     </button>
                     <ul class="dropdown-menu">
-                      <li ng-click="wiActualizarEstadoFoldersPorCuenta(indC, true, false)"><a href=""><i class="fa fa-refresh fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Actualizar</a></li>
+                      <li ng-click="wiActualizarEstadoFoldersPorCuenta(indC, true, false, true, null)"><a href=""><i class="fa fa-refresh fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Actualizar</a></li>
                       <li role="separator" class="divider"></li>
                       <li ng-click="wiMostrarModalDatosCuenta('actualizacion', c.servidor, c.correo_id, indC)"><a href=""><i class="fa fa-cog fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Configurar</a></li>
                       <li role="separator" class="divider"></li>
@@ -117,7 +117,7 @@
                 </td>
 
                 <td class="wi-icono-alerta" ng-click="wiSeleccionarCuenta(indC)" ng-if="!c.abierto && c.mensajes_novistos>0">
-                  <span>{{c.mensajes_novistos}}</span>
+                  <span class="badge badge-mensajes">{{c.mensajes_novistos}}</span>
                 </td>
 
                 <td class="wi-icono-cuenta" ng-click="wiSeleccionarCuenta(indC)">
@@ -170,7 +170,7 @@
             <br class="visible-xs">
 
             <span class="pull-right" ng-if="null==wi_seleccion_actual.mensaje">
-              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.folder.pagina-1<=0) || wi_btn_disabled.mensajes" ng-click="wiObtenerMensajesPorPagina(wi_seleccion_actual.folder.pagina-1, false, true)">
+              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.folder.pagina-1<=0) || wi_btn_disabled.mensajes" ng-click="wiObtenerMensajesPorPagina(wi_seleccion_actual.folder.pagina-1, false, true, false)">
                 <i class="glyphicon glyphicon-chevron-left"></i>
               </button>
               <b>{{((wi_seleccion_actual.folder.pagina-1)*50)+1}}</b>
@@ -178,7 +178,7 @@
               <b>{{((wi_seleccion_actual.folder.pagina-1)*50)+wi_seleccion_actual.folder.mensajes.length}}</b>
               <span> de </span>
               <b>{{wi_seleccion_actual.folder.numero_mensajes}}</b>
-              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.folder.pagina+1 > wi_seleccion_actual.folder.paginas) || wi_btn_disabled.mensajes" ng-click="wiObtenerMensajesPorPagina(wi_seleccion_actual.folder.pagina+1, false, true)">
+              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.folder.pagina+1 > wi_seleccion_actual.folder.paginas) || wi_btn_disabled.mensajes" ng-click="wiObtenerMensajesPorPagina(wi_seleccion_actual.folder.pagina+1, false, true, false)">
                 <i class="glyphicon glyphicon-chevron-right"></i>
               </button>
             </span>
@@ -223,6 +223,39 @@
         </span>
       </div>
 
+      <div class="row wi-row" ng-if="wi_seleccion_actual.folder.seleccionable && wi_seleccion_actual.folder.mensajes.length>0 && !wi_seleccion_actual.mensaje">
+
+        <div class="col-xs-4">
+          <div class="checkbox" style="padding:15px 0 0 2px;">
+            <label class="wi-btn-opr-grupo" style="padding:6px 6px;">
+              <input ng-model="wi_todos_mensajes.seleccionados" type="checkbox" ng-click="wiMarcarMensajes()" ng-disabled="marcar_mensaje_deshabilitado">
+              <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+              <span class="texto-opc-seleccion">
+                Seleccionar todos
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="col-xs-8" style="padding-top:15px;">
+          <button type="button" class="btn pull-right wi-btn-opr-grupo" title="Eliminar" ng-click="wiEliminarMensajes()" ng-disabled="wi_mensajes_seleccionados.lista.length===0 || opc_opr_grupo_deshabilitado">
+            <i class="fa fa-trash fa-lg" aria-hidden="true"></i>
+            <span class="texto-opc-mensaje">&nbsp;
+              <span ng-if="!wi_seleccion_actual.folder.es_papelera && wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.papelera.id">Eliminar</span>
+              <span ng-if="wi_seleccion_actual.folder.es_papelera || !wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.papelera.id">Eliminar definitivamente</span>
+            </span>
+          </button>
+
+          <button type="button" class="btn pull-right wi-btn-opr-grupo" title="Marcar como leído" ng-click="wiMarcarMensajesComoLeidos()" ng-disabled="wi_mensajes_seleccionados.lista.length===0 || opc_opr_grupo_deshabilitado">
+            <i class="fa fa-envelope-open fa-lg" aria-hidden="true"></i>
+            <span class="texto-opc-mensaje">&nbsp;
+              <span>Marcar como leído</span>
+            </span>
+          </button>
+
+        </div>
+      </div>
+
     </div>
 
     <div id="wi_area_mensajes" class="row wi-row wi-area-mensajes" ng-style="wi_css.cont_area_mensajes" ng-if="!wi_seleccion_actual.mensaje">
@@ -231,23 +264,38 @@
         <h3 ng-if="!wi_modo_tablet || wi_seleccion_actual.ind_cuenta>-1">{{wi_indicacion}}</h3>
       </div>
 
-      <div class="row wi-row wi-mensaje" ng-repeat="(indM, m) in wi_seleccion_actual.folder.mensajes" ng-click="wiSeleccionarMensaje(m)">
-        <div class="col-sm-3 wi-remitente-destinatario-vp" ng-switch="m.recibido">
-          <span ng-switch-when="true" title="{{m.nombre_remitente}}" ng-class="{'wi-mensaje-novisto':!m.visto}">De: {{m.nombre_remitente}}</span>
-          <span ng-switch-when="false" ng-class="{'wi-mensaje-novisto':!m.visto}">
-            <span title="{{m.nombres_destinatarios[0]}}" ng-if="1==m.nombres_destinatarios.length">Para: {{m.nombres_destinatarios[0]}}</span>
-            <span title="{{m.nombres_destinatarios[0]}}, y {{m.nombres_destinatarios.length-1}} más" ng-if="m.nombres_destinatarios.length>1">Para: {{m.nombres_destinatarios[0]}}, y {{m.nombres_destinatarios.length-1}} más</span>
+      <div class="row wi-row wi-mensaje" ng-repeat="(indM, m) in wi_seleccion_actual.folder.mensajes">
+        <div class="wi-wrapper-mensaje">
+
+          <span style="display:table-cell; vertical-align: middle; width:50px; padding:0 10px 0 0;">
+            <div class="checkbox" style="padding:2px 10px 0 10px;">
+              <label style="padding:0;">
+                <input ng-model="m.seleccionado" type="checkbox" ng-click="wiMarcarMensaje(m.id, m.seleccionado)" ng-disabled="marcar_mensaje_deshabilitado">
+                <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+              </label>
+            </div>
           </span>
-        </div>
-        <div class="col-sm-7 wi-asunto-vp">
-          <span title="{{m.asunto}}" ng-class="{'wi-mensaje-novisto':!m.visto}">
-            <span ng-show="m.adjuntos"><i class="fa fa-paperclip fa-lg" aria-hidden="true"></i>&nbsp;</span>
-            {{m.asunto}}
+
+          <span style="display:table-cell;cursor:pointer;" ng-click="wiSeleccionarMensaje(m)">
+            <div class="col-sm-3 wi-remitente-destinatario-vp" ng-switch="m.recibido">
+              <span ng-switch-when="true" title="{{m.nombre_remitente}}" ng-class="{'wi-mensaje-novisto':!m.visto}">De: {{m.nombre_remitente}}</span>
+              <span ng-switch-when="false" ng-class="{'wi-mensaje-novisto':!m.visto}">
+                <span title="{{m.nombres_destinatarios[0]}}" ng-if="1==m.nombres_destinatarios.length">Para: {{m.nombres_destinatarios[0]}}</span>
+                <span title="{{m.nombres_destinatarios[0]}}, y {{m.nombres_destinatarios.length-1}} más" ng-if="m.nombres_destinatarios.length>1">Para: {{m.nombres_destinatarios[0]}}, y {{m.nombres_destinatarios.length-1}} más</span>
+              </span>
+            </div>
+            <div class="col-sm-7 wi-asunto-vp">
+              <span title="{{m.asunto}}" ng-class="{'wi-mensaje-novisto':!m.visto}">
+                <span ng-show="m.adjuntos"><i class="fa fa-paperclip fa-lg" aria-hidden="true"></i>&nbsp;</span>
+                {{m.asunto}}
+              </span>
+            </div>
+            <div class="col-sm-2 wi-fecha-vp" ng-class="{'wi-mensaje-novisto':!m.visto}">
+              <span ng-show="fecha_actual!=m.fecha">{{m.fecha}}</span>
+              <span ng-show="fecha_actual==m.fecha">{{m.hora_corta}}</span>
+            </div>
           </span>
-        </div>
-        <div class="col-sm-2 wi-fecha-vp" ng-class="{'wi-mensaje-novisto':!m.visto}">
-          <span ng-show="fecha_actual!=m.fecha">{{m.fecha}}</span>
-          <span ng-show="fecha_actual==m.fecha">{{m.hora_corta}}</span>
+
         </div>
       </div>
 
@@ -437,9 +485,12 @@
             <table style="width:100%;">
               <tr>
                 <td><b>SELECCIONA EL SERVIDOR DE TU CUENTA DE CORREO</b></td>
-                <td class="wi-icono-cerrar" ng-if="wi_cuentas.length>0">
-                  <button type="button" class="close" ng-click="wi_mostrar_btn_msj = true;" data-dismiss="modal">
+                <td class="wi-icono-cerrar" ng-switch="wi_cuentas.length>0">
+                  <button type="button" class="close" ng-click="wi_mostrar_btn_msj = true;" data-dismiss="modal" ng-switch-when="true">
                     <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="close ir-a-inicio" ng-click="irAMenuAplicaciones()" data-dismiss="modal" ng-switch-when="false">
+                    <i class="fa fa-home fa-lg" aria-hidden="true"></i>
                   </button>
                 </td>
               </tr>
@@ -896,6 +947,38 @@
               </form>
             </div>
           </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="modalEliminarMensaje" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+    <div class="vertical-center">
+      <div class="modal-dialog modal-sm">
+
+        <div class="modal-content">
+
+          <div class="modal-body">
+            <div class="row wi-row text-center">
+              <div class="col-xs-12">
+                <span style="font-size:12pt;"><b>{{eliminar_mensaje.mensaje}}</b></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <div class="row wi-row">
+              <div class="col-sm-6">
+                <button type="button" id="btn_eliminar_mensajes_no" class="btn btn-block btn-xs btn-submitir">NO</button>
+              </div>
+              <br class="visible-xs">
+              <div class="col-sm-6">
+                <button type="button" id="btn_eliminar_mensajes_si" class="btn btn-block btn-xs btn-submitir">SI</button>
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </div>

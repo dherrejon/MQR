@@ -319,6 +319,9 @@ $app->put('/ActualizarConfiguracionCuentaWebmail', $seguridad, $ChecarSesion, 'A
 $app->post('/AlmacenarCredencialesCorreoWebmail', $seguridad, $ChecarSesion, 'AlmacenarCredencialesCorreoWebmail');
 $app->delete('/EliminarCuentaWebmail', $seguridad, $ChecarSesion, 'EliminarCuentaWebmail');
 
+$app->post('/MarcarMensajesComoLeidosWebmail', $seguridad, $ChecarSesion, 'MarcarMensajesComoLeidosWebmail');
+$app->delete('/EliminarMensajesWebmail', $seguridad, $ChecarSesion, 'EliminarMensajesWebmail');
+
 
 /*-----------------------  Amistad ------------------------------------------*/
 $app->post('/EnviarSolicitudAmistad', $seguridad, $ChecarSesion, 'EnviarSolicitudAmistad');
