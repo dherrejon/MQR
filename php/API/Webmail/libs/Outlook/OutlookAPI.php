@@ -114,6 +114,7 @@ function obtenerFoldersOutlook($correo_id, $correo, $token_acceso, $folders_espe
             $v->id = $tmp->id;
             $v->ruta = $tmp->ruta;
             unset($v->palabras);
+            unset($v->palabras_gmail);
             unset($v->palabras_outlook);
             break;
           }
@@ -192,7 +193,7 @@ function obtenerMensajesOutlook($folder_id, $correo, $token_acceso, $pagina, $bu
   $respuesta->numero_mensajes = 0;
   $respuesta->paginas = 0;
   $mensajes = null;
-  $max_num_msj = 50;
+  $max_num_msj = 12;
   $inicio = ($pagina-1)*$max_num_msj;
   $fecha = array();
   $hora = array();

@@ -14,6 +14,8 @@ define("GOOGLE_PROMPT", "consent select_account");
 define("GOOGLE_GRANT_TYPE", "authorization_code");
 define("GOOGLE_URL_USER_INFO", "https://www.googleapis.com/oauth2/v3/userinfo");
 
+define("GMAIL_API_URL", "https://www.googleapis.com/gmail/v1/users");
+
 
 function solicitarGoogleToken() {
 

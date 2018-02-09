@@ -16,6 +16,8 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
   var wi_alerta_asunto_texto = false;
   var wi_tiempo_transcurrido = 0;
+
+  $scope.max_num_msj = 12;
   $scope.mostrar_asunto = {estado:true};
   $scope.fecha_actual = $filter('date')(Date.now(), 'dd/MM/yyyy');
   $scope.tiempo_comprobacion = [
@@ -477,6 +479,8 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
     if (!$scope.wi_btn_disabled.mensajes && ''!==$scope.wi_busqueda.entrada) {
 
+      var datos = {};
+
       $scope.wi_busqueda.estado = true;
       $scope.wi_busqueda.texto = angular.copy($scope.wi_busqueda.entrada);
 
@@ -492,13 +496,15 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
       $scope.wi_todos_mensajes.seleccionados = false;
       $scope.wi_mensajes_seleccionados.lista = [];
 
+      datos.correo_id = $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].correo_id;
+      datos.folder_id = ('Outlook'!==$scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].servidor && 'Gmail'!==$scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].servidor) ? $scope.wi_seleccion_actual.folder.ruta:$scope.wi_seleccion_actual.folder.id ;
+      datos.pagina = 1;
+      datos.busqueda = $scope.wi_busqueda;
+
       Webmail.obtenerMensajesPorFolder(
-        $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].correo_id,
-        ('Outlook'!==$scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].servidor)?$scope.wi_seleccion_actual.folder.ruta:$scope.wi_seleccion_actual.folder.id,
-        1,
+        datos,
         $scope.wi_seleccion_actual.folder.peticion,
-        false,
-        $scope.wi_busqueda
+        false
       ).then(function (respuesta) {
 
         $scope.wi_seleccion_actual.folder.peticion = null;
@@ -530,6 +536,10 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
             ngToast.dismiss();
             ngToast.create({className: 'danger', content: '<b>'+respuesta.mensaje_error+'</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
           }
+
+          $timeout(function () {
+            $('#wi_area_mensajes').scrollTop(0);
+          }, 0);
 
         }
         else {
@@ -793,6 +803,7 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
   $scope.wiSeleccionarFolder = function (indC, obj_folder) {
 
     var f;
+    var datos = {};
 
     if (!$scope.wi_btn_disabled.mensajes) {
 
@@ -829,13 +840,15 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
         obj_folder.peticion = $q.defer();
 
+        datos.correo_id = $scope.wi_cuentas[indC].correo_id;
+        datos.folder_id = ('Outlook'!==$scope.wi_cuentas[indC].servidor && 'Gmail'!==$scope.wi_cuentas[indC].servidor) ? obj_folder.ruta:obj_folder.id ;
+        datos.pagina = 1;
+        datos.busqueda = $scope.wi_busqueda;
+
         Webmail.obtenerMensajesPorFolder(
-          $scope.wi_cuentas[indC].correo_id,
-          ('Outlook'!==$scope.wi_cuentas[indC].servidor)?obj_folder.ruta:obj_folder.id,
-          1,
+          datos,
           obj_folder.peticion,
-          false,
-          $scope.wi_busqueda
+          false
         ).then(function (respuesta) {
 
           obj_folder.peticion = null;
@@ -2146,6 +2159,8 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
 
     }
 
+    var datos = {};
+
     $scope.wi_seleccion_actual.folder.peticion = $q.defer();
 
     $scope.wi_btn_disabled.mensajes = false;
@@ -2157,13 +2172,15 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
       $scope.wi_mensajes_seleccionados.lista = [];
     }
 
+    datos.correo_id = $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].correo_id;
+    datos.folder_id = ('Outlook'!==$scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].servidor && 'Gmail'!==$scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].servidor) ? $scope.wi_seleccion_actual.folder.ruta : $scope.wi_seleccion_actual.folder.id;
+    datos.pagina = pagina;
+    datos.busqueda = $scope.wi_busqueda;
+
     Webmail.obtenerMensajesPorFolder(
-      $scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].correo_id,
-      ('Outlook'!==$scope.wi_cuentas[$scope.wi_seleccion_actual.ind_cuenta].servidor) ? $scope.wi_seleccion_actual.folder.ruta : $scope.wi_seleccion_actual.folder.id,
-      pagina,
+      datos,
       $scope.wi_seleccion_actual.folder.peticion,
-      ignorar_carga,
-      $scope.wi_busqueda
+      ignorar_carga
     ).then(function (respuesta) {
 
       $scope.wi_btn_disabled.mensajes = true;

@@ -149,7 +149,7 @@ function Webmail ($http, $q, CONFIG) {
     return promise;
   }
 
-  function obtenerMensajesPorFolder(correo_id, folder_id, pagina, peticion, ignorar_carga, busqueda) {
+  function obtenerMensajesPorFolder(datos, peticion, ignorar_carga) {
     var defered = $q.defer();
     var promise = defered.promise;
 
@@ -157,7 +157,7 @@ function Webmail ($http, $q, CONFIG) {
       ignoreLoadingBar: ignorar_carga,
       method: 'GET',
       url: CONFIG.APIURL + '/ObtenerMensajesPorFolderWebmail',
-      params: {correo_id:correo_id, folder_id:folder_id, pagina:pagina, busqueda:busqueda},
+      params: datos,
       timeout: peticion.promise
     }).then(function successCallback(response) {
 

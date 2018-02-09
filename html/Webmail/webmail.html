@@ -170,15 +170,15 @@
             <br class="visible-xs">
 
             <span class="pull-right" ng-if="null==wi_seleccion_actual.mensaje">
-              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.folder.pagina-1<=0) || wi_btn_disabled.mensajes" ng-click="wiObtenerMensajesPorPagina(wi_seleccion_actual.folder.pagina-1, false, true, false)">
+              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.folder.pagina-1<=0) || wi_btn_disabled.mensajes" ng-click="wiObtenerMensajesPorPagina(wi_seleccion_actual.folder.pagina-1, false, true, false, null)">
                 <i class="glyphicon glyphicon-chevron-left"></i>
               </button>
-              <b>{{((wi_seleccion_actual.folder.pagina-1)*50)+1}}</b>
+              <b>{{((wi_seleccion_actual.folder.pagina-1)*max_num_msj)+1}}</b>
               <span> - </span>
-              <b>{{((wi_seleccion_actual.folder.pagina-1)*50)+wi_seleccion_actual.folder.mensajes.length}}</b>
+              <b>{{((wi_seleccion_actual.folder.pagina-1)*max_num_msj)+wi_seleccion_actual.folder.mensajes.length}}</b>
               <span> de </span>
               <b>{{wi_seleccion_actual.folder.numero_mensajes}}</b>
-              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.folder.pagina+1 > wi_seleccion_actual.folder.paginas) || wi_btn_disabled.mensajes" ng-click="wiObtenerMensajesPorPagina(wi_seleccion_actual.folder.pagina+1, false, true, false)">
+              <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.folder.pagina+1 > wi_seleccion_actual.folder.paginas) || wi_btn_disabled.mensajes" ng-click="wiObtenerMensajesPorPagina(wi_seleccion_actual.folder.pagina+1, false, true, false, null)">
                 <i class="glyphicon glyphicon-chevron-right"></i>
               </button>
             </span>
@@ -187,9 +187,9 @@
               <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.mensaje.indice-1 < 0)" ng-click="wiCambiarMensaje(-1)">
                 <i class="glyphicon glyphicon-chevron-left"></i>
               </button>
-              <b>{{((wi_seleccion_actual.folder.pagina-1)*50)+(wi_seleccion_actual.mensaje.indice+1)}}</b>
+              <b>{{((wi_seleccion_actual.folder.pagina-1)*max_num_msj)+(wi_seleccion_actual.mensaje.indice+1)}}</b>
               <span>de</span>
-              <b>{{((wi_seleccion_actual.folder.pagina-1)*50)+wi_seleccion_actual.folder.mensajes.length}}</b>
+              <b>{{((wi_seleccion_actual.folder.pagina-1)*max_num_msj)+wi_seleccion_actual.folder.mensajes.length}}</b>
               <button type="button" class="btn wi-btn-paginacion" ng-disabled="(wi_seleccion_actual.mensaje.indice+1 >= wi_seleccion_actual.folder.mensajes.length)" ng-click="wiCambiarMensaje(1)">
                 <i class="glyphicon glyphicon-chevron-right"></i>
               </button>

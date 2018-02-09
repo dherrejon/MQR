@@ -90,6 +90,7 @@ function obtenerFolders($correo_id, $imap, $folders_especiales) {
             $v->id = $tmp->ruta;
             $v->ruta = $tmp->ruta;
             unset($v->palabras);
+            unset($v->palabras_gmail);
             unset($v->palabras_outlook);
             break;
           }
@@ -191,7 +192,7 @@ function obtenerMensajes($imap, $ruta_folder, $correo, $pagina, $busqueda) {
   $respuesta->numero_mensajes = 0;
   $respuesta->paginas = 0;
   $mensajes_filtrados = array();
-  $max_num_msj = 50;
+  $max_num_msj = 12;
   $fecha_hora = null;
 
   $buzon = new Zend_Mail_Storage_Imap($imap);

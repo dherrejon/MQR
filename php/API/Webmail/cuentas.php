@@ -1,5 +1,6 @@
 <?php
 require_once 'libs/Gmail/GoogleToken.php';
+require_once 'libs/Gmail/GmailAPI.php';
 require_once 'libs/GenericIMAP/GenericIMAP.php';
 require_once 'libs/GenericSMTP/GenericSMTP.php';
 require_once 'libs/Gmail/ImapGmail.php';
@@ -701,22 +702,27 @@ function ObtenerFoldersPorCuentaWebmail() {
   $folders_especiales = new stdClass();
   $folders_especiales->entrada = new stdClass();
   $folders_especiales->entrada->palabras = "entrada|recibidos|inbox";
+  $folders_especiales->entrada->palabras_gmail = "INBOX";
   $folders_especiales->entrada->palabras_outlook = "inbox";
 
   $folders_especiales->salida = new stdClass();
   $folders_especiales->salida->palabras = "enviados|sent";
+  $folders_especiales->salida->palabras_gmail = "SENT";
   $folders_especiales->salida->palabras_outlook = "sentitems";
 
   $folders_especiales->papelera = new stdClass();
   $folders_especiales->papelera->palabras = "papelera|eliminados|deleted|trash";
+  $folders_especiales->papelera->palabras_gmail = "TRASH";
   $folders_especiales->papelera->palabras_outlook = "deleteditems";
 
   $folders_especiales->nodeseado = new stdClass();
   $folders_especiales->nodeseado->palabras = "no deseado|spam|junk|bulk";
+  $folders_especiales->nodeseado->palabras_gmail = "SPAM";
   $folders_especiales->nodeseado->palabras_outlook = "junkemail";
 
   $folders_especiales->borradores = new stdClass();
   $folders_especiales->borradores->palabras = "borradores|draft";
+  $folders_especiales->borradores->palabras_gmail = "DRAFT";
   $folders_especiales->borradores->palabras_outlook = "drafts";
 
   if (1!=count($cuenta)) {
@@ -729,9 +735,8 @@ function ObtenerFoldersPorCuentaWebmail() {
 
   switch ($cuenta[0]->servidor) {
     case 'Gmail':
-    $respuesta = iniciarSesionImapGmail(
+    $respuesta = revisarEstadoGoogleToken(
       $parametros['correo_id'],
-      $cuenta[0]->correo,
       $cuenta[0]->token_acceso,
       $cuenta[0]->token_renovacion,
       $cuenta[0]->expiracion,
@@ -741,7 +746,7 @@ function ObtenerFoldersPorCuentaWebmail() {
     if ($respuesta->estado) {
       $respuesta->folders_especiales = $folders_especiales;
       try {
-        $tmp_respuesta = obtenerFolders($parametros['correo_id'], $respuesta->imap, $respuesta->folders_especiales);
+        $tmp_respuesta = obtenerFoldersGmail($parametros['correo_id'], $respuesta->token_acceso, $respuesta->folders_especiales);
         $respuesta->folders = $tmp_respuesta->folders;
 
         if (0==$tmp_respuesta->num_errores) {
@@ -768,10 +773,10 @@ function ObtenerFoldersPorCuentaWebmail() {
       }
       catch (Exception $e) {
         $respuesta->estado = false;
-        $respuesta->mensaje_error = "No se pudieron obtener las carpetas";
+        $respuesta->mensaje_error = "Error: ".$e->getMessage();
         unset($respuesta->folders_especiales);
       }
-      unset($respuesta->imap);
+      unset($respuesta->token_acceso);
     }
     break;
 
@@ -873,9 +878,8 @@ function ObtenerEstadoFoldersPorCuentaWebmail() {
 
   switch ($cuenta[0]->servidor) {
     case 'Gmail':
-    $respuesta = iniciarSesionImapGmail(
+    $respuesta = revisarEstadoGoogleToken(
       $parametros['correo_id'],
-      $cuenta[0]->correo,
       $cuenta[0]->token_acceso,
       $cuenta[0]->token_renovacion,
       $cuenta[0]->expiracion,
@@ -884,13 +888,13 @@ function ObtenerEstadoFoldersPorCuentaWebmail() {
 
     if ($respuesta->estado) {
       try {
-        $respuesta->estado_folders = obtenerEstadoFolders($parametros['correo_id'], $respuesta->imap);
+        $respuesta->estado_folders = obtenerEstadoFoldersGmail($respuesta->token_acceso);
       }
       catch (Exception $e) {
         $respuesta->estado = false;
-        $respuesta->mensaje_error = "No se pudieron obtener las carpetas";
+        $respuesta->mensaje_error = "Error: ".$e->getMessage();
       }
-      unset($respuesta->imap);
+      unset($respuesta->token_acceso);
     }
     break;
 
@@ -958,9 +962,8 @@ function ObtenerMensajesPorFolderWebmail() {
 
   switch ($cuenta[0]->servidor) {
     case 'Gmail':
-    $respuesta = iniciarSesionImapGmail(
+    $respuesta = revisarEstadoGoogleToken(
       $parametros['correo_id'],
-      $cuenta[0]->correo,
       $cuenta[0]->token_acceso,
       $cuenta[0]->token_renovacion,
       $cuenta[0]->expiracion,
@@ -969,7 +972,8 @@ function ObtenerMensajesPorFolderWebmail() {
 
     if ($respuesta->estado) {
       try {
-        $tmp_respuesta = obtenerMensajes($respuesta->imap, $parametros['folder_id'], $cuenta[0]->correo, $parametros['pagina'], json_decode($parametros['busqueda']));
+
+        $tmp_respuesta = obtenerMensajesGmail($parametros['folder_id'], $cuenta[0]->correo, $respuesta->token_acceso, $parametros['pagina'], json_decode($parametros['busqueda']));
         $respuesta->mensajes = $tmp_respuesta->mensajes;
         $respuesta->mensajes_novistos = $tmp_respuesta->mensajes_novistos;
         $respuesta->numero_mensajes = $tmp_respuesta->numero_mensajes;
@@ -998,11 +1002,11 @@ function ObtenerMensajesPorFolderWebmail() {
           $respuesta->paginas = $tmp[1]*1;
         }
         else {
-          $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+          $respuesta->mensaje_error = "Error: ".$e->getMessage();;
         }
 
       }
-      unset($respuesta->imap);
+      unset($respuesta->token_acceso);
     }
     break;
 
@@ -1125,9 +1129,8 @@ function ObtenerContenidoMensajeWebmail() {
 
   switch ($cuenta[0]->servidor) {
     case 'Gmail':
-    $respuesta = iniciarSesionImapGmail(
+    $respuesta = revisarEstadoGoogleToken(
       $parametros['correo_id'],
-      $cuenta[0]->correo,
       $cuenta[0]->token_acceso,
       $cuenta[0]->token_renovacion,
       $cuenta[0]->expiracion,
@@ -1136,12 +1139,12 @@ function ObtenerContenidoMensajeWebmail() {
 
     if ($respuesta->estado) {
       try {
-        $respuesta->contenido = obtenerContenidoMensaje($respuesta->imap, $parametros['ruta_folder'], $parametros['mensaje_id']);
+        $respuesta->contenido = obtenerContenidoMensajeGmail($parametros['mensaje_id'], $respuesta->token_acceso);
       } catch (Exception $e) {
         $respuesta->estado = false;
-        $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+        $respuesta->mensaje_error = "Error: ".$e->getMessage();
       }
-      unset($respuesta->imap);
+      unset($respuesta->token_acceso);
     }
     break;
 
@@ -1214,9 +1217,8 @@ function DescargarArchivoAdjuntoWebmail() {
 
   switch ($cuenta[0]->servidor) {
     case 'Gmail':
-    $respuesta = iniciarSesionImapGmail(
+    $respuesta = revisarEstadoGoogleToken(
       $parametros->correo_id,
-      $cuenta[0]->correo,
       $cuenta[0]->token_acceso,
       $cuenta[0]->token_renovacion,
       $cuenta[0]->expiracion,
@@ -1225,7 +1227,7 @@ function DescargarArchivoAdjuntoWebmail() {
 
     if ($respuesta->estado) {
       try {
-        descargarArchivoAdjunto($respuesta->imap, $parametros->ruta_folder, $parametros->mensaje_id, $parametros->adjunto_id, $parametros->nombre_archivo, $parametros->tipo_archivo);
+        descargarArchivoAdjuntoGmail($parametros->mensaje_id, $respuesta->token_acceso, $parametros->adjunto_id, $parametros->nombre_archivo, $parametros->tipo_archivo);
       } catch (Exception $e) {
         $_SESSION['ErrorWebmail'] = 'No se pudo descargar el archivo adjunto';
         header("Location: ".$url_webmail_app);
@@ -1403,9 +1405,8 @@ function EnviarMensajeWebmail() {
 
     switch ($cuenta[0]->servidor) {
       case 'Gmail':
-      $respuesta = iniciarSesionImapGmail(
+      $respuesta = revisarEstadoGoogleToken(
         $datos->remitente_id,
-        $cuenta[0]->correo,
         $cuenta[0]->token_acceso,
         $cuenta[0]->token_renovacion,
         $cuenta[0]->expiracion,
@@ -1414,8 +1415,8 @@ function EnviarMensajeWebmail() {
 
       if (!$respuesta->estado) {
         $respuesta->estado = false;
-        $respuesta->mensaje_error = "Error de IMAP";
-        unset($respuesta->imap);
+        $respuesta->mensaje_error = "Error: ".$e->getMessage();
+        unset($respuesta->token_acceso);
         echo json_encode($respuesta);
         $app->stop();
         return;
@@ -1465,11 +1466,16 @@ function EnviarMensajeWebmail() {
 
     try {
 
-      if ('Outlook'!=$cuenta[0]->servidor) {
-        $adjuntos_noalmacenados = obtenerArchivoAdjuntoDeMensaje($respuesta->imap, $datos->mensaje_anterior->ruta_id, $datos->mensaje_anterior->id);
-      }
-      else {
+      switch ($cuenta[0]->servidor) {
+        case 'Gmail':
+        $adjuntos_noalmacenados = obtenerArchivoAdjuntoDeMensajeGmail($datos->mensaje_anterior->id, $cuenta[0]->token_acceso, $datos->adjuntos, $datos->adjuntos_enlinea);
+        break;
+        case 'Outlook':
         $adjuntos_noalmacenados = obtenerArchivoAdjuntoDeMensajeOutlook($datos->mensaje_anterior->id, $cuenta[0]->correo, $cuenta[0]->token_acceso);
+        break;
+        default:
+        $adjuntos_noalmacenados = obtenerArchivoAdjuntoDeMensaje($respuesta->imap, $datos->mensaje_anterior->ruta_id, $datos->mensaje_anterior->id);
+        break;
       }
 
     } catch (Exception $e) {
@@ -1563,9 +1569,8 @@ function EnviarMensajeWebmail() {
 
   switch ($cuenta[0]->servidor) {
     case 'Gmail':
-    $respuesta = iniciarSesionSmtpGmail(
+    $respuesta = revisarEstadoGoogleToken(
       $datos->remitente_id,
-      $cuenta[0]->correo,
       $cuenta[0]->token_acceso,
       $cuenta[0]->token_renovacion,
       $cuenta[0]->expiracion,
@@ -1574,14 +1579,14 @@ function EnviarMensajeWebmail() {
 
     if ($respuesta->estado) {
       try {
-        enviarMensaje($cuenta[0]->correo, $cuenta[0]->nombre, $respuesta->smtp, $datos);
+        enviarMensajeGmail($cuenta[0]->correo, $cuenta[0]->nombre, $respuesta->token_acceso, $datos);
         $respuesta->estado = true;
       }
       catch (Exception $e) {
         $respuesta->estado = false;
-        $respuesta->mensaje_error = "Error de SMTP";
+        $respuesta->mensaje_error = "Error: ".$e->getMessage();
       }
-      unset($respuesta->smtp);
+      unset($respuesta->token_acceso);
     }
     break;
 
@@ -1688,9 +1693,8 @@ function EliminarMensajeWebmail() {
 
   switch ($cuenta[0]->servidor) {
     case 'Gmail':
-    $respuesta = iniciarSesionImapGmail(
+    $respuesta = revisarEstadoGoogleToken(
       $parametros->correo_id,
-      $cuenta[0]->correo,
       $cuenta[0]->token_acceso,
       $cuenta[0]->token_renovacion,
       $cuenta[0]->expiracion,
@@ -1699,12 +1703,12 @@ function EliminarMensajeWebmail() {
 
     if ($respuesta->estado) {
       try {
-        eliminarMensaje($respuesta->imap, $parametros->ruta_folder, $parametros->mensaje_id, $parametros->papelera_id);
+        eliminarMensajeGmail($parametros->mensaje_id, $respuesta->token_acceso, $parametros->papelera_id);
       } catch (Exception $e) {
         $respuesta->estado = false;
-        $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+        $respuesta->mensaje_error = "Error: ".$e->getMessage();
       }
-      unset($respuesta->imap);
+      unset($respuesta->token_acceso);
     }
     break;
 
@@ -1770,9 +1774,8 @@ function MoverMensajeWebmail() {
 
   switch ($cuenta[0]->servidor) {
     case 'Gmail':
-    $respuesta = iniciarSesionImapGmail(
+    $respuesta = revisarEstadoGoogleToken(
       $parametros->correo_id,
-      $cuenta[0]->correo,
       $cuenta[0]->token_acceso,
       $cuenta[0]->token_renovacion,
       $cuenta[0]->expiracion,
@@ -1781,12 +1784,12 @@ function MoverMensajeWebmail() {
 
     if ($respuesta->estado) {
       try {
-        moverMensaje($respuesta->imap, $parametros->ruta_folder, $parametros->mensaje_id, $parametros->destino_id);
+        moverMensajeGmail($parametros->mensaje_id, $respuesta->token_acceso, $parametros->ruta_folder, $parametros->destino_id);
       } catch (Exception $e) {
         $respuesta->estado = false;
-        $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+        $respuesta->mensaje_error = "Error: ".$e->getMessage();
       }
-      unset($respuesta->imap);
+      unset($respuesta->token_acceso);
     }
     break;
 
@@ -1852,9 +1855,8 @@ function MarcarMensajesComoLeidosWebmail() {
 
   switch ($cuenta[0]->servidor) {
     case 'Gmail':
-    $respuesta = iniciarSesionImapGmail(
+    $respuesta = revisarEstadoGoogleToken(
       $parametros->correo_id,
-      $cuenta[0]->correo,
       $cuenta[0]->token_acceso,
       $cuenta[0]->token_renovacion,
       $cuenta[0]->expiracion,
@@ -1863,12 +1865,12 @@ function MarcarMensajesComoLeidosWebmail() {
 
     if ($respuesta->estado) {
       try {
-        $respuesta->ids = marcarMensajesComoLeidos($respuesta->imap, $parametros->ruta_folder, $parametros->mensajes_id);
+        $respuesta->ids = marcarMensajesComoLeidosGmail($parametros->mensajes_id, $respuesta->token_acceso);
       } catch (Exception $e) {
         $respuesta->estado = false;
-        $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+        $respuesta->mensaje_error = "Error: ".$e->getMessage();
       }
-      unset($respuesta->imap);
+      unset($respuesta->token_acceso);
     }
     break;
 
@@ -1934,9 +1936,8 @@ function EliminarMensajesWebmail() {
 
   switch ($cuenta[0]->servidor) {
     case 'Gmail':
-    $respuesta = iniciarSesionImapGmail(
+    $respuesta = revisarEstadoGoogleToken(
       $parametros->correo_id,
-      $cuenta[0]->correo,
       $cuenta[0]->token_acceso,
       $cuenta[0]->token_renovacion,
       $cuenta[0]->expiracion,
@@ -1945,12 +1946,12 @@ function EliminarMensajesWebmail() {
 
     if ($respuesta->estado) {
       try {
-        $respuesta->ids = eliminarMensajes($respuesta->imap, $parametros->ruta_folder, $parametros->mensajes_id, $parametros->papelera_id);
+        $respuesta->ids = eliminarMensajesGmail($parametros->mensajes_id, $respuesta->token_acceso, $parametros->papelera_id);
       } catch (Exception $e) {
         $respuesta->estado = false;
-        $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+        $respuesta->mensaje_error = "Error: ".$e->getMessage();
       }
-      unset($respuesta->imap);
+      unset($respuesta->token_acceso);
     }
     break;
 
