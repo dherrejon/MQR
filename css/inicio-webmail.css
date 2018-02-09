@@ -563,13 +563,13 @@
 }
 
 .wi-dropdown .dropdown-submenu {
-    position: relative;
+  position: relative;
 }
 
 .wi-dropdown .dropdown-submenu .dropdown-menu {
-    top: 0;
-    left: 100%;
-    margin-top: -1px;
+  top: 0;
+  left: 100%;
+  margin-top: -1px;
 }
 
 
@@ -761,21 +761,21 @@
 }
 /*
 .wi-btn-adjuntar-archivos:focus{
-  border-color: #ccc !important;
-  color: #1859B2 !important;
+border-color: #ccc !important;
+color: #1859B2 !important;
 }*/
 
- .wi-total-adjuntos{
-   padding-top: 15px;
- }
+.wi-total-adjuntos{
+  padding-top: 15px;
+}
 
- .wi-total-adjuntos span{
-   color: #1859B2;
- }
+.wi-total-adjuntos span{
+  color: #1859B2;
+}
 
- .wi-adjuntos-excedido{
-   color: red !important;
- }
+.wi-adjuntos-excedido{
+  color: red !important;
+}
 
 .wi-correo-registrado{
   display: inline-block;
@@ -885,17 +885,17 @@
 }
 
 .ta-editor.form-control.myform1-height, .ta-scroll-window.form-control.myform1-height  {
-    min-height: 120px;
-    height: auto;
-    overflow: auto;
-    font-family: inherit;
-    font-size: 100%;
+  min-height: 120px;
+  height: auto;
+  overflow: auto;
+  font-family: inherit;
+  font-size: 100%;
 }
 
 .form-control.myform1-height > .ta-bind {
-    height: auto;
-    min-height: 120px;
-    padding: 6px 12px;
+  height: auto;
+  min-height: 120px;
+  padding: 6px 12px;
 }
 
 .ir-a-inicio {
@@ -947,7 +947,7 @@
   }
 }
 
-@media (max-width: 898px){
+@media (max-width: 1201px){
   .texto-opc-mensaje{
     display: none;
   }
@@ -956,8 +956,14 @@
   }
 }
 
-@media (max-width: 401px){
+@media (max-width: 565px){
   .texto-opc-seleccion{
+    display: none;
+  }
+}
+
+@media (max-width: 485px){
+  .texto-opc-mensajes-seleccionados{
     display: none;
   }
 }

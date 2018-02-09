@@ -240,7 +240,7 @@
         <div class="col-xs-8" style="padding-top:15px;">
           <button type="button" class="btn pull-right wi-btn-opr-grupo" title="Eliminar" ng-click="wiEliminarMensajes()" ng-disabled="wi_mensajes_seleccionados.lista.length===0 || opc_opr_grupo_deshabilitado">
             <i class="fa fa-trash fa-lg" aria-hidden="true"></i>
-            <span class="texto-opc-mensaje">&nbsp;
+            <span class="texto-opc-mensajes-seleccionados">&nbsp;
               <span ng-if="!wi_seleccion_actual.folder.es_papelera && wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.papelera.id">Eliminar</span>
               <span ng-if="wi_seleccion_actual.folder.es_papelera || !wi_cuentas[wi_seleccion_actual.ind_cuenta].folders_especiales.papelera.id">Eliminar definitivamente</span>
             </span>
@@ -248,7 +248,7 @@
 
           <button type="button" class="btn pull-right wi-btn-opr-grupo" title="Marcar como leído" ng-click="wiMarcarMensajesComoLeidos()" ng-disabled="wi_mensajes_seleccionados.lista.length===0 || opc_opr_grupo_deshabilitado">
             <i class="fa fa-envelope-open fa-lg" aria-hidden="true"></i>
-            <span class="texto-opc-mensaje">&nbsp;
+            <span class="texto-opc-mensajes-seleccionados">&nbsp;
               <span>Marcar como leído</span>
             </span>
           </button>
