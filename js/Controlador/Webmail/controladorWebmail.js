@@ -2480,8 +2480,8 @@ function controladorWebmail ($rootScope, $scope, Webmail, $window, ngToast, $tim
               $scope.wi_nuevo_envio.remitente = $scope.wi_cuentas[0];
               $scope.wi_indicacion = "SELECCIONA UNA CUENTA DE CORREO";
 
-              wiActualizarEstadoFolders();
-              $window.sessionStorage.setItem('id_actualizacion_webmail', setInterval(wiActualizarEstadoFolders, 300000));
+              // wiActualizarEstadoFolders();
+              // $window.sessionStorage.setItem('id_actualizacion_webmail', setInterval(wiActualizarEstadoFolders, 300000));
             }
 
           },function(respuesta) {
