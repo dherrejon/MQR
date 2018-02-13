@@ -579,7 +579,7 @@ function modificarEstructuraContenidoMensajeGmail(&$parte_mensaje)
 }
 
 
-function buscarContenidoCuerpoMensaje(&$contenido, &$respuesta, $parte, $mensaje_id, $token_acceso)
+function buscarContenidoCuerpoMensajeGmail(&$contenido, &$respuesta, $parte, $mensaje_id, $token_acceso)
 {
 
   if (isset($parte->headers->{'Content-Disposition'})) {
@@ -641,6 +641,10 @@ function buscarContenidoCuerpoMensaje(&$contenido, &$respuesta, $parte, $mensaje
       //   $contenido->datos = mb_convert_encoding($contenido->datos, "UTF-8", $contenido->caracteres);
       // }
 
+      if ('text/html'==strtolower($contenido->tipo)) {
+        $contenido->datos = "<span style=\"white-space: pre-line\">" .$contenido->datos. "</span>";
+      }
+
       $respuesta->cuerpo = $contenido;
 
       break;
@@ -654,7 +658,7 @@ function buscarContenidoCuerpoMensaje(&$contenido, &$respuesta, $parte, $mensaje
               $contenido = new stdClass();
               $contenido->tipo = explode(';', $parte->parts[$p]->headers->{'Content-Type'})[0];
               $contenido->tipo_des = explode('/',$contenido->tipo);
-              buscarContenidoCuerpoMensaje($contenido, $respuesta, $parte->parts[$p], $mensaje_id, $token_acceso);
+              buscarContenidoCuerpoMensajeGmail($contenido, $respuesta, $parte->parts[$p], $mensaje_id, $token_acceso);
             }
           }
         }
@@ -735,7 +739,7 @@ function obtenerContenidoMensajeGmail($mensaje_id, $token_acceso) {
 
     $contenido->datos = "<span style=\"white-space: pre-line\">" .$contenido->datos. "</span>";
 
-    $respuesta->datos_originales = $contenido->datos;
+    $contenido->datos_originales = $contenido->datos;
 
     $respuesta->cuerpo = $contenido;
 
@@ -748,7 +752,7 @@ function obtenerContenidoMensajeGmail($mensaje_id, $token_acceso) {
       $contenido->tipo = explode(';', $mensaje->parts[$p]->headers->{'Content-Type'})[0];
       $contenido->tipo_des = explode('/',$contenido->tipo);
 
-      buscarContenidoCuerpoMensaje($contenido, $respuesta, $mensaje->parts[$p], $mensaje_id, $token_acceso);
+      buscarContenidoCuerpoMensajeGmail($contenido, $respuesta, $mensaje->parts[$p], $mensaje_id, $token_acceso);
 
     }
 

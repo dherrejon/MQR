@@ -1,5 +1,8 @@
 <?php
 
+$TIPO_CONTENIDO_MSG = array('text','multipart','message','application','audio','image','video','model','other');
+$CODIFICACIONES_MSG = array('7bit','8bit','binary','base64','quoted-printable','other');
+
 function integrarCuerpoMensaje(&$cuerpo, $adjunto) {
 
   $utilizado = false;
@@ -38,16 +41,33 @@ function integrarCuerpoMensaje(&$cuerpo, $adjunto) {
 }
 
 function iniciarSesionImap($correo, $password, $servidor, $puerto){
+
   $respuesta = new stdClass();
+  $respuesta->imap = null;
+  $respuesta->estado = false;
+
+  $ruta_servidor = "{".$servidor.":".$puerto."/imap/ssl}";
 
   try {
-    $respuesta->imap = new Zend_Mail_Protocol_Imap($servidor, $puerto, true);
-    $respuesta->estado = $respuesta->imap->login($correo, $password);
+
+    $respuesta->imap = @imap_open($ruta_servidor, $correo, $password);
+    imap_errors();
+    imap_alerts();
+
+    if (false===$respuesta->imap) {
+      $respuesta->imap = null;
+      $respuesta->estado = false;
+    }
+    else {
+      $respuesta->estado = true;
+    }
+
   }
   catch (Exception $e) {
     $respuesta->imap = null;
     $respuesta->estado = false;
   }
+
 
   if (!$respuesta->estado) {
     $respuesta->mensaje_error = "No se pudo establecer una conexion con el servidor IMAP";
@@ -56,134 +76,226 @@ function iniciarSesionImap($correo, $password, $servidor, $puerto){
   return $respuesta;
 }
 
-function obtenerFolders($correo_id, $imap, $folders_especiales) {
+function decodificarAtributosFolder($entero) {
+
+  $atributos = new stdClass();
+  $binario = decbin($entero);
+  $l = strlen($binario)-1;
+  $n = 0;
+  $p = 1;
+
+  for ($d=$l; $d > -1; $d--) {
+
+    if ($binario[$d]) {
+      switch ($p) {
+        case 1:
+        $atributos->{'LATT_NOINFERIORS'} = '';
+        break;
+        case 2:
+        $atributos->{'LATT_NOSELECT'} = '';
+        break;
+        case 4:
+        $atributos->{'LATT_MARKED'} = '';
+        break;
+        case 8:
+        $atributos->{'LATT_UNMARKED'} = '';
+        break;
+        case 16:
+        $atributos->{'LATT_REFERRAL'} = '';
+        break;
+        case 32:
+        $atributos->{'LATT_HASCHILDREN'} = '';
+        break;
+        case 64:
+        $atributos->{'LATT_HASNOCHILDREN'} = '';
+        break;
+        default:
+        break;
+      }
+    }
+
+    $n++;
+    $p = pow(2, $n);
+
+  }
+
+  return $atributos;
+}
+
+function anidarFolders(&$folders, $nivel, $caracter) {
+
+  for ($f=1; $f < count($folders); $f++) {
+
+    $nombre_mdf = ( $folders[$f-1]->delimitador === substr($folders[$f-1]->nombre, -1) ) ? $folders[$f-1]->nombre : $folders[$f-1]->nombre.$folders[$f-1]->delimitador;
+    $pos = strpos($folders[$f]->nombre, $nombre_mdf);
+
+    if (
+      ( (0 === $pos) || ( ($folders[$f-1]->delimitador === $folders[$f-1]->nombre) && ($nivel>0) && ($folders[$f-1]->delimitador != $caracter) ) ) &&
+      ( !isset($folders[$f-1]->atributos->{'LATT_NOINFERIORS'}) && !isset($folders[$f-1]->atributos->{'LATT_HASNOCHILDREN'}) )
+    ) {
+
+      if (0 === $pos) {
+        $folders[$f]->nombre = substr($folders[$f]->nombre, strlen($nombre_mdf));
+      }
+
+      if (0 == strlen($folders[$f]->nombre)) {
+        $folders[$f]->nombre = $folders[$f]->delimitador;
+      }
+
+      array_push($folders[$f-1]->folders, $folders[$f]);
+      array_splice($folders,$f,1);
+      $f = $f-1;
+
+    }
+    else {
+      if ( 0 == count($folders[$f-1]->folders) ) {
+        $folders[$f-1]->subfolders = false;
+        unset($folders[$f-1]->folders);
+        unset($folders[$f-1]->abierto);
+      }
+      else {
+        anidarFolders($folders[$f-1]->folders, $nivel+1, substr($folders[$f-1]->nombre, -1));
+      }
+    }
+
+  }
+
+  $ultimo_folder = count($folders)-1;
+  if ( 0 == count($folders[$ultimo_folder]->folders) ) {
+    $folders[$ultimo_folder]->$nivel = $nivel;
+    $folders[$ultimo_folder]->subfolders = false;
+    unset($folders[$ultimo_folder]->folders);
+    unset($folders[$ultimo_folder]->abierto);
+  }
+  else {
+    anidarFolders($folders[$ultimo_folder]->folders, $nivel+1, substr($folders[$ultimo_folder]->nombre, -1));
+  }
+
+}
+
+function obtenerFolders($correo_id, $imap, $servidor_imap, $puerto_imap, $folders_especiales) {
 
   $respuesta = new stdClass();
   $respuesta->folders = array();
-
   $respuesta->num_errores = 0;
-  $folder_actual = null;
-  $buzon = new Zend_Mail_Storage_Imap($imap);
+  $n_folders = 0;
 
-  $folders = new RecursiveIteratorIterator(
-    $buzon->getFolders(),
-    RecursiveIteratorIterator::SELF_FIRST
-  );
 
-  foreach ($folders as $nombre_local => $folder) {
+  $folders = @imap_getmailboxes($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}", "*");
+  imap_errors();
+  imap_alerts();
 
-    try {
-      $tmp = new stdClass();
-      $indice = null;
-      $numero_folders = 0;
-      $tmp->seleccionable = $folder->isSelectable();
-      $tmp->nivel = intval($folders->getDepth());
-      $tmp->ruta = $folder->getGlobalName();
-      $tmp->nombre = imap_utf8($nombre_local);
-      $tmp->id = $correo_id.'/'.$tmp->ruta;
+  if (is_array($folders)) {
 
-      foreach ($folders_especiales as $f => $v) {
-        if (!isset($v->id)) {
-          if (preg_match("/".$v->palabras."/i", $tmp->nombre)) {
-            $tmp->{"es_".$f} = true;
-            $v->nombre = $tmp->nombre;
-            $v->id = $tmp->ruta;
-            $v->ruta = $tmp->ruta;
-            unset($v->palabras);
-            unset($v->palabras_gmail);
-            unset($v->palabras_outlook);
-            break;
-          }
+    $n_folders = count($folders);
+
+    for ($f=0; $f < $n_folders; $f++) {
+
+      try {
+
+        $tmp = new stdClass();
+        $tmp->atributos = decodificarAtributosFolder($folders[$f]->attributes);
+        $tmp->seleccionable = (isset($tmp->atributos->{'LATT_NOSELECT'})) ? false : true;
+        $tmp->ruta = preg_replace('/^.*}/', "", $folders[$f]->name);
+        $tmp->nombre = imap_utf8($tmp->ruta); imap_errors();imap_alerts();
+        $tmp->id = $correo_id.'/'.$tmp->ruta;
+
+        if ($tmp->seleccionable) {
+          $tmp->peticion = null;
+          $tmp->mensajes = array();
+          $tmp->mensajes_novistos = imap_status($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".$tmp->ruta, SA_UNSEEN)->unseen; imap_errors();imap_alerts();
+          $tmp->pagina = 1;
+          $tmp->paginas = 0;
+          $tmp->numero_mensajes = 0;
         }
-      }
 
-
-      if ($tmp->seleccionable) {
-        $tmp->peticion = null;
-        $tmp->mensajes = array();
-        $buzon->selectFolder($tmp->ruta);
-        $tmp->mensajes_novistos = $buzon->countMessages('UNSEEN');
-        $tmp->pagina = 1;
-        $tmp->paginas = 0;
-        $tmp->numero_mensajes = 0;
-      }
-
-      if ($folder->isLeaf()) {
-        $tmp->subfolders=false;
-      } else {
+        $tmp->nivel = 0;
+        $tmp->subfolders = true;
         $tmp->folders = array();
         $tmp->abierto = false;
-        $tmp->subfolders=true;
-      }
+        $tmp->delimitador = $folders[$f]->delimiter;
 
-      if($tmp->nivel){
-        $indice = count($respuesta->folders)-1;
-        $mostrar = false;
-      }else {
-        $indice = count($respuesta->folders);
-      }
-
-      $folder_actual = & $respuesta->folders[$indice];
-
-      for ($l=0; $l < $tmp->nivel; $l++) {
-
-        $numero_folders = count($folder_actual->folders);
-
-        if(!$numero_folders){
-          $indice = 0;
-        } else if ( $tmp->nivel > intval($folder_actual->folders[$numero_folders-1]->nivel) ) {
-          $indice = $numero_folders-1;
-        }else {
-          $indice = $numero_folders;
+        foreach ($folders_especiales as $n => $v) {
+          if (!isset($v->id)) {
+            if (preg_match("/".$v->palabras."/i", $tmp->nombre)) {
+              $tmp->{"es_".$n} = true;
+              $v->nombre = $tmp->nombre;
+              $v->id = $tmp->ruta;
+              $v->ruta = $tmp->ruta;
+              unset($v->palabras);
+              unset($v->palabras_gmail);
+              unset($v->palabras_outlook);
+              break;
+            }
+          }
         }
 
-        $folder_actual = & $folder_actual->folders[$indice];
+        array_push($respuesta->folders, $tmp);
 
       }
-
-      $folder_actual = $tmp;
+      catch (Exception $e) {
+        $respuesta->num_errores ++;
+      }
 
     }
-    catch (Exception $e) {
-      $respuesta->num_errores++;
-    }
+
+    usort(
+      $respuesta->folders,
+      function($a, $b)
+      {
+        return strcmp($a->ruta, $b->ruta);
+      }
+    );
+
+    anidarFolders($respuesta->folders, 0, '');
 
   }
+
+  imap_close($imap); imap_errors();imap_alerts();
 
   return $respuesta;
 
 }
 
-function obtenerEstadoFolders($correo_id, $imap) {
+function obtenerEstadoFolders($correo_id, $imap, $servidor_imap, $puerto_imap) {
 
   $respuesta = new stdClass();
-  $buzon = new Zend_Mail_Storage_Imap($imap);
+  $n_folders = 0;
+  $folders = @imap_getmailboxes($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}", "*"); imap_errors();imap_alerts();
 
-  $folders = new RecursiveIteratorIterator(
-    $buzon->getFolders(),
-    RecursiveIteratorIterator::SELF_FIRST
-  );
+  if (is_array($folders)) {
 
-  foreach ($folders as $nombre_local => $folder) {
+    $n_folders = count($folders);
 
-    try {
+    for ($f=0; $f < $n_folders; $f++) {
 
-      if ($folder->isSelectable()) {
-        $buzon->selectFolder($folder->getGlobalName());
-        $respuesta->{$correo_id.'/'.$folder->getGlobalName()} = $buzon->countMessages('UNSEEN');
+      try {
+
+        $tmp = new stdClass();
+        $tmp->atributos = decodificarAtributosFolder($folders[$f]->attributes);
+        $tmp->seleccionable = (isset($tmp->atributos->{'LATT_NOSELECT'})) ? false : true;
+
+        if ($tmp->seleccionable) {
+          $tmp->ruta = preg_replace('/^.*}/', "", $folders[$f]->name);
+          $tmp->id = $correo_id.'/'.$tmp->ruta;
+          $respuesta->{$tmp->id} = imap_status($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".$tmp->ruta, SA_UNSEEN)->unseen; imap_errors();imap_alerts();
+        }
+
+      }
+      catch (Exception $e) {
       }
 
     }
-    catch (Exception $e) {
-    }
 
   }
+
+  imap_close($imap); imap_errors();imap_alerts();
 
   return $respuesta;
 
 }
 
-function obtenerMensajes($imap, $ruta_folder, $correo, $pagina, $busqueda) {
+function obtenerMensajes($imap, $servidor_imap, $puerto_imap, $ruta_folder, $correo, $pagina, $busqueda) {
 
   $respuesta = new stdClass();
   $respuesta->mensajes = array();
@@ -193,40 +305,120 @@ function obtenerMensajes($imap, $ruta_folder, $correo, $pagina, $busqueda) {
   $respuesta->paginas = 0;
   $mensajes_filtrados = array();
   $max_num_msj = 12;
-  $fecha_hora = null;
 
-  $buzon = new Zend_Mail_Storage_Imap($imap);
-  $buzon->selectFolder(urldecode($ruta_folder));
+  $estado_folder = imap_status($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".urldecode($ruta_folder), SA_MESSAGES+SA_UNSEEN); imap_errors();imap_alerts();
+  $respuesta->mensajes_novistos = $estado_folder->unseen;
 
-  $respuesta->mensajes_novistos = $buzon->countMessages('UNSEEN');
+  $folder_cambiado = imap_reopen($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".urldecode($ruta_folder));
 
-  if (!$busqueda->estado) {
-
-    $respuesta->numero_mensajes = $buzon->countMessages();
-    $respuesta->paginas = ceil($respuesta->numero_mensajes/$max_num_msj);
-
-    if (($pagina > 1) && ($respuesta->paginas < $pagina)) {
-      throw new Exception("fueraderango/".$respuesta->paginas);
-    }
-
+  if (!$folder_cambiado) {
+    throw new Exception("Error al abrir folder");
   }
 
+  if ($busqueda->estado) {
+    $ids_mensajes = imap_sort($imap, SORTARRIVAL, 1, SE_UID, 'SUBJECT "'.strtolower($busqueda->entrada).'"'); imap_errors();imap_alerts();
+    $respuesta->numero_mensajes = count($ids_mensajes);
+  }
+  else {
+    $ids_mensajes = imap_sort($imap, SORTARRIVAL, 1, SE_UID); imap_errors();imap_alerts();
+    $respuesta->numero_mensajes = $estado_folder->messages;
+  }
 
-  foreach ($buzon as $numero_mensaje => $mensaje) {
+  $respuesta->paginas = ceil($respuesta->numero_mensajes/$max_num_msj);
 
-    $tmp = new stdClass();
+  if (($pagina > 1) && ($respuesta->paginas < $pagina)) {
+    throw new Exception("fueraderango/".$respuesta->paginas);
+  }
 
-    $tmp->id = $buzon->getUniqueId($numero_mensaje);
+  $inicio = ($pagina-1)*$max_num_msj;
 
+  $ids_mensajes_filtrados = array_slice($ids_mensajes, $inicio, $max_num_msj);
+  $n_mensajes = count($ids_mensajes_filtrados);
+
+  for ($m = 0; $m < $n_mensajes; $m++) {
     try {
 
-      $tmp->asunto = imap_utf8($mensaje->subject);
+      $fecha = array();
+      $hora = array();
+      $partes_hora = array();
+      $partes_fecha = array();
+      $remitente_destinatario = false;
 
-      $fecha_hora = ($mensaje->headerExists('date')) ? $mensaje->date : $mensaje->xApparentlyTo;
+      $tmp = new stdClass();
 
-      $fecha_hora = preg_replace('/ \(.*/', "", preg_replace('/.*, /', "", $fecha_hora));
+      $numero_mensaje = imap_msgno($imap, $ids_mensajes_filtrados[$m]);
 
-      $fecha_hora = DateTime::createFromFormat('d M Y H:i:s O', $fecha_hora);
+      $encabezados = imap_headerinfo($imap, $numero_mensaje); imap_errors();imap_alerts();
+
+      $estructura = imap_fetchstructure($imap, $numero_mensaje); imap_errors();imap_alerts();
+
+      $tmp->id = $ids_mensajes_filtrados[$m];
+
+      if ($estructura->ifsubtype) {
+        $tmp->adjuntos = ('MIXED'==$estructura->subtype) ? true : false;
+      }
+      else {
+        $tmp->adjuntos = false;
+      }
+
+      try {
+        $tmp->remitente = preg_replace('/>.*/',"", preg_replace('/.*</',"", $encabezados->fromaddress));
+      }
+      catch (Exception $e) {
+        $tmp->remitente = "";
+      }
+      try {
+        $tmp->nombre_remitente = preg_replace('/ <.*>/',"", $encabezados->fromaddress);
+      }
+      catch (Exception $e) {
+        $tmp->nombre_remitente = "";
+      }
+
+      $lista_correos = explode(", ", $encabezados->toaddress);
+      $tmp->destinatarios = array();
+      $tmp->nombres_destinatarios = array();
+
+      for ($d=0; $d < count($lista_correos); $d++) {
+        array_push($tmp->destinatarios, preg_replace('/>.*/',"", preg_replace('/.*</',"", $lista_correos[$d])));
+        array_push($tmp->nombres_destinatarios, preg_replace('/ <.*>/',"", $lista_correos[$d]));
+      }
+
+      if (isset($encabezados->ccaddress)) {
+        $tmp->cc = array();
+        $tmp->nombres_cc = array();
+        $lista_correos = array();
+        $lista_correos = explode(", ",$encabezados->ccaddress);
+
+        for ($d=0; $d < count($lista_correos); $d++) {
+          array_push($tmp->cc, preg_replace('/>.*/',"", preg_replace('/.*</',"", $lista_correos[$d])));
+          array_push($tmp->nombres_cc, preg_replace('/ <.*>/',"", $lista_correos[$d]));
+        }
+      }
+
+      if (isset($encabezados->reply_toaddress)) {
+        $tmp->responder_a = array();
+        $tmp->nombres_responder_a = array();
+        $lista_correos = array();
+        $lista_correos = explode(", ",$encabezados->reply_toaddress);
+
+        for ($d=0; $d < count($lista_correos); $d++) {
+          array_push($tmp->responder_a, preg_replace('/>.*/',"", preg_replace('/.*</',"", $lista_correos[$d])));
+          array_push($tmp->nombres_responder_a, preg_replace('/ <.*>/',"", $lista_correos[$d]));
+        }
+      }
+
+      if (isset($encabezados->subject)) {
+        if (false!==strpos($encabezados->subject, "=?utf-8?B?")) {
+          $encabezados->subject = base64_decode(str_replace(array("=?utf-8?B?","?="), array("",""), $encabezados->subject));
+        }
+
+        $tmp->asunto = imap_utf8($encabezados->subject);
+      }
+      else {
+        $tmp->asunto = '';
+      }
+
+      $fecha_hora = DateTime::createFromFormat('U', $encabezados->udate);
 
       if ($fecha_hora instanceof DateTime){
         $fecha_hora->setTimezone(new DateTimeZone('America/Mexico_City'));
@@ -239,159 +431,37 @@ function obtenerMensajes($imap, $ruta_folder, $correo, $pagina, $busqueda) {
         throw new Exception("Error procesando fecha");
       }
 
-    }
-    catch (Exception $e) {
-      $tmp->fecha_unix = (string)"000000";
-      $tmp->error = true;
-    }
+      $tmp->visto = ('N'==$encabezados->Recent || 'U'==$encabezados->Unseen) ? false : true;
 
-    if ($busqueda->estado) {
-      if (preg_match("/".$busqueda->entrada."/i", $tmp->asunto)) {
-        array_push($mensajes_filtrados, $tmp);
-      }
-    }else {
-      array_push($mensajes_filtrados, $tmp);
-    }
+      $tmp->contenido = null;
 
+      $tmp->seleccionado = false;
 
-  }
+      if (strtolower($tmp->remitente) == strtolower($correo)) {
 
-
-  if ($busqueda->estado) {
-
-    $respuesta->numero_mensajes = count($mensajes_filtrados);
-    $respuesta->paginas = ceil($respuesta->numero_mensajes/$max_num_msj);
-
-    if (($pagina > 1) && ($respuesta->paginas < $pagina)) {
-      throw new Exception("fueraderango/".$respuesta->paginas);
-    }
-
-  }
-
-  usort(
-    $mensajes_filtrados,
-    function ($a, $b)
-    {
-      if ($a->fecha_unix == $b->fecha_unix) {
-        return 0;
-      }
-      return ($a->fecha_unix < $b->fecha_unix) ? 1 : -1;
-    }
-  );
-
-
-  $inicio = ($pagina-1)*$max_num_msj;
-
-  $mensajes_filtrados = array_slice($mensajes_filtrados, $inicio, $max_num_msj);
-
-
-  for ($m=0; $m < count($mensajes_filtrados); $m++) {
-
-    try {
-
-      $remitente_destinatario = false;
-
-      if (isset($mensajes_filtrados[$m]->error)) {
-        throw new Exception("Error procesando mensaje");
-      }
-
-      $mensaje = $buzon->getMessage($buzon->getNumberByUniqueId($mensajes_filtrados[$m]->id));
-
-      $lista_correos = array();
-
-      $mensajes_filtrados[$m]->adjuntos = false;
-
-      if ($mensaje->isMultipart()) {
-        if (preg_match("/multipart\/mixed/i", $mensaje->getHeader('Content-Type'))) {
-          $mensajes_filtrados[$m]->adjuntos = true;
-        }
-      }
-
-      $mensajes_filtrados[$m]->remitente = preg_replace('/>.*/',"", preg_replace('/.*</',"", $mensaje->from));
-
-      $mensajes_filtrados[$m]->nombre_remitente = preg_replace('/ <.*>/',"",$mensaje->from);
-
-      $lista_correos = explode(", ",$mensaje->to);
-
-      $mensajes_filtrados[$m]->destinatarios = array();
-
-      $mensajes_filtrados[$m]->nombres_destinatarios = array();
-
-      for ($d=0; $d < count($lista_correos); $d++) {
-        array_push($mensajes_filtrados[$m]->destinatarios, preg_replace('/>.*/',"", preg_replace('/.*</',"", $lista_correos[$d])));
-        array_push($mensajes_filtrados[$m]->nombres_destinatarios, preg_replace('/ <.*>/',"", $lista_correos[$d]));
-      }
-
-      if ($mensaje->headerExists('cc')) {
-
-        $mensajes_filtrados[$m]->cc = array();
-
-        $mensajes_filtrados[$m]->nombres_cc = array();
-
-        $lista_correos = array();
-
-        $lista_correos = explode(", ",$mensaje->cc);
-
-        for ($d=0; $d < count($lista_correos); $d++) {
-          array_push($mensajes_filtrados[$m]->cc, preg_replace('/>.*/',"", preg_replace('/.*</',"", $lista_correos[$d])));
-          array_push($mensajes_filtrados[$m]->nombres_cc, preg_replace('/ <.*>/',"", $lista_correos[$d]));
-        }
-
-      }
-
-
-      if ($mensaje->headerExists('Reply-To')) {
-
-        $mensajes_filtrados[$m]->responder_a = array();
-
-        $mensajes_filtrados[$m]->nombres_responder_a = array();
-
-        $lista_correos = array();
-
-        $lista_correos = explode(", ",$mensaje->replyTo);
-
-        for ($d=0; $d < count($lista_correos); $d++) {
-          array_push($mensajes_filtrados[$m]->responder_a, preg_replace('/>.*/',"", preg_replace('/.*</',"", $lista_correos[$d])));
-          array_push($mensajes_filtrados[$m]->nombres_responder_a, preg_replace('/ <.*>/',"", $lista_correos[$d]));
-        }
-
-      }
-
-
-      // $mensajes_filtrados[$m]->asunto = ("UTF-8"==mb_detect_encoding($mensaje->subject)) ? $mensaje->subject : mb_convert_encoding($mensaje->subject, "UTF-8", mb_detect_encoding($mensaje->subject));
-
-      if ( strtolower($mensajes_filtrados[$m]->remitente) ==  strtolower($correo) ) {
-
-        for ($d=0; $d < count($mensajes_filtrados[$m]->destinatarios); $d++) {
-          if ( strtolower($mensajes_filtrados[$m]->destinatarios[$d]) ==  strtolower($correo) ) {
+        for ($d=0; $d < count($tmp->destinatarios); $d++) {
+          if ( strtolower($tmp->destinatarios[$d]) ==  strtolower($correo) ) {
             $remitente_destinatario = true;
             break;
           }
         }
 
-        $mensajes_filtrados[$m]->recibido = $remitente_destinatario;
-        // $fecha_hora = ($mensaje->headerExists('date')) ? $mensaje->date : $mensaje->xApparentlyTo;
+        $tmp->recibido = $remitente_destinatario;
       }
       else {
-        $mensajes_filtrados[$m]->recibido = true;
-        // $fecha_hora = $mensaje->getHeader('received', 'array')[0];
+        $tmp->recibido = true;
       }
 
-      $mensajes_filtrados[$m]->visto = ($mensaje->hasFlag(Zend_Mail_Storage::FLAG_SEEN))?true:false;
+      array_push($respuesta->mensajes, $tmp);
 
-      // $mensajes_filtrados[$m]->banderas = $mensaje->getFlags();
-
-      $mensajes_filtrados[$m]->contenido = null;
-
-      $mensajes_filtrados[$m]->seleccionado = false;
-
-      array_push($respuesta->mensajes, $mensajes_filtrados[$m]);
     }
     catch (Exception $e) {
       $respuesta->num_errores++;
     }
 
   }
+
+  imap_close($imap);imap_errors();imap_alerts();
 
   return $respuesta;
 }
@@ -427,7 +497,134 @@ function decodificarCadena($cadena_codificada, $codificacion) {
   return $cadena_decodificada;
 }
 
-function obtenerContenidoMensaje($imap, $ruta_folder, $mensaje_id) {
+function modificarEstructuraContenidoMensaje(&$parte_mensaje) {
+
+  global $TIPO_CONTENIDO_MSG;
+  global $CODIFICACIONES_MSG;
+  $cp_parametros = new stdClass();
+  $cp_dparametros = new stdClass();
+
+  $parte_mensaje->type = $TIPO_CONTENIDO_MSG[$parte_mensaje->type];
+  $parte_mensaje->encoding = $CODIFICACIONES_MSG[$parte_mensaje->encoding];
+
+  if ($parte_mensaje->ifparameters) {
+
+    for ($p=0; $p < count($parte_mensaje->parameters); $p++) {
+      $cp_parametros->{$parte_mensaje->parameters[$p]->attribute} = $parte_mensaje->parameters[$p]->value;
+    }
+
+    $parte_mensaje->parameters = $cp_parametros;
+
+  }
+
+  if ($parte_mensaje->ifdparameters) {
+
+    for ($p=0; $p < count($parte_mensaje->dparameters); $p++) {
+      $cp_dparametros->{$parte_mensaje->dparameters[$p]->attribute} = $parte_mensaje->dparameters[$p]->value;
+    }
+
+    $parte_mensaje->dparameters = $cp_dparametros;
+
+  }
+
+  if (isset($parte_mensaje->parts)) {
+    for ($p=0; $p < count($parte_mensaje->parts); $p++) {
+      modificarEstructuraContenidoMensaje($parte_mensaje->parts[$p]);
+    }
+  }
+
+}
+
+function buscarContenidoCuerpoMensaje(&$contenido, &$respuesta, $parte, $imap, $numero_mensaje, $seccion_mensaje) {
+
+  if ($parte->ifdisposition) {
+
+    $contenido->codificacion = $parte->encoding;
+
+    $contenido->id = $seccion_mensaje;
+    $contenido->disposicion = $parte->disposition;
+    $contenido->nombre = (isset($parte->dparameters->filename)) ? urldecode($parte->dparameters->filename) : 'sin_nombre';
+    $contenido->cid = (isset($parte->id)) ? str_replace(array("<",">"), array("",""), $parte->id) : '';
+
+
+    if ('inline'==$contenido->disposicion || ''!=$contenido->cid) {
+
+      $contenido->datos = imap_fetchbody($imap, $numero_mensaje, $seccion_mensaje); imap_errors();imap_alerts();
+
+      if('text'==$contenido->tipo_des[0]) {
+        $contenido->caracteres = (isset($parte->parameters->charset)) ? strtoupper($parte->parameters->charset) : 'ASCII';
+        $contenido->datos = decodificarCadena($contenido->datos, $contenido->codificacion);
+        if('UTF-8' != $contenido->caracteres) {
+          $contenido->datos = mb_convert_encoding($contenido->datos, "UTF-8", $contenido->caracteres);
+        }
+      }
+
+      array_push($respuesta->adjunto_enlinea, $contenido);
+
+    }
+    else {
+      unset($contenido->cid);
+      unset($contenido->disposicion);
+      array_push($respuesta->adjunto, $contenido);
+    }
+
+  }
+  else {
+
+    switch ($contenido->tipo) {
+
+      case 'text/plain':
+
+      if (isset($respuesta->cuerpo->datos)) {
+        break;
+      }
+
+      case 'text/html':
+
+      $contenido->codificacion = $parte->encoding;
+      $contenido->caracteres = (isset($parte->parameters->charset)) ? strtoupper($parte->parameters->charset) : 'ASCII';
+      $contenido->datos = imap_fetchbody($imap, $numero_mensaje, $seccion_mensaje); imap_errors();imap_alerts();
+      $contenido->datos = decodificarCadena($contenido->datos, $contenido->codificacion);
+
+      if('UTF-8' != $contenido->caracteres) {
+        $contenido->datos = mb_convert_encoding($contenido->datos, "UTF-8", $contenido->caracteres);
+      }
+
+      if ('text/html'==$contenido->tipo) {
+        $contenido->datos = "<span style=\"white-space: pre-line\">" .$contenido->datos. "</span>";
+      }
+
+      $respuesta->cuerpo = $contenido;
+
+      break;
+
+      default:
+
+      if ('multipart'==$contenido->tipo_des[0]) {
+        if (isset($parte->parts)) {
+          for ($p=0; $p < count($parte->parts); $p++) {
+            $contenido = new stdClass();
+            $contenido->tipo = $parte->parts[$p]->type;
+            $contenido->tipo_des = array($parte->parts[$p]->type);
+
+            if ($parte->parts[$p]->ifsubtype) {
+              $tmp_subtipo = strtolower($parte->parts[$p]->subtype);
+              $contenido->tipo .= '/'.$tmp_subtipo;
+              array_push($contenido->tipo_des, $tmp_subtipo);
+            }
+
+            buscarContenidoCuerpoMensaje($contenido, $respuesta, $parte->parts[$p], $imap, $numero_mensaje, $seccion_mensaje.".".($p+1));
+          }
+        }
+      }
+
+    }
+
+  }
+
+}
+
+function obtenerContenidoMensaje($imap, $servidor_imap, $puerto_imap, $ruta_folder, $mensaje_id) {
 
   $respuesta = new stdClass();
   $respuesta->cuerpo = array();
@@ -436,64 +633,38 @@ function obtenerContenidoMensaje($imap, $ruta_folder, $mensaje_id) {
   $codificacion = null;
   $numero_parte = 1;
 
-  $buzon = new Zend_Mail_Storage_Imap($imap);
-  $buzon->selectFolder(urldecode($ruta_folder));
+  $folder_cambiado = imap_reopen($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".urldecode($ruta_folder));
 
-  $numero_mensaje = $buzon->getNumberByUniqueId($mensaje_id);
-  $mensaje = $buzon->getMessage($numero_mensaje);
+  if (!$folder_cambiado) {
+    throw new Exception("Error al abrir folder");
+  }
 
-  // print_r($mensaje->getHeaders());
+  $numero_mensaje = imap_msgno($imap, $mensaje_id); imap_errors();imap_alerts();
 
-  if ($mensaje->isMultipart()) {
+  try {
+    $estado_bandera = imap_setflag_full($imap, "$numero_mensaje", "\\Seen"); imap_errors();imap_alerts();
+  }
+  catch (Exception $e) {}
 
-    foreach (new RecursiveIteratorIterator($mensaje) as $parte) {
-      // print_r($parte->getHeaders());
+  $estructura = imap_fetchstructure($imap, $numero_mensaje); imap_errors();imap_alerts();
+
+  modificarEstructuraContenidoMensaje($estructura);
+
+  if (isset($estructura->parts)) {
+
+    for ($p=0; $p < count($estructura->parts); $p++) {
+
       $contenido = new stdClass();
-      $contenido->tipo = $parte->getHeaderField('Content-Type');
-      $contenido->tipo_des = explode('/', $contenido->tipo);
-      $contenido->codificacion = ($parte->headerExists('Content-Transfer-Encoding')) ? $parte->getHeaderField('Content-Transfer-Encoding'):'';
+      $contenido->tipo = $estructura->parts[$p]->type;
+      $contenido->tipo_des = array($estructura->parts[$p]->type);
 
-      if ($parte->headerExists('Content-Disposition')) {
-        $contenido->id = $numero_parte;
-        $contenido->disposicion = $parte->getHeaderField('Content-Disposition');
-        $contenido->nombre = $parte->getHeaderField('Content-Disposition', 'filename');
-        $contenido->cid = ($parte->headerExists('Content-Id')) ? str_replace(array("<",">"), array("",""), $parte->getHeaderField('Content-Id')) : '';
-
-        if ('inline'==$contenido->disposicion || ''!=$contenido->cid) {
-
-          $contenido->datos = $parte->getContent();
-
-          if('text'==$contenido->tipo_des[0]) {
-
-            $contenido->caracteres = strtoupper($parte->getHeaderField('Content-Type', 'charset'));
-
-            $contenido->datos = decodificarCadena($contenido->datos, $contenido->codificacion);
-
-            if('UTF-8' != $contenido->caracteres) {
-              $contenido->datos = mb_convert_encoding($contenido->datos, "UTF-8", $contenido->caracteres);
-            }
-
-          }
-
-          array_push($respuesta->adjunto_enlinea, $contenido);
-
-        }
-        else {
-          unset($contenido->cid);
-          unset($contenido->disposicion);
-          array_push($respuesta->adjunto, $contenido);
-        }
-      }
-      else if('html'==$contenido->tipo_des[1]) {
-        $contenido->caracteres = strtoupper($parte->getHeaderField('Content-Type', 'charset'));
-        $contenido->datos = decodificarCadena($parte->getContent(), $contenido->codificacion);
-        if('UTF-8' != $contenido->caracteres) {
-          $contenido->datos = mb_convert_encoding($contenido->datos, "UTF-8", $contenido->caracteres);
-        }
-        $respuesta->cuerpo = $contenido;
+      if ($estructura->parts[$p]->ifsubtype) {
+        $tmp_subtipo = strtolower($estructura->parts[$p]->subtype);
+        $contenido->tipo .= '/'.$tmp_subtipo;
+        array_push($contenido->tipo_des, $tmp_subtipo);
       }
 
-      $numero_parte ++;
+      buscarContenidoCuerpoMensaje($contenido, $respuesta, $estructura->parts[$p], $imap, $numero_mensaje, (string)($p+1));
 
     }
 
@@ -504,7 +675,7 @@ function obtenerContenidoMensaje($imap, $ruta_folder, $mensaje_id) {
 
     $respuesta->cuerpo->datos_originales = $respuesta->cuerpo->datos;
 
-    for ($i=0; $i < count($respuesta->adjunto_enlinea) ; $i++) {
+    for ($i=0; $i < count($respuesta->adjunto_enlinea); $i++) {
       if (!integrarCuerpoMensaje($respuesta->cuerpo->datos, $respuesta->adjunto_enlinea[$i])) {
         unset($respuesta->adjunto_enlinea[$i]);
       }
@@ -512,40 +683,63 @@ function obtenerContenidoMensaje($imap, $ruta_folder, $mensaje_id) {
 
   }
   else {
-
     $contenido = new stdClass();
+    $contenido->codificacion = $estructura->encoding;
 
-    $contenido->codificacion = ($mensaje->headerExists('Content-Transfer-Encoding')) ? $mensaje->getHeaderField('Content-Transfer-Encoding'):'';
+    switch ($estructura->type) {
 
-    $contenido->caracteres = strtoupper($mensaje->getHeaderField('Content-Type', 'charset'));
+      case 'application':
+      case 'audio':
+      case 'image':
+      case 'video':
 
-    $contenido->datos = decodificarCadena($mensaje->getContent(), $contenido->codificacion);
+      $contenido->id = "0";
+      $contenido->nombre = (isset($estructura->parameters->name)) ? $estructura->parameters->name: $estructura->type;
+      $contenido->tipo = $estructura->type;
+      if ($estructura->ifsubtype) {
+        $contenido->tipo .= '/'.strtolower($estructura->subtype);
+      }
+      array_push($respuesta->adjunto, $contenido);
 
-    if ('UTF-8' != $contenido->caracteres) {
-      $contenido->datos = mb_convert_encoding($contenido->datos, "UTF-8", $contenido->caracteres);
+      break;
+      case 'text':
+
+      $contenido->caracteres = (isset($estructura->parameters->charset)) ? strtoupper($estructura->parameters->charset) : 'ASCII';
+      $contenido->datos = imap_body($imap, $numero_mensaje); imap_errors();imap_alerts();
+      $contenido->datos = decodificarCadena($contenido->datos, $contenido->codificacion);
+
+      if ('UTF-8' != $contenido->caracteres) {
+        $contenido->datos = mb_convert_encoding($contenido->datos, "UTF-8", $contenido->caracteres);
+      }
+
+      if ($estructura->ifsubtype) {
+        if ('PLAIN'==$estructura->subtype) {
+          $contenido->datos = "<span style=\"white-space: pre-line\">" .$contenido->datos. "</span>";
+        }
+      }
+
+      break;
+      default:
+      $contenido->datos = "<span style=\"white-space: pre-line\">EL MENSAJE TIENE CONTENIDO DE TIPO '".$estructura->type."' Y NO FUE POSIBLE DECODIFICARLO.</span>";
+      break;
     }
 
-    $contenido->datos = "<span style=\"white-space: pre-line\">" .$contenido->datos. "</span>";
-
-    $respuesta->datos_originales = $respuesta->datos;
-
+    $contenido->datos_originales = $contenido->datos;
     $respuesta->cuerpo = $contenido;
 
   }
+
+
+  imap_close($imap);imap_errors();imap_alerts();
 
   return $respuesta;
 
 }
 
-function almacenarMensajeEnServidor($correo, $nombre, $password, $servidor, $puerto, $datos) {
+function almacenarMensajeEnServidor($correo, $nombre, $password, $servidor_imap, $puerto_imap, $contenido_mensaje, $ruta_folder) {
 
   $respuesta = new stdClass();
-
-  $folder_enviados = null;
-
-  $boundary = array();
-
-  $respuesta_sesion = iniciarSesionImap($correo, $password, $servidor, $puerto);
+  $respuesta_sesion = iniciarSesionImap($correo, $password, $servidor_imap, $puerto_imap);
 
   if (!$respuesta_sesion->estado) {
     $respuesta->estado = false;
@@ -553,88 +747,10 @@ function almacenarMensajeEnServidor($correo, $nombre, $password, $servidor, $pue
   }
 
   try {
-    $buzon = new Zend_Mail_Storage_Imap($respuesta_sesion->imap);
 
-    $mensaje = "From: ".$nombre." <".$correo.">\r\n";
-    $mensaje .= "Reply-To: ".$nombre." <".$correo.">\r\n";
+    $insertado = imap_append($respuesta_sesion->imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".urldecode($ruta_folder), $contenido_mensaje, "\\Seen");
 
-    $mensaje .= "To: ";
-    for ($i=0; $i < count($datos->destinatarios); $i++) {
-      $mensaje .=$datos->destinatarios[$i].", ";
-    }
-    $mensaje = trim($mensaje, ', ');
-    $mensaje .= "\r\n";
-    $mensaje .= "Subject: "."=?utf-8?B?".base64_encode($datos->asunto)."?=\r\n";
-    $mensaje .= "Date: ".date("D, d M Y H:i:s O")."\r\n";
-    $mensaje .= "MIME-Version: 1.0\r\n";
-    $mensaje .= "X-Mailer: PHP/".phpversion()."\r\n";
-
-    $boundary[0] = "=_".md5(microtime());
-    $boundary[1] = "=_".md5(microtime());
-    $boundary[2] = "=_".md5(microtime());
-    $num_adjuntos = count($datos->adjuntos);
-    $num_adjuntos_enlinea = count($datos->adjuntos_enlinea);
-
-    if ($num_adjuntos>0) {
-      $mensaje .= "Content-Type: multipart/mixed; boundary=\"".$boundary[0]."\"\r\n\r\n";
-      $mensaje .= "--".$boundary[0]."\r\n";
-    }
-
-    if ($num_adjuntos_enlinea>0) {
-      $mensaje .= "Content-Type: multipart/related; boundary=\"".$boundary[1]."\"\r\n\r\n";
-      $mensaje .= "--".$boundary[1]."\r\n";
-    }
-
-    $mensaje .= "Content-Type: multipart/alternative; boundary=\"".$boundary[2]."\"\r\n\r\n";
-    $mensaje .= "--".$boundary[2]."\r\n";
-
-    $mensaje .= "Content-Type: text/plain; charset=UTF-8\r\n";
-    $mensaje .= "Content-Transfer-Encoding: quoted-printable\r\n\r\n";
-    $mensaje .= quoted_printable_encode(strip_tags($datos->cuerpo))."\r\n\r\n";
-    $mensaje .= "--".$boundary[2]."\r\n";
-
-    $mensaje .= "Content-Type: text/html; charset=UTF-8\r\n";
-    $mensaje .= "Content-Transfer-Encoding: quoted-printable\r\n\r\n";
-    $mensaje .= quoted_printable_encode($datos->cuerpo)."\r\n\r\n";
-    $mensaje .= "--".$boundary[2]."--\r\n\r\n";
-
-
-    if ($num_adjuntos_enlinea>0) {
-
-      for ($i=0; $i < count($datos->adjuntos_enlinea); $i++) {
-
-        $mensaje .= "--".$boundary[1]."\r\n";
-        $mensaje .= "Content-Type: ".$datos->adjuntos_enlinea[$i]->tipo."\r\n";
-        $mensaje .= "Content-Transfer-Encoding: base64\r\n";
-        $mensaje .= "Content-Disposition: inline; filename=\"".$datos->adjuntos_enlinea[$i]->nombre."\"\r\n";
-        $mensaje .= "Content-ID: <".$datos->adjuntos_enlinea[$i]->cid.">\r\n\r\n";
-        $mensaje .= base64_encode($datos->adjuntos_enlinea[$i]->contenido)."\r\n";
-
-      }
-
-      $mensaje .= "--".$boundary[1]."--\r\n\r\n";
-
-    }
-
-
-    if ($num_adjuntos>0) {
-
-      for ($i=0; $i < count($datos->adjuntos); $i++) {
-
-        $mensaje .= "--".$boundary[0]."\r\n";
-        $mensaje .= "Content-Type: ".$datos->adjuntos[$i]->tipo."\r\n";
-        $mensaje .= "Content-Transfer-Encoding: base64\r\n";
-        $mensaje .= "Content-Disposition: attachment; filename=\"".$datos->adjuntos[$i]->nombre."\"\r\n\r\n";
-        $mensaje .= base64_encode($datos->adjuntos[$i]->contenido)."\r\n";
-
-      }
-
-      $mensaje .= "--".$boundary[0]."--\r\n\r\n";
-
-    }
-
-    $buzon->appendMessage($mensaje, $datos->enviados_id);
-    $respuesta->estado = true;
+    $respuesta->estado = $insertado;
 
   }
   catch (Exception $e) {
@@ -645,27 +761,19 @@ function almacenarMensajeEnServidor($correo, $nombre, $password, $servidor, $pue
 
 }
 
-function descargarArchivoAdjunto($imap, $ruta_folder, $mensaje_id, $adjunto_id, $nombre_archivo, $tipo_archivo) {
-
-  $numero_parte = 1;
+function descargarArchivoAdjunto($imap, $servidor_imap, $puerto_imap, $ruta_folder, $mensaje_id, $adjunto_id, $nombre_archivo, $tipo_archivo) {
 
   $contenido = null;
 
-  $buzon = new Zend_Mail_Storage_Imap($imap);
+  $folder_cambiado = imap_reopen($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".urldecode($ruta_folder));
 
-  $buzon->selectFolder(urldecode($ruta_folder));
-
-  $numero_mensaje = $buzon->getNumberByUniqueId($mensaje_id);
-
-  $mensaje = $buzon->getMessage($numero_mensaje);
-
-  foreach (new RecursiveIteratorIterator($mensaje) as $parte) {
-    if ($numero_parte == $adjunto_id) {
-      $contenido = $parte->getContent();
-      break;
-    }
-    $numero_parte++;
+  if (!$folder_cambiado) {
+    throw new Exception("Error al abrir folder");
   }
+
+  $contenido = imap_fetchbody($imap, $mensaje_id, $adjunto_id, FT_UID); imap_errors();imap_alerts();
+
+  imap_close($imap);imap_errors();imap_alerts();
 
   $blob = base64_decode($contenido);
 
@@ -684,123 +792,184 @@ function descargarArchivoAdjunto($imap, $ruta_folder, $mensaje_id, $adjunto_id, 
 
 }
 
-function obtenerArchivoAdjuntoDeMensaje($imap, $ruta_folder, $mensaje_id) {
-
-  $numero_parte = 1;
+function obtenerArchivoAdjuntoDeMensaje($imap, $servidor_imap, $puerto_imap, $adjuntos, $adjuntos_enlinea, $ruta_folder, $mensaje_id) {
 
   $respuesta = new stdClass();
 
-  $buzon = new Zend_Mail_Storage_Imap($imap);
+  $folder_cambiado = imap_reopen($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".urldecode($ruta_folder));
 
-  $buzon->selectFolder(urldecode($ruta_folder));
-
-  $numero_mensaje = $buzon->getNumberByUniqueId($mensaje_id);
-
-  $mensaje = $buzon->getMessage($numero_mensaje);
-
-  foreach (new RecursiveIteratorIterator($mensaje) as $parte) {
-
-    $respuesta->{$numero_parte} = $parte->getContent();
-
-    $numero_parte++;
+  if (!$folder_cambiado) {
+    throw new Exception("Error al abrir folder");
   }
+
+  for ($i=0; $i < count($adjuntos); $i++) {
+
+    if (isset($adjuntos[$i]->noalmacenado)) {
+
+      $respuesta->{$adjuntos[$i]->id} = imap_fetchbody($imap, $mensaje_id, $adjuntos[$i]->id, FT_UID); imap_errors();imap_alerts();
+
+    }
+
+  }
+
+
+  for ($i=0; $i < count($adjuntos_enlinea); $i++) {
+
+    if (isset($adjuntos_enlinea[$i]->noalmacenado)) {
+
+      $respuesta->{$adjuntos_enlinea[$i]->id} = imap_fetchbody($imap, $mensaje_id, $adjuntos_enlinea[$i]->id, FT_UID); imap_errors();imap_alerts();
+
+    }
+
+  }
+
+  imap_close($imap);imap_errors();imap_alerts();
 
   return $respuesta;
 
 }
 
-function eliminarMensaje($imap, $ruta_folder, $mensaje_id, $papelera_id) {
+function eliminarMensaje($imap, $servidor_imap, $puerto_imap, $ruta_folder, $mensaje_id, $papelera_id) {
 
-  $buzon = new Zend_Mail_Storage_Imap($imap);
+  $folder_cambiado = imap_reopen($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".urldecode($ruta_folder));
 
-  $buzon->selectFolder(urldecode($ruta_folder));
-  $numero_mensaje = $buzon->getNumberByUniqueId($mensaje_id);
+  if (!$folder_cambiado) {
+    throw new Exception("Error al abrir folder");
+  }
 
   if (null==$papelera_id) {
-    $buzon->removeMessage($numero_mensaje);
+    $operacion_realizada = imap_delete($imap, $mensaje_id, FT_UID);
   }
   else {
-    $buzon->moveMessage($numero_mensaje, urldecode($papelera_id));
+    $operacion_realizada = imap_mail_move($imap, $mensaje_id, urldecode($papelera_id), CP_UID);
   }
 
+
+  if ($operacion_realizada) {
+    if (!imap_expunge($imap)) {
+      throw new Exception("Error");
+    }
+  }
+  else {
+    throw new Exception("Error");
+  }
+
+  imap_close($imap);imap_errors();imap_alerts();
+
 }
 
-function moverMensaje($imap, $ruta_folder, $mensaje_id, $destino_id) {
+function moverMensaje($imap, $servidor_imap, $puerto_imap, $ruta_folder, $mensaje_id, $destino_id) {
 
-  $buzon = new Zend_Mail_Storage_Imap($imap);
+  $folder_cambiado = imap_reopen($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".urldecode($ruta_folder));
 
-  $buzon->selectFolder(urldecode($ruta_folder));
-  $numero_mensaje = $buzon->getNumberByUniqueId($mensaje_id);
+  if (!$folder_cambiado) {
+    throw new Exception("Error al abrir folder");
+  }
 
-  $buzon->moveMessage($numero_mensaje, urldecode($destino_id));
+  $operacion_realizada = imap_mail_move($imap, $mensaje_id, urldecode($destino_id), CP_UID);
+
+  if ($operacion_realizada) {
+    if (!imap_expunge($imap)) {
+      throw new Exception("Error");
+    }
+  }
+  else {
+    throw new Exception("Error");
+  }
+
+  imap_close($imap);imap_errors();imap_alerts();
 
 }
 
-function marcarMensajesComoLeidos($imap, $ruta_folder, $mensajes_id) {
+function marcarMensajesComoLeidos($imap, $servidor_imap, $puerto_imap, $ruta_folder, $mensajes_id) {
 
-  $buzon = new Zend_Mail_Storage_Imap($imap);
-  $buzon->selectFolder(urldecode($ruta_folder));
   $respuesta = new stdClass();
   $respuesta->correctos = array();
   $respuesta->incorrectos = array();
+  $secuencia_ids = '';
+
+  $folder_cambiado = imap_reopen($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".urldecode($ruta_folder));
+
+  if (!$folder_cambiado) {
+    throw new Exception("Error al abrir folder");
+  }
 
   for ($i=0; $i < count($mensajes_id); $i++) {
+    $secuencia_ids .= $mensajes_id[$i].",";
+  }
 
-    try {
+  $secuencia_ids = rtrim($secuencia_ids,",");
 
-      $numero_mensaje = $buzon->getNumberByUniqueId($mensajes_id[$i]);
-      $mensaje = $buzon->getMessage($numero_mensaje);
+  try {
 
-      if (!$mensaje->hasFlag(Zend_Mail_Storage::FLAG_SEEN)) {
-        foreach (new RecursiveIteratorIterator($mensaje) as $parte) {
-          break;
-        }
-      }
+    $estado_bandera = imap_setflag_full($imap, $secuencia_ids, "\\Seen", ST_UID); imap_errors();imap_alerts();
+    $respuesta->correctos = $mensajes_id;
 
-      array_push($respuesta->correctos, $mensajes_id[$i]);
-
-    } catch (Exception $e) {
-
-      array_push($respuesta->incorrectos, $mensajes_id[$i]);
-
+    if (!$estado_bandera) {
+      $respuesta->incorrectos = $mensajes_id;
+      throw new Exception("Error");
     }
 
   }
+  catch (Exception $e) {
+    $respuesta->incorrectos = $mensajes_id;
+    throw new Exception("Error");
+  }
+
+  imap_close($imap);imap_errors();imap_alerts();
 
   return $respuesta;
 
 }
 
-function eliminarMensajes($imap, $ruta_folder, $mensajes_id, $papelera_id) {
+function eliminarMensajes($imap, $servidor_imap, $puerto_imap, $ruta_folder, $mensajes_id, $papelera_id) {
 
-  $buzon = new Zend_Mail_Storage_Imap($imap);
-  $buzon->selectFolder(urldecode($ruta_folder));
   $respuesta = new stdClass();
   $respuesta->correctos = array();
   $respuesta->incorrectos = array();
+  $secuencia_ids = '';
+
+  $folder_cambiado = imap_reopen($imap, "{".$servidor_imap.":".$puerto_imap."/imap/ssl}".urldecode($ruta_folder));
+
+  if (!$folder_cambiado) {
+    throw new Exception("Error al abrir folder");
+  }
 
   for ($i=0; $i < count($mensajes_id); $i++) {
+    $secuencia_ids .= $mensajes_id[$i].",";
+  }
 
-    try {
+  $secuencia_ids = rtrim($secuencia_ids,",");
 
-      $numero_mensaje = $buzon->getNumberByUniqueId($mensajes_id[$i]);
+  try {
 
-      if (null==$papelera_id) {
-        $buzon->removeMessage($numero_mensaje);
+    if (null==$papelera_id) {
+      $operacion_realizada = imap_delete($imap, $secuencia_ids, FT_UID);
+    }
+    else {
+      $operacion_realizada = imap_mail_move($imap, $secuencia_ids, urldecode($papelera_id), CP_UID);
+    }
+
+
+    if ($operacion_realizada) {
+      $respuesta->correctos = $mensajes_id;
+      if (!imap_expunge($imap)) {
+        $respuesta->incorrectos = $mensajes_id;
+        throw new Exception("Error");
       }
-      else {
-        $buzon->moveMessage($numero_mensaje, urldecode($papelera_id));
-      }
-
-      array_push($respuesta->correctos, $mensajes_id[$i]);
-
-    } catch (Exception $e) {
-
-      array_push($respuesta->incorrectos, $mensajes_id[$i]);
-
+    }
+    else {
+      $respuesta->incorrectos = $mensajes_id;
+      throw new Exception("Error");
     }
 
   }
+  catch (Exception $e) {
+    $respuesta->incorrectos = $mensajes_id;
+    throw new Exception("Error");
+  }
+
+  imap_close($imap);imap_errors();imap_alerts();
 
   return $respuesta;
 

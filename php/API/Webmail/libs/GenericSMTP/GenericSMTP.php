@@ -1,34 +1,35 @@
 <?php
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require_once __DIR__ . '/PHPMailer/vendor/autoload.php';
+
 function iniciarSesionSmtp($correo, $password, $servidor, $puerto) {
 
   $respuesta = new stdClass();
+  $respuesta->smtp = null;
+  $respuesta->estado = false;
 
-  $config = array(
-    'auth' => 'login',
-    'username' => $correo,
-    'password' => $password,
-    'ssl' => 'ssl',
-    // 'ssl' => 'tls'
-    'port' => $puerto
-  );
+  $mail = new PHPMailer(true);
 
   try {
-    $respuesta->smtp = new Zend_Mail_Transport_Smtp($servidor, $config);
+    $mail->isSMTP();
+    $mail->Host = $servidor;
+    $mail->SMTPAuth = true;
+    $mail->Username = $correo;
+    $mail->Password = $password;
+    $mail->SMTPSecure = 'ssl';
+    $mail->Port = $puerto;
 
-    $socket = fsockopen("ssl://".$servidor, $puerto, $errno, $errstr, 15);
-
-    if($socket) {
-      $respuesta->estado = true;
-    }
-    else {
-      $respuesta->estado = false;
-    }
+    $respuesta->estado = $mail->SmtpConnect();
+    $respuesta->smtp = $mail;
   }
   catch (Exception $e) {
     $respuesta->estado = false;
     $respuesta->smtp = null;
   }
+
 
   if (!$respuesta->estado) {
     $respuesta->mensaje_error = "No se pudo establecer una conexion con el servidor SMTP";
@@ -41,41 +42,53 @@ function iniciarSesionSmtp($correo, $password, $servidor, $puerto) {
 
 function enviarMensaje($correo, $nombre, $smtp, $datos) {
 
-  $mensaje = new Zend_Mail('UTF-8');
-  $mensaje->setFrom($correo, $nombre);
-  $mensaje->setReplyTo($correo, $nombre);
-  $mensaje->setSubject('=?utf-8?B?'.base64_encode($datos->asunto).'?=');
-  $mensaje->setBodyText(strip_tags($datos->cuerpo), 'UTF-8', Zend_Mime::ENCODING_QUOTEDPRINTABLE);
-  $mensaje->setBodyHtml($datos->cuerpo, 'UTF-8', Zend_Mime::ENCODING_QUOTEDPRINTABLE);
-  $mensaje->addHeader('MIME-Version', '1.0');
-  $mensaje->addHeader('X-Mailer', 'PHP/'.phpversion());
+  $contenido_mensaje = null;
+
+  $smtp->CharSet = 'UTF-8';
+  $smtp->setFrom($correo, $nombre);
 
   for ($i=0; $i < count($datos->destinatarios); $i++) {
-    $mensaje->addTo($datos->destinatarios[$i], '');
+    $smtp->addAddress($datos->destinatarios[$i]);
   }
+
+  $smtp->addReplyTo($correo, $nombre);
 
   for ($i=0; $i < count($datos->adjuntos_enlinea); $i++) {
-    $obj = new Zend_Mime_Part($datos->adjuntos_enlinea[$i]->contenido);
-    $obj->type = $datos->adjuntos_enlinea[$i]->tipo;
-    $obj->disposition = Zend_Mime::DISPOSITION_INLINE;
-    $obj->encoding = Zend_Mime::ENCODING_BASE64;
-    $obj->filename = $datos->adjuntos_enlinea[$i]->nombre;
-    $obj->id = $datos->adjuntos_enlinea[$i]->cid;
-
-    $mensaje->addAttachment($obj);
-  }
-
-  for ($i=0; $i < count($datos->adjuntos); $i++) {
-    $mensaje->createAttachment(
-      $datos->adjuntos[$i]->contenido,
-      $datos->adjuntos[$i]->tipo,
-      Zend_Mime::DISPOSITION_ATTACHMENT,
-      Zend_Mime::ENCODING_BASE64,
-      $datos->adjuntos[$i]->nombre
+    $smtp->addStringEmbeddedImage(
+      $datos->adjuntos_enlinea[$i]->contenido,
+      $datos->adjuntos_enlinea[$i]->cid,
+      $datos->adjuntos_enlinea[$i]->nombre,
+      'base64',
+      $datos->adjuntos_enlinea[$i]->tipo,
+      'inline'
     );
   }
 
-  $mensaje->send($smtp);
+  for ($i=0; $i < count($datos->adjuntos); $i++) {
+    $smtp->addStringAttachment(
+      $datos->adjuntos[$i]->contenido,
+      $datos->adjuntos[$i]->nombre,
+      'base64',
+      $datos->adjuntos[$i]->tipo,
+      'attachment'
+    );
+  }
+
+  $smtp->isHTML(true);
+  $smtp->Subject = $datos->asunto;
+  $smtp->Body    = $datos->cuerpo;
+  $smtp->AltBody = strip_tags($datos->cuerpo);
+  // $smtp->addCustomHeader('MIME-Version', '1.0');
+  $smtp->addCustomHeader('X-Mailer', 'PHP/'.phpversion());
+
+  $enviado = $smtp->send();
+
+  if ($enviado) {
+    $contenido_mensaje = $smtp->getSentMIMEMessage();
+  }
+
+  return $contenido_mensaje;
+
 }
 
 ?>

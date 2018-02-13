@@ -3,8 +3,6 @@ require_once 'libs/Gmail/GoogleToken.php';
 require_once 'libs/Gmail/GmailAPI.php';
 require_once 'libs/GenericIMAP/GenericIMAP.php';
 require_once 'libs/GenericSMTP/GenericSMTP.php';
-require_once 'libs/Gmail/ImapGmail.php';
-require_once 'libs/Gmail/SmtpGmail.php';
 require_once 'libs/Outlook/OutlookToken.php';
 require_once 'libs/Outlook/OutlookAPI.php';
 
@@ -19,9 +17,12 @@ function comprobarCredencialesCorreoWebmail($parametros) {
     $parametros->puerto_imap
   );
 
-  unset($respuesta->imap);
-
-  if (!$respuesta->estado) {
+  if ($respuesta->estado) {
+    imap_close($respuesta->imap);
+    unset($respuesta->imap);
+  }
+  else {
+    unset($respuesta->imap);
     $respuesta->mensaje_error .= ", realiza lo siguiente:<br /><ul>".
     "<li>Revisa que los datos de configuración sean correctos</li>".
     "<li>Revisa tu bandeja de entrada en busca de un mensaje de alerta de bloqueo de la conexión, y sigue las instrucciones para permitir el acceso</li>".
@@ -36,9 +37,12 @@ function comprobarCredencialesCorreoWebmail($parametros) {
     $parametros->puerto_smtp
   );
 
-  unset($respuesta->smtp);
-
-  if (!$respuesta->estado) {
+  if ($respuesta->estado) {
+    $respuesta->smtp->SmtpClose();
+    unset($respuesta->smtp);
+  }
+  else {
+    unset($respuesta->smtp);
     $respuesta->mensaje_error .= ", realiza lo siguiente:<br /><ul>".
     "<li>Revisa que los datos de configuración sean correctos</li>".
     "<li>Revisa tu bandeja de entrada en busca de un mensaje de alerta de bloqueo de la conexión, y sigue las instrucciones para permitir el acceso</li>".
@@ -819,7 +823,7 @@ function ObtenerFoldersPorCuentaWebmail() {
     if ($respuesta->estado) {
       $respuesta->folders_especiales = $folders_especiales;
       try {
-        $tmp_respuesta = obtenerFolders($parametros['correo_id'], $respuesta->imap, $respuesta->folders_especiales);
+        $tmp_respuesta = obtenerFolders($parametros['correo_id'], $respuesta->imap, $cuenta[0]->servidor_imap, $cuenta[0]->puerto_imap, $respuesta->folders_especiales);
         $respuesta->folders = $tmp_respuesta->folders;
 
         if (0==$tmp_respuesta->num_errores) {
@@ -928,7 +932,7 @@ function ObtenerEstadoFoldersPorCuentaWebmail() {
 
     if ($respuesta->estado) {
       try {
-        $respuesta->estado_folders = obtenerEstadoFolders($parametros['correo_id'], $respuesta->imap);
+        $respuesta->estado_folders = obtenerEstadoFolders($parametros['correo_id'], $respuesta->imap, $cuenta[0]->servidor_imap, $cuenta[0]->puerto_imap);
       }
       catch (Exception $e) {
         $respuesta->estado = false;
@@ -1069,7 +1073,7 @@ function ObtenerMensajesPorFolderWebmail() {
 
     if ($respuesta->estado) {
       try {
-        $tmp_respuesta = obtenerMensajes($respuesta->imap, $parametros['folder_id'], $cuenta[0]->correo, $parametros['pagina'], json_decode($parametros['busqueda']));
+        $tmp_respuesta = obtenerMensajes($respuesta->imap, $cuenta[0]->servidor_imap, $cuenta[0]->puerto_imap, $parametros['folder_id'], $cuenta[0]->correo, $parametros['pagina'], json_decode($parametros['busqueda']));
         $respuesta->mensajes = $tmp_respuesta->mensajes;
         $respuesta->mensajes_novistos = $tmp_respuesta->mensajes_novistos;
         $respuesta->numero_mensajes = $tmp_respuesta->numero_mensajes;
@@ -1178,7 +1182,7 @@ function ObtenerContenidoMensajeWebmail() {
 
     if ($respuesta->estado) {
       try {
-        $respuesta->contenido = obtenerContenidoMensaje($respuesta->imap, $parametros['ruta_folder'], $parametros['mensaje_id']);
+        $respuesta->contenido = obtenerContenidoMensaje($respuesta->imap, $cuenta[0]->servidor_imap, $cuenta[0]->puerto_imap, $parametros['ruta_folder'], $parametros['mensaje_id']);
       } catch (Exception $e) {
         $respuesta->estado = false;
         $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
@@ -1266,7 +1270,7 @@ function DescargarArchivoAdjuntoWebmail() {
 
     if ($respuesta->estado) {
       try {
-        descargarArchivoAdjunto($respuesta->imap, $parametros->ruta_folder, $parametros->mensaje_id, $parametros->adjunto_id, $parametros->nombre_archivo, $parametros->tipo_archivo);
+        descargarArchivoAdjunto($respuesta->imap, $cuenta[0]->servidor_imap, $cuenta[0]->puerto_imap, $parametros->ruta_folder, $parametros->mensaje_id, $parametros->adjunto_id, $parametros->nombre_archivo, $parametros->tipo_archivo);
       } catch (Exception $e) {
         $_SESSION['ErrorWebmail'] = 'No se pudo descargar el archivo adjunto';
         header("Location: ".$url_webmail_app);
@@ -1474,7 +1478,7 @@ function EnviarMensajeWebmail() {
         $adjuntos_noalmacenados = obtenerArchivoAdjuntoDeMensajeOutlook($datos->mensaje_anterior->id, $cuenta[0]->correo, $cuenta[0]->token_acceso);
         break;
         default:
-        $adjuntos_noalmacenados = obtenerArchivoAdjuntoDeMensaje($respuesta->imap, $datos->mensaje_anterior->ruta_id, $datos->mensaje_anterior->id);
+        $adjuntos_noalmacenados = obtenerArchivoAdjuntoDeMensaje($respuesta->imap, $cuenta[0]->servidor_imap, $cuenta[0]->puerto_imap, $datos->adjuntos, $datos->adjuntos_enlinea, $datos->mensaje_anterior->ruta_id, $datos->mensaje_anterior->id);
         break;
       }
 
@@ -1623,22 +1627,36 @@ function EnviarMensajeWebmail() {
     if ($respuesta->estado) {
       try {
 
-        enviarMensaje($cuenta[0]->correo, $cuenta[0]->nombre, $respuesta->smtp, $datos);
-
-        $tmp_respuesta = almacenarMensajeEnServidor(
-          $cuenta[0]->correo,
-          $cuenta[0]->nombre,
-          $cuenta[0]->password,
-          $cuenta[0]->servidor_imap,
-          $cuenta[0]->puerto_imap,
-          $datos
-        );
-
-        if (!$tmp_respuesta->estado) {
-          $respuesta->mensaje_error = "El mensaje se ha enviado, pero no pudo ser almacenado en la carpeta 'enviados' del servidor.";
+        if (''==$datos->cuerpo) {
+          $datos->cuerpo = " ";
         }
 
-        $respuesta->estado = true;
+        $contenido_mensaje = enviarMensaje($cuenta[0]->correo, $cuenta[0]->nombre, $respuesta->smtp, $datos);
+
+        if (null != $contenido_mensaje) {
+
+          $tmp_respuesta = almacenarMensajeEnServidor(
+            $cuenta[0]->correo,
+            $cuenta[0]->nombre,
+            $cuenta[0]->password,
+            $cuenta[0]->servidor_imap,
+            $cuenta[0]->puerto_imap,
+            $contenido_mensaje,
+            $datos->enviados_id
+          );
+
+          if (!$tmp_respuesta->estado) {
+            $respuesta->mensaje_error = "El mensaje se ha enviado, pero no pudo ser almacenado en la carpeta 'enviados' del servidor.";
+          }
+
+          $respuesta->estado = true;
+
+        }
+        else {
+          $respuesta->estado = false;
+          $respuesta->mensaje_error = "Error de SMTP";
+        }
+
 
       }
       catch (Exception $e) {
@@ -1742,7 +1760,7 @@ function EliminarMensajeWebmail() {
 
     if ($respuesta->estado) {
       try {
-        eliminarMensaje($respuesta->imap, $parametros->ruta_folder, $parametros->mensaje_id, $parametros->papelera_id);
+        eliminarMensaje($respuesta->imap, $cuenta[0]->servidor_imap, $cuenta[0]->puerto_imap, $parametros->ruta_folder, $parametros->mensaje_id, $parametros->papelera_id);
       } catch (Exception $e) {
         $respuesta->estado = false;
         $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
@@ -1823,7 +1841,7 @@ function MoverMensajeWebmail() {
 
     if ($respuesta->estado) {
       try {
-        moverMensaje($respuesta->imap, $parametros->ruta_folder, $parametros->mensaje_id, $parametros->destino_id);
+        moverMensaje($respuesta->imap, $cuenta[0]->servidor_imap, $cuenta[0]->puerto_imap, $parametros->ruta_folder, $parametros->mensaje_id, $parametros->destino_id);
       } catch (Exception $e) {
         $respuesta->estado = false;
         $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
@@ -1904,10 +1922,10 @@ function MarcarMensajesComoLeidosWebmail() {
 
     if ($respuesta->estado) {
       try {
-        $respuesta->ids = marcarMensajesComoLeidos($respuesta->imap, $parametros->ruta_folder, $parametros->mensajes_id);
+        $respuesta->ids = marcarMensajesComoLeidos($respuesta->imap, $cuenta[0]->servidor_imap, $cuenta[0]->puerto_imap, $parametros->ruta_folder, $parametros->mensajes_id);
       } catch (Exception $e) {
         $respuesta->estado = false;
-        $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+        $respuesta->mensaje_error = "Error al realizar la petición al servidor";
       }
       unset($respuesta->imap);
     }
@@ -1985,10 +2003,10 @@ function EliminarMensajesWebmail() {
 
     if ($respuesta->estado) {
       try {
-        $respuesta->ids = eliminarMensajes($respuesta->imap, $parametros->ruta_folder, $parametros->mensajes_id, $parametros->papelera_id);
-      } catch (Exception $e) {
+        $respuesta->ids = eliminarMensajes($respuesta->imap, $cuenta[0]->servidor_imap, $cuenta[0]->puerto_imap, $parametros->ruta_folder, $parametros->mensajes_id, $parametros->papelera_id);
+      } catch (Exception $e) {echo $e->getMessage();
         $respuesta->estado = false;
-        $respuesta->mensaje_error = "Error al realizar la petición al servidor.";
+        $respuesta->mensaje_error = "Error al realizar la petición al servidor";
       }
       unset($respuesta->imap);
     }

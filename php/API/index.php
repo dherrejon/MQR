@@ -5,11 +5,6 @@ session_start();
 require 'Slim/Slim.php';
 require 'configuration.php';
 
-require_once 'Zend/Mail.php';
-require_once 'Zend/Mail/Protocol/Imap.php';
-require_once 'Zend/Mail/Storage/Imap.php';
-require_once 'Zend/Mail/Transport/Smtp.php';
-
 require_once 'Notificaciones/notificaciones.php';
 
 require 'General/Sesion.php';
