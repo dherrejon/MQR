@@ -35,7 +35,7 @@ io.sockets
 
       if (usuarios.hasOwnProperty(contenido.destinatario_id)) {
         logger.info('destinatario_id > ' + contenido.destinatario_id);
-        socket.to(usuarios[contenido.destinatario_id]).emit('nueva_notificacion', contenido.datos);
+        socket.to(usuarios[contenido.destinatario_id]).emit(contenido.nombre_evento, contenido.datos);
       }
 
     });

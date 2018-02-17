@@ -71,6 +71,7 @@ function almacenarNotificacion($datos, $db) {
 
         $respuesta->estado = true;
         $respuesta->datos = array(
+          "nombre_evento" => 'nueva_notificacion',
           "destinatario_id" => $datos->destinatario_id,
           "datos" => array(
             "NotificacionId" => $datos->notificacion_id,

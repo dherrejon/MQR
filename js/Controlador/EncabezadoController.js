@@ -34,7 +34,8 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
 
   $scope.lista_amigos = {
     datos: [],
-    estado: false
+    estado: false,
+    busqueda: ''
   };
 
   $rootScope.lista_notificaciones = {
@@ -56,7 +57,6 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
   };
 
   $scope.solicitudes={busqueda: ''};
-  $scope.lista_amigos={busqueda: ''};
 
   $scope.cancion_recomendada = null;
   $scope.informacion_recomendada = null;
@@ -416,7 +416,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
       }
     }).catch(function(error)
     {
-      $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde." + error
+      $scope.mensajeError[$scope.mensajeError.length] = "Ha ocurrido un error. Intente más tarde." + error;
       $('#mensajeEncabezado').modal('toggle');
       return;
     });
@@ -954,7 +954,8 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
 
     $scope.lista_amigos = {
       datos: [],
-      estado: false
+      estado: false,
+      busqueda: ''
     };
 
     $scope.enviar_recurso = {
@@ -1050,7 +1051,8 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     $('#modalListaAmigos').modal('hide');
     $scope.lista_amigos = {
       datos: [],
-      estado: false
+      estado: false,
+      busqueda: ''
     };
 
     $scope.lista_amigos.busqueda = '';
