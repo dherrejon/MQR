@@ -24,6 +24,7 @@ require 'Cancionero/Cancion.php';
 
 require_once 'Webmail/cuentas.php';
 require_once 'Amistad/amistad.php';
+require_once 'Chat/chat.php';
 
 /*-----Seguridad-----*/
 require 'PHP-JWT/Authentication/JWT.php';
@@ -335,6 +336,18 @@ $app->get('/ObtenerNotificacionesPorUsuario', $seguridad, $ChecarSesion, 'Obtene
 $app->post('/EnviarRecurso', $seguridad, $ChecarSesion, 'EnviarRecurso');
 $app->put('/MarcarNotificacionLeida', $seguridad, $ChecarSesion, 'MarcarNotificacionLeida');
 $app->delete('/EliminarNotificacion', $seguridad, $ChecarSesion, 'EliminarNotificacion');
+
+/*---------------------------------  Chat ------------------------------------------*/
+$app->get('/ObtenerConversacionesPorUsuario', $seguridad, $ChecarSesion, 'ObtenerConversacionesPorUsuario');
+$app->get('/ObtenerConversacionPorId', $seguridad, $ChecarSesion, 'ObtenerConversacionPorId');
+$app->get('/ObtenerConversacionPorHashUsuario', $seguridad, $ChecarSesion, 'ObtenerConversacionPorHashUsuario');
+$app->put('/ActualizarEstadoVistaConversacion', $seguridad, $ChecarSesion, 'ActualizarEstadoVistaConversacion');
+// $app->post('/AgregarConversacionGrupal', $seguridad, $ChecarSesion, 'AgregarConversacionGrupal');
+$app->post('/AgregarConversacionPersonal', $seguridad, $ChecarSesion, 'AgregarConversacionPersonal');
+$app->delete('/EliminarConversacionPersonal', $seguridad, $ChecarSesion, 'EliminarConversacionPersonal');
+
+$app->get('/ObtenerMensajesPorConversacion', $seguridad, $ChecarSesion, 'ObtenerMensajesPorConversacion');
+$app->post('/AgregarMensaje', $seguridad, $ChecarSesion, 'AgregarMensaje');
 
 $app->run();
 

@@ -1,208 +1,208 @@
 .fondoPagina
 {
-    background: white !important;
+  background: white !important;
 }
 
 .encabezadoUsuario /*Texto en el encabezado que indica el perfil del usuario*/
 {
-    color: white !important;
-    background: #088A08;
+  color: white !important;
+  background: #088A08;
 
-    padding-top: 10px;
-    padding-bottom: 5px;
-    min-height: 59px;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  min-height: 59px;
 
-    position: fixed;
-    width: 100%;
+  position: fixed;
+  width: 100%;
 }
 
 .encabezadoTitulo
 {
-    font-size: 18pt;
-    margin-right: 10px;
+  font-size: 18pt;
+  margin-right: 10px;
 }
 
 .opcionEncabezado, .opcionEncabezado:active, .opcionEncabezado:focus
 {
-    background: transparent;
-    border-radius: 0px;
-    color: white;
+  background: transparent;
+  border-radius: 0px;
+  color: white;
 
-    outline: none !important;
-    box-shadow: none;
+  outline: none !important;
+  box-shadow: none;
 }
 
 .opcionEncabezado:hover
 {
-    border-radius: 0px;
-    border: 0px;
-    border-left: 2px solid #eaaa00;
-    border-right: 2px solid #eaaa00;
-    color: white;
+  border-radius: 0px;
+  border: 0px;
+  border-left: 2px solid #eaaa00;
+  border-right: 2px solid #eaaa00;
+  color: white;
 }
 
 .claseTitulo
 {
-    font-size: 24pt;
-    font-family: cursive;
-    color: white !important;
+  font-size: 24pt;
+  font-family: cursive;
+  color: white !important;
 }
 
 a:link
 {
- text-decoration:none;
+  text-decoration:none;
 }
 
 .barraNavegacionHamburguesa /*Color de las barras en el boton de hamburguesa*/
 {
-    background: white;
+  background: white;
 }
 
 .barraNavegacionBoton  /*Boton de hamburguesa de la barra de navegacion en xs*/
 {
-    background: transparent;
-    border: 2px solid #eaaa00;
-    margin-top: -3px;
+  background: transparent;
+  border: 2px solid #eaaa00;
+  margin-top: -3px;
 }
- /*--------------------- Barra de Navegación ----------------------------*/
+/*--------------------- Barra de Navegación ----------------------------*/
 
 .encabezadoUsuario .navbar-nav > li > a /*Opciones principales de la barra de navegación*/
 {
-    background: transparent !important;
-    color: white;
-    font-size: 14pt;
-    border-radius: 0px;
-    box-shadow: none;
-    margin-top: -7px;
+  background: transparent !important;
+  color: white;
+  font-size: 14pt;
+  border-radius: 0px;
+  box-shadow: none;
+  margin-top: -7px;
 }
 
 .encabezadoUsuario .navbar-nav > li:hover > a /*en las opciones principales de la barra de navegación*/
 {
-    color: #d2e4fb;
-    cursor: pointer !important;
-    border-right: 2px solid #eaaa00;
-    border-left: 2px solid #eaaa00;
+  color: #d2e4fb;
+  cursor: pointer !important;
+  border-right: 2px solid #eaaa00;
+  border-left: 2px solid #eaaa00;
 }
 
 .dropdownOpcion /*Opciones de los dropdown list*/
 {
-    color: #081e3b !important;
-    border-bottom: solid 1px #2076ED;;
-    margin-left: 3px;
-    margin-right: 3px;
-    font-size: 12pt;
+  color: #081e3b !important;
+  border-bottom: solid 1px #2076ED;;
+  margin-left: 3px;
+  margin-right: 3px;
+  font-size: 12pt;
 }
 
 .dropdownOpcion:hover, .dropdownOpcion:focus, .dropdownOpcion:active  /*Hover en las opciones de las dropdown list*/
 {
-    background-color: #2076ED !important;
-    color: white !important;
-    cursor: hand !important;
+  background-color: #2076ED !important;
+  color: white !important;
+  cursor: hand !important;
 }
 
 .barraNavegacionDropdown /*fondo de despliegue de los dropdown list */
 {
-    background: white;
+  background: white;
 
-    border-radius: 0px 0px 3px 3px;
+  border-radius: 0px 0px 3px 3px;
 
-    margin-top: -5px !important;
-    margin-bottom: 5px !important;
+  margin-top: -5px !important;
+  margin-bottom: 5px !important;
 }
 
 @media (max-width: 767px)
 {
-    .encabezadoUsuario .navbar-nav > li > a /*Modificación de las opcines principales en la barra de navegación*/
-    {
-        border: solid 2px #2076ED;
-        margin: 0px 10px 5px 10px;
-        text-align: left;
-    }
+  .encabezadoUsuario .navbar-nav > li > a /*Modificación de las opcines principales en la barra de navegación*/
+  {
+    border: solid 2px #2076ED;
+    margin: 0px 10px 5px 10px;
+    text-align: left;
+  }
 
-    .encabezadoUsuario .navbar-nav > li:hover > a /*Hover de las opciones principales en la barra de navegación*/
-    {
-        margin-bottom:3px;
-        background: #2076ED!important;
-        color: #d2e4fb;
-        border: 2px solid #eaaa00;
-    }
+  .encabezadoUsuario .navbar-nav > li:hover > a /*Hover de las opciones principales en la barra de navegación*/
+  {
+    margin-bottom:3px;
+    background: #2076ED!important;
+    color: #d2e4fb;
+    border: 2px solid #eaaa00;
+  }
 
-    .dropdownOpcion /*Opciones de las dropdown list*/
-    {
-        margin-left: 15px;
-        margin-right: 15px;
-        text-align: left;
-        border-bottom: 1px solid white;
-        color: white !important;
-    }
+  .dropdownOpcion /*Opciones de las dropdown list*/
+  {
+    margin-left: 15px;
+    margin-right: 15px;
+    text-align: left;
+    border-bottom: 1px solid white;
+    color: white !important;
+  }
 
-    .dropdownOpcion:hover /*Opciones de las dropdown list en hover*/
-    {
-        background: white !important;
-        color: #2076ED !important;
-    }
+  .dropdownOpcion:hover /*Opciones de las dropdown list en hover*/
+  {
+    background: white !important;
+    color: #2076ED !important;
+  }
 
-    .encabezadoTitulo
-    {
-        margin-left: 10px;
-    }
+  .encabezadoTitulo
+  {
+    margin-left: 10px;
+  }
 }
 
 /*------ SubMenu del encabezado -------------------*/
 .dropdownsubmenu
 {
-    position: relative;
+  position: relative;
 }
 
 .dropdownsubmenu>.dropdown-menu
 {
-    top: 0;
-    right: 100%;
-    margin-top: -6px;
-    margin-left: -1px;
-    -webkit-border-radius: 0 6px 6px 6px;
-    -moz-border-radius: 0 6px 6px;
-    border-radius: 0 0px 0px 0px;
+  top: 0;
+  right: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  -webkit-border-radius: 0 6px 6px 6px;
+  -moz-border-radius: 0 6px 6px;
+  border-radius: 0 0px 0px 0px;
 }
 
 .dropdownsubmenu:hover>.dropdown-menu
 {
-    display: block;
+  display: block;
 }
 
 .dropdownsubmenu>a:after {
-    display: block;
-    float: left;
-    width: 0;
-    height: 0;
-    border-color: transparent;
-    border-style: solid;
-    border-width: 5px 0 5px 5px;
-    border-left-color: #ccc;
-    margin-top: 5px;
-    margin-right: -10px;
+  display: block;
+  float: left;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #ccc;
+  margin-top: 5px;
+  margin-right: -10px;
 }
 
 .dropdownsubmenu:hover>a:after {
-    border-left-color: #fff;
+  border-left-color: #fff;
 }
 
 .dropdownsubmenu.pull-left {
-    float: none;
+  float: none;
 }
 
 .dropdownsubmenu.pull-left>.dropdown-menu {
-    left: 100%;
-    margin-left: 10px;
-    -webkit-border-radius: 6px 0 6px 6px;
-    -moz-border-radius: 6px 0 6px 6px;
-    border-radius: 6px 0 6px 6px;
+  left: 100%;
+  margin-left: 10px;
+  -webkit-border-radius: 6px 0 6px 6px;
+  -moz-border-radius: 6px 0 6px 6px;
+  border-radius: 6px 0 6px 6px;
 }
 
 .dropdownOpcion2level /*Opciones de los dropdown list*/
 {
-    margin-left: 40px;
-    margin-right: 40px;
+  margin-left: 40px;
+  margin-right: 40px;
 }
 
 
@@ -253,7 +253,7 @@ a:link
   padding: 15px;
 }
 
-.resultado-solicitud-amistad, .estado-notificaciones{
+.resultado-solicitud-amistad, .estado-notificaciones, .estado-conversaciones{
   background-color: #f4f4f4;
   padding: 15px;
   font-size: 12pt;
@@ -282,7 +282,7 @@ a:link
   margin-bottom: 15px;
 }
 
-.elemento-notificacion-noleida, .amigo-seleccionado{
+.elemento-notificacion-noleida, .amigo-seleccionado, .elemento-conversacion-mensajes-novistos{
   background-color: #f1f1f1;
 }
 
@@ -390,20 +390,20 @@ a:link
   opacity: 0.6;
 }
 
-.badge-notificaciones{
+.badge-notificaciones, .badge-conversaciones{
   background-color: red !important;
   color: white !important;
   margin-left: -10px;
   /*font-size: 14pt !important;*/
 }
 
-.xs-btn-notificaciones{
+.xs-btn-notificaciones, .xs-btn-conversaciones{
   padding: 3px 5px;
   color: white !important;
   margin-right: 10px;
 }
 
-.xs-btn-notificaciones:hover {
+.xs-btn-notificaciones:hover, .xs-btn-conversaciones:hover{
   color: orange !important;
 }
 
@@ -439,7 +439,7 @@ a:link
   width:25px !important;
 }
 
-.opc-notificacion button{
+.opc-notificacion button, .opc-conversacion button, .regresar-conversaciones button, .btn-enviar-mensaje button, .agregar-conversacion button{
   border:none;
   width: 100% !important;
   height: 100% !important;
@@ -450,6 +450,194 @@ a:link
   box-shadow: none !important;
 }
 
+
+
+
+.xs-btn-conversaciones .badge-conversaciones{
+  margin-bottom: 20px;
+}
+
+.contenedor-conv-mjs{
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.wrapper-encabezado-mdl-conversaciones{
+  margin:0;
+  padding:0;
+  display:table;
+  table-layout: fixed;
+  width:100%;
+  max-width:100%;
+}
+
+.regresar-conversaciones, .agregar-conversacion{
+  display:table-cell;
+  vertical-align: middle;
+  width: 45px;
+  font-size: 18pt;
+  color: #1859B2;
+}
+
+.titulo-conversaciones{
+  display:table-cell;
+  padding: 0 5px;
+  vertical-align: middle;
+  font-size: 14pt;
+
+  overflow-x:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.cerrar-modal-conversaciones{
+  display:table-cell;
+  vertical-align: middle;
+  width:45px;
+}
+
+.elemento-conversacion{
+  border: 2px solid #ddd;
+  padding: 0;
+  margin: 0 5px 10px 0 !important;
+}
+
+.wrapper-conversacion{
+  margin:0;
+  padding:0;
+  display:table;
+  table-layout: fixed;
+  width:100%;
+  max-width:100%;
+}
+
+.opc-conversacion{
+  display:table-cell;
+  vertical-align: middle;
+  width:45px;
+  padding:0 10px;
+}
+
+.datos-conversacion {
+  display:table-cell;
+  cursor:pointer;
+  padding: 15px 10px 15px 0;
+}
+
+.nombre-conversacion, .contenido-conversacion{
+  overflow-x:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 0px !important;
+  height: 20px;
+  max-height: 20px;
+  overflow-y: hidden;
+}
+
+.fecha-conversacion{
+  color: #696969;
+  text-align: right;
+  font-size: 10pt;
+}
+
+
+.wrapper-area-mensaje{
+  margin:0;
+  padding:0;
+  display:table;
+  table-layout: fixed;
+  width:100%;
+  max-width:100%;
+}
+
+.entrada-mensaje{
+  display:table-cell;
+}
+
+.entrada-mensaje textarea, .entrada-mensaje textarea:focus{
+
+  border-width: 2px;
+  border-style: solid;
+  border-color: #1859B2 !important;
+
+  width: 100% !important;
+  min-height: 34px !important;
+
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  outline: none !important;
+  -moz-box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  font-size: 11pt;
+
+}
+
+.btn-enviar-mensaje{
+  display:table-cell;
+  vertical-align: middle;
+  width:45px;
+  color: #1859B2;
+}
+
+.btn-enviar-mensaje button[disabled]{
+  opacity: 0.5 !important;
+}
+
+.wrapper-elemento-mensaje{
+  display:table;
+  table-layout: fixed;
+  margin: 10px 0 0 0;
+}
+
+.contenido-mensaje{
+  display:table-cell;
+
+  background-color: #1859B2;
+  color: white;
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 12pt;
+}
+
+
+.contenido-mensaje-remitente{
+  display:table-cell;
+
+  background-color: #e2e2e2;
+  color: black;
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 12pt;
+}
+
+.icono-error-mensaje {
+  display:table-cell;
+  vertical-align: middle;
+  width:20px;
+  color: red;
+  padding: 0 0 0 5px;
+}
+
+.mensaje-error{
+  display:table;
+  table-layout: fixed;
+  width:100%;
+  max-width:100%;
+  color: red;
+}
+
+.fecha-mensaje-conversacion{
+  display:table;
+  table-layout: fixed;
+  width:100% !important;
+  max-width:100% !important;
+
+  color: #696969;
+  font-size: 10pt;
+}
 
 @media (max-width: 768px){
   .opc-solic-amistad .tab-pane {

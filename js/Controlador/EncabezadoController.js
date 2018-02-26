@@ -1,13 +1,17 @@
-app.controller("EncabezadoControlador", function($scope, $window, $http, $rootScope, $q, CONFIG, datosUsuario, $location, md5, $timeout, Amistad, ngToast, Notificaciones, $sce, $filter, $route)
+app.controller("EncabezadoControlador", function($scope, $window, $http, $rootScope, $q, CONFIG, datosUsuario, $location, md5, $timeout, Amistad, ngToast, Notificaciones, Chat, $sce, $filter, $route, cfpLoadingBar)
 {
 
   $scope.btn_amistad_deshabilitado = false;
   $scope.btn_notificaciones_deshabilitado = false;
+  $scope.btn_conversaciones_deshabilitado = false;
+  $scope.cambio_conversacion_deshabilitado = false;
 
   $scope.mdl_notificaciones_visible = false;
   $scope.mdl_solicitud_amistad_visible = false;
   $scope.mdl_lista_amigos_visible = false;
   $scope.mdl_enviar_recurso_visible = false;
+  $scope.mdl_conversaciones_visible = false;
+  $scope.mdl_amigos_para_conversacion_visible = false;
 
   $scope.opc_solicitud_amistad = [
     {activa:true},
@@ -66,11 +70,47 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     funcion:null
   };
 
+  $scope.usuario_id = null;
+
+  $rootScope.lista_conversaciones = {
+    numero_conversaciones: 0,
+    numero_total_conversaciones: 0,
+    numero_conversaciones_novistas: 0,
+    datos: [],
+    estado: 'inicial',
+    obtener_mas: false,
+    vista_seleccionada: 'conversaciones',
+    conversacion_seleccionada: null,
+    id_temporal_conversacion: -1
+  };
+
+  $scope.datos_nueva_conversacion = {
+    miembros: [],
+    busqueda: ''
+  };
+
   $scope.nuevoPassword = {nuevo:"", repetir:"", actual:""};
   $scope.clasePassword = {nuevo:"entrada", repetir:"entrada", actual:"entrada"};
 
   $rootScope.apps = aplicaciones;
   $rootScope.apps.Grupo = "MQRSYS";
+
+  $rootScope.fecha_hora_actual = null;
+
+
+  if($window.sessionStorage.getItem('id_actualizar_fecha_actual') !== null)
+  {
+    clearInterval($window.sessionStorage.getItem('id_actualizar_fecha_actual'));
+    $window.sessionStorage.removeItem('id_actualizar_fecha_actual');
+  }
+
+  function actualizarFechaActual() {
+    $rootScope.fecha_actual = $filter('date')(new Date(), 'dd/MM/yy');
+  }
+
+  actualizarFechaActual();
+
+  $window.sessionStorage.setItem('id_actualizar_fecha_actual', setInterval(actualizarFechaActual, 1000));
 
   /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
   $scope.$on('cambioAplicaion',function()
@@ -1325,6 +1365,8 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
     $scope.OcultarMdlSolicitudAmistad();
     $scope.OcultarModalAmigos();
     $scope.OcultarModalEnviarRecurso();
+    $scope.OcultarModalAmigosParaConversacion();
+    $scope.OcultarModalConversaciones();
 
   }
 
@@ -1408,7 +1450,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
                 }
 
               }
-              else if ($scope.mdl_lista_amigos_visible || $scope.mdl_enviar_recurso_visible) {
+              else if ($scope.mdl_lista_amigos_visible || $scope.mdl_enviar_recurso_visible || $scope.mdl_amigos_para_conversacion_visible) {
 
                 Amistad.obtenerDatosAmigo({solicitud_id: datos.ElementoId}).then( function (respuesta) {
 
@@ -1421,7 +1463,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
                 }, function (respuesta) {
 
                   ngToast.dismiss();
-                  ngToast.create({className: 'danger', content: '<b>No se pudieron obtener los datos de la solicitud de amistad acepatada. Error '+respuesta.status+'.</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
+                  ngToast.create({className: 'danger', content: '<b>No se pudieron obtener los datos de la solicitud de amistad aceptada. Error '+respuesta.status+'.</b>', dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
 
                 });
 
@@ -1491,7 +1533,7 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
         }
         break;
         case 'solicitud_aceptada':
-        if (!$scope.opc_solicitud_amistad[1].activa && !$scope.mdl_lista_amigos_visible && !$scope.mdl_enviar_recurso_visible) {
+        if (!$scope.opc_solicitud_amistad[1].activa && !$scope.mdl_lista_amigos_visible && !$scope.mdl_enviar_recurso_visible && !$scope.mdl_amigos_para_conversacion_visible) {
           notificacionLeida(datos);
           cerrarModals();
           $scope.MostrarModalAmigos();
@@ -1646,6 +1688,700 @@ app.controller("EncabezadoControlador", function($scope, $window, $http, $rootSc
   };
 
 
+
+  /****conversaciones****/
+
+  $scope.MostrarModalConversaciones = function () {
+    $scope.mdl_conversaciones_visible = true;
+    ngToast.dismiss();
+    $('#modalListaConversaciones').modal('show');
+  };
+
+  $scope.OcultarModalConversaciones = function () {
+
+    if ($scope.cambio_conversacion_deshabilitado) {
+      return false;
+    }
+
+    if (null!==$rootScope.lista_conversaciones.conversacion_seleccionada) {
+      if ($rootScope.lista_conversaciones.conversacion_seleccionada.Error) {
+        indice = $rootScope.lista_conversaciones.datos.indexOf($rootScope.lista_conversaciones.conversacion_seleccionada);
+        if (-1!==indice) {
+          $rootScope.lista_conversaciones.datos.splice(indice, 1);
+        }
+      }
+    }
+
+    $scope.mdl_conversaciones_visible = false;
+    $('#modalListaConversaciones').modal('hide');
+    $rootScope.lista_conversaciones.vista_seleccionada = 'conversaciones';
+    $rootScope.lista_conversaciones.conversacion_seleccionada = null;
+  };
+
+  $scope.MostrarModalAmigosParaConversacion = function () {
+    $scope.ConsultarListaAmigos(false);
+    $scope.mdl_amigos_para_conversacion_visible = true;
+    ngToast.dismiss();
+    $('#modalAmigosParaConversacion').modal('show');
+  };
+
+  $scope.OcultarModalAmigosParaConversacion = function () {
+
+    $scope.mdl_amigos_para_conversacion_visible = false;
+    ngToast.dismiss();
+    $('#modalAmigosParaConversacion').modal('hide');
+
+    $scope.lista_amigos = {
+      datos: [],
+      estado: false,
+      busqueda: ''
+    };
+
+    $scope.datos_nueva_conversacion = {
+      miembros: [],
+      busqueda: ''
+    };
+
+  };
+
+
+  function buscarConversacionesEnListaLocal(conversacion_id) {
+
+    for (var c = 0; c < $scope.lista_conversaciones.datos.length; c++) {
+      if (conversacion_id == $scope.lista_conversaciones.datos[c].ConversacionId) {
+        return $scope.lista_conversaciones.datos[c];
+      }
+    }
+
+    return null;
+  }
+
+  function buscarIdMensajeEnConversacionLocal(conversacion, mensaje_id) {
+
+    for (var m = 0; m < conversacion.Mensajes.length; m++) {
+      if (mensaje_id == conversacion.Mensajes[m].MensajeId) {
+        return conversacion.Mensajes[m];
+      }
+    }
+
+    return null;
+  }
+
+  function procesarFechaConversacion(fecha_hora_utc) {
+
+    var tmp = {};
+    var tmp_fecha_hora = new Date();
+    var offset = tmp_fecha_hora.getTimezoneOffset();
+    var fecha_hora_local = null;
+
+    fecha_hora_utc = new Date(fecha_hora_utc);
+    fecha_hora_local = fecha_hora_utc.getTime() - (offset*60000);
+    tmp.Fecha = $filter('date')(fecha_hora_local, 'dd/MM/yy');
+    tmp.Hora = $filter('date')(fecha_hora_local, 'HH:mm');
+
+    return tmp;
+
+  }
+
+  if(!$rootScope.$$listenerCount['cargar_conversaciones_iniciales']){
+
+    $rootScope.$on('cargar_conversaciones_iniciales', function (evento, datos) {
+
+      $scope.usuario_id = datosUsuario.getUsuarioId();
+
+      $rootScope.lista_conversaciones.estado = 'cargando';
+      $rootScope.lista_conversaciones.numero_conversaciones_novistas = 0;
+      $rootScope.lista_conversaciones.numero_conversaciones = 0;
+      $rootScope.lista_conversaciones.numero_total_conversaciones = 0;
+      $rootScope.lista_conversaciones.datos = [];
+
+      if(datos.estado) {
+
+        for (var i = 0; i < datos.contenido.length; i++) {
+
+          datos.contenido[i].FechaCreacion = procesarFechaConversacion(datos.contenido[i].FechaCreacion);
+          datos.contenido[i].FechaHora =  procesarFechaConversacion(datos.contenido[i].FechaUltimoMensaje);
+          datos.contenido[i].NumeroMensajes = parseInt(datos.contenido[i].NumeroMensajes);
+          datos.contenido[i].NumeroTotalMensajes = parseInt(datos.contenido[i].NumeroTotalMensajes);
+          datos.contenido[i].ContenidoNuevoMensaje = '';
+          datos.contenido[i].IdTemporalMensajes = -1;
+          datos.contenido[i].Error = false;
+
+          for (var m = 0; m < datos.contenido[i].Mensajes.length; m++) {
+            datos.contenido[i].Mensajes[m].FechaHora = procesarFechaConversacion(datos.contenido[i].Mensajes[m].Fecha);
+            datos.contenido[i].Mensajes[m].Error = false;
+          }
+
+        }
+
+        $rootScope.lista_conversaciones.datos = datos.contenido;
+        $rootScope.lista_conversaciones.numero_conversaciones_novistas = parseInt(datos.numero_conversaciones_novistas);
+        $rootScope.lista_conversaciones.numero_conversaciones = parseInt(datos.numero_conversaciones);
+        $rootScope.lista_conversaciones.numero_total_conversaciones = parseInt(datos.numero_total_conversaciones);
+        $rootScope.lista_conversaciones.estado = 'cargada';
+
+      }
+      else {
+        $rootScope.lista_conversaciones.estado = 'error';
+      }
+
+    });
+
+  }
+
+  if(!$rootScope.$$listenerCount['conversaciones']){
+
+    $rootScope.$on('conversaciones', function (evento, datos) {
+
+      $timeout(function () {
+
+        switch (datos.Operacion) {
+          case 'nueva_conversacion':
+
+          if (null === buscarConversacionesEnListaLocal(datos.ConversacionId)) {
+
+            datos.FechaCreacion = procesarFechaConversacion(datos.FechaCreacion);
+            datos.FechaHora = procesarFechaConversacion(datos.FechaUltimoMensaje);
+            datos.NumeroMensajes = parseInt(datos.NumeroMensajes);
+            datos.NumeroTotalMensajes = parseInt(datos.NumeroTotalMensajes);
+            datos.ContenidoNuevoMensaje = '';
+            datos.IdTemporalMensajes = -1;
+            datos.Error = false;
+
+            for (var m = 0; m < datos.Mensajes.length; m++) {
+              datos.Mensajes[m].FechaHora = procesarFechaConversacion(datos.Mensajes[m].Fecha);
+              datos.Mensajes[m].Error = false;
+            }
+
+            $rootScope.lista_conversaciones.datos.push(datos);
+
+            $rootScope.lista_conversaciones.numero_conversaciones_novistas ++;
+            $rootScope.lista_conversaciones.numero_conversaciones ++;
+            $rootScope.lista_conversaciones.numero_total_conversaciones ++;
+
+          }
+
+          break;
+
+          case 'nuevo_mensaje':
+
+          var conversacion = buscarConversacionesEnListaLocal(datos.ConversacionId);
+
+          if (null === conversacion) {
+
+            Chat.obtenerConversacionPorId(
+              {conversacion_id: datos.ConversacionId}
+            ).then( function (respuesta) {
+
+              if (respuesta.Estado) {
+
+                var conversacion = buscarConversacionesEnListaLocal(respuesta.datos.ConversacionId);
+
+                if (null === conversacion) {
+
+                  respuesta.datos.FechaCreacion = procesarFechaConversacion(respuesta.datos.FechaCreacion);
+                  respuesta.datos.FechaHora = procesarFechaConversacion(respuesta.datos.FechaUltimoMensaje);
+                  respuesta.datos.NumeroMensajes = parseInt(respuesta.datos.NumeroMensajes);
+                  respuesta.datos.NumeroTotalMensajes = parseInt(respuesta.datos.NumeroTotalMensajes);
+                  respuesta.datos.ContenidoNuevoMensaje = '';
+                  respuesta.datos.IdTemporalMensajes = -1;
+                  respuesta.datos.Error = false;
+
+                  for (var m = 0; m < respuesta.datos.Mensajes.length; m++) {
+                    respuesta.datos.Mensajes[m].FechaHora = procesarFechaConversacion(respuesta.datos.Mensajes[m].Fecha);
+                    respuesta.datos.Mensajes[m].Error = false;
+                  }
+
+                  $rootScope.lista_conversaciones.datos.push(respuesta.datos);
+
+                  $rootScope.lista_conversaciones.numero_conversaciones_novistas ++;
+                  $rootScope.lista_conversaciones.numero_conversaciones ++;
+                  $rootScope.lista_conversaciones.numero_total_conversaciones ++;
+
+                }
+                else if (null === buscarIdMensajeEnConversacionLocal(conversacion, datos.MensajeId) ) {
+
+                  datos.FechaHora = procesarFechaConversacion(datos.Fecha);
+                  datos.Error = false;
+                  conversacion.Mensajes.unshift(datos);
+                  conversacion.FechaUltimoMensaje = datos.Fecha;
+                  conversacion.NumeroMensajes ++;
+                  conversacion.NumeroTotalMensajes ++;
+
+                  if (null !== $rootScope.lista_conversaciones.conversacion_seleccionada) {
+                    if (0 == conversacion.ExistenMensajesNoVistos && conversacion.ConversacionId != $rootScope.lista_conversaciones.conversacion_seleccionada.ConversacionId) {
+                      conversacion.ExistenMensajesNoVistos = 1;
+                      $rootScope.lista_conversaciones.numero_conversaciones_novistas ++;
+                    }
+                  }
+                  else if (0 == conversacion.ExistenMensajesNoVistos) {
+                    conversacion.ExistenMensajesNoVistos = 1;
+                    $rootScope.lista_conversaciones.numero_conversaciones_novistas ++;
+                  }
+
+                }
+
+              }
+
+            }, function (respuesta) {
+            });
+
+          }
+          else if (null === buscarIdMensajeEnConversacionLocal(conversacion, datos.MensajeId) ) {
+
+            datos.FechaHora = procesarFechaConversacion(datos.Fecha);
+            datos.Error = false;
+            conversacion.Mensajes.unshift(datos);
+            conversacion.FechaUltimoMensaje = datos.Fecha;
+            conversacion.NumeroMensajes ++;
+            conversacion.NumeroTotalMensajes ++;
+
+            if (null !== $rootScope.lista_conversaciones.conversacion_seleccionada) {
+
+              if (conversacion.ConversacionId != $rootScope.lista_conversaciones.conversacion_seleccionada.ConversacionId) {
+
+                if (0 == conversacion.ExistenMensajesNoVistos) {
+                  conversacion.ExistenMensajesNoVistos = 1;
+                  $rootScope.lista_conversaciones.numero_conversaciones_novistas ++;
+                }
+
+              }
+              else {
+
+                $timeout(function () {
+                  $('#contenedor_conv_mjs').scrollTop($('#contenedor_conv_mjs')[0].scrollHeight);
+                }, 0);
+
+                Chat.actualizarEstadoVistaConversacion(
+                  {
+                    conversacion_id: conversacion.ConversacionId,
+                    estado_vista: false
+                  }
+                ).then( function (respuesta) {
+                }, function (respuesta) {
+                });
+
+              }
+
+            }
+            else if (0 == conversacion.ExistenMensajesNoVistos) {
+              conversacion.ExistenMensajesNoVistos = 1;
+              $rootScope.lista_conversaciones.numero_conversaciones_novistas ++;
+            }
+
+          }
+
+          break;
+          default:
+        }
+
+
+        $rootScope.$apply();
+
+      }, 0);
+
+    });
+
+  }
+
+  $scope.EliminarConversacion = function (conversacion) {
+
+    var indice = -1;
+
+    if (conversacion.ConversacionId < 0) {
+
+      if (1 == conversacion.ExistenMensajesNoVistos) {
+        $timeout(function () {
+          $rootScope.lista_conversaciones.numero_conversaciones_novistas --;
+          $rootScope.$apply();
+        }, 0);
+      }
+
+      indice = $rootScope.lista_conversaciones.datos.indexOf(conversacion);
+      if (-1!==indice) {
+        $rootScope.lista_conversaciones.datos.splice(indice, 1);
+      }
+
+      return true;
+    }
+
+
+
+    if (1 == conversacion.EsGrupo) {
+
+    }
+    else {
+
+      Chat.eliminarConversacionPersonal(
+        {conversacion_id: conversacion.ConversacionId}
+      ).then( function (respuesta) {
+
+        if (respuesta.Estado) {
+
+          if (1 == conversacion.ExistenMensajesNoVistos) {
+            $timeout(function () {
+              $rootScope.lista_conversaciones.numero_conversaciones_novistas --;
+              $rootScope.$apply();
+            }, 0);
+          }
+
+          indice = $rootScope.lista_conversaciones.datos.indexOf(conversacion);
+          if (-1!==indice) {
+            $rootScope.lista_conversaciones.datos.splice(indice, 1);
+          }
+
+        }
+        else {
+          ngToast.dismiss();
+          ngToast.create({className: 'danger', content: "<b>No se pudo eliminar la conversación.</b>", dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
+        }
+
+      }, function (respuesta) {
+
+        ngToast.dismiss();
+        ngToast.create({className: 'danger', content: "<b>No se pudo eliminar la conversación. Error: "+respuesta.status+".</b>", dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
+
+      });
+
+    }
+
+  };
+
+  $scope.ActualizarEstadoVistaConversacion = function (conversacion, estado_vista) {
+
+    Chat.actualizarEstadoVistaConversacion(
+      {
+        conversacion_id: conversacion.ConversacionId,
+        estado_vista: estado_vista
+      }
+    ).then( function (respuesta) {
+      if (respuesta.Estado) {
+
+        conversacion.ExistenMensajesNoVistos = estado_vista;
+
+        $timeout(function () {
+          $rootScope.lista_conversaciones.numero_conversaciones_novistas += (estado_vista) ? 1 : -1;
+          $rootScope.$apply();
+        }, 0);
+
+      }
+      else {
+        ngToast.dismiss();
+        ngToast.create({className: 'danger', content: "<b>No se pudo actualizar el estado de la conversación.</b>", dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
+      }
+    }, function (respuesta) {
+      ngToast.dismiss();
+      ngToast.create({className: 'danger', content: "<b>No se pudo actualizar el estado de la conversación. Error: "+respuesta.status+".</b>", dismissOnTimeout:true, timeout:6000, dismissButton:true, dismissOnClick:true});
+    });
+
+  };
+
+  $scope.SeleccionarConversacion = function (conversacion) {
+
+    if ($scope.cambio_conversacion_deshabilitado) {
+      return false;
+    }
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada = conversacion;
+    $rootScope.lista_conversaciones.vista_seleccionada = 'mensajes';
+
+    $timeout(function () {
+      $('#contenedor_conv_mjs').scrollTop($('#contenedor_conv_mjs')[0].scrollHeight);
+    }, 0);
+
+    if (!conversacion.Error && (1 == conversacion.ExistenMensajesNoVistos)) {
+
+      Chat.actualizarEstadoVistaConversacion(
+        {
+          conversacion_id: conversacion.ConversacionId,
+          estado_vista: false
+        }
+      ).then( function (respuesta) {
+        if (respuesta.Estado) {
+
+          conversacion.ExistenMensajesNoVistos = 0;
+
+          $timeout(function () {
+            $rootScope.lista_conversaciones.numero_conversaciones_novistas --;
+            $rootScope.$apply();
+          }, 0);
+
+        }
+      }, function (respuesta) {
+      });
+
+    }
+
+  };
+
+  $scope.RegresarAListaConversaciones = function () {
+
+    var indice = -1;
+
+    if ($scope.cambio_conversacion_deshabilitado) {
+      return false;
+    }
+
+    if ($rootScope.lista_conversaciones.conversacion_seleccionada.Error) {
+      indice = $rootScope.lista_conversaciones.datos.indexOf($rootScope.lista_conversaciones.conversacion_seleccionada);
+      if (-1!==indice) {
+        $rootScope.lista_conversaciones.datos.splice(indice, 1);
+      }
+    }
+
+    $rootScope.lista_conversaciones.vista_seleccionada = 'conversaciones';
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada = null;
+
+  };
+
+  $scope.CrearConversacionPersonal = function (elemento) {
+
+    $scope.OcultarModalAmigosParaConversacion();
+
+    cfpLoadingBar.start();
+
+    var datos_usuario = datosUsuario.getUsuario();
+
+    var hash = CryptoJS.SHA256(( parseInt(datos_usuario.UsuarioId) <= parseInt(elemento.AmigoId) ) ? parseInt(datos_usuario.UsuarioId)+':'+parseInt(elemento.AmigoId) : parseInt(elemento.AmigoId)+':'+parseInt(datos_usuario.UsuarioId)).toString();
+
+    var conversacion_encontrada = $filter('filter')($rootScope.lista_conversaciones.datos, {Hash: hash}, true);
+
+    if (conversacion_encontrada.length) {
+      $rootScope.lista_conversaciones.conversacion_seleccionada = conversacion_encontrada[0];
+    }
+    else {
+
+      Chat.obtenerConversacionPorHashUsuario(
+        {hash: hash}
+      ).then( function (respuesta) {
+
+        if (respuesta.Estado) {
+
+          if (null == respuesta.datos) {
+
+            $rootScope.lista_conversaciones.conversacion_seleccionada = angular.copy({
+              ConversacionId: null,
+              EsGrupo: 0,
+              FechaUltimoMensaje: null,
+              Nombre: elemento.NombreUsuario+" "+elemento.ApellidosUsuario,
+              FechaCreacion: null,
+              Hash: hash,
+              ExistenMensajesNoVistos: 0,
+              Miembros: [
+                {UsuarioId: datos_usuario.UsuarioId, NombreCompletoUsuario: datos_usuario.Nombre+' '+datos_usuario.Apellidos, CorreoUsuario: datos_usuario.Correo},
+                {UsuarioId: elemento.AmigoId, NombreCompletoUsuario: elemento.NombreUsuario+' '+elemento.ApellidosUsuario, CorreoUsuario: elemento.CorreoUsuario}
+              ],
+              EsAdministrador: true,
+              FechaHora: null,
+              Mensajes: [],
+              NumeroMensajes: 1,
+              NumeroTotalMensajes: 1,
+              ContenidoNuevoMensaje: '',
+              IdTemporalMensajes: -1,
+              Error: false
+            });
+
+          }
+          else {
+
+            conversacion_encontrada = $filter('filter')($rootScope.lista_conversaciones.datos, {Hash: hash}, true);
+
+            if (0 == conversacion_encontrada.length) {
+
+              respuesta.datos.FechaCreacion = procesarFechaConversacion(respuesta.datos.FechaCreacion);
+              respuesta.datos.FechaHora = procesarFechaConversacion(respuesta.datos.FechaUltimoMensaje);
+              respuesta.datos.NumeroMensajes = parseInt(respuesta.datos.NumeroMensajes);
+              respuesta.datos.NumeroTotalMensajes = parseInt(respuesta.datos.NumeroTotalMensajes);
+              respuesta.datos.ContenidoNuevoMensaje = '';
+              respuesta.datos.IdTemporalMensajes = -1;
+              respuesta.datos.Error = false;
+
+              for (var m = 0; m < respuesta.datos.Mensajes.length; m++) {
+                respuesta.datos.Mensajes[m].FechaHora = procesarFechaConversacion(respuesta.datos.Mensajes[m].Fecha);
+                respuesta.datos.Mensajes[m].Error = false;
+              }
+
+              $rootScope.lista_conversaciones.datos.push(respuesta.datos);
+
+              if (1 == respuesta.datos.ExistenMensajesNoVistos) {
+                $rootScope.lista_conversaciones.numero_conversaciones_novistas ++;
+              }
+              $rootScope.lista_conversaciones.numero_conversaciones ++;
+              $rootScope.lista_conversaciones.numero_total_conversaciones ++;
+
+              $rootScope.lista_conversaciones.conversacion_seleccionada = respuesta.datos;
+
+            }
+            else {
+              $rootScope.lista_conversaciones.conversacion_seleccionada = conversacion_encontrada[0];
+            }
+
+          }
+
+        }
+        else {
+          cfpLoadingBar.complete();
+          return false;
+        }
+
+      }, function (respuesta) {
+        cfpLoadingBar.complete();
+        return false;
+      });
+
+    }
+
+    $rootScope.lista_conversaciones.vista_seleccionada = 'mensajes';
+
+    cfpLoadingBar.complete();
+
+  };
+
+  $scope.GuardarConversacionPersonal = function (fecha_actual_utc) {
+
+    var contenido_mensaje = angular.copy($rootScope.lista_conversaciones.conversacion_seleccionada.ContenidoNuevoMensaje);
+    var miembros_id = [];
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada.ContenidoNuevoMensaje = '';
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada.ConversacionId = angular.copy($rootScope.lista_conversaciones.id_temporal_conversacion);
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada.FechaUltimoMensaje = fecha_actual_utc;
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada.FechaCreacion = procesarFechaConversacion(fecha_actual_utc);
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada.FechaHora = procesarFechaConversacion(fecha_actual_utc);
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada.Mensajes = [{
+      MensajeId: angular.copy($rootScope.lista_conversaciones.conversacion_seleccionada.IdTemporalMensajes),
+      UsuarioIdRemitente: datosUsuario.getUsuarioId(),
+      Fecha: fecha_actual_utc,
+      Contenido: contenido_mensaje,
+      FechaHora: procesarFechaConversacion(fecha_actual_utc),
+      Error: false
+    }];
+
+    for (var m = 0; m < $rootScope.lista_conversaciones.conversacion_seleccionada.Miembros.length; m++) {
+      miembros_id.push($rootScope.lista_conversaciones.conversacion_seleccionada.Miembros[m].UsuarioId);
+    }
+
+    $rootScope.lista_conversaciones.datos.push($rootScope.lista_conversaciones.conversacion_seleccionada);
+
+
+    $rootScope.lista_conversaciones.id_temporal_conversacion --;
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada.IdTemporalMensajes --;
+
+
+    Chat.agregarConversacionPersonal(
+      {
+        miembros_id: miembros_id,
+        fecha_mensaje: fecha_actual_utc,
+        contenido_mensaje: contenido_mensaje,
+      },
+      $rootScope.lista_conversaciones.conversacion_seleccionada,
+      $rootScope.lista_conversaciones.conversacion_seleccionada.Mensajes[0]
+    ).then( function (respuesta) {
+
+      if (respuesta.Estado) {
+        respuesta.conversacion.ConversacionId = respuesta.ConversacionId;
+        respuesta.mensaje.MensajeId = respuesta.MensajeId;
+
+        $rootScope.lista_conversaciones.numero_conversaciones ++;
+        $rootScope.lista_conversaciones.numero_total_conversaciones ++;
+      }
+      else {
+        respuesta.conversacion.Error = true;
+      }
+
+    }, function (respuesta) {
+      respuesta.conversacion.Error = true;
+    });
+
+  };
+
+  $scope.AgregarMensajeAConversacion = function (fecha_actual_utc) {
+
+    $scope.nuevo_mensaje_conversacion = null;
+    var miembros_id_anotificar = [];
+    var contenido_mensaje = angular.copy($rootScope.lista_conversaciones.conversacion_seleccionada.ContenidoNuevoMensaje).replace(/\r?\n/g, '<br />');
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada.ContenidoNuevoMensaje = '';
+
+    $scope.nuevo_mensaje_conversacion = {
+      MensajeId: angular.copy($rootScope.lista_conversaciones.conversacion_seleccionada.IdTemporalMensajes),
+      UsuarioIdRemitente: datosUsuario.getUsuarioId(),
+      Fecha: fecha_actual_utc,
+      Contenido: contenido_mensaje,
+      FechaHora: procesarFechaConversacion(fecha_actual_utc),
+      Error: false
+    };
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada.Mensajes.unshift($scope.nuevo_mensaje_conversacion);
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada.FechaUltimoMensaje = fecha_actual_utc;
+
+    $rootScope.lista_conversaciones.conversacion_seleccionada.IdTemporalMensajes --;
+
+    for (var m = 0; m < $rootScope.lista_conversaciones.conversacion_seleccionada.Miembros.length; m++) {
+      if (datosUsuario.getUsuarioId() != $rootScope.lista_conversaciones.conversacion_seleccionada.Miembros[m].UsuarioId) {
+        miembros_id_anotificar.push($rootScope.lista_conversaciones.conversacion_seleccionada.Miembros[m].UsuarioId);
+      }
+    }
+
+    $timeout(function () {
+      $('#contenedor_conv_mjs').scrollTop($('#contenedor_conv_mjs')[0].scrollHeight);
+    }, 0);
+
+    Chat.agregarMensaje(
+      {
+        miembros_id_anotificar: miembros_id_anotificar,
+        conversacion_id: $rootScope.lista_conversaciones.conversacion_seleccionada.ConversacionId,
+        fecha_mensaje: fecha_actual_utc,
+        contenido_mensaje: contenido_mensaje,
+      },
+      $rootScope.lista_conversaciones.conversacion_seleccionada,
+      $scope.nuevo_mensaje_conversacion
+    ).then( function (respuesta) {
+
+      if (respuesta.Estado) {
+        respuesta.mensaje.MensajeId = respuesta.MensajeId;
+
+        respuesta.conversacion.NumeroMensajes ++;
+        respuesta.conversacion.NumeroTotalMensajes ++;
+      }
+      else {
+        respuesta.mensaje.Error = true;
+      }
+
+    }, function (respuesta) {
+      respuesta.mensaje.Error = true;
+    });
+
+  };
+
+  $scope.ContinuarEnvioMensaje = function () {
+
+    if ($scope.cambio_conversacion_deshabilitado) {
+      return false;
+    }
+
+    var fecha_actual_utc = new Date();
+    fecha_actual_utc = $filter('date')(fecha_actual_utc.getTime() + (fecha_actual_utc.getTimezoneOffset()*60000), 'yyyy-MM-dd HH:mm:ss');
+
+    $scope.cambio_conversacion_deshabilitado = true;
+
+    if (null === $rootScope.lista_conversaciones.conversacion_seleccionada.ConversacionId) {
+      $scope.GuardarConversacionPersonal(fecha_actual_utc);
+    }
+    else {
+      $scope.AgregarMensajeAConversacion(fecha_actual_utc);
+    }
+
+    $scope.cambio_conversacion_deshabilitado = false;
+
+  };
 
   /*------------------Indentifica cuando los datos del usuario han cambiado-------------------*/
   $scope.usuario =  datosUsuario.getUsuario();

@@ -16,7 +16,8 @@ function Notificaciones ($rootScope, $window, $http, $q, CONFIG) {
     obtenerNotificaciones: obtenerNotificaciones,
     almacenarNotificacionEnviarRecurso: almacenarNotificacionEnviarRecurso,
     marcarNotificacionLeida: marcarNotificacionLeida,
-    eliminarNotificacion: eliminarNotificacion
+    eliminarNotificacion: eliminarNotificacion,
+    obtenerConversacionesIniciales: obtenerConversacionesIniciales,
   };
 
   function conectar() {
@@ -40,6 +41,7 @@ function Notificaciones ($rootScope, $window, $http, $q, CONFIG) {
         // console.log("auth");
         // console.log(socket.id);
         obtenerNotificacionesIniciales();
+        obtenerConversacionesIniciales();
       });
 
       socket.on('unauthorized', function(msg) {
@@ -197,6 +199,46 @@ function Notificaciones ($rootScope, $window, $http, $q, CONFIG) {
     });
 
     return promise;
+  }
+
+
+
+  function inicializarConversaciones(estado_respuesta, contenido_respuesta) {
+
+    $rootScope.$broadcast(
+      'cargar_conversaciones_iniciales',
+      {
+        estado:estado_respuesta,
+        contenido:contenido_respuesta.Conversaciones,
+        numero_conversaciones: contenido_respuesta.NumeroConversaciones,
+        numero_total_conversaciones: contenido_respuesta.NumeroTotalConversaciones,
+        numero_conversaciones_novistas: contenido_respuesta.NumeroConversacionesNovistas
+      }
+    );
+
+    socket.on('conversaciones', function(datos) {
+      $rootScope.$broadcast('conversaciones',datos);
+    });
+
+  }
+
+  function obtenerConversacionesIniciales() {
+
+    $http({
+      ignoreLoadingBar: true,
+      method: 'GET',
+      url: CONFIG.APIURL + '/ObtenerConversacionesPorUsuario',
+      params: {numero_conversaciones_obtenidas: -1}
+    }).then(function successCallback(response) {
+
+      inicializarConversaciones(true, response.data);
+
+    }, function errorCallback(response) {
+
+      inicializarConversaciones(false, response);
+
+    });
+
   }
 
 }

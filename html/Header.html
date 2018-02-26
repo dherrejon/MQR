@@ -29,6 +29,7 @@
                 <span class="barraNavegacionHamburguesa icon-bar"></span>
               </button>
 
+
               <!-- Notificaciones -->
               <a href="" class="pull-right xs-btn-notificaciones visible-xs" ng-if="'inicial'!==lista_notificaciones.estado"  ng-click="MostrarModalNotificaciones()">
                 <span>
@@ -36,6 +37,16 @@
                 </span>
                 <span class="badge badge-notificaciones" ng-if="lista_notificaciones.noleidas>0">
                   {{lista_notificaciones.noleidas}}
+                </span>
+              </a>
+
+              <!-- conversaciones -->
+              <a href="" class="pull-right xs-btn-conversaciones visible-xs" ng-if="'inicial'!==lista_conversaciones.estado"  ng-click="MostrarModalConversaciones()">
+                <span>
+                  <i class="fa fa-commenting fa-2x" aria-hidden="true"></i>
+                </span>
+                <span class="badge badge-conversaciones" ng-if="lista_conversaciones.numero_conversaciones_novistas>0">
+                  {{lista_conversaciones.numero_conversaciones_novistas}}
                 </span>
               </a>
 
@@ -126,6 +137,20 @@
                 </ul>
 
               </li>
+
+
+              <!-- conversaciones -->
+              <li ng-if="'inicial'!==lista_conversaciones.estado">
+                <a href="" ng-click="MostrarModalConversaciones()">
+                  <span>
+                    <i class="fa fa-commenting" aria-hidden="true"></i>
+                  </span>
+                  <span class="badge badge-conversaciones" style="margin-bottom: 10px;" ng-if="lista_conversaciones.numero_conversaciones_novistas>0">
+                    {{lista_conversaciones.numero_conversaciones_novistas}}
+                  </span>
+                </a>
+              </li>
+
 
               <!-- Notificaciones -->
               <li ng-if="'inicial'!==lista_notificaciones.estado">
@@ -1049,6 +1074,344 @@
 
       </div>
 
+    </div>
+  </div>
+</div>
+
+
+<!-- modal lista de conversaciones -->
+<div id="modalListaConversaciones" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+  <div class="vertical-center">
+    <div class="modal-dialog modal-md">
+
+      <div class="modal-content">
+
+        <div class="modal-header text-center">
+
+          <div class="row wi-row" ng-switch="lista_conversaciones.vista_seleccionada">
+
+            <div class="wrapper-encabezado-mdl-conversaciones" ng-switch-when="conversaciones">
+              <span class="agregar-conversacion">
+                <button type="button" name="button" ng-click="MostrarModalAmigosParaConversacion()">
+                  <i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>
+                </button>
+              </span>
+              <span class="titulo-conversaciones">
+                <b>CONVERSACIONES</b>
+              </span>
+              <span class="cerrar-modal-conversaciones">
+                <button type="button" class="close" ng-click="OcultarModalConversaciones()">
+                  <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                </button>
+              </span>
+            </div>
+
+            <div class="wrapper-encabezado-mdl-conversaciones" ng-switch-when="mensajes">
+              <span class="regresar-conversaciones">
+                <button type="button" name="button" ng-click="RegresarAListaConversaciones()">
+                  <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                </button>
+              </span>
+              <span class="titulo-conversaciones">
+                <b>{{lista_conversaciones.conversacion_seleccionada.Nombre}}</b>
+              </span>
+              <span class="cerrar-modal-conversaciones">
+                <button type="button" class="close" ng-click="OcultarModalConversaciones()">
+                  <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                </button>
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+        <div class="modal-body">
+          <div class="row wi-row">
+            <div class="col-xs-12">
+
+              <div class="row wi-row" ng-switch="lista_conversaciones.estado">
+
+                <div id="contenedor_conv_mjs" class="col-xs-12 contenedor-conv-mjs" style="padding: 0;" ng-switch-when="cargada">
+
+                  <span ng-switch="lista_conversaciones.vista_seleccionada">
+
+                    <span ng-switch-when="conversaciones">
+
+                      <span ng-switch="lista_conversaciones.datos.length>0">
+
+                        <span ng-switch-when="true">
+
+                          <div class="row wi-row elemento-conversacion" ng-class="{true:'elemento-conversacion-mensajes-novistos'}[1==c.ExistenMensajesNoVistos]" ng-repeat="c in lista_conversaciones.datos | orderBy: '-FechaUltimoMensaje'">
+
+                            <div class="wrapper-conversacion">
+
+                              <span class="opc-conversacion">
+
+                                <div class="btn-group" style="width:100%;">
+                                  <button type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-ellipsis-v fa-2x" aria-hidden="true"></i>
+                                  </button>
+                                  <ul class="dropdown-menu">
+                                    <li ng-click="EliminarConversacion(c)">
+                                      <a href="">
+                                        <i class="fa fa-trash fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Eliminar
+                                      </a>
+                                    </li>
+                                    <li ng-click="ActualizarEstadoVistaConversacion(c, false)" ng-if="1==c.ExistenMensajesNoVistos">
+                                      <a href="">
+                                        <i class="fa fa-commenting-o fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Marcar como leída
+                                      </a>
+                                    </li>
+                                    <li ng-click="ActualizarEstadoVistaConversacion(c, true)" ng-if="0 == c.ExistenMensajesNoVistos">
+                                      <a href="">
+                                        <i class="fa fa-commenting fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Marcar como no leída
+                                      </a>
+                                    </li>
+                                  </ul>
+                                </div>
+
+                              </span>
+
+                              <span class="datos-conversacion" ng-click="SeleccionarConversacion(c)">
+
+                                <div class="col-xs-8 nombre-conversacion">
+                                  <b>{{c.Nombre}}</b>
+                                </div>
+
+                                <div class="col-xs-4 fecha-conversacion" ng-switch="(c.FechaHora.Fecha === fecha_actual)">
+                                  <span ng-switch-when="true">
+                                    {{c.FechaHora.Hora}}
+                                  </span>
+                                  <span ng-switch-when="false">
+                                    {{c.FechaHora.Fecha}}
+                                  </span>
+                                </div>
+
+                                <div class="col-xs-12 contenido-conversacion" ng-bind-html="c.Mensajes[0].Contenido">
+                                </div>
+
+                              </span>
+
+                              <span class="icono-error-mensaje" ng-if="c.Error" ng-click="SeleccionarConversacion(c)">
+                                <i class="fa fa-exclamation-circle fa-lg"></i>
+                              </span>
+
+                            </div>
+
+                          </div>
+
+                          <!-- <button type="button" class="btn btn-block btn-xs btn-submitir" ng-if="(lista_conversaciones.numero_conversaciones < lista_conversaciones.numero_total_conversaciones)" ng-disabled="btn_conversaciones_deshabilitado" ng-click="ObtenerMasConversaciones()">Mostrar más</button> -->
+
+                        </span>
+
+                        <span ng-switch-when="false">
+
+                          <div class="col-xs-12 text-center estado-conversaciones">
+                            <b>No tienes conversaciones</b>
+                          </div>
+
+                        </span>
+
+                      </span>
+
+                    </span>
+
+                    <span ng-switch-when="mensajes">
+
+                      <div class="row wi-row" ng-repeat="(indM, m) in lista_conversaciones.conversacion_seleccionada.Mensajes | orderBy: 'Fecha'" ng-switch="(m.UsuarioIdRemitente === usuario_id)">
+
+                        <!-- <div class="col-xs-12 text-center" ng-if="(0 === indM) || (lista_conversaciones.conversacion_seleccionada.Mensajes[indM+1].FechaHora.Fecha != m.FechaHora.Fecha)">
+                          <b>{{m.FechaHora.Fecha}}</b>
+                        </div> -->
+
+                        <div class="col-xs-offset-2 col-xs-10" style="padding: 0 5px 0 0;" ng-switch-when="true">
+
+                          <span class="wrapper-elemento-mensaje pull-right">
+
+                            <span class="contenido-mensaje">
+                              <b ng-bind-html="m.Contenido"></b>
+                            </span>
+
+                            <span class="icono-error-mensaje" ng-if="m.Error || (lista_conversaciones.conversacion_seleccionada.Error && m.MensajeId < 0)">
+                              <i class="fa fa-exclamation-circle fa-lg"></i>
+                            </span>
+
+                          </span>
+
+                          <span class="fecha-mensaje-conversacion text-right">
+                            {{m.FechaHora.Fecha}} - {{m.FechaHora.Hora}}
+                          </span>
+
+                          <span class="mensaje-error text-right" ng-if="m.Error || (lista_conversaciones.conversacion_seleccionada.Error && m.MensajeId < 0)">
+                            El mensaje no se pudo enviar
+                          </span>
+
+                        </div>
+
+                        <div class="col-xs-10" style="padding:  0 0 0 5px;" ng-switch-when="false">
+
+                          <span class="wrapper-elemento-mensaje pull-left">
+
+                            <span class="contenido-mensaje-remitente">
+                              <b ng-bind-html="m.Contenido"></b>
+                            </span>
+
+                          </span>
+
+                          <span class="fecha-mensaje-conversacion text-left">
+                            {{m.FechaHora.Fecha}} - {{m.FechaHora.Hora}}
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                    </span>
+
+                  </span>
+
+                </div>
+
+                <div class="col-xs-12 text-center estado-conversaciones" ng-switch-when="cargando">
+                  <b>Cargando...</b>
+                </div>
+
+                <div class="col-xs-12 text-center estado-conversaciones" ng-switch-when="error">
+                  <b>No se pudieron obtener las conversaciones</b>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="row wi-row" ng-switch="lista_conversaciones.vista_seleccionada">
+
+            <div class="col-sm-12" ng-switch-when="conversaciones">
+              <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="OcultarModalConversaciones()">CERRAR</button>
+            </div>
+
+            <div class="col-xs-12" ng-switch-when="mensajes">
+
+              <span ng-switch="lista_conversaciones.conversacion_seleccionada.Error">
+
+                <div class="col-xs-12 text-center" ng-switch-when="true">
+                  <b>Ha que ocurrido un error, no se pueden agregar mensajes a esta conversación</b>
+                </div>
+
+                <span class="wrapper-area-mensaje" ng-switch-when="false">
+                  <span class="entrada-mensaje">
+                    <textarea name="entrada_mensaje_chat" class="form-control" rows="1" maxlength="120" ng-model="lista_conversaciones.conversacion_seleccionada.ContenidoNuevoMensaje" ng-trim="true" ng-disabled="lista_conversaciones.conversacion_seleccionada.Error"></textarea>
+                  </span>
+                  <span class="btn-enviar-mensaje">
+                    <button type="button" name="btn_enviar_mensaje" ng-disabled="''===lista_conversaciones.conversacion_seleccionada.ContenidoNuevoMensaje" ng-click="ContinuarEnvioMensaje()">
+                      <i class="fa fa-paper-plane fa-2x"></i>
+                    </button>
+                  </span>
+                </span>
+
+              </span>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- modal amigos para conversacion-->
+<div id="modalAmigosParaConversacion" class="wi-modal modal fade" data-backdrop="static" data-keyboard="false" role="dialog" tabindex="-1">
+  <div class="vertical-center">
+    <div class="modal-dialog modal-md">
+
+      <div class="modal-content">
+
+        <div class="modal-header text-center">
+
+          <table style="width:100%;">
+            <tr>
+              <td><h4><b>SELECCIONA UN AMIGO</b></h4></td>
+              <td class="wi-icono-cerrar">
+                <button type="button" class="close" ng-click="OcultarModalAmigosParaConversacion()">
+                  <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+          </table>
+
+        </div>
+        <div class="modal-body">
+          <div class="row wi-row opc-solic-amistad">
+            <div class="col-xs-12">
+
+              <div class="wi-row row" ng-if="lista_amigos.datos.length > 0">
+
+                <div class="col-xs-12">
+                  <div class="input-group a-grupo-entrada">
+                    <span class="input-group-addon addon-icono-entrada">
+                      <i class="fa fa-user fa-lg" aria-hidden="true"></i>
+                    </span>
+
+                    <input id="entrada_busq_amigos_para_conversacion" type="text" class="form-control a-entrada" name="entrada_busq_amigos_para_conversacion" placeholder="Buscar amigo por nombre o correo electrónico" ng-model="datos_nueva_conversacion.busqueda" required>
+
+                    <span class="input-group-addon a-limpiar-texto" ng-if="datos_nueva_conversacion.busqueda.length>0" ng-click="datos_nueva_conversacion.busqueda='';enfocarCampo('entrada_busq_amigos_para_conversacion');">
+                      <i class="fa fa-times-circle fa-lg" aria-hidden="true"></i>
+                    </span>
+
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="row wi-row" ng-switch="(lista_amigos.datos | filter: BuscarAmigo(datos_nueva_conversacion.busqueda)).length > 0">
+
+                <div class="col-xs-12 contenedor-elem-solic-amistad" ng-switch-when="true">
+                  <div class="col-xs-12 elemento-solicitud-amistad" ng-repeat="e in lista_amigos.datos | filter: BuscarAmigo(datos_nueva_conversacion.busqueda) | orderBy: ['NombreUsuario','ApellidosUsuario']" style="cursor:pointer;" ng-click="CrearConversacionPersonal(e)">
+
+                    <div class="col-xs-12 text-center nombre-solicitud-amistad">
+                      <b>{{e.NombreUsuario}} {{e.ApellidosUsuario}}</b>
+                    </div>
+                    <div class="col-xs-12 text-center">
+                      {{e.CorreoUsuario}}
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="col-xs-12 text-center" ng-switch-when="false">
+
+                  <div class="col-xs-12 resultado-solicitud-amistad" ng-if="lista_amigos.estado && ''===datos_nueva_conversacion.busqueda">
+                    <b>No existen amigos en su lista</b>
+                  </div>
+
+                  <div ng-if="lista_amigos.estado && ''!==datos_nueva_conversacion.busqueda">
+                    <br>
+                    <div class="col-xs-12 resultado-solicitud-amistad">
+                      <b>No se encontraron resultados que coincidan con la búsqueda</b>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="row wi-row">
+            <div class="col-sm-12">
+              <button type="button" class="btn btn-block btn-xs btn-submitir" ng-click="OcultarModalAmigosParaConversacion()">CERRAR</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>
